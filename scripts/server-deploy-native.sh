@@ -13,8 +13,10 @@ if [ -d /opt/Xboard-master ]; then
   cp -a /opt/Xboard-master/.env /root/xboard-backup/docker.env 2>/dev/null || true
 fi
 
-echo "=== Fix system paths (broken /etc or /tmp breaks apt/ssl) ==="
-chmod 755 /etc 2>/dev/null || true
+echo "=== Fix system paths (666 on /etc or /usr/lib breaks apt/mysql/.so) ==="
+for d in /etc /usr /usr/lib /usr/lib/x86_64-linux-gnu /var/lib /bin /sbin /lib /lib64; do
+  [ -d "$d" ] && chmod 755 "$d" 2>/dev/null || true
+done
 chmod 1777 /tmp /var/tmp 2>/dev/null || true
 
 echo "=== Fix DNS (systemd-resolved dead → apt uses 127.0.0.1:53) ==="
@@ -85,7 +87,8 @@ for ini in /etc/php/8.5/cli/php.ini /etc/php/8.5/fpm/php.ini; do
 done
 
 if ! php8.5 -m | grep -q swoole; then
-  printf "\n" | pecl install swoole-6.2.1 || pecl install swoole
+  apt_install libbrotli-dev libzstd-dev libc-ares-dev 2>/dev/null || true
+  yes '' | pecl install swoole-6.2.1 || yes '' | pecl install swoole
   echo "extension=swoole.so" > /etc/php/8.5/mods-available/swoole.ini
   phpenmod -v 8.5 swoole
 fi
