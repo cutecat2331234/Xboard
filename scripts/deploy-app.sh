@@ -1,0 +1,113 @@
+#!/bin/bash
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+for d in /etc /usr /usr/lib /usr/lib/x86_64-linux-gnu /var/lib /bin /sbin; do [ -d "$d" ] && chmod 755 "$d"; done
+chmod 1777 /tmp /var/tmp
+if ! pgrep -f dns-forward.py >/dev/null; then
+  nohup python3 /root/dns-forward.py >/root/dns-forward.log 2>&1 &
+  sleep 1
+fi
+
+apt_install() { DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-unauthenticated "$@"; }
+
+# swoole module
+if ! php8.5 -m | grep -q swoole; then
+  echo "extension=swoole.so" > /etc/php/8.5/mods-available/swoole.ini
+  phpenmod -v 8.5 swoole
+fi
+php8.5 -m | grep swoole
+
+apt_install mysql-server redis-server git
+systemctl enable --now mysql redis-server
+
+MYSQL_ROOT_PASS="${MYSQL_ROOT_PASS:-change-me-root}"
+MYSQL_XBOARD_PASS="${MYSQL_XBOARD_PASS:-change-me-db}"
+mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASS}';" 2>/dev/null || true
+mysql -uroot -p"${MYSQL_ROOT_PASS}" -e "CREATE DATABASE IF NOT EXISTS xboard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER IF NOT EXISTS 'xboard'@'localhost' IDENTIFIED BY '${MYSQL_XBOARD_PASS}'; GRANT ALL ON xboard.* TO 'xboard'@'localhost'; FLUSH PRIVILEGES;" 2>/dev/null || \
+mysql -e "CREATE DATABASE IF NOT EXISTS xboard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER IF NOT EXISTS 'xboard'@'localhost' IDENTIFIED BY '${MYSQL_XBOARD_PASS}'; GRANT ALL ON xboard.* TO 'xboard'@'localhost'; FLUSH PRIVILEGES;"
+
+APP_DIR=/opt/xboard
+rm -rf "$APP_DIR"
+git clone https://github.com/cutecat2331234/Xboard.git "$APP_DIR"
+cd "$APP_DIR"
+git submodule update --init --recursive --force
+curl -sS https://getcomposer.org/installer | php8.5
+php8.5 composer.phar update --no-dev --optimize-autoloader --no-interaction
+
+cat > .env <<EOF
+APP_NAME=XBoard
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=http://127.0.0.1:7001
+LOG_CHANNEL=stack
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=xboard
+DB_USERNAME=xboard
+DB_PASSWORD=${MYSQL_XBOARD_PASS}
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+BROADCAST_DRIVER=log
+CACHE_DRIVER=redis
+CACHE_PREFIX=xboard_cache
+SESSION_COOKIE=xboard_session
+QUEUE_CONNECTION=redis
+EOF
+php8.5 artisan key:generate --force
+php8.5 artisan xboard:install --no-interaction | tee /root/xboard-install.log
+chown -R www-data:www-data storage bootstrap/cache
+
+[ -d /opt/Xboard-master ] && (cd /opt/Xboard-master && docker compose down) || true
+
+cat > /etc/nginx/sites-available/xboard <<'NGINX'
+server {
+    listen 7001;
+    server_name _;
+    root /opt/xboard/public;
+    index index.php;
+    location ~* \.(jpg|jpeg|png|gif|js|css|svg|woff2|woff|ttf|eot|wasm|json|ico|br|gz)$ {
+        try_files $uri =404;
+        expires 1h;
+        access_log off;
+    }
+    location / {
+        proxy_pass http://127.0.0.1:7010;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+NGINX
+ln -sf /etc/nginx/sites-available/xboard /etc/nginx/sites-enabled/xboard
+rm -f /etc/nginx/sites-enabled/default
+nginx -t && systemctl reload nginx
+
+cat > /etc/supervisor/conf.d/xboard.conf <<'SUP'
+[program:xboard-octane]
+command=/usr/bin/php8.5 /opt/xboard/artisan octane:start --host=127.0.0.1 --port=7010
+directory=/opt/xboard
+user=www-data
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/xboard-octane.log
+stderr_logfile=/var/log/xboard-octane.err.log
+[program:xboard-horizon]
+command=/usr/bin/php8.5 /opt/xboard/artisan horizon
+directory=/opt/xboard
+user=www-data
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/xboard-horizon.log
+stderr_logfile=/var/log/xboard-horizon.err.log
+SUP
+supervisorctl reread && supervisorctl update
+supervisorctl restart xboard-octane xboard-horizon || supervisorctl start xboard-octane xboard-horizon
+sleep 3
+curl -sI http://127.0.0.1:7001 | head -5
+php8.5 artisan about | head -12
+echo DEPLOY_APP_DONE
