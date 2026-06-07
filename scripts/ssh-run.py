@@ -23,7 +23,8 @@ def main():
     out = stdout.read().decode()
     err = stderr.read().decode()
     if out:
-        print(out)
+        sys.stdout.buffer.write(out.encode("utf-8", errors="replace"))
+        sys.stdout.buffer.write(b"\n")
     if err:
         print(err, file=sys.stderr)
     code = stdout.channel.recv_exit_status()
