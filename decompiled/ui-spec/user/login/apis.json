@@ -1,0 +1,5 @@
+{
+  "note": "Populate from Network tab during manual audit",
+  "route": "login",
+  "url": "http://43.248.77.134:7001/#/login"
+}

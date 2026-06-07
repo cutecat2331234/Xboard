@@ -1,0 +1,14 @@
+{
+  "name": "xboard-visual-gate",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gate": "node visual-gate.mjs",
+    "capture": "node ../capture-ui-spec.mjs"
+  },
+  "devDependencies": {
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.52.0",
+    "pngjs": "^7.0.0"
+  }
+}

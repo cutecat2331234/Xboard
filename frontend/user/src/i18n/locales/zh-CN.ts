@@ -1,0 +1,33 @@
+export default {
+  login: '登录',
+  register: '注册',
+  email: '邮箱',
+  password: '密码',
+  forgotPassword: '忘记密码',
+  nav: {
+    dashboard: '仪表盘',
+    plan: '套餐',
+    order: '订单',
+    invite: '邀请',
+    traffic: '流量',
+    knowledge: '文档',
+    ticket: '工单',
+    profile: '个人中心',
+  },
+  dashboard: {
+    remaining: '剩余流量',
+    expire: '到期时间',
+    balance: '余额',
+    subscribe: '订阅',
+    copyLink: '复制订阅链接',
+    notices: '公告',
+  },
+  common: {
+    loading: '加载中...',
+    save: '保存',
+    cancel: '取消',
+    submit: '提交',
+    logout: '退出登录',
+    language: '简体中文',
+  },
+}

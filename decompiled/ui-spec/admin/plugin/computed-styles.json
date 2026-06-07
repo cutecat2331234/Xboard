@@ -1,0 +1,10 @@
+{
+  "route": "plugin",
+  "side": "admin",
+  "ref": "http://43.248.77.134:7001",
+  "viewports": [
+    375,
+    768,
+    1280
+  ]
+}
