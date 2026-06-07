@@ -1,4 +1,4 @@
-import { api, request } from '@/api'
+import { api } from '@/api'
 
 export interface NoticeItem {
   id: number
@@ -7,6 +7,16 @@ export interface NoticeItem {
   created_at: number
 }
 
-export async function fetchNotices() {
-  return request<NoticeItem[]>(api.get('/user/notice/fetch'))
+/** Backend returns `{ data, total }` without `status: success`. */
+export async function fetchNotices(): Promise<NoticeItem[]> {
+  const { data } = await api.get<{ data?: NoticeItem[]; total?: number; status?: string }>(
+    '/user/notice/fetch',
+  )
+  if (data.status === 'success' && Array.isArray(data.data)) {
+    return data.data
+  }
+  if (Array.isArray(data.data)) {
+    return data.data
+  }
+  return []
 }

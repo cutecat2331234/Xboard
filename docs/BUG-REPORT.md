@@ -28,6 +28,19 @@
 | 12 | P3 | 像素 gate 未绿 | Playwright 下载超时 | `scripts/visual-gate` 已就绪，服务器侧复跑 |
 | 13 | P4 | MySQL 8.0 非计划 9.7 | 升级路径未执行 | 文档标注 defer |
 
+## Round 4 — 仿写前端实测（2026-06-08）
+
+| # | 严重度 | 现象 | 根因 | 修复 |
+|---|--------|------|------|------|
+| 14 | **P0** | 仪表盘订阅链接不加载 | `notice/fetch` 裸 JSON | **已修** `notice.ts` + `DashboardPage` |
+| 15 | **P1** | 订单支付失败 | `checkout` 裸 JSON | **已修** `order.ts` |
+| 16 | **P1** | 注册页占位 | 无表单 | **已修** 完整 `RegisterPage` |
+| 17 | **P2** | 用户/管理 token 冲突 | 同键名 | **已修** 管理端 `xboard_admin_auth_data` |
+| 18 | **P2** | 套餐页空白无提示 | 无 empty 态 | **已修** `NEmpty` + 错误提示 |
+| 19 | **P2** | 管理端 API 不校验 status | `fetchJsonList` 宽松 | **已修** `parseApiError` + `fetchJsonObject` |
+| 20 | **P3** | `test-admin-apis.sh` 404 | 错误 secure_path | **已修** 使用 `d7f5c92b` |
+| 21 | **P3** | Octane 偶发 FATAL | 进程退出 | **已修** `restart-dual.sh` 自愈启动 |
+
 ## 验收命令
 
 ```bash
