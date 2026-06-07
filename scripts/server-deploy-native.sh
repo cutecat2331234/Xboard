@@ -13,16 +13,71 @@ if [ -d /opt/Xboard-master ]; then
   cp -a /opt/Xboard-master/.env /root/xboard-backup/docker.env 2>/dev/null || true
 fi
 
+echo "=== Fix system paths (broken /etc or /tmp breaks apt/ssl) ==="
+chmod 755 /etc 2>/dev/null || true
+chmod 1777 /tmp /var/tmp 2>/dev/null || true
+
+echo "=== Fix DNS (systemd-resolved dead → apt uses 127.0.0.1:53) ==="
+systemctl stop systemd-resolved 2>/dev/null || true
+systemctl disable systemd-resolved 2>/dev/null || true
+if [ ! -f /root/dns-forward.py ]; then
+  curl -fsSL -o /root/dns-forward.py "${DNS_FORWARD_URL:-https://raw.githubusercontent.com/cutecat2331234/Xboard/master/scripts/dns-forward.py}" || true
+fi
+pkill -f '/root/dns-forward.py' 2>/dev/null || true
+if [ -f /root/dns-forward.py ]; then
+  nohup python3 /root/dns-forward.py >/root/dns-forward.log 2>&1 &
+  sleep 1
+fi
+rm -f /etc/resolv.conf
+printf 'nameserver 127.0.0.1\nnameserver 8.8.8.8\n' > /etc/resolv.conf
+chmod 644 /etc/resolv.conf
+echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+mkdir -p /root/apt-sources-backup
+cp -a /etc/apt/sources.list.d /root/apt-sources-backup/ 2>/dev/null || true
+rm -f /etc/apt/sources.list.d/docker*.list /etc/apt/sources.list.d/nodesource*.list /etc/apt/sources.list.d/openresty*.list 2>/dev/null || true
+cat > /etc/apt/sources.list.d/ubuntu.sources <<'APT'
+Types: deb
+URIs: http://mirrors.aliyun.com/ubuntu/
+Suites: noble noble-updates noble-backports
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: http://mirrors.aliyun.com/ubuntu/
+Suites: noble-security
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+APT
+echo "" > /etc/apt/sources.list
+
 echo "=== Base packages ==="
-apt-get update -y
-apt-get install -y software-properties-common curl git unzip supervisor nginx \
+apt_install() {
+  DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-unauthenticated "$@"
+}
+# 勿将 ppa.launchpadcontent.net 写入 /etc/hosts（IP 与证书不匹配会导致 apt HTTPS 失败）
+apt-get clean
+apt-get -o Acquire::AllowInsecureRepositories=true update -y || apt-get update -y
+apt_install ca-certificates openssl apt-transport-https gnupg
+update-ca-certificates 2>/dev/null || true
+apt_install software-properties-common curl git unzip supervisor nginx \
   build-essential pkg-config autoconf libssl-dev libcurl4-openssl-dev \
   libpcre2-dev libnghttp2-dev redis-server
 
 echo "=== PHP 8.5 (ondrej) ==="
-add-apt-repository -y ppa:ondrej/php
-apt-get update -y
-apt-get install -y php8.5-cli php8.5-fpm php8.5-mysql php8.5-redis php8.5-mbstring \
+if [ ! -f /usr/share/keyrings/ondrej-php.gpg ]; then
+  curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x4F4EA0AAE5267A6C' -o /tmp/ondrej.key
+  gpg --batch --yes --dearmor -o /usr/share/keyrings/ondrej-php.gpg /tmp/ondrej.key
+fi
+cat > /etc/apt/sources.list.d/ondrej-ubuntu-php-noble.sources <<'PPA'
+Types: deb
+URIs: https://ppa.launchpadcontent.net/ondrej/php/ubuntu/
+Suites: noble
+Components: main
+Signed-By: /usr/share/keyrings/ondrej-php.gpg
+PPA
+echo 'Acquire::https::CaInfo "/etc/ssl/certs/ca-certificates.crt";' > /etc/apt/apt.conf.d/99ca-bundle
+apt-get -o Acquire::AllowInsecureRepositories=true update -y || apt-get update -y
+apt_install php8.5-cli php8.5-fpm php8.5-mysql php8.5-redis php8.5-mbstring \
   php8.5-xml php8.5-curl php8.5-zip php8.5-bcmath php8.5-readline php8.5-intl php8.5-gd php8.5-dev
 
 for ini in /etc/php/8.5/cli/php.ini /etc/php/8.5/fpm/php.ini; do
@@ -37,7 +92,7 @@ fi
 
 echo "=== MySQL 8.4/9 from Ubuntu or mysql repo ==="
 if ! command -v mysql >/dev/null; then
-  apt-get install -y mysql-server || apt-get install -y mariadb-server
+  apt_install mysql-server || apt_install mariadb-server
 fi
 systemctl enable --now mysql 2>/dev/null || systemctl enable --now mariadb 2>/dev/null || true
 

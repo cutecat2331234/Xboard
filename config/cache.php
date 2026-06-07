@@ -22,6 +22,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Serializable Cache Classes
+    |--------------------------------------------------------------------------
+    |
+    | Laravel 13 disables arbitrary object unserialization in cache by default.
+    | List classes here if your app intentionally caches PHP objects.
+    |
+    */
+
+    'serializable_classes' => [
+        // App\Models\Example::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache Stores
     |--------------------------------------------------------------------------
     |
