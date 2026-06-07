@@ -77,6 +77,44 @@
     <script src="/assets/admin/locales/zh-CN.js"></script>
     <script src="/assets/admin/locales/ko-KR.js"></script>
   @endif
+
+  {{-- Fix admin dialogs using monospace font for labels/inputs (upstream UI bug) --}}
+  <style id="xboard-dialog-font-fix">
+    [role="dialog"],
+    [role="alertdialog"] {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+        "Noto Sans SC", "Helvetica Neue", Arial, sans-serif !important;
+    }
+    [role="dialog"] label,
+    [role="dialog"] input,
+    [role="dialog"] textarea,
+    [role="dialog"] select,
+    [role="dialog"] button,
+    [role="dialog"] h1,
+    [role="dialog"] h2,
+    [role="dialog"] h3,
+    [role="dialog"] h4,
+    [role="dialog"] p,
+    [role="dialog"] span,
+    [role="dialog"] div,
+    [role="alertdialog"] label,
+    [role="alertdialog"] input,
+    [role="alertdialog"] textarea,
+    [role="alertdialog"] button,
+    [role="alertdialog"] h1,
+    [role="alertdialog"] h2,
+    [role="alertdialog"] p {
+      font-family: inherit !important;
+    }
+    [role="dialog"] .monaco-editor,
+    [role="dialog"] .monaco-editor *,
+    [role="dialog"] pre,
+    [role="dialog"] code {
+      font-family: var(--monaco-monospace-font, ui-monospace), SFMono-Regular, Menlo,
+        Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    }
+  </style>
 </head>
 
 <body>
