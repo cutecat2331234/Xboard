@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { fetchJsonList } from '@/lib/api'
+import { fetchJsonList, fetchJsonObject } from '@/lib/api'
 import { t } from '@/lib/i18n'
 import { JsonEditor } from '@/components/JsonEditor'
 
@@ -11,7 +11,7 @@ type Props = {
 }
 
 export function ModulePage({ titleKey, apiPath, useEditor }: Props) {
-  const [data, setData] = useState<unknown>([])
+  const [data, setData] = useState<unknown>(useEditor ? {} : [])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -21,8 +21,10 @@ export function ModulePage({ titleKey, apiPath, useEditor }: Props) {
       setLoading(true)
       setError('')
       try {
-        const rows = await fetchJsonList(apiPath)
-        if (!cancelled) setData(rows)
+        const payload = useEditor
+          ? await fetchJsonObject(apiPath)
+          : await fetchJsonList(apiPath)
+        if (!cancelled) setData(payload)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed')
       } finally {
@@ -32,7 +34,7 @@ export function ModulePage({ titleKey, apiPath, useEditor }: Props) {
     return () => {
       cancelled = true
     }
-  }, [apiPath])
+  }, [apiPath, useEditor])
 
   const title = t(titleKey)
 
@@ -54,7 +56,7 @@ export function ModulePage({ titleKey, apiPath, useEditor }: Props) {
     )
   }
 
-  const rows = Array.isArray(data) ? data : [data]
+  const rows = Array.isArray(data) ? data : []
 
   return (
     <div className="space-y-4">

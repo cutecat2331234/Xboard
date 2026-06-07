@@ -1,6 +1,6 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from '@/lib/api'
+import { getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
 import { t } from '@/lib/i18n'
 import { Button } from '@/components/ui/button'
@@ -15,6 +15,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (getAuthData()) navigate('/', { replace: true })
+  }, [navigate])
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()

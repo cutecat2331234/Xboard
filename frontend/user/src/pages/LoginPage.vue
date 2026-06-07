@@ -12,7 +12,7 @@ const router = useRouter()
 const msg = useMessage()
 const auth = useAuthStore()
 const settings = computed(() => getSettings())
-const email = ref('admin@example.com')
+const email = ref('')
 const password = ref('')
 const errorText = ref('')
 

@@ -1,11 +1,13 @@
 import { getAdminApiPrefix, getPassportApiPrefix } from '@/lib/settings'
 
-const AUTH_STORAGE_KEY = 'xboard_auth_data'
+const AUTH_STORAGE_KEY = 'xboard_admin_auth_data'
 
 export interface ApiResponse<T = unknown> {
   status?: string
   data?: T
   message?: string
+  total?: number
+  current_page?: number
 }
 
 export function getAuthData(): string | null {
@@ -18,6 +20,12 @@ export function setAuthData(authData: string): void {
 
 export function clearAuthData(): void {
   localStorage.removeItem(AUTH_STORAGE_KEY)
+}
+
+function parseApiError(result: ApiResponse<unknown>): void {
+  if (result.status === 'fail') {
+    throw new Error(result.message || 'Request failed')
+  }
 }
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
@@ -78,22 +86,33 @@ export async function login(payload: LoginPayload): Promise<AuthPayload> {
     method: 'POST',
     body: JSON.stringify(payload),
   })
-  if (result.status !== 'success' || !result.data?.auth_data) {
+  parseApiError(result)
+  if (!result.data?.auth_data) {
     throw new Error(result.message ?? 'Login failed')
   }
   setAuthData(result.data.auth_data)
   return result.data
 }
 
-export async function fetchJsonList(path: string): Promise<unknown[]> {
-  const result = await adminApi<ApiResponse<unknown[]> | unknown[]>(path)
+export async function fetchJsonList(path: string, options?: RequestInit): Promise<unknown[]> {
+  const result = await adminApi<ApiResponse<unknown[]> | unknown[]>(path, options)
   if (Array.isArray(result)) return result
-  return (result as ApiResponse<unknown[]>).data ?? []
+  parseApiError(result)
+  if (Array.isArray(result.data)) return result.data
+  if (result.status && result.status !== 'success') {
+    throw new Error(result.message || 'Request failed')
+  }
+  return []
 }
 
-export async function fetchJsonObject<T>(path: string): Promise<T> {
-  const result = await adminApi<ApiResponse<T>>(path)
-  return result.data ?? ({} as T)
+export async function fetchJsonObject<T>(path: string, options?: RequestInit): Promise<T> {
+  const result = await adminApi<ApiResponse<T>>(path, options)
+  parseApiError(result)
+  if (result.data !== undefined) return result.data
+  if (result.status && result.status !== 'success') {
+    throw new Error(result.message || 'Request failed')
+  }
+  return {} as T
 }
 
 export interface DashboardOverride {
@@ -106,5 +125,6 @@ export interface DashboardOverride {
 
 export async function fetchDashboardStats(): Promise<DashboardOverride> {
   const result = await adminApi<ApiResponse<DashboardOverride>>('/stat/getOverride')
+  parseApiError(result)
   return result.data ?? {}
 }
