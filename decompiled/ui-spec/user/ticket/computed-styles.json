@@ -1,0 +1,72 @@
+{
+  "body": {
+    "color": "rgb(0, 0, 0)",
+    "backgroundColor": "rgb(242, 242, 242)",
+    "fontSize": "16px",
+    "padding": "0px",
+    "margin": "0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "gap": "normal"
+  },
+  "#app": {
+    "color": "rgb(0, 0, 0)",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "fontSize": "16px",
+    "padding": "0px",
+    "margin": "0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "gap": "normal"
+  },
+  ".n-card": {
+    "color": "rgb(51, 54, 57)",
+    "backgroundColor": "rgb(255, 255, 255)",
+    "fontSize": "14px",
+    "padding": "0px",
+    "margin": "0px 416px",
+    "borderRadius": "6px",
+    "boxShadow": "none",
+    "gap": "normal"
+  },
+  "button": {
+    "color": "rgb(255, 255, 255)",
+    "backgroundColor": "rgb(49, 108, 114)",
+    "fontSize": "14px",
+    "padding": "0px 14px",
+    "margin": "0px 0px 0px -1px",
+    "borderRadius": "0px 3px 3px 0px",
+    "boxShadow": "none",
+    "gap": "normal"
+  },
+  "h1": {
+    "color": "rgb(52, 58, 64)",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "fontSize": "36px",
+    "padding": "0px",
+    "margin": "24.12px 0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "gap": "normal"
+  },
+  "a": {
+    "color": "rgb(0, 0, 238)",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "fontSize": "16px",
+    "padding": "0px",
+    "margin": "0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "gap": "normal"
+  },
+  "input": {
+    "color": "rgb(51, 54, 57)",
+    "backgroundColor": "rgba(0, 0, 0, 0)",
+    "fontSize": "14px",
+    "padding": "0px",
+    "margin": "0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "gap": "normal"
+  }
+}

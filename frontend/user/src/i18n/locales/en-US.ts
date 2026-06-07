@@ -1,0 +1,33 @@
+export default {
+  login: 'Login',
+  register: 'Register',
+  email: 'Email',
+  password: 'Password',
+  forgotPassword: 'Forgot password',
+  nav: {
+    dashboard: 'Dashboard',
+    plan: 'Plan',
+    order: 'Order',
+    invite: 'Invite',
+    traffic: 'Traffic',
+    knowledge: 'Knowledge',
+    ticket: 'Ticket',
+    profile: 'Profile',
+  },
+  dashboard: {
+    remaining: 'Remaining Traffic',
+    expire: 'Expire Date',
+    balance: 'Balance',
+    subscribe: 'Subscription',
+    copyLink: 'Copy Subscribe Link',
+    notices: 'Notices',
+  },
+  common: {
+    loading: 'Loading...',
+    save: 'Save',
+    cancel: 'Cancel',
+    submit: 'Submit',
+    logout: 'Logout',
+    language: 'English',
+  },
+}
