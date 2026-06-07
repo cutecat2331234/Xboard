@@ -76,15 +76,21 @@ class XboardInstall extends Command
                 return;
             }
             // 选择数据库类型
-            $dbType = $enableSqlite ? 'sqlite' : select(
-                label: '请选择数据库类型',
-                options: [
-                    'sqlite' => 'SQLite (无需额外安装)',
-                    'mysql' => 'MySQL',
-                    'postgresql' => 'PostgreSQL'
-                ],
-                default: 'sqlite'
-            );
+            if ($this->option('no-interaction')) {
+                $dbType = $this->getEnvValue('DB_CONNECTION') ?: 'mysql';
+            } elseif ($enableSqlite) {
+                $dbType = 'sqlite';
+            } else {
+                $dbType = select(
+                    label: '请选择数据库类型',
+                    options: [
+                        'sqlite' => 'SQLite (无需额外安装)',
+                        'mysql' => 'MySQL',
+                        'postgresql' => 'PostgreSQL'
+                    ],
+                    default: 'sqlite'
+                );
+            }
 
             // 使用 match 表达式配置数据库
             $envConfig = match ($dbType) {
@@ -100,6 +106,13 @@ class XboardInstall extends Command
             $envConfig['APP_KEY'] = 'base64:' . base64_encode(Encrypter::generateKey('AES-256-CBC'));
             $isReidsValid = false;
             while (!$isReidsValid) {
+                if ($this->option('no-interaction')) {
+                    $envConfig['REDIS_HOST'] = $this->getEnvValue('REDIS_HOST', '127.0.0.1');
+                    $envConfig['REDIS_PORT'] = $this->getEnvValue('REDIS_PORT', '6379');
+                    $envConfig['REDIS_PASSWORD'] = $this->getEnvValue('REDIS_PASSWORD', '');
+                    $isReidsValid = true;
+                    break;
+                }
                 // 判断是否为Docker环境
                 $useBuiltinRedis = $isDocker && ($enableRedis || confirm(label: '是否启用Docker内置的Redis', default: true, yes: '启用', no: '不启用'));
                 if ($useBuiltinRedis) {
@@ -134,11 +147,15 @@ class XboardInstall extends Command
                 }
             }
 
-            if (!copy(base_path() . '/.env.example', base_path() . '/.env')) {
-                abort(500, '复制环境文件失败，请检查目录权限');
+            if (!$this->option('no-interaction') || !File::exists(base_path('.env'))) {
+                if (!copy(base_path() . '/.env.example', base_path() . '/.env')) {
+                    abort(500, '复制环境文件失败，请检查目录权限');
+                }
             }
-            ;
-            $email = !empty($adminAccount) ? $adminAccount : text(
+            $email = !empty($adminAccount) ? $adminAccount : (
+                $this->option('no-interaction')
+                ? (getenv('ADMIN_ACCOUNT') ?: 'admin@xboard.local')
+                : text(
                 label: '请输入管理员账号',
                 default: 'admin@demo.com',
                 required: true,
@@ -146,6 +163,7 @@ class XboardInstall extends Command
                     !filter_var($email, FILTER_VALIDATE_EMAIL) => '请输入有效的邮箱地址.',
                     default => null,
                 }
+                )
             );
             $password = Helper::guid(false);
             $this->saveToEnv($envConfig);
@@ -297,7 +315,14 @@ class XboardInstall extends Command
     private function configureMysql(): array
     {
         while (true) {
-            $envConfig = [
+            $envConfig = $this->option('no-interaction') ? [
+                'DB_CONNECTION' => 'mysql',
+                'DB_HOST' => $this->getEnvValue('DB_HOST', '127.0.0.1'),
+                'DB_PORT' => $this->getEnvValue('DB_PORT', '3306'),
+                'DB_DATABASE' => $this->getEnvValue('DB_DATABASE', 'xboard'),
+                'DB_USERNAME' => $this->getEnvValue('DB_USERNAME', 'root'),
+                'DB_PASSWORD' => $this->getEnvValue('DB_PASSWORD', ''),
+            ] : [
                 'DB_CONNECTION' => 'mysql',
                 'DB_HOST' => text(label: "请输入MySQL数据库地址", default: '127.0.0.1', required: true),
                 'DB_PORT' => text(label: '请输入MySQL数据库端口', default: '3306', required: true),
