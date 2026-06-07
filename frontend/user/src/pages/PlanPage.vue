@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { NCard, NGrid, NGi, NButton, NTag, useMessage } from 'naive-ui'
+import { NCard, NGrid, NGi, NButton, NTag, NEmpty, useMessage } from 'naive-ui'
 import { fetchPlans, type PlanItem } from '@/api/plan'
 import { saveOrder } from '@/api/order'
 import { useRouter } from 'vue-router'
@@ -8,6 +8,7 @@ import { useI18n } from '@/i18n'
 
 const plans = ref<PlanItem[]>([])
 const loading = ref(false)
+const loaded = ref(false)
 const msg = useMessage()
 const router = useRouter()
 const { t } = useI18n()
@@ -36,13 +37,22 @@ async function buy(planId: number, period = 'month_price') {
 }
 
 onMounted(async () => {
-  plans.value = await fetchPlans()
+  try {
+    plans.value = await fetchPlans()
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : 'Failed to load plans')
+  } finally {
+    loaded.value = true
+  }
 })
 </script>
 
 <template>
   <h2 class="page-title">{{ t('nav.plan') }}</h2>
-  <n-grid :cols="2" :x-gap="12" :y-gap="12">
+  <n-card v-if="loaded && plans.length === 0">
+    <n-empty description="No subscription plans available" />
+  </n-card>
+  <n-grid v-else :cols="2" :x-gap="12" :y-gap="12">
     <n-gi v-for="p in plans" :key="p.id">
       <n-card :title="p.name">
         <p style="margin:0 0 12px;color:#666;font-size:13px">{{ priceLabel(p) }}</p>

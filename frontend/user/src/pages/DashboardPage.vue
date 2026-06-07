@@ -27,9 +27,17 @@ const expireText = computed(() => {
 })
 
 async function load() {
-  const [sub, n] = await Promise.all([fetchSubscribe(), fetchNotices()])
-  subscribeUrl.value = sub.subscribe_url
-  notices.value = n
+  try {
+    const sub = await fetchSubscribe()
+    subscribeUrl.value = sub.subscribe_url
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : 'Failed to load subscription')
+  }
+  try {
+    notices.value = await fetchNotices()
+  } catch {
+    notices.value = []
+  }
 }
 
 function copySubscribe() {
