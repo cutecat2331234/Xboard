@@ -1,56 +1,8 @@
 #!/bin/bash
-set -euo pipefail
-export DEBIAN_FRONTEND=noninteractive
+set -e
 for d in /etc /usr /usr/lib /run; do [ -d "$d" ] && chmod 755 "$d"; done
-if ! pgrep -f dns-forward.py >/dev/null; then
-  nohup python3 /root/dns-forward.py >/root/dns-forward.log 2>&1 &
-  sleep 1
-fi
-
 cd /opt/xboard
-git pull origin master || true
-[ -f public/assets/admin/index.html ] || { echo admin missing; exit 1; }
-
-if [ ! -f composer.phar ]; then
-  curl -sS https://getcomposer.org/installer | php8.5
-fi
-php8.5 composer.phar update --no-dev --optimize-autoloader --no-interaction 2>&1 | tee /root/composer-update.log | tail -40
-
-MYSQL_XBOARD_PASS="${MYSQL_XBOARD_PASS:-change-me-db}"
-cat > .env <<EOF
-APP_NAME=XBoard
-APP_ENV=production
-APP_KEY=
-APP_DEBUG=false
-APP_URL=http://127.0.0.1:7001
-LOG_CHANNEL=stack
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=xboard
-DB_USERNAME=xboard
-DB_PASSWORD=${MYSQL_XBOARD_PASS}
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-BROADCAST_DRIVER=log
-CACHE_DRIVER=redis
-CACHE_PREFIX=xboard_cache
-SESSION_COOKIE=xboard_session
-QUEUE_CONNECTION=redis
-EOF
-php8.5 artisan key:generate --force
-php8.5 artisan xboard:install --no-interaction 2>&1 | tee /root/xboard-install.log
-REDIS_PASS="$(grep -E '^requirepass' /etc/redis/redis.conf 2>/dev/null | awk '{print $2}')"
-REDIS_PORT="$(grep -E '^port' /etc/redis/redis.conf 2>/dev/null | awk '{print $2}')"
-[ -n "$REDIS_PORT" ] && sed -i "s/^REDIS_PORT=.*/REDIS_PORT=${REDIS_PORT}/" .env
-[ -n "$REDIS_PASS" ] && sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${REDIS_PASS}/" .env
-php8.5 artisan config:clear
-mkdir -p public/theme/Xboard
-cp -a theme/Xboard/. public/theme/Xboard/
-chown -R www-data:www-data storage bootstrap/cache public/theme
-chmod -R 775 storage bootstrap/cache public/theme
-
+chown -R www-data:www-data storage bootstrap/cache
 [ -d /opt/Xboard-master ] && (cd /opt/Xboard-master && docker compose down) || true
 
 cat > /etc/nginx/sites-available/xboard <<'NGINX'
@@ -75,6 +27,7 @@ server {
 }
 NGINX
 ln -sf /etc/nginx/sites-available/xboard /etc/nginx/sites-enabled/xboard
+rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 
 cat > /etc/supervisor/conf.d/xboard.conf <<'SUP'
@@ -100,5 +53,6 @@ supervisorctl reread && supervisorctl update
 supervisorctl restart xboard-octane xboard-horizon || supervisorctl start xboard-octane xboard-horizon
 sleep 5
 curl -sI http://127.0.0.1:7001 | head -5
-php8.5 artisan about | head -12
-echo FINISH_DEPLOY_DONE
+cd /opt/xboard && php8.5 artisan about | head -12
+cd /opt/xboard && php8.5 artisan horizon:status
+echo SERVICES_OK
