@@ -47,6 +47,10 @@ REDIS_PORT="$(grep -E '^port' /etc/redis/redis.conf 2>/dev/null | awk '{print $2
 [ -n "$REDIS_PASS" ] && sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${REDIS_PASS}/" .env
 php8.5 artisan config:clear
 mkdir -p public/theme/Xboard
+if [ -d legacy-dist/public/theme/Xboard/assets ]; then
+  cp -a legacy-dist/public/theme/Xboard/assets public/theme/Xboard/
+  cp -a legacy-dist/theme/Xboard/dashboard.blade.php theme/Xboard/dashboard.blade.php
+fi
 cp -a theme/Xboard/. public/theme/Xboard/
 chown -R www-data:www-data storage bootstrap/cache public/theme
 chmod -R 775 storage bootstrap/cache public/theme

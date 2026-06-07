@@ -1,0 +1,165 @@
+# API-INVENTORY.md
+
+## Auth
+
+- User: `localStorage.xboard_auth_data` → `Authorization` header (Bearer …)
+- Admin: same `xboard_auth_data` key
+- 403 → clear storage, redirect login
+
+## V1 Passport
+
+- `/api/v1/passport/auth/forget`
+- `/api/v1/passport/auth/getQuickLoginUrl`
+- `/api/v1/passport/auth/login`
+- `/api/v1/passport/auth/loginWithMailLink`
+- `/api/v1/passport/auth/register`
+- `/api/v1/passport/auth/token2Login`
+- `/api/v1/passport/comm/pv`
+- `/api/v1/passport/comm/sendEmailVerify`
+
+## V1 User
+
+- `/api/v1/user/changePassword`
+- `/api/v1/user/checkLogin`
+- `/api/v1/user/comm/config`
+- `/api/v1/user/comm/getStripePublicKey`
+- `/api/v1/user/coupon/check`
+- `/api/v1/user/getActiveSession`
+- `/api/v1/user/getQuickLoginUrl`
+- `/api/v1/user/getStat`
+- `/api/v1/user/getSubscribe`
+- `/api/v1/user/gift-card/check`
+- `/api/v1/user/gift-card/detail`
+- `/api/v1/user/gift-card/history`
+- `/api/v1/user/gift-card/redeem`
+- `/api/v1/user/gift-card/types`
+- `/api/v1/user/info`
+- `/api/v1/user/invite/details`
+- `/api/v1/user/invite/fetch`
+- `/api/v1/user/invite/save`
+- `/api/v1/user/knowledge/fetch`
+- `/api/v1/user/knowledge/getCategory`
+- `/api/v1/user/notice/fetch`
+- `/api/v1/user/order/cancel`
+- `/api/v1/user/order/check`
+- `/api/v1/user/order/checkout`
+- `/api/v1/user/order/detail`
+- `/api/v1/user/order/fetch`
+- `/api/v1/user/order/getPaymentMethod`
+- `/api/v1/user/order/save`
+- `/api/v1/user/plan/fetch`
+- `/api/v1/user/removeActiveSession`
+- `/api/v1/user/resetSecurity`
+- `/api/v1/user/server/fetch`
+- `/api/v1/user/stat/getTrafficLog`
+- `/api/v1/user/telegram/getBotInfo`
+- `/api/v1/user/ticket/close`
+- `/api/v1/user/ticket/fetch`
+- `/api/v1/user/ticket/reply`
+- `/api/v1/user/ticket/save`
+- `/api/v1/user/ticket/withdraw`
+- `/api/v1/user/transfer`
+- `/api/v1/user/update`
+
+## V2 Passport
+
+- `/api/v2/passport/auth/forget`
+- `/api/v2/passport/auth/getQuickLoginUrl`
+- `/api/v2/passport/auth/login`
+- `/api/v2/passport/auth/loginWithMailLink`
+- `/api/v2/passport/auth/register`
+- `/api/v2/passport/auth/token2Login`
+- `/api/v2/passport/comm/pv`
+- `/api/v2/passport/comm/sendEmailVerify`
+
+## V2 Admin (`/api/v2/{secure_path}`)
+
+- `/api/v2/{secure_path}/assign`
+- `/api/v2/{secure_path}/ban`
+- `/api/v2/{secure_path}/batchDelete`
+- `/api/v2/{secure_path}/batchResetTraffic`
+- `/api/v2/{secure_path}/batchUpdate`
+- `/api/v2/{secure_path}/cancel`
+- `/api/v2/{secure_path}/check`
+- `/api/v2/{secure_path}/close`
+- `/api/v2/{secure_path}/codes`
+- `/api/v2/{secure_path}/config`
+- `/api/v2/{secure_path}/copy`
+- `/api/v2/{secure_path}/create-template`
+- `/api/v2/{secure_path}/delete`
+- `/api/v2/{secure_path}/delete-code`
+- `/api/v2/{secure_path}/delete-template`
+- `/api/v2/{secure_path}/destroy`
+- `/api/v2/{secure_path}/detail`
+- `/api/v2/{secure_path}/disable`
+- `/api/v2/{secure_path}/drop`
+- `/api/v2/{secure_path}/dumpCSV`
+- `/api/v2/{secure_path}/enable`
+- `/api/v2/{secure_path}/execute`
+- `/api/v2/{secure_path}/export-codes`
+- `/api/v2/{secure_path}/fetch`
+- `/api/v2/{secure_path}/generate`
+- `/api/v2/{secure_path}/generate-codes`
+- `/api/v2/{secure_path}/generateEchKey`
+- `/api/v2/{secure_path}/get`
+- `/api/v2/{secure_path}/getAuditLog`
+- `/api/v2/{secure_path}/getCategory`
+- `/api/v2/{secure_path}/getEmailTemplate`
+- `/api/v2/{secure_path}/getHorizonFailedJobs`
+- `/api/v2/{secure_path}/getNodes`
+- `/api/v2/{secure_path}/getOrder`
+- `/api/v2/{secure_path}/getOverride`
+- `/api/v2/{secure_path}/getPaymentForm`
+- `/api/v2/{secure_path}/getPaymentMethods`
+- `/api/v2/{secure_path}/getPlugins`
+- `/api/v2/{secure_path}/getQueueMasters`
+- `/api/v2/{secure_path}/getQueueStats`
+- `/api/v2/{secure_path}/getQueueWorkload`
+- `/api/v2/{secure_path}/getRanking`
+- `/api/v2/{secure_path}/getServerLastRank`
+- `/api/v2/{secure_path}/getServerYesterdayRank`
+- `/api/v2/{secure_path}/getStatRecord`
+- `/api/v2/{secure_path}/getStatUser`
+- `/api/v2/{secure_path}/getStats`
+- `/api/v2/{secure_path}/getSystemStatus`
+- `/api/v2/{secure_path}/getThemeConfig`
+- `/api/v2/{secure_path}/getThemeTemplate`
+- `/api/v2/{secure_path}/getThemes`
+- `/api/v2/{secure_path}/getToken`
+- `/api/v2/{secure_path}/getTrafficRank`
+- `/api/v2/{secure_path}/getUserInfoById`
+- `/api/v2/{secure_path}/history`
+- `/api/v2/{secure_path}/install`
+- `/api/v2/{secure_path}/installCommand`
+- `/api/v2/{secure_path}/list`
+- `/api/v2/{secure_path}/logs`
+- `/api/v2/{secure_path}/nodes`
+- `/api/v2/{secure_path}/paid`
+- `/api/v2/{secure_path}/reply`
+- `/api/v2/{secure_path}/reset`
+- `/api/v2/{secure_path}/reset-user`
+- `/api/v2/{secure_path}/resetSecret`
+- `/api/v2/{secure_path}/resetToken`
+- `/api/v2/{secure_path}/resetTraffic`
+- `/api/v2/{secure_path}/save`
+- `/api/v2/{secure_path}/saveThemeConfig`
+- `/api/v2/{secure_path}/sendMail`
+- `/api/v2/{secure_path}/setInviteUser`
+- `/api/v2/{secure_path}/setTelegramWebhook`
+- `/api/v2/{secure_path}/show`
+- `/api/v2/{secure_path}/sort`
+- `/api/v2/{secure_path}/statistics`
+- `/api/v2/{secure_path}/stats`
+- `/api/v2/{secure_path}/templates`
+- `/api/v2/{secure_path}/test`
+- `/api/v2/{secure_path}/testSendMail`
+- `/api/v2/{secure_path}/toggle-code`
+- `/api/v2/{secure_path}/types`
+- `/api/v2/{secure_path}/uninstall`
+- `/api/v2/{secure_path}/update`
+- `/api/v2/{secure_path}/update-code`
+- `/api/v2/{secure_path}/update-template`
+- `/api/v2/{secure_path}/upgrade`
+- `/api/v2/{secure_path}/upload`
+- `/api/v2/{secure_path}/usages`
+- `/api/v2/{secure_path}/user/{userId}/history`
