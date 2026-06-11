@@ -1,3 +1,4 @@
+import { getAuthData } from '@/lib/api'
 import type {
   PluginAdminCrudSchema,
   PluginAdminMenu,
@@ -66,6 +67,101 @@ export function buildPluginNavGroups(plugins: PluginRow[]): PluginNavGroup[] {
     })
     .filter((group): group is PluginNavGroup => group !== null)
     .sort((a, b) => a.title.localeCompare(b.title))
+}
+
+export function isExternalHttpUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url.trim())
+}
+
+export function resolvePluginAssetUrl(pluginCode: string, assetPath: string): string {
+  const normalized = assetPath.trim().replace(/^\/+/, '')
+  return `/plugins/${pluginCode}/${normalized}`
+}
+
+/** Direct iframe source from menu metadata (external URL or plugin asset path). */
+export function resolvePluginMenuIframeSrc(
+  pluginCode: string,
+  menu: PluginAdminMenu,
+): string | null {
+  if (!pluginCode) return null
+
+  const externalUrl = menu.url?.trim()
+  if (externalUrl && isExternalHttpUrl(externalUrl)) {
+    return externalUrl
+  }
+
+  const embedPath = menu.embed?.trim()
+  if (embedPath) {
+    return resolvePluginAssetUrl(pluginCode, embedPath)
+  }
+
+  return null
+}
+
+function appendAuthQuery(url: string, authData?: string | null): string {
+  if (!authData) return url
+  const joiner = url.includes('?') ? '&' : '?'
+  return `${url}${joiner}${new URLSearchParams({ auth_data: authData }).toString()}`
+}
+
+/** Admin API URL for a plugin-provided page (opens in a new tab). */
+export function resolvePluginMenuBackendPageUrl(
+  pluginCode: string,
+  menu: PluginAdminMenu,
+  options: { apiPrefix: string; authData?: string | null },
+): string | null {
+  if (!pluginCode) return null
+
+  const menuPath = normalizePluginPath(menu.path)
+  const component = menu.component?.trim()
+
+  let apiPath: string | null = null
+  if (component) {
+    apiPath = component.startsWith('/')
+      ? component
+      : `/plugin/${pluginCode}/${normalizePluginPath(component)}`
+  } else if (menuPath) {
+    apiPath = `/plugin/${pluginCode}/page?${new URLSearchParams({ path: menuPath }).toString()}`
+  }
+
+  if (!apiPath) return null
+  return appendAuthQuery(`${options.apiPrefix}${apiPath}`, options.authData)
+}
+
+/** Same as backend page URL; used to probe HTML responses for inline embedding. */
+export function resolvePluginMenuPageApiUrl(
+  pluginCode: string,
+  menuPath: string,
+  options: { apiPrefix: string; authData?: string | null },
+): string | null {
+  if (!pluginCode || !menuPath) return null
+  const apiPath = `/plugin/${pluginCode}/page?${new URLSearchParams({ path: menuPath }).toString()}`
+  return appendAuthQuery(`${options.apiPrefix}${apiPath}`, options.authData)
+}
+
+export async function fetchPluginMenuPageHtml(pageApiUrl: string): Promise<string | null> {
+  const headers = new Headers({ Accept: 'text/html,application/json' })
+  const auth = getAuthData()
+  if (auth) headers.set('Authorization', auth)
+
+  try {
+    const response = await fetch(pageApiUrl, { headers })
+    if (!response.ok) return null
+
+    const contentType = response.headers.get('content-type') ?? ''
+    if (contentType.includes('text/html')) {
+      return response.text()
+    }
+
+    if (contentType.includes('application/json')) {
+      const payload = (await response.json()) as { data?: { html?: string }; html?: string }
+      return payload.data?.html ?? payload.html ?? null
+    }
+  } catch {
+    return null
+  }
+
+  return null
 }
 
 export function isPluginAdminPath(pathname: string): boolean {
