@@ -31,8 +31,8 @@ import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 const TYPE_ORDER = ['feature', 'payment'] as const
 
-function typeLabel(type: string, t: (key: string, options?: { defaultValue?: string }) => string) {
-  return t(`plugin.type.${type}`, { defaultValue: type })
+function typeLabel(type: string, t: (key: string) => string) {
+  return t(`plugin.type.${type}`)
 }
 
 function orderedTypes(plugins: PluginRow[]) {
@@ -115,11 +115,11 @@ export default function PluginPage() {
     formData.append('file', file)
     try {
       await adminApi('/plugin/upload', { method: 'POST', body: formData })
-      toast.success(t('plugin.messages.uploadSuccess', { defaultValue: '插件上传成功' }))
+      toast.success(t('plugin.messages.uploadSuccess'))
       setUploadOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('plugin.messages.uploadError', { defaultValue: '插件上传失败' }))
+      toast.error(e instanceof Error ? e.message : t('plugin.messages.uploadError'))
     } finally {
       setUploading(false)
     }
@@ -149,9 +149,9 @@ export default function PluginPage() {
   async function deletePlugin(code: string) {
     if (
       !(await confirm(
-        t('plugin.delete.title', { defaultValue: '删除插件' }),
-        t('plugin.delete.description', { defaultValue: '确定要删除此插件吗？此操作无法撤销。' }),
-        { confirmLabel: t('plugin.delete.button', { defaultValue: '删除' }) },
+        t('plugin.delete.title'),
+        t('plugin.delete.description'),
+        { confirmLabel: t('plugin.delete.button') },
       ))
     )
       return
@@ -290,7 +290,7 @@ export default function PluginPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUploadOpen(false)} disabled={uploading}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -333,15 +333,15 @@ export default function PluginPage() {
               </div>
             ))}
             {Object.keys(configFields).length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t('plugin.config.empty', { defaultValue: '无可配置项' })}</p>
+              <p className="text-sm text-muted-foreground">{t('plugin.config.empty')}</p>
             ) : null}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfigOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={saveConfig} disabled={configSaving}>
-              {t('common.save', { defaultValue: '保存' })}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
