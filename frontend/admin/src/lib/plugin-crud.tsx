@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { fetchPaginatedList, postJson } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
+import { i18n } from '@/lib/i18n'
 import type {
   PluginAdminCrudColumn,
   PluginAdminCrudFormField,
@@ -167,7 +168,7 @@ export function buildPluginCrudColumns(
               className="text-xs text-primary hover:underline"
               onClick={() => options.onEdit?.(row.original)}
             >
-              Edit
+              {i18n.t('plugin.runtime.edit')}
             </button>
           ) : null}
           {schema.actions?.delete && options?.onDelete ? (
@@ -176,7 +177,7 @@ export function buildPluginCrudColumns(
               className="text-xs text-destructive hover:underline"
               onClick={() => options.onDelete?.(row.original)}
             >
-              Delete
+              {i18n.t('plugin.runtime.delete')}
             </button>
           ) : null}
         </div>

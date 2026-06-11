@@ -12,8 +12,8 @@ import {
 import { useTranslation } from 'react-i18next'
 import { adminApi, buildQuery, fetchJsonList, postJson } from '@/lib/api'
 import type { PluginConfigField, PluginRow } from '@/lib/plugin-types'
+import { PluginCrudFormFields } from '@/lib/plugin-crud'
 import { invalidatePluginListCache } from '@/lib/use-plugin-list'
-import { inputCls } from '@/lib/form-styles'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -25,7 +25,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
@@ -58,6 +57,8 @@ export default function PluginPage() {
   const [configSaving, setConfigSaving] = useState(false)
   const [uploadOpen, setUploadOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [readmeOpen, setReadmeOpen] = useState(false)
+  const [readmePlugin, setReadmePlugin] = useState<PluginRow | null>(null)
   const uploadRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(() => {
@@ -239,6 +240,10 @@ export default function PluginPage() {
                 onConfig={openConfig}
                 onUpgrade={upgradePlugin}
                 onDelete={deletePlugin}
+                onReadme={(plugin) => {
+                  setReadmePlugin(plugin)
+                  setReadmeOpen(true)
+                }}
               />
             </TabsContent>
           ))}
@@ -251,6 +256,10 @@ export default function PluginPage() {
               onConfig={openConfig}
               onUpgrade={upgradePlugin}
               onDelete={deletePlugin}
+              onReadme={(plugin) => {
+                setReadmePlugin(plugin)
+                setReadmeOpen(true)
+              }}
             />
           </TabsContent>
         </Tabs>
@@ -303,45 +312,40 @@ export default function PluginPage() {
               {t('plugin.button.config')} — {configCode}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4 py-2">
-            {Object.entries(configFields).map(([key, field]) => (
-              <div key={key} className="flex flex-col gap-2">
-                <Label>{field.label ?? key}</Label>
-                {field.type === 'select' && field.options?.length ? (
-                  <select
-                    className={inputCls}
-                    value={String(configValues[key] ?? '')}
-                    onChange={(e) => setConfigValues((v) => ({ ...v, [key]: e.target.value }))}
-                  >
-                    {field.options.map((opt) => (
-                      <option key={String(opt.value)} value={String(opt.value)}>
-                        {opt.label ?? opt.value}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    className={inputCls}
-                    value={String(configValues[key] ?? '')}
-                    placeholder={field.placeholder}
-                    onChange={(e) => setConfigValues((v) => ({ ...v, [key]: e.target.value }))}
-                  />
-                )}
-                {field.description ? (
-                  <p className="text-xs text-muted-foreground">{field.description}</p>
-                ) : null}
-              </div>
-            ))}
-            {Object.keys(configFields).length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t('plugin.config.empty')}</p>
-            ) : null}
-          </div>
+          {Object.keys(configFields).length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t('plugin.config.empty')}</p>
+          ) : (
+            <PluginCrudFormFields
+              fields={Object.entries(configFields).map(([key, field]) => ({ key, field }))}
+              values={configValues}
+              onChange={(key, value) => setConfigValues((v) => ({ ...v, [key]: value }))}
+            />
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfigOpen(false)}>
               {t('common.cancel')}
             </Button>
             <Button onClick={saveConfig} disabled={configSaving}>
               {t('common.save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={readmeOpen} onOpenChange={setReadmeOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {t('plugin.readme.title')}
+              {readmePlugin?.name ? ` — ${readmePlugin.name}` : ''}
+            </DialogTitle>
+          </DialogHeader>
+          <pre className="whitespace-pre-wrap text-sm text-muted-foreground">
+            {readmePlugin?.readme ?? ''}
+          </pre>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReadmeOpen(false)}>
+              {t('common.close')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -359,6 +363,7 @@ function PluginGrid({
   onConfig,
   onUpgrade,
   onDelete,
+  onReadme,
 }: {
   plugins: PluginRow[]
   loading: boolean
@@ -367,6 +372,7 @@ function PluginGrid({
   onConfig: (code: string) => void
   onUpgrade: (code: string) => void
   onDelete: (code: string) => void
+  onReadme: (plugin: PluginRow) => void
 }) {
   if (loading) return <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
 
@@ -400,9 +406,10 @@ function PluginGrid({
                 ) : null}
                 <button
                   type="button"
-                  className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                  className="flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary disabled:pointer-events-none disabled:opacity-40"
                   title={t('plugin.button.readme')}
-                  onClick={() => plugin.description && toast.message(plugin.description)}
+                  disabled={!plugin.readme}
+                  onClick={() => onReadme(plugin)}
                 >
                   <FileText className="h-3 w-3" />
                 </button>
