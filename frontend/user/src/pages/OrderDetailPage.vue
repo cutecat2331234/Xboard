@@ -165,6 +165,21 @@ const handlingPreview = computed(() => {
 
 
 
+/** Paid orders store handling on the order; pending uses live payment-method preview. */
+const orderHandlingDisplay = computed(() => {
+
+  const o = order.value
+
+  if (!o) return 0
+
+  if (o.status !== 0) return o.handling_amount ?? 0
+
+  return handlingPreview.value
+
+})
+
+
+
 const checkoutBase = computed(() => periodPlanPrice.value ?? order.value?.total_amount ?? 0)
 
 
@@ -575,11 +590,11 @@ onUnmounted(stopPoll)
 
           </div>
 
-          <div v-if="handlingPreview > 0" class="info-row">
+          <div v-if="orderHandlingDisplay > 0" class="info-row">
 
             <div class="info-label">{{ t('order.handlingFee') }}：</div>
 
-            <div class="info-value">{{ formatPrice(handlingPreview) }}</div>
+            <div class="info-value">{{ formatPrice(orderHandlingDisplay) }}</div>
 
           </div>
 
@@ -601,11 +616,11 @@ onUnmounted(stopPoll)
 
         </template>
 
-        <div v-if="order.status === 0 && handlingPreview > 0" class="info-row">
+        <div v-if="order.status === 0 && orderHandlingDisplay > 0" class="info-row">
 
           <div class="info-label">{{ t('order.handlingFee') }}：</div>
 
-          <div class="info-value">{{ formatPrice(handlingPreview) }}</div>
+          <div class="info-value">{{ formatPrice(orderHandlingDisplay) }}</div>
 
         </div>
 
@@ -829,9 +844,9 @@ onUnmounted(stopPoll)
 
   display: flex;
 
-  padding: 5px 0;
+  padding: var(--xb-info-row-padding);
 
-  line-height: 16px;
+  line-height: var(--xb-info-row-lh);
 
 }
 
@@ -843,6 +858,8 @@ onUnmounted(stopPoll)
 
   font-size: 14px;
 
+  line-height: var(--xb-info-row-lh);
+
 }
 
 .info-value {
@@ -852,6 +869,8 @@ onUnmounted(stopPoll)
   color: var(--xb-text);
 
   font-size: 14px;
+
+  line-height: var(--xb-info-row-lh);
 
   word-break: break-all;
 
@@ -918,8 +937,8 @@ onUnmounted(stopPoll)
 }
 
 .summary-panel {
-  background: rgb(35, 46, 60);
-  color: #fff;
+  background: var(--xb-order-summary-bg);
+  color: var(--xb-order-summary-fg);
   padding: 20px;
   border-radius: 6px;
   font-size: 14px;
@@ -935,7 +954,7 @@ onUnmounted(stopPoll)
 
   display: flex;
 
-  border-bottom: 1px solid rgb(75, 85, 99);
+  border-bottom: 1px solid var(--xb-order-summary-plan-border);
 
   padding-top: 16px;
 
@@ -957,7 +976,7 @@ onUnmounted(stopPoll)
 
   text-align: right;
 
-  color: #f8f9fa;
+  color: var(--xb-order-summary-plan-price);
 
 }
 
@@ -967,7 +986,7 @@ onUnmounted(stopPoll)
 
   justify-content: space-between;
 
-  border-bottom: 1px solid #646669;
+  border-bottom: 1px solid var(--xb-order-summary-row-border);
 
   padding-top: 16px;
 
@@ -979,7 +998,7 @@ onUnmounted(stopPoll)
 
 .summary-panel__muted {
 
-  color: #f8f9fa40;
+  color: var(--xb-order-summary-muted);
 
 }
 
@@ -999,9 +1018,9 @@ onUnmounted(stopPoll)
 
 .summary-panel__grand {
 
-  font-size: 36px;
+  font-size: var(--xb-order-summary-grand-size);
 
-  line-height: 40px;
+  line-height: var(--xb-order-summary-grand-lh);
 
   font-weight: 600;
 
