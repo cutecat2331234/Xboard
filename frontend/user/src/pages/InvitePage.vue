@@ -24,7 +24,7 @@ import {
 } from '@/api/invite'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useCurrency } from '@/composables/useCurrency'
-import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
 const INVITE_PAGE_SIZE = 10
@@ -36,7 +36,7 @@ const codesPage = ref(1)
 const detailsPage = ref(1)
 const msg = useMessage()
 const router = useRouter()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { formatPrice, load: loadCurrency, code: currencyCode } = useCurrency()
 const transferOpen = ref(false)
 const withdrawOpen = ref(false)
@@ -202,7 +202,7 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
     title: t('invite.createdAt'),
     key: 'created_at',
     width: 474,
-    render: (r) => formatLocaleDateTime(r.created_at, locale.value),
+    render: (r) => formatFixedDateTime(r.created_at),
   },
 ])
 
@@ -211,7 +211,7 @@ const detailColumns = computed(() => [
     title: t('invite.incomeTime'),
     key: 'created_at',
     width: 592,
-    render: (r: { created_at?: number }) => formatLocaleDateTime(r.created_at, locale.value),
+    render: (r: { created_at?: number }) => formatFixedDateTime(r.created_at),
   },
   {
     title: t('invite.incomeAmount'),
@@ -273,7 +273,7 @@ onMounted(async () => {
   <n-card class="mt-5 rounded-md" :bordered="true">
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.registered') }}</div>
-      <div>{{ stat[0] ?? 0 }} {{ t('invite.people') }}</div>
+      <div>{{ t('invite.peopleCount', { number: stat[0] ?? 0 }) }}</div>
     </div>
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.commissionRate') }}</div>

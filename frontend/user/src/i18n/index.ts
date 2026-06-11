@@ -78,11 +78,18 @@ const naiveDateLocales: Partial<Record<string, NDateLocale>> = {
 
 
 
+function resolveDefaultLocale(langs: string[]): string {
+  const nav = navigator.language || 'en-US'
+  const hit = langs.find((l) => l === nav || l.startsWith(nav.split('-')[0] + '-'))
+  if (hit) return hit
+  return langs.includes('zh-CN') ? 'zh-CN' : langs[0]
+}
+
 export function initLocale() {
 
   const langs = getSettings().i18n ?? ['en-US']
 
-  const saved = localStorage.getItem('xboard_locale')
+  const saved = localStorage.getItem('xboard_locale') ?? localStorage.getItem('locale')
 
   if (saved && langs.includes(saved)) {
 
@@ -92,7 +99,7 @@ export function initLocale() {
 
   }
 
-  locale.value = langs.includes('zh-CN') ? 'zh-CN' : langs[0]
+  locale.value = resolveDefaultLocale(langs)
 
 }
 
@@ -103,6 +110,7 @@ export function setLocale(code: string) {
   locale.value = code
 
   localStorage.setItem('xboard_locale', code)
+  localStorage.setItem('locale', code)
 
 }
 
