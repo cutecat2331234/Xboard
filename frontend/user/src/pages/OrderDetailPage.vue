@@ -579,7 +579,7 @@ onUnmounted(stopPoll)
 
           <div v-if="order.surplus_credit && order.surplus_credit > 0" class="info-row">
 
-            <div class="info-label">{{ t('order.refund') }}</div>
+            <div class="info-label">{{ t('order.refundAmount') }}</div>
 
             <div class="info-value">{{ formatPrice(order.surplus_credit) }}</div>
 
