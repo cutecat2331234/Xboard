@@ -249,12 +249,12 @@ class AdminRoute
                 $router->any('/getAuditLog', [SystemController::class, 'getAuditLog']);
             });
 
-            // Update (check only — execute remains disabled without additional safety guards)
+            // Update
             $router->group([
                 'prefix' => 'update'
             ], function ($router) {
                 $router->get('/check', [UpdateController::class, 'checkUpdate']);
-                // $router->post('/execute', [UpdateController::class, 'executeUpdate']);
+                $router->post('/execute', [UpdateController::class, 'executeUpdate']);
             });
 
             // Theme

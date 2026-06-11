@@ -496,6 +496,11 @@ export async function checkSystemUpdate(): Promise<UpdateCheckInfo | null> {
   }
 }
 
+/** POST /update/execute — run one-click panel update. */
+export async function executeSystemUpdate(): Promise<void> {
+  await postJson('/update/execute')
+}
+
 async function checkSystemUpdateFromConfig(): Promise<UpdateCheckInfo | null> {
   const currentVersion = getSettings().version ?? ''
   const currentHash = parseVersionHash(currentVersion)
