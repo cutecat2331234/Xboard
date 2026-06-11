@@ -312,7 +312,12 @@ const MenuToggleIcon = {
 </template>
 
 <style scoped>
-.app-layout { min-height: 100vh; height: 100vh; }
+.app-layout {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+}
 .app-sider { background: var(--xb-surface); }
 .app-sider :deep(.n-menu-item-content--selected::before) {
   content: '';
@@ -446,4 +451,24 @@ const MenuToggleIcon = {
 .flex { display: flex; }
 .items-center { align-items: center; }
 .px-4 { padding-left: 16px; padding-right: 16px; }
+@media (max-width: 767px) {
+  .app-header {
+    padding-top: var(--xb-safe-area-inset-top);
+    padding-left: calc(16px + var(--xb-safe-area-inset-left));
+    padding-right: calc(16px + var(--xb-safe-area-inset-right));
+    height: calc(60px + var(--xb-safe-area-inset-top));
+  }
+  .app-scroll-main {
+    min-height: calc(100vh - 60px - var(--xb-safe-area-inset-top));
+    min-height: calc(100dvh - 60px - var(--xb-safe-area-inset-top));
+    padding-bottom: calc(4px + var(--xb-safe-area-inset-bottom));
+    padding-left: calc(4px + var(--xb-safe-area-inset-left));
+    padding-right: calc(4px + var(--xb-safe-area-inset-right));
+  }
+  .app-mobile-drawer :deep(.n-drawer-body-content-wrapper) {
+    padding-top: var(--xb-safe-area-inset-top);
+    padding-bottom: var(--xb-safe-area-inset-bottom);
+    padding-left: var(--xb-safe-area-inset-left);
+  }
+}
 </style>
