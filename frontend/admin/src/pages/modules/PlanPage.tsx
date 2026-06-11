@@ -460,8 +460,8 @@ export default function PlanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-background">
-          <div className="space-y-4 px-6 py-4 text-sm">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div className="space-y-6 px-6 py-4 text-sm">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
                 <input
@@ -480,7 +480,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.group.label')}</Label>
@@ -521,7 +521,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.speed.label')}</Label>
                 <SuffixInput
@@ -555,7 +555,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.capacity.label')}</Label>
                 <SuffixInput
@@ -592,7 +592,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="space-y-3 rounded-lg border border-dashed p-4">
+            <div className="space-y-4 rounded-lg border border-dashed p-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</h3>
                 <div className="flex items-center gap-2">
