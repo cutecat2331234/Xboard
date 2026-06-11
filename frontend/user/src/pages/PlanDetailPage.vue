@@ -112,7 +112,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-card v-if="plan" class="rounded-md">
+  <div class="plan-detail-page">
+  <n-card v-if="plan" class="plan-detail-card rounded-md">
     <template #header>
       <div class="plan-header">
         <span>{{ plan.name }}</span>
@@ -149,9 +150,13 @@ onMounted(async () => {
     </template>
   </n-card>
   <p v-else-if="!loading" class="muted">—</p>
+  </div>
 </template>
 
 <style scoped>
+.plan-detail-page {
+  max-width: 800px;
+}
 .plan-header {
   display: flex;
   align-items: center;
@@ -163,10 +168,52 @@ onMounted(async () => {
 }
 .plan-content { margin-bottom: 16px; color: #666; font-size: 14px; }
 .section-label { margin: 16px 0 8px; font-weight: 500; }
-.period-group { display: flex; flex-direction: column; gap: 8px; }
-.coupon-row { display: flex; gap: 8px; max-width: 480px; }
-.coupon-row .n-input { flex: 1; }
+.period-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.coupon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 480px;
+}
+.coupon-row .n-input {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.coupon-row .n-button {
+  flex: 0 0 auto;
+}
 .coupon-hint { color: #316c72; font-size: 13px; }
 .buy-btn { margin-top: 20px; }
 .muted { color: #888; }
+
+@media (min-width: 768px) {
+  .period-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .plan-detail-page :deep(.plan-detail-card .n-card-header),
+  .plan-detail-page :deep(.plan-detail-card .n-card__header) {
+    padding: 12px 12px 14px;
+  }
+  .plan-detail-page :deep(.plan-detail-card .n-card__content),
+  .plan-detail-page :deep(.plan-detail-card .n-card-content) {
+    padding: 0 12px 16px;
+  }
+  .coupon-row {
+    max-width: none;
+  }
+  .coupon-row .n-input,
+  .coupon-row .n-button {
+    flex: 1 1 100%;
+  }
+  .buy-btn {
+    width: 100%;
+  }
+}
 </style>
