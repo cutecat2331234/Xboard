@@ -1,4 +1,4 @@
-import { api, request } from '@/api'
+import { api, getAuthData, request } from '@/api'
 
 export interface GuestConfig {
   tos_url?: string
@@ -17,6 +17,7 @@ export interface GuestConfig {
   telegram_login_enable?: number
   telegram_bot_username?: string
   telegram_login_domain?: string
+  try_out_plan_id?: number
 }
 
 export interface UserCommConfig {
@@ -31,6 +32,27 @@ export interface UserCommConfig {
   commission_distribution_l1?: number | string
   commission_distribution_l2?: number | string
   commission_distribution_l3?: number | string
+  try_out_plan_id?: number
+}
+
+let cachedTryOutPlanId: number | null = null
+
+export function cacheTryOutPlanId(id: number) {
+  cachedTryOutPlanId = id
+}
+
+export async function resolveTryOutPlanId(): Promise<number> {
+  if (cachedTryOutPlanId !== null) return cachedTryOutPlanId
+  try {
+    const config = getAuthData() ? await fetchUserCommConfig() : await fetchGuestConfig()
+    if (config.try_out_plan_id != null) {
+      cacheTryOutPlanId(config.try_out_plan_id)
+      return config.try_out_plan_id
+    }
+  } catch {
+    /* ignore */
+  }
+  return 0
 }
 
 export type CaptchaPayload = {

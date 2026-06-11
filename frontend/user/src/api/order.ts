@@ -1,4 +1,5 @@
 import { api, request } from '@/api'
+import { cacheTryOutPlanId } from '@/api/comm'
 
 export interface OrderItem {
   trade_no: string
@@ -54,29 +55,6 @@ export interface OrderDetail extends OrderItem {
   surplus_orders?: OrderItem[]
   try_out_plan_id?: number
   payment?: PaymentMethod | null
-}
-
-let cachedTryOutPlanId: number | null = null
-
-export function cacheTryOutPlanId(id: number) {
-  cachedTryOutPlanId = id
-}
-
-export async function resolveTryOutPlanId(): Promise<number> {
-  if (cachedTryOutPlanId !== null) return cachedTryOutPlanId
-  try {
-    const orders = await fetchOrders()
-    for (const order of orders) {
-      const detail = await fetchOrderDetail(order.trade_no)
-      if (detail.try_out_plan_id != null) {
-        cacheTryOutPlanId(detail.try_out_plan_id)
-        return detail.try_out_plan_id
-      }
-    }
-  } catch {
-    /* ignore */
-  }
-  return 0
 }
 
 export async function fetchOrderDetail(tradeNo: string) {
