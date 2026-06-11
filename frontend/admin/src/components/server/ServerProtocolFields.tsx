@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Check, ChevronsUpDown, ExternalLink, Key, RefreshCw } from 'lucide-react'
 
@@ -30,6 +30,7 @@ import {
   ANYTLS_DEFAULT_PADDING_SCHEME,
   HYSTERIA_ALPN_OPTIONS,
   HYSTERIA_VERSIONS,
+  KCP_HEADER_TYPE_OPTIONS,
   TRANSPORT_NETWORK_OPTIONS,
   TRANSPORT_NETWORKS_WITH_SUBFIELDS,
   TUIC_ALPN_OPTIONS,
@@ -113,6 +114,7 @@ const VMESS_NETWORKS = [
   { value: 'ws', label: 'Websocket' },
   { value: 'grpc', label: 'gRPC' },
   { value: 'h2', label: 'HTTP/2' },
+  { value: 'kcp', label: 'mKCP' },
   { value: 'httpupgrade', label: 'HttpUpgrade' },
   { value: 'xhttp', label: 'XHTTP' },
 ] as const
@@ -738,9 +740,13 @@ function ShadowsocksProtocolFields({
 }
 
 function ShadowsocksFields({
+  tab,
+  onTabChange,
   value,
   onChange,
 }: {
+  tab: string
+  onTabChange: (tab: string) => void
   value: ShadowsocksProtocolForm
   onChange: (next: ShadowsocksProtocolForm) => void
 }) {
@@ -748,7 +754,7 @@ function ShadowsocksFields({
 
   return (
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
-      <Tabs defaultValue="protocol">
+      <Tabs value={tab} onValueChange={onTabChange}>
         <TabsList className="grid h-9 w-full grid-cols-2">
           <TabsTrigger value="protocol" className="text-xs">
             {t('server.dynamic_form.shadowsocks.plugin.label')}
@@ -795,6 +801,32 @@ function TransportNetworkSubFields({
           onChange={(e) => onChange({ ...value, serviceName: e.target.value })}
           placeholder={t(`${locale}.serviceName_placeholder`)}
         />
+      </div>
+    )
+  }
+
+  if (network === 'kcp') {
+    return (
+      <div className="grid grid-cols-2 gap-4">
+        <div className="xb-stack-2">
+          <Label>{t(`${locale}.seed`)}</Label>
+          <input
+            className={cn(inputCls, 'font-mono text-xs')}
+            value={value.seed}
+            onChange={(e) => onChange({ ...value, seed: e.target.value })}
+            placeholder={t(`${locale}.seed_placeholder`)}
+          />
+        </div>
+        <div className="xb-stack-2">
+          <Label>{t(`${locale}.header_type`)}</Label>
+          <FormSelect
+            value={value.headerType || 'none'}
+            onChange={(headerType) => onChange({ ...value, headerType })}
+            options={KCP_HEADER_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+            placeholder={t(`${locale}.header_type_placeholder`)}
+            className="font-mono text-xs"
+          />
+        </div>
       </div>
     )
   }
@@ -1607,9 +1639,17 @@ type Props = {
 }
 
 export function ServerProtocolFields({ type, value, onChange }: Props) {
+  const [shadowsocksTab, setShadowsocksTab] = useState('protocol')
+
+  useEffect(() => {
+    setShadowsocksTab('protocol')
+  }, [type])
+
   if (type === 'shadowsocks') {
     return (
       <ShadowsocksFields
+        tab={shadowsocksTab}
+        onTabChange={setShadowsocksTab}
         value={value as ShadowsocksProtocolForm}
         onChange={onChange as (next: ShadowsocksProtocolForm) => void}
       />
