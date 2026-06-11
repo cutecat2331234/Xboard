@@ -37,6 +37,8 @@ const USER_ROUTES_DEFAULT =
 const ADMIN_ROUTES_DEFAULT =
   'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset,user-create,plan-add,server-add,gift-template,user-mail'
 const ADMIN_LOCALE = process.env.ADMIN_LOCALE || 'zh-CN'
+/** Legacy 7001 on ref server uses vue-i18n `locale` key; default en-US for pixel parity. */
+const USER_LOCALE = process.env.USER_LOCALE || 'en-US'
 
 const routes = (process.env.ROUTES || (side === 'admin' ? ADMIN_ROUTES_DEFAULT : USER_ROUTES_DEFAULT))
   .split(',')
@@ -359,9 +361,10 @@ async function forceLocale(page) {
     }
     return
   }
-  await page.evaluate(() => {
-    localStorage.setItem('xboard_locale', 'zh-CN')
-  })
+  await page.evaluate((lng) => {
+    localStorage.setItem('xboard_locale', lng)
+    localStorage.setItem('locale', lng)
+  }, USER_LOCALE)
   await page.reload({ waitUntil: 'networkidle', timeout: 90000 }).catch(() => {})
   await page.waitForTimeout(1500)
 }
@@ -740,7 +743,7 @@ async function main() {
   for (const route of routes) {
     const ctx = await browser.newContext({ viewport: { width: viewportWidth, height: viewportHeight } })
 
-    await ctx.addInitScript((isAdmin, adminLocale) => {
+    await ctx.addInitScript((isAdmin, adminLocale, userLocale) => {
       if (isAdmin) {
         localStorage.setItem('xboard_admin_locale', adminLocale)
         localStorage.setItem('i18nextLng', adminLocale)
@@ -748,12 +751,13 @@ async function main() {
           localStorage.removeItem('xboard_admin_auth_data')
         }
       } else {
-        localStorage.setItem('xboard_locale', 'zh-CN')
+        localStorage.setItem('xboard_locale', userLocale)
+        localStorage.setItem('locale', userLocale)
         if (window.location.hash.includes('/login')) {
           localStorage.removeItem('xboard_auth_data')
         }
       }
-    }, side === 'admin', ADMIN_LOCALE)
+    }, side === 'admin', ADMIN_LOCALE, USER_LOCALE)
 
     const consoleErrors = []
     const ignoreConsole = (text) =>

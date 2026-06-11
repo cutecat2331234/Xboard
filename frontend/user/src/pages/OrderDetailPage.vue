@@ -32,7 +32,7 @@ import { PERIOD_OPTIONS } from '@/api/plan'
 
 import { orderStatusLabel } from '@/lib/order-status'
 
-import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
@@ -615,7 +615,7 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.createdAt') }}：</div>
 
-          <div class="info-value">{{ formatLocaleDateTime(order.created_at, locale) }}</div>
+          <div class="info-value">{{ formatFixedDateTime(order.created_at) }}</div>
 
         </div>
 
