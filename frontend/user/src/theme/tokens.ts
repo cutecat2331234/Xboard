@@ -19,7 +19,7 @@ export const tokens = {
   },
   shadow: {
     card: 'none',
-    authCard: '0 2px 8px rgba(0, 0, 0, 0.15)',
+    authCard: 'none',
     header: '0 1px 4px rgba(0, 21, 41, 0.08)',
   },
   spacing: {

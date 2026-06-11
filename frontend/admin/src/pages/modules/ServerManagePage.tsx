@@ -1812,7 +1812,7 @@ export default function ServerManagePage() {
             ) : null}
 
             {shouldShowEchFields(form.type, protocolSettings) ? (
-              <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+              <div className="col-span-2 xb-stack-2 rounded-lg border border-dashed p-3">
                 <div className="flex items-center justify-between gap-2">
                   <Label>{t('server.dynamic_form.ech.generate')}</Label>
                   <Button
@@ -1831,7 +1831,7 @@ export default function ServerManagePage() {
                     {t('server.dynamic_form.ech.generate')}
                   </Button>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="space-y-1.5">
                   <Label>{t('server.dynamic_form.ech.query_server_name.label')}</Label>
                   <input
                     className={inputCls}
@@ -1840,7 +1840,7 @@ export default function ServerManagePage() {
                     placeholder={t('server.dynamic_form.ech.query_server_name.placeholder')}
                   />
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="space-y-1.5">
                   <Label>{t('server.dynamic_form.ech.config.label')}</Label>
                   <textarea
                     className={textareaCls}
@@ -1849,7 +1849,7 @@ export default function ServerManagePage() {
                     placeholder={t('server.dynamic_form.ech.config.placeholder')}
                   />
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="space-y-1.5">
                   <Label>{t('server.dynamic_form.ech.key.label')}</Label>
                   <textarea
                     className={textareaCls}

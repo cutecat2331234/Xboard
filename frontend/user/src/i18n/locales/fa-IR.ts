@@ -112,7 +112,8 @@ export default {
   },
   knowledge: {
     searchPh: "جستجوی مستندات…",
-    empty: "موردی یافت نشد"
+    empty: "موردی یافت نشد",
+    allCategory: "همه"
   },
   auth: {
     or: "یا",

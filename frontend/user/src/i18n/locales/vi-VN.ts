@@ -112,7 +112,8 @@ export default {
   },
   knowledge: {
     searchPh: "Tìm kiếm tài liệu…",
-    empty: "Không có kết quả phù hợp"
+    empty: "Không có kết quả phù hợp",
+    allCategory: "Tất cả"
   },
   auth: {
     or: "hoặc",

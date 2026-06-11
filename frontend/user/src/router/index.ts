@@ -2,8 +2,6 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import AuthPage from '../pages/AuthPage.vue'
 
-import ForgetPasswordPage from '../pages/ForgetPasswordPage.vue'
-
 import { getAuthData } from '@/api'
 
 
@@ -17,7 +15,10 @@ const routes = [
     redirect: (to) => ({ path: '/login', query: { ...to.query, tab: 'register' } }),
   },
 
-  { path: '/forgetpassword', component: ForgetPasswordPage },
+  {
+    path: '/forgetpassword',
+    redirect: (to) => ({ path: '/login', query: { ...to.query, tab: 'forget' } }),
+  },
 
   {
 
