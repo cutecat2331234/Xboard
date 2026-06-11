@@ -38,6 +38,8 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { UserInvitesSheet } from '@/pages/modules/UserInvitesSheet'
+import { UserTrafficRecordsDialog } from '@/pages/modules/UserTrafficRecordsDialog'
 
 type UserRow = {
   id?: number
@@ -201,6 +203,9 @@ export default function UserPage() {
     null,
   )
   const [trafficResetHistoryLoading, setTrafficResetHistoryLoading] = useState(false)
+
+  const [invitesUser, setInvitesUser] = useState<UserRow | null>(null)
+  const [trafficRecordsUser, setTrafficRecordsUser] = useState<UserRow | null>(null)
 
   const [assignUser, setAssignUser] = useState<UserRow | null>(null)
   const [assignForm, setAssignForm] = useState({
@@ -656,6 +661,9 @@ export default function UserPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openEdit(row.original)}>
+                {t('user.columns.actions_menu.view_details', { defaultValue: '查看详情' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openEdit(row.original)}>
                 {t('user.columns.actions_menu.edit', { defaultValue: '编辑' })}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -680,6 +688,12 @@ export default function UserPage() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate(`/finance/order?user_id=${row.original.id ?? ''}`)}>
                 {t('user.columns.actions_menu.orders', { defaultValue: 'TA的订单' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setInvitesUser(row.original)}>
+                {t('user.columns.actions_menu.invites', { defaultValue: 'TA的邀请' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTrafficRecordsUser(row.original)}>
+                {t('user.columns.actions_menu.traffic_records', { defaultValue: 'TA的流量记录' })}
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive" onClick={() => deleteUser(row.original)}>
                 {t('user.columns.actions_menu.delete', { defaultValue: '删除' })}
@@ -1399,6 +1413,21 @@ export default function UserPage() {
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      <UserInvitesSheet
+        userId={invitesUser?.id}
+        email={invitesUser?.email}
+        plans={plans}
+        open={invitesUser !== null}
+        onOpenChange={(o) => !o && setInvitesUser(null)}
+      />
+
+      <UserTrafficRecordsDialog
+        userId={trafficRecordsUser?.id}
+        email={trafficRecordsUser?.email}
+        open={trafficRecordsUser !== null}
+        onOpenChange={(o) => !o && setTrafficRecordsUser(null)}
+      />
 
       <Dialog open={assignUser !== null} onOpenChange={(o) => !o && setAssignUser(null)}>
         <DialogContent className="sm:max-w-md">
