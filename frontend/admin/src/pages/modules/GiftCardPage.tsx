@@ -703,7 +703,18 @@ export default function GiftCardPage() {
 
   async function deleteTemplate(row: TemplateRow) {
 
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('giftCard.template.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
+        t('giftCard.template.actions.deleteConfirm.description', {
+          defaultValue: '此操作将永久删除该模板，确定要继续吗？',
+        }),
+        {
+          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
+        },
+      ))
+    )
+      return
 
     try {
 
@@ -753,7 +764,18 @@ export default function GiftCardPage() {
 
   async function deleteCode(row: CodeRow) {
 
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('giftCard.template.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
+        t('giftCard.template.actions.deleteConfirm.description', {
+          defaultValue: '此操作将永久删除该模板，确定要继续吗？',
+        }),
+        {
+          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
+        },
+      ))
+    )
+      return
 
     try {
 

@@ -214,7 +214,15 @@ export default function PlanPage() {
   }
 
   async function deletePlan(row: PlanRow) {
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('subscribe.plan.columns.delete_confirm.title', { defaultValue: '确认删除' }),
+        t('subscribe.plan.columns.delete_confirm.description', {
+          defaultValue: '此操作将永久删除该订阅，删除后无法恢复。确定要继续吗？',
+        }),
+      ))
+    )
+      return
     try {
       await postJson('/plan/drop', { id: row.id })
       toast.success(t('common.success'))

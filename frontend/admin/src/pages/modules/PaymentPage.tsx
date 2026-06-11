@@ -132,7 +132,15 @@ export default function PaymentPage() {
   }
 
   async function deleteRow(row: PaymentRow) {
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('payment.table.actions.delete.title', { defaultValue: '删除确认' }),
+        t('payment.table.actions.delete.description', {
+          defaultValue: '确定要删除该支付方式吗？此操作无法撤销。',
+        }),
+      ))
+    )
+      return
     try {
       await postJson('/payment/drop', { id: row.id })
       toast.success(t('common.success'))
