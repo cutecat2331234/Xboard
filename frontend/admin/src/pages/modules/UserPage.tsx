@@ -13,7 +13,7 @@ import {
   postJson,
   type PaginatedResult,
 } from '@/lib/api'
-import { inputCls, textareaCls } from '@/lib/form-styles'
+import { configFieldLabelCls, inputCls, textareaCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
 import { FormSelect } from '@/components/shared/FormSelect'
@@ -1090,34 +1090,31 @@ export default function UserPage() {
       </Dialog>
 
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
-        <DialogContent className="!flex max-h-[90vh] min-h-[560px] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
+        <DialogContent className="!flex h-[764px] max-h-[764px] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
           <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg tracking-tight">
               {t('user.send_mail.title')}
             </DialogTitle>
-            <DialogDescription className="min-h-[1rem] text-xs leading-relaxed opacity-70">
+            <DialogDescription className="text-xs leading-relaxed opacity-70">
               {t('user.send_mail.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="min-h-[400px] space-y-4 px-6 py-4 text-sm">
-              <div className="space-y-2">
-                <Label>{t('user.send_mail.subject')}</Label>
-                <Input
-                  value={mailSubject}
-                  onChange={(e) => setMailSubject(e.target.value)}
-                  className={inputCls}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>{t('user.send_mail.content')}</Label>
-                <textarea
-                  rows={12}
-                  className={`${textareaCls} min-h-[280px]`}
-                  value={mailContent}
-                  onChange={(e) => setMailContent(e.target.value)}
-                />
-              </div>
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-4 text-sm">
+            <div className="space-y-2">
+              <Label>{t('user.send_mail.subject')}</Label>
+              <Input
+                value={mailSubject}
+                onChange={(e) => setMailSubject(e.target.value)}
+                className={inputCls}
+              />
+            </div>
+            <div className="mt-4 flex min-h-0 flex-1 flex-col space-y-2">
+              <Label>{t('user.send_mail.content')}</Label>
+              <textarea
+                className={`${textareaCls} min-h-0 flex-1 resize-none`}
+                value={mailContent}
+                onChange={(e) => setMailContent(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter className="shrink-0 border-t px-6 py-4 sm:justify-end">
@@ -1166,9 +1163,9 @@ export default function UserPage() {
           <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="xb-stack-4 min-h-0 flex-1 overflow-y-auto px-6 py-3 text-sm">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-3 text-sm">
             <div className="space-y-1.5">
-              <Label className="uppercase tracking-wider text-muted-foreground">
+              <Label className={configFieldLabelCls}>
                 {t('user.generate.form.email')}
                 <span className="ml-1 text-destructive">*</span>
               </Label>
@@ -1199,7 +1196,7 @@ export default function UserPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="uppercase tracking-wider text-muted-foreground">
+              <Label className={configFieldLabelCls}>
                 {t('user.generate.form.password')}
               </Label>
               <input
@@ -1212,7 +1209,7 @@ export default function UserPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+                <Label className={configFieldLabelCls}>
                   {t('user.generate.form.expire_time')}
                 </Label>
                 <ExpireDateInput
@@ -1222,7 +1219,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+                <Label className={configFieldLabelCls}>
                   {t('user.generate.form.subscription')}
                 </Label>
                 <FormSelect
@@ -1245,7 +1242,7 @@ export default function UserPage() {
             </div>
             {!form.email_prefix ? (
               <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+                <Label className={configFieldLabelCls}>
                   {t('user.generate.form.generate_count')}
                 </Label>
                 <input

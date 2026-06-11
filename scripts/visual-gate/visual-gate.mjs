@@ -387,23 +387,59 @@ const ADMIN_MASK_TABLE_ROUTES = new Set([
   'traffic-reset',
 ])
 
+async function clickVisible(page, selectors, timeout = 12000) {
+  const per = Math.max(3000, Math.floor(timeout / selectors.length))
+  for (const selector of selectors) {
+    const loc = page.locator(selector).first()
+    try {
+      await loc.waitFor({ state: 'visible', timeout: per })
+      await loc.click({ timeout: per })
+      return
+    } catch {
+      /* try next selector */
+    }
+  }
+  throw new Error(`no visible control for selectors: ${selectors.join(' | ')}`)
+}
+
 async function openAdminDialog(page, route) {
   if (route === 'user-create') {
-    await page.locator('button:has-text("创建用户")').first().click({ timeout: 8000 })
+    await clickVisible(page, [
+      'button:has-text("创建用户")',
+      'button:has-text("Create User")',
+    ])
   } else if (route === 'user-mail') {
-    await page.locator('button:has-text("操作")').first().click({ timeout: 8000 })
-    await page.locator('[role=menuitem]:has-text("发送邮件")').first().click({ timeout: 8000 })
+    await clickVisible(page, ['button:has-text("操作")', 'button:has-text("Actions")'])
+    await clickVisible(page, [
+      '[role=menuitem]:has-text("发送邮件")',
+      '[role=menuitem]:has-text("Send Email")',
+      '[role=menuitem]:has-text("Send Mail")',
+    ])
   } else if (route === 'gift-template') {
-    await page.locator('[role=tab]:has-text("模板")').first().click({ timeout: 8000 }).catch(() => {})
-    const editBtn = page
-      .locator('[data-testid="gift-template-edit"], tbody button:has-text("编辑")')
+    await page
+      .locator('[role=tab]:has-text("模板"), [role=tab]:has-text("Templates"), [role=tab]:has-text("Template")')
       .first()
-    await editBtn.waitFor({ state: 'visible', timeout: 45000 })
-    await editBtn.click({ timeout: 8000 })
+      .click({ timeout: 8000 })
+      .catch(() => {})
+    const editBtn = page.locator(
+      '[data-testid="gift-template-edit"], tbody button:has-text("编辑"), tbody button:has-text("Edit")',
+    )
+    await editBtn.first().waitFor({ state: 'visible', timeout: 45000 })
+    await editBtn.first().click({ timeout: 8000 })
   } else if (route === 'plan-add') {
-    await page.locator('button:has-text("添加套餐"), button:has-text("添加")').first().click({ timeout: 8000 })
+    await clickVisible(page, [
+      'button:has-text("添加套餐")',
+      'button:has-text("Add Plan")',
+      'button:has-text("添加")',
+      'button:has-text("Add")',
+    ])
   } else if (route === 'server-add') {
-    await page.locator('button:has-text("添加节点"), button:has-text("添加")').first().click({ timeout: 8000 })
+    await clickVisible(page, [
+      'button:has-text("添加节点")',
+      'button:has-text("Add Node")',
+      'button:has-text("添加")',
+      'button:has-text("Add")',
+    ])
   } else {
     throw new Error(`unknown dialog route: ${route}`)
   }
