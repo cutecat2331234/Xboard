@@ -2,7 +2,9 @@
 import { computed, h, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
+  NCard,
   NDataTable,
+  NEmpty,
   NTag,
   useMessage,
   useDialog,
@@ -16,6 +18,7 @@ import { useCurrency } from '@/composables/useCurrency'
 
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
+const loading = ref(true)
 const msg = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
@@ -84,7 +87,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
             row.status === 3 ? 'order-status-dot--ok' : 'order-status-dot--bad',
           ],
         }),
-        orderStatusLabel(row.status),
+        t(orderStatusLabel(row.status)),
       ]),
   },
   {
@@ -107,6 +110,20 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
           },
           t('order.viewDetail'),
         ),
+        ...(row.status === 0
+          ? [
+              h('span', { class: 'order-actions-divider' }),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  class: 'order-link-btn',
+                  onClick: () => router.push(`/order/${row.trade_no}`),
+                },
+                t('order.pay'),
+              ),
+            ]
+          : []),
         h('span', { class: 'order-actions-divider' }),
         h(
           'button',
@@ -123,13 +140,28 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
 ])
 
 onMounted(async () => {
-  await loadCurrency()
-  rows.value = await fetchOrders()
+  loading.value = true
+  try {
+    await loadCurrency()
+    rows.value = await fetchOrders()
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
 <template>
-  <n-data-table :columns="columns" :data="rows" :bordered="false" :scroll-x="800" />
+  <n-card v-if="!loading && rows.length === 0">
+    <n-empty :description="t('order.empty')" />
+  </n-card>
+  <n-data-table
+    v-else
+    :columns="columns"
+    :data="rows"
+    :bordered="false"
+    :scroll-x="800"
+    :loading="loading"
+  />
 </template>
 
 <style scoped>
