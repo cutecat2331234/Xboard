@@ -40,6 +40,8 @@ const routes = [
 
       { path: 'invite', component: () => import('../pages/InvitePage.vue') },
 
+      { path: 'gift-card', component: () => import('../pages/GiftCardPage.vue') },
+
       { path: 'node', component: () => import('../pages/NodePage.vue') },
 
       { path: 'traffic', component: () => import('../pages/TrafficPage.vue') },
