@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { IconDots } from '@tabler/icons-react'
-import { ArrowUpDown, Filter, Mail, Plus, ShieldBan } from 'lucide-react'
+import { ArrowUpDown, Filter, Mail, Plus, ShieldBan, SlidersHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -31,6 +31,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
@@ -63,6 +65,10 @@ type UserRow = {
   remarks?: string
   subscribe_url?: string
   invite_user?: { email?: string }
+  total_used?: number
+  online_count?: number
+  next_reset_at?: number | null
+  group?: { id?: number; name?: string }
 }
 
 type PlanRow = { id?: number; name?: string }
@@ -126,6 +132,60 @@ const ORDER_PERIODS = [
   'onetime_price',
   'reset_price',
 ] as const
+
+const USER_TABLE_COLUMN_VISIBILITY_KEY = 'xboard_admin_user_table_columns'
+
+const DEFAULT_COLUMN_VISIBILITY: VisibilityState = {
+  is_admin: false,
+  is_staff: false,
+  used_traffic: false,
+  total_traffic: false,
+  commission: false,
+  status: false,
+  group: false,
+  online_count: false,
+  next_reset_at: false,
+}
+
+const TOGGLEABLE_COLUMNS = [
+  { id: 'id', labelKey: 'user.columns.id' },
+  { id: 'email', labelKey: 'user.columns.email' },
+  { id: 'is_admin', labelKey: 'user.columns.is_admin' },
+  { id: 'is_staff', labelKey: 'user.columns.is_staff' },
+  { id: 'online_count', labelKey: 'user.columns.online_count' },
+  { id: 'status', labelKey: 'user.columns.status' },
+  { id: 'plan_id', labelKey: 'user.columns.subscription' },
+  { id: 'group', labelKey: 'user.columns.group' },
+  { id: 'used_traffic', labelKey: 'user.columns.used_traffic' },
+  { id: 'total_traffic', labelKey: 'user.columns.total_traffic' },
+  { id: 'expired_at', labelKey: 'user.columns.expire_time' },
+  { id: 'balance', labelKey: 'user.columns.balance' },
+  { id: 'commission', labelKey: 'user.columns.commission' },
+  { id: 'created_at', labelKey: 'user.columns.register_time' },
+  { id: 'next_reset_at', labelKey: 'user.columns.next_reset_at' },
+] as const
+
+function loadColumnVisibility(): VisibilityState {
+  try {
+    const raw = localStorage.getItem(USER_TABLE_COLUMN_VISIBILITY_KEY)
+    if (!raw) return DEFAULT_COLUMN_VISIBILITY
+    const saved = JSON.parse(raw) as VisibilityState
+    return { ...DEFAULT_COLUMN_VISIBILITY, ...saved }
+  } catch {
+    return DEFAULT_COLUMN_VISIBILITY
+  }
+}
+
+function formatBytes(n?: number | null) {
+  if (!n) return '0 B'
+  const gb = n / 1073741824
+  if (gb >= 1) return `${gb.toFixed(2)} GB`
+  const mb = n / 1048576
+  if (mb >= 1) return `${mb.toFixed(2)} MB`
+  const kb = n / 1024
+  if (kb >= 1) return `${kb.toFixed(2)} KB`
+  return `${n} B`
+}
 
 function formatTs(ts?: number | null) {
   if (!ts) return '—'
@@ -214,6 +274,7 @@ export default function UserPage() {
     total_amount: '',
   })
   const [assigning, setAssigning] = useState(false)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(loadColumnVisibility)
 
   const filters = useMemo(
     () => buildFilterArray(search, advancedConditions),
@@ -579,6 +640,23 @@ export default function UserPage() {
   const pageIds = data.map((r) => r.id).filter((id): id is number => id != null)
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id))
 
+  function handleColumnVisibilityChange(
+    updater: VisibilityState | ((prev: VisibilityState) => VisibilityState),
+  ) {
+    setColumnVisibility((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      localStorage.setItem(USER_TABLE_COLUMN_VISIBILITY_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
+  function toggleColumnVisibility(columnId: string) {
+    handleColumnVisibilityChange((prev) => {
+      const visible = prev[columnId] !== false
+      return { ...prev, [columnId]: !visible }
+    })
+  }
+
   const sortHeader = (columnId: string, label: string) => {
     const sort = sorts.find((s) => s.id === columnId)
     return (
@@ -600,6 +678,7 @@ export default function UserPage() {
     () => [
       {
         id: 'select',
+        enableHiding: false,
         header: () => (
           <input
             type="checkbox"
@@ -628,12 +707,57 @@ export default function UserPage() {
         header: () => sortHeader('email', t('user.columns.email')),
       },
       {
+        id: 'is_admin',
+        accessorKey: 'is_admin',
+        header: () => t('user.columns.is_admin'),
+        cell: ({ row }) => (row.original.is_admin ? '✓' : '—'),
+      },
+      {
+        id: 'is_staff',
+        accessorKey: 'is_staff',
+        header: () => t('user.columns.is_staff'),
+        cell: ({ row }) => (row.original.is_staff ? '✓' : '—'),
+      },
+      {
+        id: 'online_count',
+        accessorKey: 'online_count',
+        header: () => sortHeader('online_count', t('user.columns.online_count')),
+        cell: ({ row }) => row.original.online_count ?? 0,
+      },
+      {
+        id: 'status',
+        accessorKey: 'banned',
+        header: () => sortHeader('banned', t('user.columns.status')),
+        cell: ({ row }) =>
+          row.original.banned
+            ? t('user.columns.status_text.banned', { defaultValue: '封禁' })
+            : t('user.columns.status_text.normal', { defaultValue: '正常' }),
+      },
+      {
         accessorKey: 'plan_id',
         header: () => t('user.columns.subscription'),
         cell: ({ row }) => {
           const plan = plans.find((p) => p.id === row.original.plan_id)
           return plan?.name ?? row.original.plan_id ?? '—'
         },
+      },
+      {
+        id: 'group',
+        accessorKey: 'group',
+        header: () => t('user.columns.group'),
+        cell: ({ row }) => row.original.group?.name ?? '—',
+      },
+      {
+        id: 'used_traffic',
+        accessorKey: 'total_used',
+        header: () => sortHeader('total_used', t('user.columns.used_traffic')),
+        cell: ({ row }) => formatBytes(row.original.total_used),
+      },
+      {
+        id: 'total_traffic',
+        accessorKey: 'transfer_enable',
+        header: () => sortHeader('transfer_enable', t('user.columns.total_traffic')),
+        cell: ({ row }) => formatBytes(row.original.transfer_enable),
       },
       {
         accessorKey: 'balance',
@@ -645,12 +769,25 @@ export default function UserPage() {
         cell: ({ row }) => formatTs(row.original.expired_at),
       },
       {
+        id: 'commission',
+        accessorKey: 'commission_balance',
+        header: () => sortHeader('commission_balance', t('user.columns.commission')),
+        cell: ({ row }) => row.original.commission_balance ?? 0,
+      },
+      {
         accessorKey: 'created_at',
         header: () => sortHeader('created_at', t('user.columns.register_time')),
         cell: ({ row }) => formatTs(row.original.created_at),
       },
       {
+        id: 'next_reset_at',
+        accessorKey: 'next_reset_at',
+        header: () => sortHeader('next_reset_at', t('user.columns.next_reset_at')),
+        cell: ({ row }) => formatTs(row.original.next_reset_at),
+      },
+      {
         id: 'actions',
+        enableHiding: false,
         header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
         cell: ({ row }) => (
           <DropdownMenu>
@@ -796,6 +933,39 @@ export default function UserPage() {
             <Button variant="outline" size="sm" className="h-8" onClick={() => load()}>
               {t('common.search')}
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto hidden h-8 px-3 text-xs lg:flex"
+                >
+                  <SlidersHorizontal className="mr-2 h-4 w-4" />
+                  {t('common.table.viewOptions.button')}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px]">
+                <DropdownMenuLabel>{t('common.table.viewOptions.label')}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {TOGGLEABLE_COLUMNS.map((col) => (
+                  <DropdownMenuItem
+                    key={col.id}
+                    className="gap-2"
+                    onSelect={(e) => e.preventDefault()}
+                    onClick={() => toggleColumnVisibility(col.id)}
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-input"
+                      checked={columnVisibility[col.id] !== false}
+                      readOnly
+                      aria-hidden
+                    />
+                    {t(col.labelKey)}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <DataTable
             columns={columns}
@@ -807,6 +977,8 @@ export default function UserPage() {
             pageIndex={page - 1}
             pageCount={pageCount}
             onPageIndexChange={(idx) => setPage(idx + 1)}
+            columnVisibility={columnVisibility}
+            onColumnVisibilityChange={handleColumnVisibilityChange}
           />
         </div>
       </div>

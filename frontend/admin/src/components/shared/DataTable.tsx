@@ -4,6 +4,8 @@ import {
   getPaginationRowModel,
   useReactTable,
   type ColumnDef,
+  type OnChangeFn,
+  type VisibilityState,
 } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -93,6 +95,8 @@ type Props<T> = {
   /** Server-side pagination: total page count */
   pageCount?: number
   onPageIndexChange?: (pageIndex: number) => void
+  columnVisibility?: VisibilityState
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>
   tableClassName?: string
   headClassName?: string
   cellClassName?: string
@@ -111,6 +115,8 @@ export function DataTable<T>({
   pageIndex: externalPageIndex,
   pageCount: externalPageCount,
   onPageIndexChange,
+  columnVisibility,
+  onColumnVisibilityChange,
   tableClassName,
   headClassName,
   cellClassName,
@@ -119,6 +125,8 @@ export function DataTable<T>({
 }: Props<T>) {
   const { t } = useTranslation()
   const manualPagination = externalPageIndex != null && externalPageCount != null
+  const manualColumnVisibility =
+    columnVisibility != null && onColumnVisibilityChange != null
 
   const table = useReactTable({
     data,
@@ -128,9 +136,10 @@ export function DataTable<T>({
       ? { manualPagination: true, pageCount: externalPageCount }
       : { getPaginationRowModel: getPaginationRowModel() }),
     initialState: { pagination: { pageSize, pageIndex: externalPageIndex ?? 0 } },
-    state: manualPagination
-      ? { pagination: { pageIndex: externalPageIndex, pageSize } }
-      : undefined,
+    state: {
+      ...(manualPagination ? { pagination: { pageIndex: externalPageIndex, pageSize } } : {}),
+      ...(manualColumnVisibility ? { columnVisibility } : {}),
+    },
     onPaginationChange: manualPagination
       ? (updater) => {
           const prev = { pageIndex: externalPageIndex, pageSize }
@@ -138,7 +147,10 @@ export function DataTable<T>({
           onPageIndexChange?.(next.pageIndex)
         }
       : undefined,
+    onColumnVisibilityChange: manualColumnVisibility ? onColumnVisibilityChange : undefined,
   })
+
+  const visibleColumnCount = table.getVisibleLeafColumns().length
 
   const pageCount = manualPagination ? externalPageCount : table.getPageCount()
   const pageIndex = manualPagination ? externalPageIndex : table.getState().pagination.pageIndex
@@ -176,7 +188,7 @@ export function DataTable<T>({
             {loading ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={visibleColumnCount}
                   className={cn('h-24 text-center text-muted-foreground', cellClassName)}
                 >
                   {t('common.loading')}
@@ -185,7 +197,7 @@ export function DataTable<T>({
             ) : table.getRowModel().rows.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={visibleColumnCount}
                   className={cn('h-24 text-center text-muted-foreground', cellClassName)}
                 >
                   {emptyText ?? t('common.table.noData')}
