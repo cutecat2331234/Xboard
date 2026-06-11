@@ -30,6 +30,8 @@ import {
 
 import { fetchTickets, saveTicket, closeTicket, type TicketItem } from '@/api/ticket'
 
+import { formatLocaleDateTime } from '@/lib/format-date'
+
 import { useI18n } from '@/i18n'
 
 
@@ -48,15 +50,13 @@ const level = ref(0)
 
 const msg = useMessage()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 
 
 function formatTime(ts?: number) {
 
-  if (!ts) return '—'
-
-  return new Date(ts * 1000).toLocaleString('zh-CN')
+  return formatLocaleDateTime(ts, locale.value)
 
 }
 
