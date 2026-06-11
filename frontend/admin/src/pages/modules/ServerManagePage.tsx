@@ -22,7 +22,6 @@ import {
   formSubLabelCls,
   inputCls,
   serverFieldLabelCls,
-  serverProtocolFieldsCls,
   textareaCls,
 } from '@/lib/form-styles'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
@@ -1685,6 +1684,8 @@ export default function ServerManagePage() {
 
               <TagInput
 
+                className={dialogInputCls}
+
                 value={form.tags}
 
                 onChange={(tags) => setForm((f) => ({ ...f, tags }))}
@@ -1714,6 +1715,7 @@ export default function ServerManagePage() {
               </div>
 
               <FormMultiSelect
+                className={dialogInputCls}
                 value={form.group_ids}
                 onChange={(group_ids) => setForm((f) => ({ ...f, group_ids }))}
                 options={groups
@@ -1879,6 +1881,7 @@ export default function ServerManagePage() {
                 <Label className={serverFieldLabelCls}>{t('server.form.route.label')}</Label>
 
                 <FormMultiSelect
+                  className={dialogInputCls}
                   value={form.route_ids}
                   onChange={(route_ids) => setForm((f) => ({ ...f, route_ids }))}
                   options={routes
@@ -1899,6 +1902,7 @@ export default function ServerManagePage() {
               <Label className={serverFieldLabelCls}>{t('server.form.machine.label')}</Label>
 
               <FormSelect
+                className={dialogInputCls}
                 value={form.machine_id}
                 onChange={(v) => setForm((f) => ({ ...f, machine_id: v }))}
                 options={[
@@ -1910,19 +1914,17 @@ export default function ServerManagePage() {
             </div>
 
             {protocolSettings ? (
-              <div className={serverProtocolFieldsCls}>
-                <ServerProtocolFields
-                  type={form.type}
-                  value={protocolSettings}
-                  onChange={setProtocolSettings}
-                />
-              </div>
+              <ServerProtocolFields
+                type={form.type}
+                value={protocolSettings}
+                onChange={setProtocolSettings}
+              />
             ) : null}
 
             {shouldShowEchFields(form.type, protocolSettings) ? (
               <div className="col-span-2 xb-stack-2 rounded-lg border border-dashed p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <Label>{t('server.dynamic_form.ech.generate')}</Label>
+                  <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.generate')}</Label>
                   <Button
                     type="button"
                     variant="outline"
@@ -1940,27 +1942,27 @@ export default function ServerManagePage() {
                   </Button>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>{t('server.dynamic_form.ech.query_server_name.label')}</Label>
+                  <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.query_server_name.label')}</Label>
                   <input
-                    className={inputCls}
+                    className={`${inputCls} ${dialogInputCls}`}
                     value={echForm.query_server_name}
                     onChange={(e) => setEchForm((f) => ({ ...f, query_server_name: e.target.value }))}
                     placeholder={t('server.dynamic_form.ech.query_server_name.placeholder')}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>{t('server.dynamic_form.ech.config.label')}</Label>
+                  <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.config.label')}</Label>
                   <textarea
-                    className={textareaCls}
+                    className={`${textareaCls} font-mono text-xs`}
                     value={echForm.config}
                     onChange={(e) => setEchForm((f) => ({ ...f, config: e.target.value }))}
                     placeholder={t('server.dynamic_form.ech.config.placeholder')}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>{t('server.dynamic_form.ech.key.label')}</Label>
+                  <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.key.label')}</Label>
                   <textarea
-                    className={textareaCls}
+                    className={`${textareaCls} font-mono text-xs`}
                     value={echForm.key}
                     onChange={(e) => setEchForm((f) => ({ ...f, key: e.target.value }))}
                     placeholder={t('server.dynamic_form.ech.key.placeholder')}
