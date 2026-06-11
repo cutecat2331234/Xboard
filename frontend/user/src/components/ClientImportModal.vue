@@ -63,7 +63,7 @@ function onClientClick(client: ReturnType<typeof buildImportClients>[number]) {
     <p class="hint">{{ t('dashboard.clientImportHint') }}</p>
     <n-checkbox-group v-model:value="selectedTypes" class="type-group">
       <n-space>
-        <n-checkbox v-for="p in PROTOCOL_TYPES" :key="p.value" :value="p.value" :label="p.label" />
+        <n-checkbox v-for="p in PROTOCOL_TYPES" :key="p.value" :value="p.value" :label="t(p.labelKey)" />
       </n-space>
     </n-checkbox-group>
     <div class="client-list">
@@ -76,7 +76,7 @@ function onClientClick(client: ReturnType<typeof buildImportClients>[number]) {
       >
         <span class="client-btn__inner">
           <img v-if="c.icon" :src="c.icon" :class="['client-icon', c.iconClass]" alt="" />
-          <span>{{ c.name }}</span>
+          <span>{{ c.nameKey ? t(c.nameKey) : c.name }}</span>
         </span>
       </n-button>
     </div>

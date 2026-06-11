@@ -47,12 +47,25 @@ export default {
     "problemDesc": "در صورت بروز مشکل می توانید از طریق تیکت با ما در ارتباط باشید",
     "copyLink": "Copy Subscribe Link",
     "unpaidOrders": "You have {count} unpaid order(s)",
+    "payNow": "پرداخت اکنون",
     "openTickets": "You have {count} open ticket(s)",
+    "goView": "مشاهده",
     "trafficWarning": "Traffic usage is {percent}%, consider renewing",
+    "learnAndBuy": "بیشتر بدانید و خرید کنید",
     "expireAt": "Expires",
     "resetDay": "Traffic resets in {day} day(s)",
     "clientImportTitle": "اشتراک با یک کلیک",
-    "clientImportHint": "Import subscription into your client app"
+    "clientImportHint": "Import subscription into your client app",
+    "protocolTypes": {
+      "auto": "خودکار",
+      "anytls": "Anytls",
+      "vless": "Vless",
+      "hysteria": "Hy1",
+      "hysteria2": "Hy2",
+      "shadowsocks": "Shadowsocks",
+      "vmess": "Vmess",
+      "trojan": "Trojan"
+    }
   },
   "plan": {
     "name": "Plan",
@@ -82,6 +95,7 @@ export default {
   },
   "node": {
     "alert": "No access points are available. If you have not subscribed or the subscription has expired, please",
+    "empty": "No access points are available. If you have not subscribed or the subscription has expired, please subscribe.",
     "subscribe": "خرید اشتراک",
     "name": "نام گره",
     "type": "Type",
@@ -89,6 +103,10 @@ export default {
     "status": "وضعیت",
     "online": "Online",
     "offline": "Offline"
+  },
+  "knowledge": {
+    "searchPh": "جستجوی مستندات…",
+    "empty": "موردی یافت نشد"
   },
   "common": {
     "loading": "Loading...",
@@ -127,6 +145,7 @@ export default {
   },
   "traffic": {
     "hint": "Traffic logs are kept for the last month only.",
+    "empty": "No traffic records",
     "recordAt": "زمان ضبط",
     "upload": "نقطه ضعف واقعی",
     "download": "نقطه ضعف واقعی",
@@ -138,6 +157,12 @@ export default {
     "period": "چرخه",
     "amount": "مقدار سفارش",
     "status": "وضعیت سفارش",
+    "statusPending": "در انتظار پرداخت",
+    "statusProcessing": "در حال فعال‌سازی",
+    "statusCanceled": "لغو شده",
+    "statusCompleted": "تکمیل شده",
+    "statusOffset": "تهاتر شده",
+    "empty": "هنوز سفارشی وجود ندارد",
     "createdAt": "ساختن",
     "pay": "Pay",
     "view": "بازدیدها",
