@@ -419,7 +419,14 @@ export default function UserPage() {
 
   function openCreate() {
     setEditing(null)
-    setForm({ email_suffix: '', email_prefix: '', password: '', generate_count: 1, expired_at: null })
+    setForm({
+      email_suffix: '',
+      email_prefix: '',
+      password: '',
+      generate_count: undefined,
+      expired_at: null,
+      plan_id: null,
+    })
     setDialogMode('create')
   }
 
@@ -536,7 +543,16 @@ export default function UserPage() {
   }
 
   async function deleteUser(row: UserRow) {
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('user.columns.actions_menu.delete_confirm_title', { defaultValue: '确认删除用户' }),
+        t('user.columns.actions_menu.delete_confirm_description', {
+          email: row.email,
+          defaultValue: `此操作将永久删除用户 ${row.email} 及其所有相关数据，删除后无法恢复，是否继续？`,
+        }),
+      ))
+    )
+      return
     try {
       await postJson('/user/destroy', { id: row.id })
       toast.success(t('common.success'))
@@ -940,81 +956,116 @@ export default function UserPage() {
         </DialogContent>
       </Dialog>
 
-      <Sheet open={dialogMode !== null} onOpenChange={(o) => !o && setDialogMode(null)}>
+      <Dialog
+        open={dialogMode === 'create'}
+        onOpenChange={(o) => !o && setDialogMode(null)}
+      >
+        <DialogContent className="sm:max-w-[576px]">
+          <DialogHeader>
+            <DialogTitle>{t('user.generate.title', { defaultValue: '创建用户' })}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            <div className="space-y-2">
+              <Label>{t('user.generate.form.email')}</Label>
+              <div className="flex w-full items-center">
+                {!form.generate_count ? (
+                  <input
+                    className={`${inputCls} min-w-0 flex-[5] rounded-r-none border-r-0`}
+                    placeholder={t('user.generate.form.email_prefix')}
+                    value={String(form.email_prefix ?? '')}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, email_prefix: e.target.value }))
+                    }
+                  />
+                ) : null}
+                <div
+                  className={`flex h-9 shrink-0 items-center border-y border-input bg-muted/30 px-3 font-mono text-xs text-muted-foreground ${
+                    form.generate_count ? 'rounded-l-md border-l' : 'border-l-0'
+                  }`}
+                >
+                  @
+                </div>
+                <input
+                  className={`${inputCls} min-w-0 flex-[4] rounded-l-none border-l-0`}
+                  placeholder={t('user.generate.form.email_domain')}
+                  value={String(form.email_suffix ?? '')}
+                  onChange={(e) => setForm((f) => ({ ...f, email_suffix: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>{t('user.generate.form.password')}</Label>
+              <input
+                className={inputCls}
+                type="password"
+                placeholder={t('user.generate.form.password_placeholder')}
+                value={String(form.password ?? '')}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{t('user.generate.form.expire_time')}</Label>
+                <ExpireDateInput
+                  value={form.expired_at as number | null | undefined}
+                  onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
+                  placeholder={t('user.generate.form.expire_time_placeholder')}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('user.generate.form.subscription')}</Label>
+                <FormSelect
+                  value={String(form.plan_id ?? '')}
+                  onChange={(v) =>
+                    setForm((f) => ({
+                      ...f,
+                      plan_id: v ? Number(v) : null,
+                    }))
+                  }
+                  options={[
+                    {
+                      value: '',
+                      label: t('user.generate.form.subscription_none', { defaultValue: '无' }),
+                    },
+                    ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
+                  ]}
+                />
+              </div>
+            </div>
+            {!form.email_prefix ? (
+              <div className="space-y-2">
+                <Label>{t('user.generate.form.generate_count')}</Label>
+                <input
+                  type="number"
+                  className={inputCls}
+                  placeholder={t('user.generate.form.generate_count_placeholder')}
+                  value={form.generate_count != null ? Number(form.generate_count) : ''}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      generate_count: e.target.value === '' ? undefined : Number(e.target.value),
+                    }))
+                  }
+                />
+              </div>
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogMode(null)}>
+              {t('user.generate.form.cancel', { defaultValue: '取消' })}
+            </Button>
+            <Button onClick={saveUser} disabled={saving}>
+              {t('user.generate.form.submit', { defaultValue: '生成' })}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Sheet open={dialogMode === 'edit'} onOpenChange={(o) => !o && setDialogMode(null)}>
         <SheetContent side="right" className="flex w-full flex-col gap-4 overflow-y-scroll p-6 sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>
-              {dialogMode === 'create'
-                ? t('user.generate.title', { defaultValue: '创建用户' })
-                : t('user.manage.title', { defaultValue: '用户管理' })}
-            </SheetTitle>
+            <SheetTitle>{t('user.manage.title', { defaultValue: '用户管理' })}</SheetTitle>
           </SheetHeader>
-            {dialogMode === 'create' ? (
-              <>
-                <div className="space-y-2">
-                  <Label>{t('user.generate.form.email_domain')}</Label>
-                  <input
-                    className={inputCls}
-                    value={String(form.email_suffix ?? '')}
-                    onChange={(e) => setForm((f) => ({ ...f, email_suffix: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('user.generate.form.email_prefix')}</Label>
-                  <input
-                    className={inputCls}
-                    value={String(form.email_prefix ?? '')}
-                    onChange={(e) => setForm((f) => ({ ...f, email_prefix: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('user.generate.form.password')}</Label>
-                  <input
-                    className={inputCls}
-                    type="password"
-                    placeholder={t('user.generate.form.password_placeholder')}
-                    value={String(form.password ?? '')}
-                    onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('user.generate.form.expire_time')}</Label>
-                  <ExpireDateInput
-                    value={form.expired_at as number | null | undefined}
-                    onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
-                    placeholder={t('user.generate.form.expire_time_placeholder')}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('user.generate.form.subscription')}</Label>
-                  <FormSelect
-                    value={String(form.plan_id ?? '')}
-                    onChange={(v) =>
-                      setForm((f) => ({
-                        ...f,
-                        plan_id: v ? Number(v) : null,
-                      }))
-                    }
-                    options={[
-                      { value: '', label: t('common.none', { defaultValue: '无' }) },
-                      ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
-                    ]}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('user.generate.form.generate_count')}</Label>
-                  <input
-                    type="number"
-                    className={inputCls}
-                    value={Number(form.generate_count ?? 1)}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, generate_count: Number(e.target.value) }))
-                    }
-                  />
-                </div>
-              </>
-            ) : (
-              <>
                 <div className="space-y-2">
                   <Label>{t('user.edit.form.email')}</Label>
                   <input
@@ -1235,18 +1286,12 @@ export default function UserPage() {
                     <Label>{t('user.edit.form.is_staff')}</Label>
                   </div>
                 </div>
-              </>
-            )}
           <SheetFooter className="mt-0 flex-row justify-end gap-2 border-0 p-0 pt-0">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
-              {dialogMode === 'create'
-                ? t('user.generate.form.cancel', { defaultValue: '取消' })
-                : t('user.edit.form.cancel', { defaultValue: '取消' })}
+              {t('user.edit.form.cancel', { defaultValue: '取消' })}
             </Button>
             <Button onClick={saveUser} disabled={saving}>
-              {dialogMode === 'create'
-                ? t('user.generate.form.submit', { defaultValue: '生成' })
-                : t('user.edit.form.submit', { defaultValue: '提交' })}
+              {t('user.edit.form.submit', { defaultValue: '提交' })}
             </Button>
           </SheetFooter>
         </SheetContent>
