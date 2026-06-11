@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import DOMPurify from 'dompurify'
 import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NTabs, NTabPane } from 'naive-ui'
 import { fetchKnowledge, fetchKnowledgeCategories, type KnowledgeItem } from '@/api/knowledge'
 import { useI18n } from '@/i18n'
+
+function sanitizeHtml(html: string | undefined | null): string {
+  return DOMPurify.sanitize(html ?? '')
+}
 
 const items = ref<KnowledgeItem[]>([])
 const categories = ref<string[]>([])
@@ -45,7 +50,7 @@ onMounted(async () => {
     </n-tabs>
     <n-collapse v-if="filtered.length">
       <n-collapse-item v-for="k in filtered" :key="k.id" :title="k.title" :name="String(k.id)">
-        <div v-html="k.body" />
+        <div v-html="sanitizeHtml(k.body)" />
       </n-collapse-item>
     </n-collapse>
     <n-empty v-else :description="t('knowledge.empty')" />
