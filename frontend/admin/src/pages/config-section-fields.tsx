@@ -21,6 +21,7 @@ type FieldProps = {
     value: string
     placeholder?: string
     onChange: (v: string) => void
+    compactLabel?: boolean
   }>
   FormTextarea: React.ComponentType<{
     label: string
@@ -28,6 +29,7 @@ type FieldProps = {
     value: string
     placeholder?: string
     onChange: (v: string) => void
+    compactLabel?: boolean
   }>
   SwitchField: React.ComponentType<{
     label: string
@@ -35,6 +37,7 @@ type FieldProps = {
     checked: boolean
     onChange: (v: boolean) => void
     flat?: boolean
+    compactLabel?: boolean
   }>
 }
 
@@ -240,18 +243,21 @@ export function ConfigSectionFields({
         </TabsList>
         <TabsContent value="settings" className="xb-stack-4">
           <FormField
+            compactLabel
             label={t('settings.email.email_host.title')}
             description={t('settings.email.email_host.description')}
             value={String(email.email_host ?? '')}
             onChange={(v) => update('email', 'email_host', v)}
           />
           <FormField
+            compactLabel
             label={t('settings.email.email_port.title')}
             description={t('settings.email.email_port.description')}
             value={String(email.email_port ?? '')}
             onChange={(v) => update('email', 'email_port', v)}
           />
           <ConfigFormSelect
+            compactLabel
             label={t('settings.email.email_encryption.title')}
             description={t('settings.email.email_encryption.description')}
             value={String(email.email_encryption ?? '')}
@@ -263,24 +269,28 @@ export function ConfigSectionFields({
             ]}
           />
           <FormField
+            compactLabel
             label={t('settings.email.email_username.title')}
             description={t('settings.email.email_username.description')}
             value={String(email.email_username ?? '')}
             onChange={(v) => update('email', 'email_username', v)}
           />
           <FormField
+            compactLabel
             label={t('settings.email.email_password.title')}
             description={t('settings.email.email_password.description')}
             value={String(email.email_password ?? '')}
             onChange={(v) => update('email', 'email_password', v)}
           />
           <FormField
+            compactLabel
             label={t('settings.email.email_from.title')}
             description={t('settings.email.email_from.description')}
             value={String(email.email_from_address ?? '')}
             onChange={(v) => update('email', 'email_from_address', v)}
           />
           <SwitchField
+            compactLabel
             label={t('settings.email.remind_mail.title')}
             description={t('settings.email.remind_mail.description')}
             checked={Boolean(email.remind_mail_enable)}
