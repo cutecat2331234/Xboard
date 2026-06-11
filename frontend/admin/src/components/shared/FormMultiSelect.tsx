@@ -6,31 +6,34 @@ import { inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
-export type FormMultiSelectOption = { value: number; label: string }
+export type FormMultiSelectOption<T extends string | number = number> = {
+  value: T
+  label: string
+}
 
-type Props = {
-  value: number[]
-  onChange: (value: number[]) => void
-  options: FormMultiSelectOption[]
+type Props<T extends string | number = number> = {
+  value: T[]
+  onChange: (value: T[]) => void
+  options: FormMultiSelectOption<T>[]
   placeholder?: string
   emptyText?: string
   className?: string
 }
 
 /** 7001 server dialog groups/routes: compact multiselect trigger (h-9) + popover checklist. */
-export function FormMultiSelect({
+export function FormMultiSelect<T extends string | number = number>({
   value,
   onChange,
   options,
   placeholder,
   emptyText,
   className,
-}: Props) {
+}: Props<T>) {
   const [open, setOpen] = useState(false)
   const selected = options.filter((o) => value.includes(o.value))
   const summary = selected.map((o) => o.label).join(', ')
 
-  function toggle(id: number) {
+  function toggle(id: T) {
     onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id])
   }
 

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 import { toast } from 'sonner'
 
+import { FormMultiSelect } from '@/components/shared/FormMultiSelect'
 import { FormSelect } from '@/components/shared/FormSelect'
 
 import { SuffixInput } from '@/components/shared/SuffixInput'
@@ -1460,13 +1461,6 @@ function TuicFields({
     onChange({ ...value, tls: { ...value.tls, ...partial } })
   }
 
-  function toggleAlpn(alpn: string) {
-    const next = value.alpn.includes(alpn)
-      ? value.alpn.filter((item) => item !== alpn)
-      : [...value.alpn, alpn]
-    patch({ alpn: next })
-  }
-
   return (
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
@@ -1513,28 +1507,17 @@ function TuicFields({
 
       <div className="xb-stack-2">
         <Label>{t('server.dynamic_form.tuic.tls.alpn.label')}</Label>
-        <div className="flex flex-wrap gap-2">
-          {TUIC_ALPN_OPTIONS.map((opt) => {
-            const active = value.alpn.includes(opt.value)
-            return (
-              <Button
-                key={opt.value}
-                type="button"
-                size="sm"
-                variant={active ? 'default' : 'outline'}
-                className="h-8"
-                onClick={() => toggleAlpn(opt.value)}
-              >
-                {opt.label}
-              </Button>
-            )
-          })}
-        </div>
-        {!value.alpn.length ? (
-          <p className="text-xs text-muted-foreground">
-            {t('server.dynamic_form.tuic.tls.alpn.empty')}
-          </p>
-        ) : null}
+        <FormMultiSelect
+          value={value.alpn}
+          onChange={(alpn) => patch({ alpn })}
+          options={TUIC_ALPN_OPTIONS.map((opt) => ({
+            value: opt.value,
+            label: opt.label,
+          }))}
+          placeholder={t('server.dynamic_form.tuic.tls.alpn.placeholder')}
+          emptyText={t('server.dynamic_form.tuic.tls.alpn.empty')}
+          className="font-mono text-xs"
+        />
       </div>
 
       <div className="xb-stack-2">
