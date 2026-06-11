@@ -79,11 +79,9 @@ export default function ServerGroupPage() {
   async function deleteRow(row: GroupRow) {
     if (
       !(await confirm(
-        t('group.messages.deleteConfirm', { defaultValue: '确认删除' }),
-        t('group.messages.deleteDescription', {
-          defaultValue: '此操作将永久删除该权限组，删除后无法恢复。确定要继续吗？',
-        }),
-        { confirmLabel: t('group.messages.deleteButton', { defaultValue: '删除' }) },
+        t('group.messages.deleteConfirm'),
+        t('group.messages.deleteDescription'),
+        { confirmLabel: t('group.messages.deleteButton') },
       ))
     )
       return
@@ -102,7 +100,7 @@ export default function ServerGroupPage() {
       { accessorKey: 'name', header: () => t('group.columns.name') },
       {
         id: 'actions',
-        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+        header: () => t('common.table.columns.actions'),
         cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -112,10 +110,10 @@ export default function ServerGroupPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openEdit(row.original)}>
-                {t('common.edit', { defaultValue: '编辑' })}
+                {t('common.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive" onClick={() => deleteRow(row.original)}>
-                {t('common.delete', { defaultValue: '删除' })}
+                {t('common.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -148,7 +146,7 @@ export default function ServerGroupPage() {
               onClick={openCreate}
             >
               <Plus className="h-4 w-4" />
-              <span>{t('group.form.add', { defaultValue: '添加权限组' })}</span>
+              <span>{t('group.form.add')}</span>
             </Button>
             <Input
               value={search}
@@ -166,8 +164,8 @@ export default function ServerGroupPage() {
           <DialogHeader>
             <DialogTitle>
               {editing
-                ? t('group.form.edit', { defaultValue: '编辑权限组' })
-                : t('group.form.add', { defaultValue: '添加权限组' })}
+                ? t('group.form.edit')
+                : t('group.form.add')}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-2 py-2">
@@ -176,10 +174,10 @@ export default function ServerGroupPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={saveGroup} disabled={saving}>
-              {t('common.save', { defaultValue: '保存' })}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
