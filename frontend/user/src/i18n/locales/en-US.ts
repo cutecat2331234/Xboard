@@ -157,6 +157,9 @@ export default {
     incomeTime: 'Commission Time',
     incomeAmount: 'Commission',
     transferAmount: 'Transfer amount (cents)',
+    transferAmountRequired: 'Please enter a transfer amount',
+    transferAmountInvalid: 'Transfer amount must be a positive integer (cents)',
+    withdrawSuccess: 'Withdrawal request submitted. View your ticket for updates.',
   },
   traffic: {
     hint: 'Traffic logs are kept for the last month only.',

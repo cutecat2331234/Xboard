@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { NButton, NCard, NDataTable, NModal, NInput, NSelect, NSpace, useMessage, type DataTableColumns } from 'naive-ui'
 import {
   fetchInvite,
@@ -17,6 +18,7 @@ const codes = ref<InviteCode[]>([])
 const stat = ref<number[]>([0, 0, 0, 0, 0])
 const details = ref<Array<{ created_at?: number; get_amount?: number }>>([])
 const msg = useMessage()
+const router = useRouter()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency, code: currencyCode } = useCurrency()
 const transferOpen = ref(false)
@@ -73,11 +75,30 @@ async function generate() {
   }
 }
 
+function parseTransferAmount(raw: string): number | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  const amount = Number(trimmed)
+  if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) return null
+  return amount
+}
+
 async function doTransfer() {
+  const trimmed = transferAmount.value.trim()
+  if (!trimmed) {
+    msg.error(t('invite.transferAmountRequired'))
+    return
+  }
+  const amount = parseTransferAmount(trimmed)
+  if (amount === null) {
+    msg.error(t('invite.transferAmountInvalid'))
+    return
+  }
   try {
-    await transferCommission(Number(transferAmount.value))
+    await transferCommission(amount)
     msg.success(t('common.success'))
     transferOpen.value = false
+    transferAmount.value = ''
     await load()
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
@@ -87,8 +108,10 @@ async function doTransfer() {
 async function doWithdraw() {
   try {
     await withdrawCommission({ withdraw_method: withdrawMethod.value, withdraw_account: withdrawAccount.value })
-    msg.success(t('common.success'))
+    msg.success(t('invite.withdrawSuccess'))
     withdrawOpen.value = false
+    withdrawAccount.value = ''
+    router.push('/ticket')
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
   }
