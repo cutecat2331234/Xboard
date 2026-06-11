@@ -1,30 +1,68 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { NCard, NDataTable, NEmpty } from 'naive-ui'
+import { computed, h, onMounted, ref } from 'vue'
+import { NAlert, NCard, NDataTable, NEmpty, NIcon, NPopover, NTag } from 'naive-ui'
+import { HelpCircleOutline } from '@vicons/ionicons5'
 import { fetchTrafficLog } from '@/api/traffic'
+import { formatBytes } from '@/lib/format-traffic'
 import { formatLocaleDate } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
-const rows = ref<{ record_at: number; u: number; d: number; rate?: number }[]>([])
+interface TrafficRow {
+  record_at: number
+  u: number
+  d: number
+  server_rate?: number | string
+  rate?: number | string
+}
+
+const rows = ref<TrafficRow[]>([])
 const { t, locale } = useI18n()
 
-function gb(n: number) {
-  return (n / 1073741824).toFixed(3)
+function serverRate(row: TrafficRow): number {
+  const raw = row.server_rate ?? row.rate ?? 1
+  const n = parseFloat(String(raw))
+  return Number.isFinite(n) && n > 0 ? n : 1
 }
 
 const columns = computed(() => [
   {
     title: t('traffic.recordAt'),
     key: 'record_at',
-    render: (r: { record_at: number }) => formatLocaleDate(r.record_at, locale.value),
+    render: (r: TrafficRow) => formatLocaleDate(r.record_at, locale.value),
   },
-  { title: t('traffic.upload'), key: 'u', render: (r: { u: number }) => `${gb(r.u)} GB` },
-  { title: t('traffic.download'), key: 'd', render: (r: { d: number }) => `${gb(r.d)} GB` },
-  { title: t('traffic.rate'), key: 'rate', render: (r: { rate?: number }) => String(r.rate ?? 1) },
   {
-    title: t('traffic.total'),
+    title: t('traffic.upload'),
+    key: 'u',
+    render: (r: TrafficRow) => formatBytes(r.u / serverRate(r)),
+  },
+  {
+    title: t('traffic.download'),
+    key: 'd',
+    render: (r: TrafficRow) => formatBytes(r.d / serverRate(r)),
+  },
+  {
+    title: t('traffic.rate'),
+    key: 'server_rate',
+    render: (r: TrafficRow) =>
+      h(NTag, { size: 'small', round: true }, { default: () => `${serverRate(r)} x` }),
+  },
+  {
+    title: () =>
+      h('div', { class: 'flex items-center traffic-total-title' }, [
+        t('traffic.total'),
+        h(
+          NPopover,
+          { trigger: 'hover', placement: 'bottom' },
+          {
+            trigger: () =>
+              h(NIcon, { size: 16, class: 'traffic-help-icon' }, { default: () => h(HelpCircleOutline) }),
+            default: () => t('traffic.formula'),
+          },
+        ),
+      ]),
     key: 'total',
-    render: (r: { u: number; d: number }) => `${gb(r.u + r.d)} GB`,
+    fixed: 'right' as const,
+    render: (r: TrafficRow) => formatBytes(r.u + r.d),
   },
 ])
 
@@ -34,22 +72,29 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-card class="traffic-card">
-    <p class="traffic-hint">{{ t('traffic.hint') }}</p>
+  <n-card class="rounded-md traffic-card">
+    <n-alert type="info" :bordered="false" class="traffic-alert">
+      {{ t('traffic.hint') }}
+    </n-alert>
     <n-empty v-if="rows.length === 0" :description="t('traffic.empty')" />
-    <n-data-table v-else :columns="columns" :data="rows" :bordered="true" />
+    <n-data-table v-else :columns="columns" :data="rows" :scroll-x="600" />
   </n-card>
 </template>
 
 <style scoped>
-.traffic-card :deep(.n-card-content),
-.traffic-card :deep(.n-card__content) {
+.traffic-card :deep(.n-card__content),
+.traffic-card :deep(.n-card-content) {
   padding: 20px 24px;
 }
-.traffic-hint {
-  margin: 0 0 8px;
-  font-size: 14px;
+.traffic-alert {
+  margin-bottom: 20px;
+}
+.traffic-total-title {
+  gap: 4px;
+}
+.traffic-help-icon {
   color: var(--xb-text-muted);
-  line-height: 1.5;
+  cursor: help;
+  vertical-align: middle;
 }
 </style>
