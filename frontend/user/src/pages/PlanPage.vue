@@ -17,6 +17,13 @@ const { formatPrice, load: loadCurrency } = useCurrency()
 
 const gridCols = '1 768:2'
 
+function hasPeriodPrices(p: PlanItem) {
+  return PERIOD_OPTIONS.some((opt) => {
+    const price = p[opt.key as keyof PlanItem]
+    return typeof price === 'number' && price > 0
+  })
+}
+
 function priceLabel(p: PlanItem) {
   const parts = PERIOD_OPTIONS.map((opt) => {
     const price = p[opt.key as keyof PlanItem]
@@ -28,12 +35,31 @@ function priceLabel(p: PlanItem) {
   return parts.join(' · ') || '—'
 }
 
-function openPlan(planId: number) {
-  router.push(`/plan/${planId}`)
+function transferGb(p: PlanItem) {
+  return (p.transfer_enable / 1073741824).toFixed(0)
+}
+
+function showCapacity(p: PlanItem) {
+  return p.capacity_limit !== undefined && p.capacity_limit !== null
+}
+
+function capacityLabel(p: PlanItem) {
+  const limit = p.capacity_limit
+  if (limit === null || limit === undefined) return ''
+  if (typeof limit === 'string') return limit
+  return t('plan.capacityRemaining', { count: limit })
+}
+
+function capacityTagType(p: PlanItem): 'error' | 'default' {
+  return typeof p.capacity_limit === 'string' ? 'error' : 'default'
 }
 
 function isTryOutPlan(planId: number) {
   return tryOutPlanId.value > 0 && planId === tryOutPlanId.value
+}
+
+function openPlan(planId: number) {
+  router.push(`/plan/${planId}`)
 }
 
 onMounted(async () => {
@@ -74,9 +100,15 @@ onMounted(async () => {
             <n-tag v-if="isTryOutPlan(p.id)" size="small" type="info" round>{{ t('plan.tryOutBadge') }}</n-tag>
           </div>
         </template>
+        <p v-if="hasPeriodPrices(p)" class="plan-period-hint">{{ t('plan.periodPricesHint') }}</p>
         <p class="plan-price">{{ priceLabel(p) }}</p>
-        <n-tag size="small" type="info">{{ (p.transfer_enable / 1073741824).toFixed(0) }} GB</n-tag>
-        <div style="margin-top:12px">
+        <div class="plan-tags">
+          <n-tag v-if="p.transfer_enable > 0" size="small" type="info">{{ transferGb(p) }} GB</n-tag>
+          <n-tag v-if="showCapacity(p)" size="small" :type="capacityTagType(p)">
+            {{ capacityLabel(p) }}
+          </n-tag>
+        </div>
+        <div class="plan-actions">
           <n-button type="primary" @click="openPlan(p.id)">{{ t('plan.viewDetail') }}</n-button>
         </div>
       </n-card>
@@ -91,9 +123,22 @@ onMounted(async () => {
   gap: 8px;
   flex-wrap: wrap;
 }
+.plan-period-hint {
+  margin: 0 0 4px;
+  color: var(--xb-text-muted);
+  font-size: 12px;
+}
 .plan-price {
   margin: 0 0 12px;
   color: var(--xb-text-muted);
   font-size: 13px;
+}
+.plan-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.plan-actions {
+  margin-top: 12px;
 }
 </style>
