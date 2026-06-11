@@ -487,7 +487,7 @@ function parseVersionHash(version?: string): string {
   return (parts[parts.length - 1] ?? '').slice(0, 7).toLowerCase()
 }
 
-/** GET /update/check — route exists in AdminRoute but is currently commented out. */
+/** GET /update/check — server-side update check (falls back to GitHub API if unavailable). */
 export async function checkSystemUpdate(): Promise<UpdateCheckInfo | null> {
   try {
     return await fetchJsonObject<UpdateCheckInfo>('/update/check')
