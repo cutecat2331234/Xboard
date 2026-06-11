@@ -252,6 +252,7 @@ export default {
     surplus: '折抵',
     surplusLegacy: '旧订阅折抵金额',
     refund: '退款',
+    refundAmount: '退款金额',
     balancePay: '余额支付',
     grandTotal: '总计',
     waitingPay: '等待支付中',
