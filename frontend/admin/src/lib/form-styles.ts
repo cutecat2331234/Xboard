@@ -15,6 +15,10 @@ export const dialogFieldLabelCls =
 export const dialogInputCls =
   'h-9 font-mono text-xs'
 
+/** 7001 dialog SuffixInput prefix/suffix addon (h-9 mono xs). */
+export const dialogSuffixAddonCls =
+  'inline-flex h-9 shrink-0 items-center border border-input bg-transparent px-3 font-mono text-xs text-muted-foreground shadow-sm'
+
 /** 7001 server node dialog labels: mono 12px, not uppercase */
 export const serverFieldLabelCls = 'font-mono text-[12px] text-foreground/80'
 

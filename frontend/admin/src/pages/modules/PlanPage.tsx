@@ -594,7 +594,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="space-y-3 rounded-lg border border-dashed p-4">
+            <div className="space-y-4 rounded-lg border border-dashed p-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</h3>
                 <div className="flex items-center gap-2">
@@ -632,7 +632,7 @@ export default function PlanPage() {
                       prefix="¥"
                       type="number"
                       step="0.01"
-                      className={`${dialogInputCls} text-xs`}
+                      className={dialogInputCls}
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
@@ -649,7 +649,7 @@ export default function PlanPage() {
                       prefix="¥"
                       type="number"
                       step="0.01"
-                      className={`${dialogInputCls} text-xs`}
+                      className={dialogInputCls}
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
