@@ -19,7 +19,7 @@ import {
 
 const LOCALES = [
   { code: 'en-US', label: 'EN' },
-  { code: 'zh-CN', label: '中文' },
+  { code: 'zh-CN', label: 'CN' },
   { code: 'ru-RU', label: 'RU' },
 ]
 
