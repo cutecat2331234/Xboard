@@ -184,7 +184,8 @@ export default function ServerMachinePage() {
       {
         accessorKey: 'is_active',
         header: () => t('machine.columns.status'),
-        cell: ({ row }) => (row.original.is_active ? 'Active' : 'Inactive'),
+        cell: ({ row }) =>
+          row.original.is_active ? t('machine.status.active') : t('machine.status.inactive'),
       },
       { accessorKey: 'servers_count', header: () => t('machine.columns.nodes', { defaultValue: '节点数' }) },
       {
