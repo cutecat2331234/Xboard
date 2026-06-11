@@ -30,13 +30,15 @@ SIDE=admin ROUTES=sign-in,dashboard,plan-add node visual-gate.mjs
 SIDE=admin ROUTES=user-create,plan-add,server-add,gift-template,user-mail node visual-gate.mjs
 ```
 
-Environment overrides: `REF_BASE`, `CMP_BASE`, `SECURE_PATH`, `VIEWPORT_W`, `VIEWPORT_H`, `FULL_PAGE=1`.
+Environment overrides: `REF_BASE`, `CMP_BASE`, `SECURE_PATH`, `VIEWPORT_W`, `VIEWPORT_H`, `FULL_PAGE=1`, `INCLUDE_GIFT_CARD=1`.
 
 ## Route lists
 
 ### User (`USER_ROUTES_DEFAULT`)
 
-`login`, `register`, `forgetpassword`, `dashboard`, `plan`, `plan-detail`, `order`, `order-detail`, `invite`, **`gift-card`**, `traffic`, `knowledge`, `ticket`, `ticket-detail`, `profile`, `node`
+`login`, `register`, `forgetpassword`, `dashboard`, `plan`, `plan-detail`, `order`, `order-detail`, `invite`, `traffic`, `knowledge`, `ticket`, `ticket-detail`, `profile`, `node`
+
+**`gift-card`** is excluded by default: legacy umi.js (7001) has no user gift-card page — it exists only on the rewrite (7002). Opt in with `INCLUDE_GIFT_CARD=1` or `ROUTES=...,gift-card`.
 
 ### Admin pages (`ADMIN_ROUTES_DEFAULT`)
 

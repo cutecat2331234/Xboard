@@ -30,8 +30,10 @@ const adminPassword = process.env.ADMIN_PASSWORD || 'your-password'
 const viewportWidth = Number(process.env.VIEWPORT_W || 1280)
 const viewportHeight = Number(process.env.VIEWPORT_H || 900)
 
+const USER_ROUTES_BASE =
+  'login,register,forgetpassword,dashboard,plan,plan-detail,order,order-detail,invite,traffic,knowledge,ticket,ticket-detail,profile,node'
 const USER_ROUTES_DEFAULT =
-  'login,register,forgetpassword,dashboard,plan,plan-detail,order,order-detail,invite,gift-card,traffic,knowledge,ticket,ticket-detail,profile,node'
+  USER_ROUTES_BASE + (process.env.INCLUDE_GIFT_CARD === '1' ? ',gift-card' : '')
 const ADMIN_ROUTES_DEFAULT =
   'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset,user-create,plan-add,server-add,gift-template,user-mail'
 const ADMIN_LOCALE = process.env.ADMIN_LOCALE || 'zh-CN'
