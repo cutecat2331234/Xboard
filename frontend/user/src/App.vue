@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import {
   NConfigProvider,
   NMessageProvider,
   NDialogProvider,
   NLoadingBarProvider,
   darkTheme,
-  dateZhCN,
-  enUS,
-  zhCN,
 } from 'naive-ui'
 import { themeOverrides } from '@/theme/naiveTheme'
 import { initLocale, useI18n } from '@/i18n'
@@ -17,9 +14,7 @@ import { recordPageView } from '@/api/pv'
 
 initLocale()
 const auth = useAuthStore()
-const { locale } = useI18n()
-const naiveLocale = computed(() => (locale.value === 'zh-CN' ? zhCN : enUS))
-const naiveDateLocale = computed(() => (locale.value === 'zh-CN' ? dateZhCN : undefined))
+const { naiveLocale, naiveDateLocale } = useI18n()
 
 const isDark = ref(document.documentElement.classList.contains('dark'))
 let observer: MutationObserver | undefined
