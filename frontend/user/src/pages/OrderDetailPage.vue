@@ -594,7 +594,7 @@ onUnmounted(stopPoll)
 
             <div class="info-label">{{ t('order.status') }}</div>
 
-            <div class="info-value">{{ orderStatusLabel(order.status) }}</div>
+            <div class="info-value">{{ t(orderStatusLabel(order.status)) }}</div>
 
           </div>
 
@@ -801,10 +801,6 @@ onUnmounted(stopPoll)
   font-weight: 400;
 }
 
-.order-detail-page .pay-card {
-  border-radius: 3px;
-}
-
 .order-detail-main > .n-card:first-child :deep(.n-card__content),
 .order-detail-main > .n-card:first-child :deep(.n-card-content) {
   padding-bottom: 21px;
@@ -842,7 +838,7 @@ onUnmounted(stopPoll)
 
   flex: 1;
 
-  color: rgb(107, 114, 128);
+  color: var(--xb-text-secondary);
 
   font-size: 14px;
 
@@ -852,7 +848,7 @@ onUnmounted(stopPoll)
 
   flex: 2;
 
-  color: #333639;
+  color: var(--xb-text);
 
   font-size: 14px;
 
@@ -1032,7 +1028,7 @@ onUnmounted(stopPoll)
 
 .qr-hint {
 
-  color: #666;
+  color: var(--xb-text-muted);
 
   font-size: 13px;
 
