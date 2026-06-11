@@ -62,7 +62,14 @@ export const TRANSPORT_NETWORK_OPTIONS = [
   { value: 'xhttp', label: 'XHTTP' },
 ] as const
 
-export const TRANSPORT_NETWORKS_WITH_SUBFIELDS = new Set(['ws', 'grpc', 'h2'])
+export const TRANSPORT_NETWORKS_WITH_SUBFIELDS = new Set([
+  'tcp',
+  'ws',
+  'grpc',
+  'h2',
+  'httpupgrade',
+  'xhttp',
+])
 
 export type TransportNetworkSettingsFields = {
   path: string
@@ -80,15 +87,56 @@ function readTransportNetworkHost(raw: Record<string, unknown>): string {
     return String(headers.Host)
   }
   if (raw.host != null && raw.host !== '') {
-    return String(raw.host)
+    const host = raw.host
+    if (Array.isArray(host) && host.length > 0) {
+      return String(host[0])
+    }
+    return String(host)
   }
   return ''
 }
 
-export function readTransportNetworkSettings(raw?: unknown): TransportNetworkSettingsFields {
+function readTcpTransportPathHost(settings: Record<string, unknown>): { path: string; host: string } {
+  const header = (settings.header ?? {}) as Record<string, unknown>
+  if (String(header.type ?? 'none') === 'none') {
+    return { path: '', host: '' }
+  }
+  const request = (header.request ?? {}) as Record<string, unknown>
+  const paths = request.path
+  let path = ''
+  if (Array.isArray(paths) && paths.length > 0) {
+    path = String(paths[0])
+  } else if (paths != null && paths !== '') {
+    path = String(paths)
+  }
+  const reqHeaders = (request.headers ?? {}) as Record<string, unknown>
+  const hosts = reqHeaders.Host
+  let host = ''
+  if (Array.isArray(hosts) && hosts.length > 0) {
+    host = String(hosts[0])
+  } else if (hosts != null && hosts !== '') {
+    host = String(hosts)
+  }
+  return { path, host }
+}
+
+export function readTransportNetworkSettings(
+  raw?: unknown,
+  network?: string,
+): TransportNetworkSettingsFields {
   const d = defaultTransportNetworkSettings()
   if (!raw || typeof raw !== 'object') return d
   const settings = raw as Record<string, unknown>
+
+  if (network === 'tcp') {
+    const tcp = readTcpTransportPathHost(settings)
+    return {
+      path: tcp.path || String(settings.path ?? d.path),
+      host: tcp.host || readTransportNetworkHost(settings),
+      serviceName: String(settings.serviceName ?? d.serviceName),
+    }
+  }
+
   return {
     path: String(settings.path ?? d.path),
     host: readTransportNetworkHost(settings),
@@ -109,11 +157,32 @@ export function serializeTransportNetworkSettings(
     return Object.keys(payload).length ? payload : undefined
   }
 
+  if (network === 'tcp') {
+    if (!settings.path && !settings.host) return undefined
+    return {
+      acceptProxyProtocol: false,
+      header: {
+        type: 'http',
+        request: {
+          version: '1.1',
+          method: 'GET',
+          path: [settings.path || '/'],
+          ...(settings.host ? { headers: { Host: [settings.host] } } : {}),
+        },
+        response: {
+          version: '1.1',
+          status: '200',
+          reason: 'OK',
+        },
+      },
+    }
+  }
+
   if (settings.path) payload.path = settings.path
 
   if (network === 'ws') {
     if (settings.host) payload.headers = { Host: settings.host }
-  } else if (network === 'h2' && settings.host) {
+  } else if (settings.host && (network === 'h2' || network === 'httpupgrade' || network === 'xhttp')) {
     payload.host = settings.host
   }
 
@@ -392,7 +461,7 @@ export function normalizeVlessSettings(raw?: Record<string, unknown>): VlessProt
       encryption: String(encryption.encryption ?? d.encryption.encryption),
       decryption: String(encryption.decryption ?? d.encryption.decryption),
     },
-    network_settings: readTransportNetworkSettings(raw.network_settings),
+    network_settings: readTransportNetworkSettings(raw.network_settings, String(raw.network ?? d.network)),
   }
 }
 
