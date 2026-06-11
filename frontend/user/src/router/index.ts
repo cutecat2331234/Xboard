@@ -32,7 +32,7 @@ const routes = [
 
       { path: 'plan', component: () => import('../pages/PlanPage.vue') },
 
-      { path: 'plan/:id', component: () => import('../pages/PlanDetailPage.vue'), meta: { titleKey: 'nav.plan', menuKey: '/plan' } },
+      { path: 'plan/:id', component: () => import('../pages/PlanDetailPage.vue'), meta: { titleKey: 'plan.viewDetail', menuKey: '/plan' } },
 
       { path: 'order', component: () => import('../pages/OrderPage.vue') },
 
