@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 type NoticeRow = {
   id?: number
@@ -41,6 +42,7 @@ const inputCls =
 
 export default function NoticePage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<NoticeRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -105,7 +107,7 @@ export default function NoticePage() {
   }
 
   async function deleteNotice(row: NoticeRow) {
-    if (!window.confirm(t('notice.table.actions.delete.description'))) return
+    if (!(await confirm(t('notice.table.actions.delete.description')))) return
     try {
       await postJson('/notice/drop', { id: row.id })
       toast.success(t('notice.table.actions.delete.success'))
@@ -289,6 +291,7 @@ export default function NoticePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

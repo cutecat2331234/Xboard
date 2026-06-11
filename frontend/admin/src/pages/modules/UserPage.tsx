@@ -37,6 +37,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 type UserRow = {
   id?: number
@@ -162,6 +163,7 @@ function buildFilterArray(
 
 export default function UserPage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const navigate = useNavigate()
   const [data, setData] = useState<UserRow[]>([])
   const [plans, setPlans] = useState<PlanRow[]>([])
@@ -534,7 +536,7 @@ export default function UserPage() {
   }
 
   async function deleteUser(row: UserRow) {
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
     try {
       await postJson('/user/destroy', { id: row.id })
       toast.success(t('common.success'))
@@ -1409,6 +1411,7 @@ export default function UserPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }
