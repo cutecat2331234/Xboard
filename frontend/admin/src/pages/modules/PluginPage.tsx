@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { adminApi, buildQuery, fetchJsonList, postJson } from '@/lib/api'
+import type { PluginConfigField, PluginRow } from '@/lib/plugin-types'
+import { invalidatePluginListCache } from '@/lib/use-plugin-list'
 import { inputCls } from '@/lib/form-styles'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -25,29 +27,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-type PluginConfigField = {
-  type?: string
-  label?: string
-  placeholder?: string
-  description?: string
-  value?: unknown
-  options?: Array<{ label?: string; value?: string | number }>
-}
-
-type PluginRow = {
-  code?: string
-  name?: string
-  description?: string
-  version?: string
-  author?: string
-  type?: string
-  is_installed?: boolean
-  is_enabled?: boolean
-  is_protected?: boolean
-  need_upgrade?: boolean
-  can_be_deleted?: boolean
-}
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 const TYPE_ORDER = ['feature', 'payment'] as const
 
@@ -66,6 +46,7 @@ function orderedTypes(plugins: PluginRow[]) {
 
 export default function PluginPage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [plugins, setPlugins] = useState<PluginRow[]>([])
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState('feature')
@@ -80,6 +61,7 @@ export default function PluginPage() {
   const uploadRef = useRef<HTMLInputElement>(null)
 
   const load = useCallback(() => {
+    invalidatePluginListCache()
     setLoading(true)
     fetchJsonList('/plugin/getPlugins')
       .then((rows) => setPlugins(rows as PluginRow[]))
@@ -154,7 +136,7 @@ export default function PluginPage() {
   }
 
   async function upgradePlugin(code: string) {
-    if (!window.confirm(t('plugin.upgrade.description'))) return
+    if (!(await confirm({ description: t('plugin.upgrade.description'), destructive: false }))) return
     try {
       await postJson('/plugin/upgrade', { code })
       toast.success(t('plugin.messages.upgradeSuccess'))
@@ -165,7 +147,7 @@ export default function PluginPage() {
   }
 
   async function deletePlugin(code: string) {
-    if (!window.confirm(t('plugin.delete.description'))) return
+    if (!(await confirm(t('plugin.delete.description')))) return
     try {
       await postJson('/plugin/delete', { code })
       toast.success(t('plugin.messages.deleteSuccess'))
@@ -357,6 +339,7 @@ export default function PluginPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

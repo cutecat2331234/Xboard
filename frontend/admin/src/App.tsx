@@ -21,6 +21,7 @@ import UserPage from '@/pages/modules/UserPage'
 import TicketPage from '@/pages/modules/TicketPage'
 import TrafficResetPage from '@/pages/modules/TrafficResetPage'
 import NotFoundPage from '@/pages/NotFoundPage'
+import PluginAdminRoute from '@/pages/PluginAdminRoute'
 function RequireAuth({ children }: { children: React.ReactNode }) {
   if (!getAuthData()) {
     return <Navigate to="/sign-in" replace />
@@ -43,6 +44,7 @@ export default function App() {
         <Route index element={<DashboardPage />} />
         <Route path="config/system/*" element={<ConfigPage />} />
         <Route path="config/plugin" element={<PluginPage />} />
+        <Route path="plugins/:code/*" element={<PluginAdminRoute />} />
         <Route path="config/theme" element={<ThemePage />} />
         <Route path="config/notice" element={<NoticePage />} />
         <Route path="config/payment" element={<PaymentPage />} />
