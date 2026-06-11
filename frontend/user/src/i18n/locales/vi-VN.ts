@@ -8,7 +8,7 @@ export default {
   confirmPassword: "Nhập lại mật khẩu",
   emailCode: "Mã xác minh mail",
   sendCode: "Gửi",
-  inviteCode: "Mã mời(Điền)",
+  inviteCode: "Mã mời (tùy chọn)",
   inviteCodeRequiredPh: "Mã mời (bắt buộc)",
   inviteCodeRequired: "Vui lòng nhập mã mời",
   backToLogin: "Về đăng nhập",
@@ -138,7 +138,12 @@ export default {
     success: "Thành công",
     error: "Lỗi",
     reset: "Đặt lại",
-    search: "Tìm kiếm"
+    search: "Tìm kiếm",
+    pagination: {
+      summary: "Trang {current}/{total}, tổng {count} mục",
+      previous: "Trang trước",
+      next: "Trang sau"
+    }
   },
   invite: {
     title: "Lời Mời Của Tôi",

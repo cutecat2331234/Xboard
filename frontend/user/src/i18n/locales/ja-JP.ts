@@ -8,7 +8,7 @@ export default {
   confirmPassword: "パスワードを再入力してください",
   emailCode: "確認コード",
   sendCode: "送信",
-  inviteCode: "招待コード (オプション)",
+  inviteCode: "招待コード（オプション）",
   inviteCodeRequiredPh: "Invite code (required)",
   inviteCodeRequired: "Invite code is required",
   backToLogin: "ログインページへ戻る",
@@ -138,7 +138,12 @@ export default {
     success: "Success",
     error: "Error",
     reset: "変更",
-    search: "検索"
+    search: "検索",
+    pagination: {
+      summary: "{count} 件中 {current}/{total} ページ",
+      previous: "前のページ",
+      next: "次のページ"
+    }
   },
   invite: {
     title: "招待リスト",

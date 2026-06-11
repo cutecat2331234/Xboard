@@ -8,7 +8,7 @@ export default {
   confirmPassword: "비밀번호를 다시 입력하세요",
   emailCode: "이메일 확인 코드",
   sendCode: "보내기",
-  inviteCode: "초청 코드(선택 사항)",
+  inviteCode: "초청 코드 (선택 사항)",
   inviteCodeRequiredPh: "Invite code (required)",
   inviteCodeRequired: "Invite code is required",
   backToLogin: "로그인 다시하기",
@@ -138,7 +138,12 @@ export default {
     success: "Success",
     error: "Error",
     reset: "재설정",
-    search: "검색"
+    search: "검색",
+    pagination: {
+      summary: "총 {count}건 · {current}/{total} 페이지",
+      previous: "이전 페이지",
+      next: "다음 페이지"
+    }
   },
   invite: {
     title: "나의 초청",
