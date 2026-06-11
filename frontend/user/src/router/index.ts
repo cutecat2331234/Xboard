@@ -1,8 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import LoginPage from '../pages/LoginPage.vue'
-
-import RegisterPage from '../pages/RegisterPage.vue'
+import AuthPage from '../pages/AuthPage.vue'
 
 import ForgetPasswordPage from '../pages/ForgetPasswordPage.vue'
 
@@ -12,9 +10,9 @@ import { getAuthData } from '@/api'
 
 const routes = [
 
-  { path: '/login', component: LoginPage },
+  { path: '/login', component: AuthPage },
 
-  { path: '/register', component: RegisterPage },
+  { path: '/register', component: AuthPage },
 
   { path: '/forgetpassword', component: ForgetPasswordPage },
 
