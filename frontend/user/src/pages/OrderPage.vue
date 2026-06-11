@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NCard,
   NDataTable,
   NEmpty,
   NIcon,
+  NPagination,
   NPopover,
   NTag,
   useMessage,
   useDialog,
   type DataTableColumns,
+  type PaginationInfo,
 } from 'naive-ui'
 import { CopyOutline } from '@vicons/ionicons5'
 import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
@@ -19,13 +21,41 @@ import { orderStatusLabel } from '@/lib/order-status'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
 
+const ORDER_PAGE_SIZE = 20
+
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
+const page = ref(1)
 const loading = ref(true)
 const msg = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
+
+const showPagination = computed(() => rows.value.length > ORDER_PAGE_SIZE)
+
+const paginatedRows = computed(() => {
+  if (!showPagination.value) return rows.value
+  const start = (page.value - 1) * ORDER_PAGE_SIZE
+  return rows.value.slice(start, start + ORDER_PAGE_SIZE)
+})
+
+function paginationPrefix(info: PaginationInfo) {
+  const pageCount = Math.max(1, Math.ceil(info.itemCount / info.pageSize))
+  return t('common.pagination.summary', {
+    current: info.page,
+    total: pageCount,
+    count: info.itemCount,
+  })
+}
+
+watch(
+  () => rows.value.length,
+  () => {
+    const maxPage = Math.max(1, Math.ceil(rows.value.length / ORDER_PAGE_SIZE))
+    if (page.value > maxPage) page.value = maxPage
+  },
+)
 
 function periodLabel(period?: string) {
   if (!period) return ''
@@ -195,17 +225,34 @@ onMounted(async () => {
   <n-card v-if="!loading && rows.length === 0">
     <n-empty :description="t('order.empty')" />
   </n-card>
-  <n-data-table
-    v-else
-    :columns="columns"
-    :data="rows"
-    :bordered="false"
-    :scroll-x="800"
-    :loading="loading"
-  />
+  <div v-else class="order-list">
+    <n-data-table
+      :columns="columns"
+      :data="paginatedRows"
+      :bordered="false"
+      :scroll-x="800"
+      :loading="loading"
+    />
+    <n-pagination
+      v-if="showPagination"
+      v-model:page="page"
+      class="order-pagination"
+      :item-count="rows.length"
+      :page-size="ORDER_PAGE_SIZE"
+      :prefix="paginationPrefix"
+    />
+  </div>
 </template>
 
 <style scoped>
+.order-list {
+  display: flex;
+  flex-direction: column;
+}
+.order-pagination {
+  margin-top: 16px;
+  justify-content: flex-end;
+}
 .order-status-dot {
   width: 6px;
   height: 6px;
