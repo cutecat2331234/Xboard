@@ -28,6 +28,17 @@ import { TagInput } from '@/components/shared/TagInput'
 
 import { SortRowControls, SortToolbar } from '@/components/shared/SortToolbar'
 
+import {
+  defaultProtocolSettings,
+  readProtocolSettings,
+  ServerProtocolFields,
+  toProtocolSettingsPayload,
+  type ProtocolFormSettings,
+  type VmessProtocolForm,
+} from '@/components/server/ServerProtocolFields'
+
+import { TLS_OBJECT_NODE_TYPES } from '@/lib/server-protocol-settings'
+
 import { Button } from '@/components/ui/button'
 
 import {
@@ -170,7 +181,15 @@ function LoadBar({ label, value }: { label: string; value: number }) {
 
 
 
-const NODE_TYPES = ['shadowsocks', 'vmess', 'trojan', 'vless', 'hysteria', 'tuic'] as const
+const NODE_TYPES = [
+  'shadowsocks',
+  'vmess',
+  'trojan',
+  'vless',
+  'hysteria',
+  'tuic',
+  'anytls',
+] as const
 
 const TLS_NODE_TYPES = new Set(['vmess', 'vless', 'trojan'])
 
@@ -186,13 +205,26 @@ function readEchSettings(protocolSettings?: Record<string, unknown>) {
   }
 }
 
+function tlsSettingsKey(protocolSettings?: Record<string, unknown>): 'tls' | 'tls_settings' {
+  if (protocolSettings?.tls != null && typeof protocolSettings.tls === 'object') {
+    return 'tls'
+  }
+  return 'tls_settings'
+}
+
+function readTlsSettingsContainer(protocolSettings?: Record<string, unknown>) {
+  const key = tlsSettingsKey(protocolSettings)
+  const raw = protocolSettings?.[key]
+  return typeof raw === 'object' && raw != null ? (raw as Record<string, unknown>) : {}
+}
+
 function mergeEchSettings(
   protocolSettings: Record<string, unknown> | undefined,
   ech: { key: string; config: string; query_server_name: string },
 ) {
   const base = { ...(protocolSettings ?? {}) }
-  const tlsKey = base.tls != null ? 'tls' : 'tls_settings'
-  const tls = { ...((base[tlsKey] as Record<string, unknown>) ?? {}) }
+  const tlsKey = tlsSettingsKey(base)
+  const tls = { ...readTlsSettingsContainer(base) }
   tls.ech = {
     ...((tls.ech as Record<string, unknown>) ?? {}),
     key: ech.key || undefined,
@@ -203,7 +235,16 @@ function mergeEchSettings(
   return base
 }
 
-
+function shouldShowEchFields(type: string, protocolSettings: ProtocolFormSettings | null) {
+  if (!protocolSettings) return false
+  if (TLS_OBJECT_NODE_TYPES.has(type)) return true
+  if (!TLS_NODE_TYPES.has(type)) return false
+  if (type === 'vmess') return (protocolSettings as VmessProtocolForm).tls === 1
+  if (type === 'trojan' || type === 'vless') {
+    return (protocolSettings as { tls?: number }).tls === 1
+  }
+  return false
+}
 
 type ServerForm = {
   type: string
@@ -262,18 +303,9 @@ function defaultCreatePayload(form: ServerForm) {
 
   }
 
-  if (type === 'shadowsocks') {
-
-    base.protocol_settings = { cipher: 'aes-256-gcm' }
-
-  } else if (type === 'vmess' || type === 'vless') {
-
-    base.protocol_settings = { tls: 0, network: 'tcp' }
-
-  } else if (type === 'trojan') {
-
-    base.protocol_settings = { network: 'tcp' }
-
+  const protocolDefaults = defaultProtocolSettings(type)
+  if (protocolDefaults) {
+    base.protocol_settings = toProtocolSettingsPayload(type, protocolDefaults)
   }
 
   return base
@@ -341,6 +373,8 @@ export default function ServerManagePage() {
 
   const [echGenerating, setEchGenerating] = useState(false)
 
+  const [protocolSettings, setProtocolSettings] = useState<ProtocolFormSettings | null>(null)
+
   const machineIdFilter = searchParams.get('machine_id')
 
   const activeMachine = useMemo(
@@ -400,6 +434,8 @@ export default function ServerManagePage() {
 
     setEchForm({ key: '', config: '', query_server_name: '' })
 
+    setProtocolSettings(null)
+
     setDialogOpen(true)
 
   }
@@ -448,8 +484,16 @@ export default function ServerManagePage() {
 
     setEchForm(readEchSettings(row.protocol_settings))
 
+    setProtocolSettings(readProtocolSettings(String(row.type ?? ''), row.protocol_settings))
+
     setDialogOpen(true)
 
+  }
+
+  function handleTypeChange(type: string) {
+    setForm((f) => ({ ...f, type }))
+    setProtocolSettings(defaultProtocolSettings(type))
+    setEchForm({ key: '', config: '', query_server_name: '' })
   }
 
 
@@ -469,12 +513,29 @@ export default function ServerManagePage() {
     try {
 
       const baseProtocol =
-        editing?.protocol_settings ?? (defaultCreatePayload(form).protocol_settings as Record<string, unknown>)
+        editing?.protocol_settings ??
+        (defaultCreatePayload(form).protocol_settings as Record<string, unknown> | undefined) ??
+        {}
 
-      const protocol_settings =
-        TLS_NODE_TYPES.has(form.type) && (echForm.key || echForm.config || echForm.query_server_name)
-          ? mergeEchSettings(baseProtocol, echForm)
-          : baseProtocol
+      let protocol_settings: Record<string, unknown> = { ...baseProtocol }
+
+      if (protocolSettings) {
+        protocol_settings = {
+          ...baseProtocol,
+          ...toProtocolSettingsPayload(form.type, protocolSettings),
+        }
+        if (form.type === 'vmess' && (protocolSettings as VmessProtocolForm).tls !== 1) {
+          delete protocol_settings.tls_settings
+        }
+      }
+
+      const shouldMergeEch =
+        (TLS_NODE_TYPES.has(form.type) || TLS_OBJECT_NODE_TYPES.has(form.type)) &&
+        (echForm.key || echForm.config || echForm.query_server_name)
+
+      if (shouldMergeEch) {
+        protocol_settings = mergeEchSettings(protocol_settings, echForm)
+      }
 
       const payload = editing
 
@@ -1510,7 +1571,7 @@ export default function ServerManagePage() {
             <FormSelect
               className="w-40 shrink-0"
               value={form.type}
-              onChange={(v) => setForm((f) => ({ ...f, type: v }))}
+              onChange={handleTypeChange}
               options={[
                 { value: '', label: t('server.form.type.placeholder') },
                 ...NODE_TYPES.map((tp) => ({ value: tp, label: tp })),
@@ -1786,7 +1847,15 @@ export default function ServerManagePage() {
 
             </div>
 
-            {TLS_NODE_TYPES.has(form.type) ? (
+            {protocolSettings ? (
+              <ServerProtocolFields
+                type={form.type}
+                value={protocolSettings}
+                onChange={setProtocolSettings}
+              />
+            ) : null}
+
+            {shouldShowEchFields(form.type, protocolSettings) ? (
               <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
                 <div className="flex items-center justify-between gap-2">
                   <Label>{t('server.dynamic_form.ech.generate', { defaultValue: 'ECH' })}</Label>
