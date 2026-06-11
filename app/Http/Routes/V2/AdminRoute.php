@@ -20,6 +20,7 @@ use App\Http\Controllers\V2\Admin\PaymentController;
 use App\Http\Controllers\V2\Admin\SystemController;
 use App\Http\Controllers\V2\Admin\ThemeController;
 use App\Http\Controllers\V2\Admin\TrafficResetController;
+use App\Http\Controllers\V2\Admin\UpdateController;
 use Illuminate\Contracts\Routing\Registrar;
 
 class AdminRoute
@@ -248,13 +249,13 @@ class AdminRoute
                 $router->any('/getAuditLog', [SystemController::class, 'getAuditLog']);
             });
 
-            // Update
-            // $router->group([
-            //     'prefix' => 'update'
-            // ], function ($router) {
-            //     $router->get('/check', [UpdateController::class, 'checkUpdate']);
-            //     $router->post('/execute', [UpdateController::class, 'executeUpdate']);
-            // });
+            // Update (check only — execute remains disabled without additional safety guards)
+            $router->group([
+                'prefix' => 'update'
+            ], function ($router) {
+                $router->get('/check', [UpdateController::class, 'checkUpdate']);
+                // $router->post('/execute', [UpdateController::class, 'executeUpdate']);
+            });
 
             // Theme
             $router->group([
