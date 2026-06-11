@@ -177,15 +177,28 @@ function loadColumnVisibility(): VisibilityState {
   }
 }
 
+const TRAFFIC_GB = 1024 * 1024 * 1024
+
 function formatBytes(n?: number | null) {
   if (!n) return '0 B'
-  const gb = n / 1073741824
+  const gb = n / TRAFFIC_GB
   if (gb >= 1) return `${gb.toFixed(2)} GB`
   const mb = n / 1048576
   if (mb >= 1) return `${mb.toFixed(2)} MB`
   const kb = n / 1024
   if (kb >= 1) return `${kb.toFixed(2)} KB`
   return `${n} B`
+}
+
+function bytesToTrafficGb(bytes?: number | null) {
+  if (!bytes) return ''
+  return (bytes / TRAFFIC_GB).toFixed(3)
+}
+
+function trafficGbToBytes(gb: number | string) {
+  const n = typeof gb === 'string' ? parseFloat(gb) : gb
+  if (!n || Number.isNaN(n)) return 0
+  return Math.round(TRAFFIC_GB * n)
 }
 
 function formatTs(ts?: number | null) {
@@ -505,9 +518,9 @@ export default function UserPage() {
       plan_id: row.plan_id,
       balance: row.balance,
       commission_balance: row.commission_balance,
-      transfer_enable: row.transfer_enable,
-      u: row.u,
-      d: row.d,
+      transfer_enable: row.transfer_enable ? row.transfer_enable / TRAFFIC_GB : 0,
+      u: row.u ? bytesToTrafficGb(row.u) : '',
+      d: row.d ? bytesToTrafficGb(row.d) : '',
       expired_at: row.expired_at,
       banned: Boolean(row.banned),
       commission_rate: row.commission_rate,
@@ -597,6 +610,15 @@ export default function UserPage() {
           id: editing?.id,
         }
         if (payload.invite_user_email === '') delete payload.invite_user_email
+        if (payload.u !== undefined && payload.u !== '') {
+          payload.u = trafficGbToBytes(payload.u as number | string)
+        }
+        if (payload.d !== undefined && payload.d !== '') {
+          payload.d = trafficGbToBytes(payload.d as number | string)
+        }
+        if (payload.transfer_enable !== undefined) {
+          payload.transfer_enable = trafficGbToBytes(payload.transfer_enable as number | string)
+        }
         await postJson('/user/update', payload)
       }
       toast.success(t('common.success'))
@@ -1140,11 +1162,11 @@ export default function UserPage() {
         open={dialogMode === 'create'}
         onOpenChange={(o) => !o && setDialogMode(null)}
       >
-        <DialogContent className="!flex flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+        <DialogContent className="!flex h-[468px] max-h-[468px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
           <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="xb-stack-4 px-6 py-4 text-sm">
+          <div className="xb-stack-4 min-h-0 flex-1 overflow-y-auto px-6 py-3 text-sm">
             <div className="space-y-1.5">
               <Label className="uppercase tracking-wider text-muted-foreground">
                 {t('user.generate.form.email')}
@@ -1241,7 +1263,7 @@ export default function UserPage() {
               </div>
             ) : null}
           </div>
-          <DialogFooter className="shrink-0 border-t px-6 py-4">
+          <DialogFooter className="shrink-0 border-t px-6 py-3">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
               {t('user.generate.form.cancel')}
             </Button>
@@ -1329,8 +1351,9 @@ export default function UserPage() {
                     <SuffixInput
                       suffix="GB"
                       type="number"
-                      value={Number(form.u ?? 0)}
-                      onChange={(e) => setForm((f) => ({ ...f, u: Number(e.target.value) }))}
+                      step="any"
+                      value={form.u ?? ''}
+                      onChange={(e) => setForm((f) => ({ ...f, u: e.target.value }))}
                       placeholder={t('user.edit.form.upload_placeholder')}
                     />
                 </div>
@@ -1341,35 +1364,44 @@ export default function UserPage() {
                     <SuffixInput
                       suffix="GB"
                       type="number"
-                      value={Number(form.d ?? 0)}
-                      onChange={(e) => setForm((f) => ({ ...f, d: Number(e.target.value) }))}
+                      step="any"
+                      value={form.d ?? ''}
+                      onChange={(e) => setForm((f) => ({ ...f, d: e.target.value }))}
                       placeholder={t('user.edit.form.download_placeholder')}
                     />
                 </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
-                  {t('user.edit.form.total_traffic')}
-                </Label>
-                  <SuffixInput
-                    suffix="GB"
-                    type="number"
-                    value={Number(form.transfer_enable ?? 0)}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, transfer_enable: Number(e.target.value) }))
-                    }
-                    placeholder={t('user.edit.form.total_traffic_placeholder')}
-                  />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
-                  {t('user.edit.form.expire_time')}
-                </Label>
-                  <ExpireDateInput
-                    value={form.expired_at as number | null | undefined}
-                    onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
-                    placeholder={t('user.edit.form.expire_time_placeholder')}
-                  />
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.total_traffic')}
+                  </Label>
+                    <SuffixInput
+                      suffix="GB"
+                      type="number"
+                      step="any"
+                      value={
+                        form.transfer_enable != null && form.transfer_enable !== ''
+                          ? Number(form.transfer_enable)
+                          : ''
+                      }
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          transfer_enable: e.target.value === '' ? 0 : Number(e.target.value),
+                        }))
+                      }
+                      placeholder={t('user.edit.form.total_traffic_placeholder')}
+                    />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.expire_time')}
+                  </Label>
+                    <ExpireDateInput
+                      value={form.expired_at as number | null | undefined}
+                      onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
+                      placeholder={t('user.edit.form.expire_time_placeholder')}
+                    />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="uppercase tracking-wider text-muted-foreground">
@@ -1394,11 +1426,11 @@ export default function UserPage() {
                   {t('user.edit.form.account_status')}
                 </Label>
                   <FormSelect
-                    value={form.banned ? 'banned' : 'normal'}
-                    onChange={(v) => setForm((f) => ({ ...f, banned: v === 'banned' }))}
+                    value={form.banned ? 'true' : 'false'}
+                    onChange={(v) => setForm((f) => ({ ...f, banned: v === 'true' }))}
                     options={[
-                      { value: 'normal', label: t('user.columns.status_text.normal') },
-                      { value: 'banned', label: t('user.columns.status_text.banned') },
+                      { value: 'false', label: t('user.columns.status_text.normal') },
+                      { value: 'true', label: t('user.columns.status_text.banned') },
                     ]}
                   />
               </div>
@@ -1499,20 +1531,26 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.remarks_placeholder')}
                   />
               </div>
-              <div className="xb-stack-2">
-                <div className="flex items-center gap-2">
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.is_admin')}
+                </Label>
+                <div className="py-2">
                   <Switch
                     checked={Boolean(form.is_admin)}
                     onCheckedChange={(v) => setForm((f) => ({ ...f, is_admin: v }))}
                   />
-                  <Label>{t('user.edit.form.is_admin')}</Label>
                 </div>
-                <div className="flex items-center gap-2">
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.is_staff')}
+                </Label>
+                <div className="py-2">
                   <Switch
                     checked={Boolean(form.is_staff)}
                     onCheckedChange={(v) => setForm((f) => ({ ...f, is_staff: v }))}
                   />
-                  <Label>{t('user.edit.form.is_staff')}</Label>
                 </div>
               </div>
             </div>
