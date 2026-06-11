@@ -314,6 +314,7 @@ export default {
     quickLoginHint: "Generate a one-time login link to sign in on another device.",
     generateQuickLogin: "Generate quick login link",
     quickLoginCopied: "Quick login link copied to clipboard",
+    copied: "در کلیپ‌بورد کپی شد",
     telegram: "Telegram",
     telegramHint: "Search this bot on Telegram and send /bind:",
     telegramBound: "Telegram linked",

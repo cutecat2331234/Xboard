@@ -314,6 +314,7 @@ export default {
     quickLoginHint: "生成一次性登入連結，可在其他設備快速登入當前帳號。",
     generateQuickLogin: "生成快捷登入連結",
     quickLoginCopied: "快捷登入連結已複製到剪貼簿",
+    copied: "已複製到剪貼簿",
     telegram: "Telegram",
     telegramHint: "Search this bot on Telegram and send /bind:",
     telegramBound: "Telegram linked",
