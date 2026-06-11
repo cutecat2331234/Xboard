@@ -9,7 +9,6 @@ import {
   dialogFieldLabelCls,
   dialogInputCls,
   dialogSubFieldLabelCls,
-  formSubLabelCls,
   inputCls,
   textareaCls,
 } from '@/lib/form-styles'
@@ -22,7 +21,6 @@ import { SuffixInput } from '@/components/shared/SuffixInput'
 import { TagInput } from '@/components/shared/TagInput'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -639,10 +637,9 @@ export default function PlanPage() {
                   </div>
                 ))}
               </div>
-              <Separator />
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {EXTRA_PRICE_PERIODS.map((period) => (
-                  <div key={period} className="space-y-1.5">
+                  <div key={period} className="space-y-1">
                     <Label className={dialogFieldLabelCls}>
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
@@ -654,7 +651,7 @@ export default function PlanPage() {
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
-                    <p className={formSubLabelCls}>
+                    <p className="m-0 text-[11px] leading-tight text-muted-foreground">
                       {t(
                         period === 'onetime'
                           ? 'subscribe.plan.form.price.onetime_desc'
