@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ColumnDef } from '@tanstack/react-table'
 
-import { Pencil, Plus, SlidersHorizontal, Sparkles } from 'lucide-react'
+import { Gift, Globe, Pencil, Plus, SlidersHorizontal, Sparkles, Target } from 'lucide-react'
 
 import { useTranslation } from 'react-i18next'
 
@@ -10,9 +10,10 @@ import { toast } from 'sonner'
 
 import { downloadAdminFile, fetchJsonList, fetchJsonObject, fetchPaginatedList, postJson } from '@/lib/api'
 
-import { inputCls } from '@/lib/form-styles'
+import { inputCls, textareaCls } from '@/lib/form-styles'
 
 import { DataTable } from '@/components/shared/DataTable'
+import { SuffixInput } from '@/components/shared/SuffixInput'
 
 import { Button } from '@/components/ui/button'
 
@@ -705,10 +706,12 @@ export default function GiftCardPage() {
 
     if (
       !(await confirm(
-        t('giftCard.template.actions.deleteConfirm.title'),
-        t('giftCard.template.actions.deleteConfirm.description'),
+        t('giftCard.template.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
+        t('giftCard.template.actions.deleteConfirm.description', {
+          defaultValue: '此操作将永久删除该模板，确定要继续吗？',
+        }),
         {
-          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText'),
+          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
         },
       ))
     )
@@ -764,10 +767,12 @@ export default function GiftCardPage() {
 
     if (
       !(await confirm(
-        t('giftCard.template.actions.deleteConfirm.title'),
-        t('giftCard.template.actions.deleteConfirm.description'),
+        t('giftCard.template.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
+        t('giftCard.template.actions.deleteConfirm.description', {
+          defaultValue: '此操作将永久删除该模板，确定要继续吗？',
+        }),
         {
-          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText'),
+          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
         },
       ))
     )
@@ -837,7 +842,7 @@ export default function GiftCardPage() {
 
       await postJson('/gift-card/update-code', payload)
 
-      toast.success(t('giftCard.messages.codeStatusUpdated'))
+      toast.success(t('giftCard.messages.codeStatusUpdated', { defaultValue: '兑换码更新成功' }))
 
       setCodeEditOpen(false)
 
@@ -847,7 +852,7 @@ export default function GiftCardPage() {
 
       toast.error(
 
-        e instanceof Error ? e.message : t('giftCard.messages.updateCodeStatusFailed'),
+        e instanceof Error ? e.message : t('giftCard.messages.updateCodeStatusFailed', { defaultValue: '兑换码更新失败' }),
 
       )
 
@@ -897,7 +902,7 @@ export default function GiftCardPage() {
 
         accessorKey: 'codes_count',
 
-        header: () => t('giftCard.code.form.count.label'),
+        header: () => t('giftCard.template.table.columns.codes', { defaultValue: '卡密数' }),
 
       },
 
@@ -905,7 +910,7 @@ export default function GiftCardPage() {
 
         id: 'actions',
 
-        header: () => t('common.table.columns.actions'),
+        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
 
         cell: ({ row }) => (
 
@@ -915,7 +920,7 @@ export default function GiftCardPage() {
 
               <Pencil className="mr-1 h-3 w-3" />
 
-              {t('common.edit')}
+              {t('common.edit', { defaultValue: '编辑' })}
 
             </Button>
 
@@ -923,7 +928,7 @@ export default function GiftCardPage() {
 
               <Sparkles className="mr-1 h-3 w-3" />
 
-              {t('giftCard.code.generate.title')}
+              {t('giftCard.template.generate', { defaultValue: '生成卡密' })}
 
             </Button>
 
@@ -939,7 +944,7 @@ export default function GiftCardPage() {
 
             >
 
-              {t('giftCard.template.actions.delete')}
+              {t('common.delete', { defaultValue: '删除' })}
 
             </Button>
 
@@ -963,19 +968,19 @@ export default function GiftCardPage() {
 
       { accessorKey: 'id', header: 'ID' },
 
-      { accessorKey: 'code', header: () => t('giftCard.code.table.columns.code') },
+      { accessorKey: 'code', header: () => t('giftCard.codes.columns.code', { defaultValue: '卡密' }) },
 
-      { accessorKey: 'status', header: () => t('giftCard.code.table.columns.status') },
+      { accessorKey: 'status', header: () => t('giftCard.codes.columns.status', { defaultValue: '状态' }) },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.code.table.columns.template_name') },
+      { accessorKey: 'template_id', header: () => t('giftCard.codes.columns.template', { defaultValue: '模板' }) },
 
-      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.id') },
+      { accessorKey: 'batch_id', header: () => t('giftCard.codes.columns.batch', { defaultValue: '批次' }) },
 
       {
 
         id: 'actions',
 
-        header: () => t('common.table.columns.actions'),
+        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
 
         cell: ({ row }) => (
 
@@ -985,7 +990,7 @@ export default function GiftCardPage() {
 
               <Button variant="ghost" size="sm" onClick={() => exportBatch(String(row.original.batch_id))}>
 
-                {t('giftCard.code.actions.export')}
+                {t('giftCard.codes.export', { defaultValue: '导出批次' })}
 
               </Button>
 
@@ -995,13 +1000,13 @@ export default function GiftCardPage() {
 
               <Pencil className="mr-1 h-3 w-3" />
 
-              {t('common.edit')}
+              {t('common.edit', { defaultValue: '编辑' })}
 
             </Button>
 
             <Button variant="ghost" size="sm" onClick={() => toggleCode(row.original)}>
 
-              {t('giftCard.codes.toggle')}
+              {t('giftCard.codes.toggle', { defaultValue: '切换状态' })}
 
             </Button>
 
@@ -1017,7 +1022,7 @@ export default function GiftCardPage() {
 
             >
 
-              {t('giftCard.template.actions.delete')}
+              {t('common.delete', { defaultValue: '删除' })}
 
             </Button>
 
@@ -1041,11 +1046,11 @@ export default function GiftCardPage() {
 
       { accessorKey: 'id', header: 'ID' },
 
-      { accessorKey: 'user_id', header: () => t('giftCard.usage.table.columns.user_email') },
+      { accessorKey: 'user_id', header: () => t('giftCard.usages.columns.user', { defaultValue: '用户' }) },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.usage.table.columns.template_name') },
+      { accessorKey: 'template_id', header: () => t('giftCard.usages.columns.template', { defaultValue: '模板' }) },
 
-      { accessorKey: 'created_at', header: () => t('giftCard.usage.table.columns.created_at') },
+      { accessorKey: 'created_at', header: () => t('giftCard.usages.columns.time', { defaultValue: '时间' }) },
 
     ],
 
@@ -1289,171 +1294,71 @@ export default function GiftCardPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="!flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
-          <DialogHeader>
+          <DialogHeader className="shrink-0 border-b px-6 py-4">
 
             <DialogTitle>
 
-              {dialogMode === 'edit'
-
-                ? t('giftCard.template.form.edit')
-
-                : t('giftCard.template.form.add')}
+              {dialogMode === 'edit' ? t('giftCard.template.form.edit') : t('giftCard.template.form.add')}
 
             </DialogTitle>
 
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 py-2">
+          <div className="min-h-0 flex-1 overflow-y-auto">
 
-            <div className="flex flex-col gap-2">
+            <div className="xb-stack-4 px-6 py-4">
 
-              <Label>{t('giftCard.template.table.columns.name')}</Label>
+              <div className="xb-stack-4 rounded-xl border bg-card/50 p-4">
 
-              <input
+                <div className="flex items-center gap-2">
 
-                className={inputCls}
+                  <Globe className="h-4 w-4 text-primary" />
 
-                value={form.name}
+                  <h3 className="text-sm font-semibold">{t('giftCard.template.form.basic.title')}</h3>
 
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                </div>
 
-              />
+                <div className="grid grid-cols-2 gap-4">
 
-            </div>
+                  <div className="xb-stack-2">
 
-            <div className="flex flex-col gap-2">
+                    <Label>{t('giftCard.template.form.name.label')}</Label>
 
-              <Label>{t('giftCard.template.form.type.label')}</Label>
+                    <input
 
-              <select
+                      className={inputCls}
 
-                className={inputCls}
+                      placeholder={t('giftCard.template.form.name.placeholder')}
 
-                value={form.type}
+                      value={form.name}
 
-                onChange={(e) => setForm((f) => ({ ...f, type: Number(e.target.value) }))}
+                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
 
-              >
+                    />
 
-                {giftTypeOptions.map(({ id, label }) => (
+                  </div>
 
-                  <option key={id} value={id}>
+                  <div className="xb-stack-2">
 
-                    {label}
-
-                  </option>
-
-                ))}
-
-              </select>
-
-            </div>
-
-            <div className="flex flex-col gap-2">
-
-              <Label>{t('giftCard.template.form.description.label')}</Label>
-
-              <input
-
-                className={inputCls}
-
-                value={form.description}
-
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-
-              />
-
-            </div>
-
-            <div className="flex flex-col gap-2">
-
-              <Label>{t('giftCard.template.form.sort.label')}</Label>
-
-              <input
-
-                type="number"
-
-                className={inputCls}
-
-                value={form.sort}
-
-                onChange={(e) => setForm((f) => ({ ...f, sort: Number(e.target.value) }))}
-
-              />
-
-            </div>
-
-            <div className="flex flex-col gap-2">
-
-              <Label>{t('giftCard.template.table.columns.status')}</Label>
-
-              <select
-
-                className={inputCls}
-
-                value={form.status}
-
-                onChange={(e) => setForm((f) => ({ ...f, status: Number(e.target.value) }))}
-
-              >
-
-                <option value={1}>{t('giftCard.common.enabled')}</option>
-
-                <option value={0}>{t('giftCard.common.disabled')}</option>
-
-              </select>
-
-            </div>
-
-
-
-            <div className="space-y-3 rounded-md border p-3">
-
-              <p className="text-sm font-medium">{t('giftCard.template.form.rewards.title')}</p>
-
-              {form.type === 2 ? (
-
-                <>
-
-                  <div className="flex flex-col gap-2">
-
-                    <Label>{t('giftCard.template.form.rewards.plan_id.label')}</Label>
+                    <Label>{t('giftCard.template.form.type.label')}</Label>
 
                     <select
 
                       className={inputCls}
 
-                      value={form.rewards.plan_id ?? ''}
+                      value={form.type}
 
-                      onChange={(e) =>
-
-                        setForm((f) => ({
-
-                          ...f,
-
-                          rewards: {
-
-                            ...f.rewards,
-
-                            plan_id: e.target.value ? Number(e.target.value) : null,
-
-                          },
-
-                        }))
-
-                      }
+                      onChange={(e) => setForm((f) => ({ ...f, type: Number(e.target.value) }))}
 
                     >
 
-                      <option value="">{t('giftCard.template.form.rewards.plan_id.placeholder')}</option>
+                      {giftTypeOptions.map(({ id, label }) => (
 
-                      {plans.map((p) => (
+                        <option key={id} value={id}>
 
-                        <option key={p.id} value={p.id}>
-
-                          {p.name}
+                          {label}
 
                         </option>
 
@@ -1463,53 +1368,31 @@ export default function GiftCardPage() {
 
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                </div>
 
-                    <Label>
+                <div className="xb-stack-2">
 
-                      {t('giftCard.template.form.rewards.plan_validity_days.label')}
+                  <Label>{t('giftCard.template.form.description.label')}</Label>
 
-                    </Label>
+                  <textarea
 
-                    <input
+                    className={`${textareaCls} min-h-[80px] font-mono text-xs`}
 
-                      type="number"
+                    placeholder={t('giftCard.template.form.description.placeholder')}
 
-                      className={inputCls}
+                    value={form.description}
 
-                      value={form.rewards.plan_validity_days ?? ''}
+                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
 
-                      onChange={(e) =>
+                  />
 
-                        setForm((f) => ({
+                </div>
 
-                          ...f,
+                <div className="grid grid-cols-2 gap-4">
 
-                          rewards: {
+                  <div className="xb-stack-2">
 
-                            ...f.rewards,
-
-                            plan_validity_days: e.target.value ? Number(e.target.value) : null,
-
-                          },
-
-                        }))
-
-                      }
-
-                    />
-
-                  </div>
-
-                </>
-
-              ) : (
-
-                <>
-
-                  <div className="flex flex-col gap-2">
-
-                    <Label>{t('giftCard.template.form.rewards.balance.label')}</Label>
+                    <Label>{t('giftCard.template.form.sort.label')}</Label>
 
                     <input
 
@@ -1517,197 +1400,343 @@ export default function GiftCardPage() {
 
                       className={inputCls}
 
-                      value={form.rewards.balance ?? 0}
+                      placeholder={t('giftCard.template.form.sort.placeholder')}
 
-                      onChange={(e) =>
+                      value={form.sort}
 
-                        setForm((f) => ({
-
-                          ...f,
-
-                          rewards: { ...f.rewards, balance: Number(e.target.value) },
-
-                        }))
-
-                      }
+                      onChange={(e) => setForm((f) => ({ ...f, sort: Number(e.target.value) }))}
 
                     />
 
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-row items-center justify-between rounded-md border border-dashed p-3">
 
-                    <Label>{t('giftCard.template.form.rewards.transfer_enable.label')}</Label>
+                    <div className="xb-stack-05">
 
-                    <input
+                      <Label className="text-xs font-semibold">{t('giftCard.template.form.status.label')}</Label>
 
-                      type="number"
+                      <p className="text-[10px] text-muted-foreground">
 
-                      className={inputCls}
+                        {t('giftCard.template.form.status.description')}
 
-                      value={form.rewards.transfer_enable ?? ''}
+                      </p>
 
-                      onChange={(e) =>
-
-                        setForm((f) => ({
-
-                          ...f,
-
-                          rewards: {
-
-                            ...f.rewards,
-
-                            transfer_enable: e.target.value ? Number(e.target.value) : undefined,
-
-                          },
-
-                        }))
-
-                      }
-
-                    />
-
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-
-                    <Label>{t('giftCard.template.form.rewards.expire_days.label')}</Label>
-
-                    <input
-
-                      type="number"
-
-                      className={inputCls}
-
-                      value={form.rewards.expire_days ?? ''}
-
-                      onChange={(e) =>
-
-                        setForm((f) => ({
-
-                          ...f,
-
-                          rewards: {
-
-                            ...f.rewards,
-
-                            expire_days: e.target.value ? Number(e.target.value) : undefined,
-
-                          },
-
-                        }))
-
-                      }
-
-                    />
-
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-
-                    <Label>{t('giftCard.template.form.rewards.device_limit.label')}</Label>
-
-                    <input
-
-                      type="number"
-
-                      className={inputCls}
-
-                      value={form.rewards.device_limit ?? ''}
-
-                      onChange={(e) =>
-
-                        setForm((f) => ({
-
-                          ...f,
-
-                          rewards: {
-
-                            ...f.rewards,
-
-                            device_limit: e.target.value ? Number(e.target.value) : undefined,
-
-                          },
-
-                        }))
-
-                      }
-
-                    />
-
-                  </div>
-
-                  <div className="flex items-center gap-2">
+                    </div>
 
                     <Switch
 
-                      checked={Boolean(form.rewards.reset_package)}
+                      checked={form.status === 1}
 
-                      onCheckedChange={(v) =>
-
-                        setForm((f) => ({
-
-                          ...f,
-
-                          rewards: { ...f.rewards, reset_package: v },
-
-                        }))
-
-                      }
+                      onCheckedChange={(v) => setForm((f) => ({ ...f, status: v ? 1 : 0 }))}
 
                     />
 
-                    <Label>{t('giftCard.template.form.rewards.reset_package.label')}</Label>
-
                   </div>
 
-                </>
-
-              )}
-
-            </div>
-
-
-
-            <div className="space-y-3 rounded-md border p-3">
-
-              <p className="text-sm font-medium">{t('giftCard.template.form.conditions.title')}</p>
-
-              <div className="flex items-center gap-2">
-
-                <Switch
-
-                  checked={Boolean(form.conditions.new_user_only)}
-
-                  onCheckedChange={(v) =>
-
-                    setForm((f) => ({
-
-                      ...f,
-
-                      conditions: { ...f.conditions, new_user_only: v },
-
-                    }))
-
-                  }
-
-                />
-
-                <Label>{t('giftCard.template.form.conditions.new_user_only.label')}</Label>
+                </div>
 
               </div>
 
-              {form.conditions.new_user_only ? (
 
-                <div className="flex flex-col gap-2">
+
+              <div className="xb-stack-4 rounded-xl border bg-card/50 p-4">
+
+                <div className="flex items-center gap-2">
+
+                  <Gift className="h-4 w-4 text-primary" />
+
+                  <h3 className="text-sm font-semibold">{t('giftCard.template.form.rewards.title')}</h3>
+
+                </div>
+
+                {form.type === 2 ? (
+
+                  <div className="grid grid-cols-2 gap-4">
+
+                    <div className="xb-stack-2">
+
+                      <Label>{t('giftCard.template.form.rewards.plan_id.label')}</Label>
+
+                      <select
+
+                        className={inputCls}
+
+                        value={form.rewards.plan_id ?? ''}
+
+                        onChange={(e) =>
+
+                          setForm((f) => ({
+
+                            ...f,
+
+                            rewards: {
+
+                              ...f.rewards,
+
+                              plan_id: e.target.value ? Number(e.target.value) : null,
+
+                            },
+
+                          }))
+
+                        }
+
+                      >
+
+                        <option value="">{t('giftCard.template.form.rewards.plan_id.placeholder')}</option>
+
+                        {plans.map((p) => (
+
+                          <option key={p.id} value={p.id}>
+
+                            {p.name}
+
+                          </option>
+
+                        ))}
+
+                      </select>
+
+                    </div>
+
+                    <div className="xb-stack-2">
+
+                      <Label>{t('giftCard.template.form.rewards.plan_validity_days.label')}</Label>
+
+                      <SuffixInput
+
+                        suffix={t('common.days')}
+
+                        type="number"
+
+                        placeholder={t('giftCard.template.form.rewards.plan_validity_days.placeholder')}
+
+                        value={form.rewards.plan_validity_days ?? ''}
+
+                        onChange={(e) =>
+
+                          setForm((f) => ({
+
+                            ...f,
+
+                            rewards: {
+
+                              ...f.rewards,
+
+                              plan_validity_days: e.target.value ? Number(e.target.value) : null,
+
+                            },
+
+                          }))
+
+                        }
+
+                      />
+
+                    </div>
+
+                  </div>
+
+                ) : (
+
+                  <>
+
+                    <div className="grid grid-cols-2 gap-4">
+
+                      <div className="xb-stack-2">
+
+                        <Label>{t('giftCard.template.form.rewards.balance.label')}</Label>
+
+                        <SuffixInput
+
+                          suffix="¥"
+
+                          type="number"
+
+                          placeholder={t('giftCard.template.form.rewards.balance.placeholder')}
+
+                          value={form.rewards.balance ?? 0}
+
+                          onChange={(e) =>
+
+                            setForm((f) => ({
+
+                              ...f,
+
+                              rewards: { ...f.rewards, balance: Number(e.target.value) },
+
+                            }))
+
+                          }
+
+                        />
+
+                      </div>
+
+                      <div className="xb-stack-2">
+
+                        <Label>{t('giftCard.template.form.rewards.transfer_enable.label')}</Label>
+
+                        <SuffixInput
+
+                          suffix="GB"
+
+                          type="number"
+
+                          placeholder={t('giftCard.template.form.rewards.transfer_enable.placeholder')}
+
+                          value={form.rewards.transfer_enable ?? ''}
+
+                          onChange={(e) =>
+
+                            setForm((f) => ({
+
+                              ...f,
+
+                              rewards: {
+
+                                ...f.rewards,
+
+                                transfer_enable: e.target.value ? Number(e.target.value) : undefined,
+
+                              },
+
+                            }))
+
+                          }
+
+                        />
+
+                      </div>
+
+                      <div className="xb-stack-2">
+
+                        <Label>{t('giftCard.template.form.rewards.expire_days.label')}</Label>
+
+                        <SuffixInput
+
+                          suffix={t('common.days')}
+
+                          type="number"
+
+                          placeholder={t('giftCard.template.form.rewards.expire_days.placeholder')}
+
+                          value={form.rewards.expire_days ?? ''}
+
+                          onChange={(e) =>
+
+                            setForm((f) => ({
+
+                              ...f,
+
+                              rewards: {
+
+                                ...f.rewards,
+
+                                expire_days: e.target.value ? Number(e.target.value) : undefined,
+
+                              },
+
+                            }))
+
+                          }
+
+                        />
+
+                      </div>
+
+                      <div className="xb-stack-2">
+
+                        <Label>{t('giftCard.template.form.rewards.device_limit.label')}</Label>
+
+                        <input
+
+                          type="number"
+
+                          className={inputCls}
+
+                          placeholder={t('giftCard.template.form.rewards.device_limit.placeholder')}
+
+                          value={form.rewards.device_limit ?? ''}
+
+                          onChange={(e) =>
+
+                            setForm((f) => ({
+
+                              ...f,
+
+                              rewards: {
+
+                                ...f.rewards,
+
+                                device_limit: e.target.value ? Number(e.target.value) : undefined,
+
+                              },
+
+                            }))
+
+                          }
+
+                        />
+
+                      </div>
+
+                    </div>
+
+                    <div className="flex items-center gap-2">
+
+                      <Switch
+
+                        checked={Boolean(form.rewards.reset_package)}
+
+                        onCheckedChange={(v) =>
+
+                          setForm((f) => ({
+
+                            ...f,
+
+                            rewards: { ...f.rewards, reset_package: v },
+
+                          }))
+
+                        }
+
+                      />
+
+                      <Label>{t('giftCard.template.form.rewards.reset_package.label')}</Label>
+
+                    </div>
+
+                  </>
+
+                )}
+
+              </div>
+
+
+
+              <div className="xb-stack-4 rounded-xl border bg-card/50 p-4">
+
+                <div className="flex items-center gap-2">
+
+                  <Target className="h-4 w-4 text-primary" />
+
+                  <h3 className="text-sm font-semibold">{t('giftCard.template.form.conditions.title')}</h3>
+
+                </div>
+
+                <div className="xb-stack-2">
 
                   <Label>{t('giftCard.template.form.conditions.new_user_max_days.label')}</Label>
 
-                  <input
+                  <SuffixInput
+
+                    suffix={t('common.days')}
 
                     type="number"
 
-                    className={inputCls}
+                    placeholder={t('giftCard.template.form.conditions.new_user_max_days.placeholder')}
 
                     value={form.conditions.new_user_max_days ?? ''}
 
@@ -1733,111 +1762,135 @@ export default function GiftCardPage() {
 
                 </div>
 
-              ) : null}
+                <div className="flex items-center gap-2">
 
-              <div className="flex items-center gap-2">
+                  <Switch
 
-                <Switch
+                    checked={Boolean(form.conditions.new_user_only)}
 
-                  checked={Boolean(form.conditions.paid_user_only)}
+                    onCheckedChange={(v) =>
 
-                  onCheckedChange={(v) =>
+                      setForm((f) => ({
 
-                    setForm((f) => ({
+                        ...f,
 
-                      ...f,
+                        conditions: { ...f.conditions, new_user_only: v },
 
-                      conditions: { ...f.conditions, paid_user_only: v },
+                      }))
 
-                    }))
+                    }
 
-                  }
+                  />
 
-                />
-
-                <Label>{t('giftCard.template.form.conditions.paid_user_only.label')}</Label>
-
-              </div>
-
-              <div className="flex items-center gap-2">
-
-                <Switch
-
-                  checked={Boolean(form.conditions.require_invite)}
-
-                  onCheckedChange={(v) =>
-
-                    setForm((f) => ({
-
-                      ...f,
-
-                      conditions: { ...f.conditions, require_invite: v },
-
-                    }))
-
-                  }
-
-                />
-
-                <Label>{t('giftCard.template.form.conditions.require_invite.label')}</Label>
-
-              </div>
-
-              <div className="flex flex-col gap-2">
-
-                <Label>{t('giftCard.template.form.conditions.allowed_plans.label')}</Label>
-
-                <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto rounded-md border p-2">
-
-                  {plans.map((p) => (
-
-                    <label key={p.id} className="flex items-center gap-1 text-xs">
-
-                      <input
-
-                        type="checkbox"
-
-                        checked={form.conditions.allowed_plans?.includes(Number(p.id)) ?? false}
-
-                        onChange={() => togglePlanInCondition('allowed_plans', Number(p.id))}
-
-                      />
-
-                      {p.name}
-
-                    </label>
-
-                  ))}
+                  <Label>{t('giftCard.template.form.conditions.new_user_only.label')}</Label>
 
                 </div>
 
-              </div>
+                <div className="flex items-center gap-2">
 
-              <div className="flex flex-col gap-2">
+                  <Switch
 
-                <Label>{t('giftCard.template.form.conditions.disallowed_plans.label')}</Label>
+                    checked={Boolean(form.conditions.paid_user_only)}
 
-                <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto rounded-md border p-2">
+                    onCheckedChange={(v) =>
 
-                  {plans.map((p) => (
+                      setForm((f) => ({
 
-                    <label key={p.id} className="flex items-center gap-1 text-xs">
+                        ...f,
 
-                      <input
+                        conditions: { ...f.conditions, paid_user_only: v },
 
-                        type="checkbox"
+                      }))
 
-                        checked={form.conditions.disallowed_plans?.includes(Number(p.id)) ?? false}
+                    }
 
-                        onChange={() => togglePlanInCondition('disallowed_plans', Number(p.id))}
+                  />
 
-                      />
+                  <Label>{t('giftCard.template.form.conditions.paid_user_only.label')}</Label>
 
-                      {p.name}
+                </div>
 
-                    </label>
+                <div className="flex items-center gap-2">
 
-                  ))}
+                  <Switch
+
+                    checked={Boolean(form.conditions.require_invite)}
+
+                    onCheckedChange={(v) =>
+
+                      setForm((f) => ({
+
+                        ...f,
+
+                        conditions: { ...f.conditions, require_invite: v },
+
+                      }))
+
+                    }
+
+                  />
+
+                  <Label>{t('giftCard.template.form.conditions.require_invite.label')}</Label>
+
+                </div>
+
+                <div className="xb-stack-2">
+
+                  <Label>{t('giftCard.template.form.conditions.allowed_plans.label')}</Label>
+
+                  <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto rounded-md border p-2">
+
+                    {plans.map((p) => (
+
+                      <label key={p.id} className="flex items-center gap-1 text-xs">
+
+                        <input
+
+                          type="checkbox"
+
+                          checked={form.conditions.allowed_plans?.includes(Number(p.id)) ?? false}
+
+                          onChange={() => togglePlanInCondition('allowed_plans', Number(p.id))}
+
+                        />
+
+                        {p.name}
+
+                      </label>
+
+                    ))}
+
+                  </div>
+
+                </div>
+
+                <div className="xb-stack-2">
+
+                  <Label>{t('giftCard.template.form.conditions.disallowed_plans.label')}</Label>
+
+                  <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto rounded-md border p-2">
+
+                    {plans.map((p) => (
+
+                      <label key={p.id} className="flex items-center gap-1 text-xs">
+
+                        <input
+
+                          type="checkbox"
+
+                          checked={form.conditions.disallowed_plans?.includes(Number(p.id)) ?? false}
+
+                          onChange={() => togglePlanInCondition('disallowed_plans', Number(p.id))}
+
+                        />
+
+                        {p.name}
+
+                      </label>
+
+                    ))}
+
+                  </div>
 
                 </div>
 
@@ -1847,7 +1900,7 @@ export default function GiftCardPage() {
 
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 border-t px-6 py-4">
 
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
 
@@ -1857,7 +1910,7 @@ export default function GiftCardPage() {
 
             <Button onClick={saveTemplate} disabled={saving}>
 
-              {t('common.save')}
+              {t('common.confirm')}
 
             </Button>
 
@@ -1875,7 +1928,7 @@ export default function GiftCardPage() {
 
           <DialogHeader>
 
-            <DialogTitle>{t('giftCard.code.generate.title')}</DialogTitle>
+            <DialogTitle>{t('giftCard.template.generate', { defaultValue: '生成卡密' })}</DialogTitle>
 
           </DialogHeader>
 
@@ -1883,7 +1936,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.code.generate.count')}</Label>
+              <Label>{t('giftCard.generate.count', { defaultValue: '数量' })}</Label>
 
               <input
 
@@ -1905,7 +1958,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.code.generate.prefix')}</Label>
+              <Label>{t('giftCard.generate.prefix', { defaultValue: '前缀' })}</Label>
 
               <input
 
@@ -1921,7 +1974,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.code.generate.expires_hours')}</Label>
+              <Label>{t('giftCard.generate.expires', { defaultValue: '过期时间（小时，可选）' })}</Label>
 
               <input
 
@@ -1939,7 +1992,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.code.generate.max_usage')}</Label>
+              <Label>{t('giftCard.generate.maxUsage', { defaultValue: '最大使用次数' })}</Label>
 
               <input
 
@@ -1971,7 +2024,7 @@ export default function GiftCardPage() {
 
               <Label htmlFor="gift-download-csv">
 
-                {t('giftCard.code.form.download_csv')}
+                {t('giftCard.generate.downloadCsv', { defaultValue: '生成后下载 CSV' })}
 
               </Label>
 
@@ -1983,13 +2036,13 @@ export default function GiftCardPage() {
 
             <Button variant="outline" onClick={() => setGenerateOpen(false)}>
 
-              {t('common.cancel')}
+              {t('common.cancel', { defaultValue: '取消' })}
 
             </Button>
 
             <Button onClick={generateCodes} disabled={generating}>
 
-              {t('common.confirm')}
+              {t('common.confirm', { defaultValue: '确认' })}
 
             </Button>
 
@@ -2009,7 +2062,7 @@ export default function GiftCardPage() {
 
             <DialogTitle>
 
-              {t('giftCard.template.actions.edit')}
+              {t('giftCard.code.form.edit', { defaultValue: '编辑兑换码' })}
 
             </DialogTitle>
 
@@ -2021,7 +2074,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.table.columns.code')}</Label>
+                <Label>{t('giftCard.code.table.columns.code', { defaultValue: '兑换码' })}</Label>
 
                 <input className={inputCls} value={codeEditForm.code} readOnly disabled />
 
@@ -2029,7 +2082,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.table.columns.status')}</Label>
+                <Label>{t('giftCard.code.table.columns.status', { defaultValue: '状态' })}</Label>
 
                 <select
 
@@ -2049,7 +2102,11 @@ export default function GiftCardPage() {
 
                     <option key={value} value={value}>
 
-                      {t(`giftCard.code.status.${value}`)}
+                      {t(`giftCard.code.status.${value}`, {
+
+                        defaultValue: ['未使用', '已使用', '已过期', '已禁用'][value],
+
+                      })}
 
                     </option>
 
@@ -2061,7 +2118,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.form.max_usage.label')}</Label>
+                <Label>{t('giftCard.code.form.max_usage.label', { defaultValue: '最大使用次数' })}</Label>
 
                 <input
 
@@ -2087,7 +2144,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.table.columns.expires_at')}</Label>
+                <Label>{t('giftCard.code.table.columns.expires_at', { defaultValue: '过期时间' })}</Label>
 
                 <input
 
@@ -2107,7 +2164,7 @@ export default function GiftCardPage() {
 
                 <p className="text-xs text-muted-foreground">
 
-                  {t('giftCard.template.form.limits.max_use_per_user.placeholder')}
+                  {t('giftCard.code.form.expires_clear', { defaultValue: '留空表示永不过期' })}
 
                 </p>
 
@@ -2121,13 +2178,13 @@ export default function GiftCardPage() {
 
             <Button variant="outline" onClick={() => setCodeEditOpen(false)}>
 
-              {t('common.cancel')}
+              {t('common.cancel', { defaultValue: '取消' })}
 
             </Button>
 
             <Button onClick={saveCode} disabled={codeEditSaving || !codeEditForm}>
 
-              {t('common.save')}
+              {t('common.save', { defaultValue: '保存' })}
 
             </Button>
 

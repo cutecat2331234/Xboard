@@ -227,6 +227,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "submit": "提交",
     "saving": "保存中...",
     "none": "无",
+    "days": "天",
     "table": {
       "columns": {
         "actions": "操作"
@@ -3158,6 +3159,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "form": {
         "add": "添加模板",
         "edit": "编辑模板",
+        "basic": {
+          "title": "基础配置"
+        },
         "name": {
           "label": "模板名称",
           "placeholder": "请输入模板名称",
