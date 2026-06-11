@@ -391,13 +391,13 @@ function submit() {
 }
 .auth-card--login .auth-card__body {
   min-height: 0;
-  padding: 20px 24px 24px;
+  padding: 18px 24px 20px;
 }
 .auth-card--login .auth-card__title-main {
-  margin: 20px 0;
+  margin: 18px 0;
 }
 .auth-card--login .auth-card__subtitle {
-  margin: 16px 0 0;
+  margin: 14px 0 0;
 }
 .auth-tabs {
   margin-top: 20px;
