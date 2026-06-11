@@ -61,28 +61,24 @@ export function ConfigSectionFields({
     return (
       <>
         <SwitchField
-          compactLabel
           label={t('settings.safe.form.emailVerify.label')}
           description={t('settings.safe.form.emailVerify.description')}
           checked={Boolean(safe.email_verify)}
           onChange={(v) => update('safe', 'email_verify', v)}
         />
         <SwitchField
-          compactLabel
           label={t('settings.safe.form.gmailLimit.label')}
           description={t('settings.safe.form.gmailLimit.description')}
           checked={Boolean(safe.email_gmail_limit_enable)}
           onChange={(v) => update('safe', 'email_gmail_limit_enable', v)}
         />
         <SwitchField
-          compactLabel
           label={t('settings.safe.form.safeMode.label')}
           description={t('settings.safe.form.safeMode.description')}
           checked={Boolean(safe.safe_mode_enable)}
           onChange={(v) => update('safe', 'safe_mode_enable', v)}
         />
         <FormField
-          compactLabel
           label={t('settings.safe.form.securePath.label')}
           description={t('settings.safe.form.securePath.description')}
           value={String(safe.secure_path ?? '')}
@@ -90,7 +86,6 @@ export function ConfigSectionFields({
           onChange={(v) => update('safe', 'secure_path', v)}
         />
         <SwitchField
-          compactLabel
           label={t('settings.safe.form.emailWhitelist.label')}
           description={t('settings.safe.form.emailWhitelist.description')}
           checked={Boolean(safe.email_whitelist_enable)}
@@ -98,7 +93,6 @@ export function ConfigSectionFields({
         />
         {safe.email_whitelist_enable ? (
           <FormTextarea
-            compactLabel
             label={t('settings.safe.form.emailWhitelist.suffixes.label')}
             description={t('settings.safe.form.emailWhitelist.suffixes.description')}
             value={String(safe.email_whitelist_suffix ?? '')}
@@ -107,7 +101,6 @@ export function ConfigSectionFields({
           />
         ) : null}
         <SwitchField
-          compactLabel
           label={t('settings.safe.form.captcha.enable.label')}
           description={t('settings.safe.form.captcha.enable.description')}
           checked={Boolean(safe.captcha_enable)}
@@ -116,7 +109,6 @@ export function ConfigSectionFields({
         {safe.captcha_enable ? (
           <>
             <ConfigFormSelect
-              compactLabel
               label={t('settings.safe.form.captcha.type.label')}
               description={t('settings.safe.form.captcha.type.description')}
               value={String(safe.captcha_type ?? 'recaptcha')}
@@ -132,7 +124,6 @@ export function ConfigSectionFields({
         {safe.captcha_enable && (safe.captcha_type === 'recaptcha' || safe.captcha_type === undefined) ? (
           <>
             <FormField
-              compactLabel
               label={t('settings.safe.form.captcha.recaptcha.key.label')}
               description={t('settings.safe.form.captcha.recaptcha.key.description')}
               value={String(safe.recaptcha_key ?? '')}
@@ -140,7 +131,6 @@ export function ConfigSectionFields({
               onChange={(v) => update('safe', 'recaptcha_key', v)}
             />
             <FormField
-              compactLabel
               label={t('settings.safe.form.captcha.recaptcha.siteKey.label')}
               description={t('settings.safe.form.captcha.recaptcha.siteKey.description')}
               value={String(safe.recaptcha_site_key ?? '')}
@@ -152,7 +142,6 @@ export function ConfigSectionFields({
         {safe.captcha_enable && safe.captcha_type === 'recaptcha-v3' ? (
           <>
             <FormField
-              compactLabel
               label={t('settings.safe.form.captcha.recaptcha_v3.secretKey.label')}
               description={t('settings.safe.form.captcha.recaptcha_v3.secretKey.description')}
               value={String(safe.recaptcha_v3_secret_key ?? '')}
@@ -160,7 +149,6 @@ export function ConfigSectionFields({
               onChange={(v) => update('safe', 'recaptcha_v3_secret_key', v)}
             />
             <FormField
-              compactLabel
               label={t('settings.safe.form.captcha.recaptcha_v3.siteKey.label')}
               description={t('settings.safe.form.captcha.recaptcha_v3.siteKey.description')}
               value={String(safe.recaptcha_v3_site_key ?? '')}
@@ -168,7 +156,6 @@ export function ConfigSectionFields({
               onChange={(v) => update('safe', 'recaptcha_v3_site_key', v)}
             />
             <FormField
-              compactLabel
               label={t('settings.safe.form.captcha.recaptcha_v3.scoreThreshold.label')}
               description={t('settings.safe.form.captcha.recaptcha_v3.scoreThreshold.description')}
               value={String(safe.recaptcha_v3_score_threshold ?? '0.5')}
@@ -180,7 +167,6 @@ export function ConfigSectionFields({
         {safe.captcha_enable && safe.captcha_type === 'turnstile' ? (
           <>
             <FormField
-              compactLabel
               label={t('settings.safe.form.captcha.turnstile.secretKey.label')}
               description={t('settings.safe.form.captcha.turnstile.secretKey.description')}
               value={String(safe.turnstile_secret_key ?? '')}
@@ -188,7 +174,6 @@ export function ConfigSectionFields({
               onChange={(v) => update('safe', 'turnstile_secret_key', v)}
             />
             <FormField
-              compactLabel
               label={t('settings.safe.form.captcha.turnstile.siteKey.label')}
               description={t('settings.safe.form.captcha.turnstile.siteKey.description')}
               value={String(safe.turnstile_site_key ?? '')}
@@ -198,7 +183,6 @@ export function ConfigSectionFields({
           </>
         ) : null}
         <SwitchField
-          compactLabel
           label={t('settings.safe.form.registerLimit.enable.label')}
           description={t('settings.safe.form.registerLimit.enable.description')}
           checked={Boolean(safe.register_limit_by_ip_enable)}
@@ -207,7 +191,6 @@ export function ConfigSectionFields({
         {safe.register_limit_by_ip_enable ? (
           <>
             <FormField
-              compactLabel
               label={t('settings.safe.form.registerLimit.count.label')}
               description={t('settings.safe.form.registerLimit.count.description')}
               value={String(safe.register_limit_count ?? '')}
@@ -215,7 +198,6 @@ export function ConfigSectionFields({
               onChange={(v) => update('safe', 'register_limit_count', v)}
             />
             <FormField
-              compactLabel
               label={t('settings.safe.form.registerLimit.expire.label')}
               description={t('settings.safe.form.registerLimit.expire.description')}
               value={String(safe.register_limit_expire ?? '')}
@@ -225,7 +207,6 @@ export function ConfigSectionFields({
           </>
         ) : null}
         <SwitchField
-          compactLabel
           label={t('settings.safe.form.passwordLimit.enable.label')}
           description={t('settings.safe.form.passwordLimit.enable.description')}
           checked={Boolean(safe.password_limit_enable)}
@@ -234,7 +215,6 @@ export function ConfigSectionFields({
         {safe.password_limit_enable ? (
           <>
             <FormField
-              compactLabel
               label={t('settings.safe.form.passwordLimit.count.label')}
               description={t('settings.safe.form.passwordLimit.count.description')}
               value={String(safe.password_limit_count ?? '')}
@@ -242,7 +222,6 @@ export function ConfigSectionFields({
               onChange={(v) => update('safe', 'password_limit_count', v)}
             />
             <FormField
-              compactLabel
               label={t('settings.safe.form.passwordLimit.expire.label')}
               description={t('settings.safe.form.passwordLimit.expire.description')}
               value={String(safe.password_limit_expire ?? '')}
