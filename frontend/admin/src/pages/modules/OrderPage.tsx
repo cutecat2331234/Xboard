@@ -477,7 +477,7 @@ export default function OrderPage() {
           const p = row.original.period
           if (!p) return '—'
           const key = `order.period.${p}`
-          const label = t(key, { defaultValue: p })
+          const label = t(key)
           return (
             <div className="inline-flex items-center rounded-md border border-transparent bg-slate-100/80 px-2.5 py-0.5 text-xs font-medium text-nowrap text-slate-700 transition-colors hover:bg-secondary/80 hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
               {label}
@@ -649,7 +649,7 @@ export default function OrderPage() {
                   setPage(1)
                 }}
               >
-                {t('order.actions.reset', { defaultValue: 'Reset' })}
+                {t('order.actions.reset')}
               </FilterOption>
               {TYPE_KEYS.map((v) => (
                 <FilterOption
@@ -670,7 +670,7 @@ export default function OrderPage() {
                   setPage(1)
                 }}
               >
-                {t('order.actions.reset', { defaultValue: 'Reset' })}
+                {t('order.actions.reset')}
               </FilterOption>
               {PERIOD_KEYS.map((p) => (
                 <FilterOption
@@ -691,7 +691,7 @@ export default function OrderPage() {
                   setPage(1)
                 }}
               >
-                {t('order.actions.reset', { defaultValue: 'Reset' })}
+                {t('order.actions.reset')}
               </FilterOption>
               {STATUS_KEYS.map((v) => (
                 <FilterOption
@@ -712,7 +712,7 @@ export default function OrderPage() {
                   setPage(1)
                 }}
               >
-                {t('order.actions.reset', { defaultValue: 'Reset' })}
+                {t('order.actions.reset')}
               </FilterOption>
               {COMMISSION_KEYS.map((v) => (
                 <FilterOption
@@ -771,7 +771,7 @@ export default function OrderPage() {
                     label={t('order.table.columns.period')}
                     value={
                       detail.period
-                        ? t(`order.period.${detail.period}`, { defaultValue: detail.period })
+                        ? t(`order.period.${detail.period}`)
                         : '—'
                     }
                   />
@@ -872,7 +872,7 @@ export default function OrderPage() {
           ) : null}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailOpen(false)}>
-              {t('order.dialog.actions.cancel', { defaultValue: '取消' })}
+              {t('order.dialog.actions.cancel')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -937,10 +937,10 @@ export default function OrderPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAssignOpen(false)}>
-              {t('order.dialog.actions.cancel', { defaultValue: '取消' })}
+              {t('order.dialog.actions.cancel')}
             </Button>
             <Button onClick={assignOrder}>
-              {t('order.dialog.actions.confirm', { defaultValue: '确认' })}
+              {t('order.dialog.actions.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
