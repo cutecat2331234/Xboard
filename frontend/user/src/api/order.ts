@@ -56,8 +56,35 @@ export interface OrderDetail extends OrderItem {
   payment?: PaymentMethod | null
 }
 
+let cachedTryOutPlanId: number | null = null
+
+export function cacheTryOutPlanId(id: number) {
+  cachedTryOutPlanId = id
+}
+
+export async function resolveTryOutPlanId(): Promise<number> {
+  if (cachedTryOutPlanId !== null) return cachedTryOutPlanId
+  try {
+    const orders = await fetchOrders()
+    for (const order of orders) {
+      const detail = await fetchOrderDetail(order.trade_no)
+      if (detail.try_out_plan_id != null) {
+        cacheTryOutPlanId(detail.try_out_plan_id)
+        return detail.try_out_plan_id
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return 0
+}
+
 export async function fetchOrderDetail(tradeNo: string) {
-  return request<OrderDetail>(api.get('/user/order/detail', { params: { trade_no: tradeNo } }))
+  const detail = await request<OrderDetail>(api.get('/user/order/detail', { params: { trade_no: tradeNo } }))
+  if (detail.try_out_plan_id != null) {
+    cacheTryOutPlanId(detail.try_out_plan_id)
+  }
+  return detail
 }
 
 export async function fetchPaymentMethods() {

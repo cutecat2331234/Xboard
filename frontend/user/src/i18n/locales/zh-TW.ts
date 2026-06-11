@@ -76,7 +76,9 @@ export default {
     "periodThreeYear": "三年繳",
     "periodOnetime": "一次性",
     "periodReset": "流量重置包",
-    "empty": "No plans available"
+    "empty": "No plans available",
+    "tryOutBadge": "試用套餐",
+    "tryOutHint": "此套餐為註冊試用套餐，新用戶註冊時將自動獲得試用時長；您也可以在此正常下單購買。"
   },
   "node": {
     "alert": "No access points are available. If you have not subscribed or the subscription has expired, please",
@@ -146,7 +148,9 @@ export default {
     "handlingFee": "Handling fee",
     "payAmount": "Amount due",
     "scanPay": "Scan to pay",
-    "scanHint": "Scan the QR code with your payment app"
+    "scanHint": "Scan the QR code with your payment app",
+    "tryOutBadge": "試用套餐",
+    "tryOutHint": "此訂單包含註冊試用套餐，支付完成後將開通對應試用權益。"
   },
   "ticket": {
     "title": "工單歷史",
@@ -168,7 +172,8 @@ export default {
     "open": "Open",
     "reply": "回覆",
     "replyPh": "Enter your reply…",
-    "closedReplyPh": "Ticket closed…",
+    "closedReplyPh": "工單已關閉，無法回覆",
+    "closedHint": "工單已關閉，無法繼續回覆。",
     "closeSuccess": "Ticket closed"
   },
   "profile": {
