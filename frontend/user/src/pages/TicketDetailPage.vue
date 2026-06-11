@@ -19,10 +19,6 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const isClosed = computed(() => Boolean(ticket.value?.status))
 
-function formatTime(ts?: number) {
-  return formatLocaleDateTime(ts, locale.value)
-}
-
 async function load() {
   const id = Number(route.params.id)
   ticket.value = await fetchTicketById(id)
@@ -106,7 +102,7 @@ onUnmounted(stopPoll)
             :key="m.id"
             :class="m.is_me ? 'text-right' : 'text-left'"
           >
-            <div class="message-time">{{ formatTime(m.created_at) }}</div>
+            <div class="message-time">{{ formatLocaleDateTime(m.created_at, locale) }}</div>
             <div class="message-bubble">{{ m.message }}</div>
           </div>
         </div>

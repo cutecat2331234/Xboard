@@ -32,6 +32,7 @@ import { PERIOD_OPTIONS } from '@/api/plan'
 
 import { orderStatusLabel } from '@/lib/order-status'
 
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
@@ -77,7 +78,7 @@ const msg = useMessage()
 
 const dialog = useDialog()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const { symbol, code, formatPrice, load: loadCurrency } = useCurrency()
 
@@ -217,20 +218,6 @@ const isTryOutPlan = computed(() => {
   return o.plan_id === o.try_out_plan_id
 
 })
-
-
-
-function formatTime(ts?: number) {
-
-  if (!ts) return ''
-
-  const d = new Date(ts * 1000)
-
-  const pad = (n: number) => String(n).padStart(2, '0')
-
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-
-}
 
 
 
@@ -628,7 +615,7 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.createdAt') }}：</div>
 
-          <div class="info-value">{{ formatTime(order.created_at) }}</div>
+          <div class="info-value">{{ formatLocaleDateTime(order.created_at, locale) }}</div>
 
         </div>
 
