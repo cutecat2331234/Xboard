@@ -18,6 +18,7 @@ export interface GuestConfig {
   telegram_bot_username?: string
   telegram_login_domain?: string
   try_out_plan_id?: number
+  traffic_warn_rate?: number
 }
 
 export interface UserCommConfig {
@@ -33,6 +34,16 @@ export interface UserCommConfig {
   commission_distribution_l2?: number | string
   commission_distribution_l3?: number | string
   try_out_plan_id?: number
+  traffic_warn_rate?: number
+}
+
+const DEFAULT_TRAFFIC_WARN_RATE = 70
+
+export function resolveTrafficWarnRate(config?: { traffic_warn_rate?: number } | null): number {
+  const rate = config?.traffic_warn_rate
+  if (rate == null) return DEFAULT_TRAFFIC_WARN_RATE
+  const n = Number(rate)
+  return Number.isFinite(n) ? n : DEFAULT_TRAFFIC_WARN_RATE
 }
 
 let cachedTryOutPlanId: number | null = null

@@ -9,10 +9,13 @@ import { useAuthStore } from '@/stores/auth'
 import { fetchSubscribe, type SubscribeInfo } from '@/api/subscribe'
 import { fetchNotices, type NoticeItem } from '@/api/notice'
 import { fetchUserStat } from '@/api/user'
+import { resolveTrafficWarnRate } from '@/api/comm'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
 import { resolvePopupNoticeTags } from '@/utils/settings'
 
 const auth = useAuthStore()
+const { config: commConfig, load: loadComm } = useUserCommConfig()
 const msg = useMessage()
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -46,8 +49,10 @@ const hasActiveSubscription = computed(() => {
   return Boolean(expiredAt && expiredAt > Date.now() / 1000)
 })
 
+const trafficWarnThreshold = computed(() => resolveTrafficWarnRate(commConfig.value))
+
 const showTrafficAlert = computed(
-  () => !hasActiveSubscription.value && trafficPercent.value >= 70,
+  () => !hasActiveSubscription.value && trafficPercent.value >= trafficWarnThreshold.value,
 )
 
 async function load() {
@@ -98,7 +103,7 @@ async function loadNotices() {
 
 onMounted(async () => {
   await auth.loadUser()
-  await Promise.all([load(), loadNotices()])
+  await Promise.all([load(), loadNotices(), loadComm()])
   try {
     const stat = await fetchUserStat()
     unpaidOrders.value = stat[0] ?? 0
