@@ -1323,7 +1323,6 @@ export default function UserPage() {
                   value={form.expired_at as number | null | undefined}
                   onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
                   placeholder={t('user.generate.form.expire_time_placeholder')}
-                  className="px-3 font-mono text-xs"
                 />
               </div>
               <div className="space-y-1.5">
