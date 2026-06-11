@@ -165,6 +165,10 @@ const handlingPreview = computed(() => {
 
 
 
+const isPending = computed(() => Number(order.value?.status) === 0)
+
+
+
 /** Paid orders store handling on the order; pending uses live payment-method preview. */
 const orderHandlingDisplay = computed(() => {
 
@@ -172,7 +176,7 @@ const orderHandlingDisplay = computed(() => {
 
   if (!o) return 0
 
-  if (o.status !== 0) return o.handling_amount ?? 0
+  if (!isPending.value) return o.handling_amount ?? 0
 
   return handlingPreview.value
 
@@ -538,7 +542,7 @@ onUnmounted(stopPoll)
 
       <n-card class="order-info-card mt-5 rounded-md" :title="t('order.orderInfo')">
 
-        <template v-if="order.status === 0" #header-extra>
+        <template v-if="isPending" #header-extra>
 
           <n-button color="#db4619" size="small" round strong @click="confirmClose">
 
@@ -556,7 +560,19 @@ onUnmounted(stopPoll)
 
         </div>
 
-        <template v-if="order.status !== 0">
+        <template v-if="isPending">
+
+          <div v-if="orderHandlingDisplay > 0" class="info-row">
+
+            <div class="info-label">{{ t('order.handlingFee') }}：</div>
+
+            <div class="info-value">{{ formatPrice(orderHandlingDisplay) }}</div>
+
+          </div>
+
+        </template>
+
+        <template v-else>
 
           <div v-if="order.discount_amount && order.discount_amount > 0" class="info-row">
 
@@ -590,14 +606,6 @@ onUnmounted(stopPoll)
 
           </div>
 
-          <div v-if="orderHandlingDisplay > 0" class="info-row">
-
-            <div class="info-label">{{ t('order.handlingFee') }}：</div>
-
-            <div class="info-value">{{ formatPrice(orderHandlingDisplay) }}</div>
-
-          </div>
-
           <div class="info-row">
 
             <div class="info-label">{{ t('order.amount') }}</div>
@@ -616,14 +624,6 @@ onUnmounted(stopPoll)
 
         </template>
 
-        <div v-if="order.status === 0 && orderHandlingDisplay > 0" class="info-row">
-
-          <div class="info-label">{{ t('order.handlingFee') }}：</div>
-
-          <div class="info-value">{{ formatPrice(orderHandlingDisplay) }}</div>
-
-        </div>
-
         <div class="info-row">
 
           <div class="info-label">{{ t('order.createdAt') }}：</div>
@@ -638,7 +638,7 @@ onUnmounted(stopPoll)
 
       <n-card
 
-        v-if="order.status === 0"
+        v-if="isPending"
 
         class="mt-5 rounded-md pay-card"
 
@@ -680,7 +680,7 @@ onUnmounted(stopPoll)
 
 
 
-    <div v-if="order.status === 0" class="order-detail-aside">
+    <div v-if="isPending" class="order-detail-aside">
 
       <div class="summary-panel mt-5 rounded-md">
 
