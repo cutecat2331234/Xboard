@@ -29,7 +29,12 @@ import {
   HYSTERIA_ALPN_OPTIONS,
   HYSTERIA_VERSIONS,
   TRANSPORT_NETWORK_OPTIONS,
+  TRANSPORT_NETWORKS_WITH_SUBFIELDS,
   TUIC_ALPN_OPTIONS,
+  defaultTransportNetworkSettings,
+  readTransportNetworkSettings,
+  serializeTransportNetworkSettings,
+  type TransportNetworkSettingsFields,
   TUIC_CONGESTION_CONTROLS,
   TUIC_UDP_RELAY_MODES,
   TUIC_VERSIONS,
@@ -110,6 +115,7 @@ export type VmessProtocolForm = {
     server_name: string
     allow_insecure: boolean
   }
+  network_settings: TransportNetworkSettingsFields
 }
 
 export type ProtocolFormSettings =
@@ -137,6 +143,7 @@ export function defaultVmessSettings(): VmessProtocolForm {
     tls: 0,
     network: 'tcp',
     tls_settings: { server_name: '', allow_insecure: false },
+    network_settings: defaultTransportNetworkSettings(),
   }
 }
 
@@ -183,6 +190,7 @@ export function readProtocolSettings(
         server_name: String(tlsSettings.server_name ?? ''),
         allow_insecure: Boolean(tlsSettings.allow_insecure),
       },
+      network_settings: readTransportNetworkSettings(raw?.network_settings),
     }
   }
   if (type === 'trojan') return normalizeTrojanSettings(raw)
@@ -229,6 +237,8 @@ export function toProtocolSettingsPayload(
         allow_insecure: vm.tls_settings.allow_insecure,
       }
     }
+    const networkSettings = serializeTransportNetworkSettings(vm.network, vm.network_settings)
+    if (networkSettings) payload.network_settings = networkSettings
     return payload
   }
   if (type === 'trojan') return serializeTrojanSettings(settings as TrojanProtocolSettings)
@@ -468,6 +478,59 @@ function ShadowsocksFields({
   )
 }
 
+function TransportNetworkSubFields({
+  locale,
+  network,
+  value,
+  onChange,
+}: {
+  locale: string
+  network: string
+  value: TransportNetworkSettingsFields
+  onChange: (next: TransportNetworkSettingsFields) => void
+}) {
+  const { t } = useTranslation()
+
+  if (!TRANSPORT_NETWORKS_WITH_SUBFIELDS.has(network)) return null
+
+  if (network === 'grpc') {
+    return (
+      <div className="xb-stack-2">
+        <Label>{t(`${locale}.serviceName`, { defaultValue: 'Service Name' })}</Label>
+        <input
+          className={cn(inputCls, 'font-mono text-xs')}
+          value={value.serviceName}
+          onChange={(e) => onChange({ ...value, serviceName: e.target.value })}
+          placeholder={t(`${locale}.serviceName_placeholder`, { defaultValue: 'GunService' })}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <div className="xb-stack-2">
+        <Label>{t(`${locale}.path`, { defaultValue: 'Path' })}</Label>
+        <input
+          className={cn(inputCls, 'font-mono text-xs')}
+          value={value.path}
+          onChange={(e) => onChange({ ...value, path: e.target.value })}
+          placeholder={t(`${locale}.path_placeholder`, { defaultValue: '/' })}
+        />
+      </div>
+      <div className="xb-stack-2">
+        <Label>{t(`${locale}.host`, { defaultValue: 'Host' })}</Label>
+        <input
+          className={cn(inputCls, 'font-mono text-xs')}
+          value={value.host}
+          onChange={(e) => onChange({ ...value, host: e.target.value })}
+          placeholder={t(`${locale}.host_placeholder`, { defaultValue: 'v2ray.com' })}
+        />
+      </div>
+    </div>
+  )
+}
+
 function VmessFields({
   value,
   onChange,
@@ -536,6 +599,13 @@ function VmessFields({
           className="font-mono text-xs"
         />
       </div>
+
+      <TransportNetworkSubFields
+        locale="server.dynamic_form.vmess.network_settings"
+        network={value.network}
+        value={value.network_settings}
+        onChange={(network_settings) => onChange({ ...value, network_settings })}
+      />
     </div>
   )
 }
@@ -815,6 +885,13 @@ function VlessFields({
           />
         </div>
       </div>
+
+      <TransportNetworkSubFields
+        locale="server.dynamic_form.vless.network_settings"
+        network={value.network}
+        value={value.network_settings}
+        onChange={(network_settings) => onChange({ ...value, network_settings })}
+      />
 
       <div className="space-y-3 rounded-lg border bg-muted/10 p-3">
         <div className="flex items-center justify-between gap-3">
