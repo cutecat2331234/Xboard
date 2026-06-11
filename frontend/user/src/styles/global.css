@@ -81,6 +81,7 @@ html, body, #app {
   border-radius: 6px !important;
   box-shadow: none !important;
   border: 1px solid var(--xb-border);
+  overflow: hidden;
 }
 .auth-card .n-card__content,
 .auth-card .n-card-content {
