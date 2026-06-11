@@ -1,9 +1,18 @@
 #!/usr/bin/env node
 /**
- * Pixel diff 7001 (ref) vs 7002 (rewrite). Threshold: core ≤0.5%, others ≤1%.
+ * Pixel diff 7001 (ref) vs 7002 (rewrite).
+ *
+ * Thresholds:
+ *   - core routes (login/dashboard or sign-in/dashboard): ≤0.5%
+ *   - page routes: ≤1%
+ *   - DIALOG_ROUTES (admin modal flows): ≤2%
+ *
  * Usage:
  *   SIDE=user ROUTES=login,dashboard node visual-gate.mjs
  *   SIDE=admin ROUTES=sign-in,dashboard,config node visual-gate.mjs
+ *   SIDE=admin ROUTES=user-create,plan-add,server-add,gift-template,user-mail node visual-gate.mjs
+ *
+ * See scripts/visual-gate/README.md for route lists and dialog flows.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -24,7 +33,7 @@ const viewportHeight = Number(process.env.VIEWPORT_H || 900)
 const USER_ROUTES_DEFAULT =
   'login,register,forgetpassword,dashboard,plan,plan-detail,order,order-detail,invite,gift-card,traffic,knowledge,ticket,ticket-detail,profile,node'
 const ADMIN_ROUTES_DEFAULT =
-  'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset'
+  'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset,user-create,plan-add,server-add,gift-template,user-mail'
 const ADMIN_LOCALE = process.env.ADMIN_LOCALE || 'zh-CN'
 
 const routes = (process.env.ROUTES || (side === 'admin' ? ADMIN_ROUTES_DEFAULT : USER_ROUTES_DEFAULT))
@@ -34,6 +43,16 @@ const routes = (process.env.ROUTES || (side === 'admin' ? ADMIN_ROUTES_DEFAULT :
 
 const outDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'output', side)
 const CORE = new Set(side === 'admin' ? ['sign-in', 'dashboard'] : ['login', 'dashboard'])
+
+/** Admin modal flows: open dialog on parent page, screenshot dialog, allow ≤2% diff. */
+const DIALOG_ROUTES = new Set(['user-create', 'plan-add', 'server-add', 'gift-template', 'user-mail'])
+const DIALOG_PARENT = {
+  'user-create': 'user',
+  'user-mail': 'user',
+  'plan-add': 'plan',
+  'server-add': 'server_manage',
+  'gift-template': 'gift-card',
+}
 
 /** Logged-in user pages: compare main content (exclude header/sider shell noise). */
 const USER_SHELL_ROUTES = new Set([
@@ -286,6 +305,57 @@ const ADMIN_MASK_TABLE_ROUTES = new Set([
   'ticket',
   'traffic-reset',
 ])
+
+async function openAdminDialog(page, route) {
+  if (route === 'user-create') {
+    await page.locator('button:has-text("创建用户")').first().click({ timeout: 8000 })
+  } else if (route === 'user-mail') {
+    await page.locator('button:has-text("操作")').first().click({ timeout: 8000 })
+    await page.locator('[role=menuitem]:has-text("发送邮件")').first().click({ timeout: 8000 })
+  } else if (route === 'gift-template') {
+    await page.locator('[role=tab]:has-text("模板")').click({ timeout: 8000 }).catch(() => {})
+    await page.waitForTimeout(500)
+    await page.locator('tbody button:has-text("编辑")').first().click({ timeout: 8000 })
+  } else if (route === 'plan-add') {
+    await page.locator('button:has-text("添加套餐"), button:has-text("添加")').first().click({ timeout: 8000 })
+  } else if (route === 'server-add') {
+    await page.locator('button:has-text("添加节点"), button:has-text("添加")').first().click({ timeout: 8000 })
+  } else {
+    throw new Error(`unknown dialog route: ${route}`)
+  }
+  await page.waitForSelector('[role=dialog]', { timeout: 10000 })
+  await page.waitForTimeout(500)
+}
+
+async function maskDialogVolatile(page) {
+  await page.evaluate(() => {
+    document
+      .querySelectorAll('[role=dialog] input:not([type=file]), [role=dialog] textarea, [role=dialog] select')
+      .forEach((el) => {
+        if (el instanceof HTMLInputElement) {
+          if (el.readOnly || el.type === 'date' || el.type === 'hidden') return
+        }
+        if (el instanceof HTMLButtonElement && el.type === 'button') return
+        if (el instanceof HTMLSelectElement) {
+          if (el.options.length > 0) el.selectedIndex = 0
+          return
+        }
+        el.value = 'x'
+      })
+  })
+}
+
+async function screenshotDialog(page, shotOpts) {
+  const dialog = page.locator('[role=dialog]').first()
+  if ((await dialog.count()) > 0) return dialog.screenshot(shotOpts)
+  return page.screenshot(shotOpts)
+}
+
+function routeLimit(route) {
+  if (CORE.has(route)) return 0.5
+  if (DIALOG_ROUTES.has(route)) return 2
+  return 1
+}
 
 async function maskAdminVolatile(page, route) {
   if (side !== 'admin') return
@@ -561,22 +631,31 @@ async function main() {
       })
     }
 
-    const waitChart = side === 'admin' && route === 'dashboard'
+    const isDialog = side === 'admin' && DIALOG_ROUTES.has(route)
+    const pageRoute = isDialog ? DIALOG_PARENT[route] : route
+    const waitChart = side === 'admin' && pageRoute === 'dashboard'
     const shotOpts = { fullPage: process.env.FULL_PAGE === '1' }
 
     const refPage = await ctx.newPage()
     if (side === 'admin' && route !== 'sign-in') await adminLogin(refPage, refBase)
     const needsUserLogin = side === 'user' && !USER_PUBLIC_ROUTES.has(route)
     if (needsUserLogin) await userLogin(refPage, refBase)
-    const urlRefBuilt = buildUrl(refBase, route)
+    const urlRefBuilt = buildUrl(refBase, pageRoute)
     if (!urlRefBuilt) {
       console.log(`${route}: SKIP (no fixture)`)
       await ctx.close()
       continue
     }
-    await gotoStable(refPage, urlRefBuilt, { waitChart, route })
-    await maskAdminVolatile(refPage, route)
-    const refPng = PNG.sync.read(await refPage.screenshot(shotOpts))
+    await gotoStable(refPage, urlRefBuilt, { waitChart, route: pageRoute })
+    if (isDialog) {
+      await openAdminDialog(refPage, route)
+      await maskDialogVolatile(refPage)
+    } else {
+      await maskAdminVolatile(refPage, pageRoute)
+    }
+    const refPng = PNG.sync.read(
+      isDialog ? await screenshotDialog(refPage, shotOpts) : await refPage.screenshot(shotOpts),
+    )
     await refPage.close()
 
     await new Promise((r) => setTimeout(r, 4000))
@@ -587,17 +666,24 @@ async function main() {
     })
     if (side === 'admin' && route !== 'sign-in') await adminLogin(cmpPage, cmpBase)
     if (needsUserLogin) await userLogin(cmpPage, cmpBase)
-    const urlCmpBuilt = buildUrl(cmpBase, route)
+    const urlCmpBuilt = buildUrl(cmpBase, pageRoute)
     if (!urlCmpBuilt) {
       await ctx.close()
       continue
     }
-    await gotoStable(cmpPage, urlCmpBuilt, { waitChart, route })
-    await maskAdminVolatile(cmpPage, route)
-    const cmpPng = PNG.sync.read(await cmpPage.screenshot(shotOpts))
+    await gotoStable(cmpPage, urlCmpBuilt, { waitChart, route: pageRoute })
+    if (isDialog) {
+      await openAdminDialog(cmpPage, route)
+      await maskDialogVolatile(cmpPage)
+    } else {
+      await maskAdminVolatile(cmpPage, pageRoute)
+    }
+    const cmpPng = PNG.sync.read(
+      isDialog ? await screenshotDialog(cmpPage, shotOpts) : await cmpPage.screenshot(shotOpts),
+    )
     const diffPath = path.join(outDir, `${route}-diff.png`)
-    const pct = scorePng(refPng, cmpPng, diffPath, route)
-    const limit = CORE.has(route) ? 0.5 : 1
+    const pct = scorePng(refPng, cmpPng, diffPath, isDialog ? '' : route)
+    const limit = routeLimit(route)
     const ok = pct <= limit && consoleErrors.length === 0
     const line = `${route}: diff=${pct.toFixed(3)}% limit=${limit}% consoleErrors=${consoleErrors.length} ${ok ? 'PASS' : 'FAIL'}`
     console.log(line)
