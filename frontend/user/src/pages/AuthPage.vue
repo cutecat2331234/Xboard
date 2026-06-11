@@ -54,13 +54,21 @@ const authPageStyle = useAuthPageStyle()
 const { config, load: loadGuest } = useGuestConfig()
 const { emailLocal, emailFull, emailSuffix, resolvedEmail } = useAuthEmail(config)
 
-const isRegister = computed(() => route.path === '/register')
+const isRegister = computed(
+  () => route.query.tab === 'register' || route.meta?.authTab === 'register',
+)
 const activeTab = computed(() => (isRegister.value ? 'register' : 'login'))
 
 function switchAuthTab(name: string) {
-  const path = name === 'register' ? '/register' : '/login'
-  if (route.path === path) return
-  router.push({ path, query: route.query })
+  const query = { ...route.query }
+  if (name === 'register') {
+    query.tab = 'register'
+  } else {
+    delete query.tab
+  }
+  const currentTab = route.query.tab === 'register' ? 'register' : 'login'
+  if (route.path === '/login' && currentTab === name) return
+  router.replace({ path: '/login', query })
 }
 
 const langOptions = computed<DropdownOption[]>(() => {
@@ -119,7 +127,7 @@ onMounted(async () => {
 })
 
 watch(
-  () => route.path,
+  () => [route.path, route.query.tab] as const,
   () => {
     errorText.value = ''
     mailLinkMode.value = false
