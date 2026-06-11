@@ -205,6 +205,9 @@ function onShortcut(item: { to?: string; action?: () => void }) {
   <n-carousel
     v-if="promoNotices.length"
     autoplay
+    :interval="5000"
+    show-arrow
+    dot-type="line"
     dot-placement="bottom"
     class="dash-promo-carousel"
   >
@@ -302,6 +305,16 @@ function onShortcut(item: { to?: string; action?: () => void }) {
   border-radius: 6px;
   overflow: hidden;
   max-height: 180px;
+}
+.dash-promo-carousel :deep(.n-carousel__arrow-group) {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.dash-promo-carousel:hover :deep(.n-carousel__arrow-group),
+.dash-promo-carousel:focus-within :deep(.n-carousel__arrow-group) {
+  opacity: 1;
+  pointer-events: auto;
 }
 .dash-promo-carousel--empty {
   max-height: 0;
