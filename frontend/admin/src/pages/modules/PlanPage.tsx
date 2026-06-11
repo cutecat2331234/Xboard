@@ -454,8 +454,8 @@ export default function PlanPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="!flex max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="shrink-0 border-b px-6 py-4">
+        <DialogContent className="!flex max-h-[774px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+          <DialogHeader className="shrink-0 border-b px-6 py-3">
             <DialogTitle>
               {editing
                 ? t('subscribe.plan.form.edit_title')
@@ -463,7 +463,7 @@ export default function PlanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="xb-stack-4 px-6 py-4">
+          <div className="xb-stack-4 px-6 py-3">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.name.label')}</Label>
@@ -581,7 +581,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="xb-stack-4 rounded-lg border border-dashed p-4">
+            <div className="xb-stack-4 rounded-lg border border-dashed p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</span>
                 <div className="flex items-center gap-2">
@@ -691,7 +691,7 @@ export default function PlanPage() {
             ) : null}
           </div>
           </div>
-          <DialogFooter className="shrink-0 border-t px-6 py-4">
+          <DialogFooter className="shrink-0 border-t px-6 py-3">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
               {t('subscribe.plan.form.submit.cancel')}
             </Button>
