@@ -10,9 +10,11 @@ import {
   Upload,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { adminApi, buildQuery, fetchJsonList, postJson } from '@/lib/api'
 import type { PluginConfigField, PluginRow } from '@/lib/plugin-types'
 import { PluginCrudFormFields } from '@/lib/plugin-crud'
+import { buildPluginRoute } from '@/lib/plugin-menus'
 import { invalidatePluginListCache } from '@/lib/use-plugin-list'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -386,7 +388,16 @@ function PluginGrid({
           <div className="p-4">
             <div className="mb-2 flex items-center justify-between">
               <div className="flex min-w-0 flex-1 items-center gap-2">
-                <h3 className="truncate text-base font-semibold">{plugin.name}</h3>
+                {plugin.code ? (
+                  <Link
+                    to={buildPluginRoute(plugin.code)}
+                    className="truncate text-base font-semibold hover:underline"
+                  >
+                    {plugin.name}
+                  </Link>
+                ) : (
+                  <h3 className="truncate text-base font-semibold">{plugin.name}</h3>
+                )}
                 {plugin.type ? (
                   <div className="inline-flex items-center rounded-md border border-primary/20 bg-primary/5 px-1.5 py-0.5 text-xs font-semibold text-primary">
                     {typeLabel(plugin.type, t)}
