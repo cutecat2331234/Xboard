@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { NCard, NButton, NInput, NScrollbar, useMessage } from 'naive-ui'
+import { NCard, NButton, NInput, NScrollbar, NAlert, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
 import { useI18n } from '@/i18n'
 
@@ -15,6 +15,8 @@ const sending = ref(false)
 const scrollRef = ref<InstanceType<typeof NScrollbar> | null>(null)
 const scrollContentRef = ref<HTMLElement | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
+
+const isClosed = computed(() => Boolean(ticket.value?.status))
 
 function formatTime(ts?: number) {
   if (!ts) return ''
@@ -31,7 +33,7 @@ async function load() {
 }
 
 async function sendReply() {
-  if (!ticket.value || !replyText.value.trim()) return
+  if (!ticket.value || isClosed.value || !replyText.value.trim()) return
   sending.value = true
   try {
     await replyTicket({ id: ticket.value.id, message: replyText.value.trim() })
@@ -100,15 +102,26 @@ onUnmounted(stopPoll)
         </div>
       </n-scrollbar>
     </div>
+    <n-alert v-if="isClosed" class="closed-hint" type="warning" :show-icon="true">
+      {{ t('ticket.closedHint') }}
+    </n-alert>
     <div class="reply-group mt-8">
       <n-input
         v-model:value="replyText"
         type="text"
         size="large"
-        :placeholder="t('ticket.replyPh')"
+        :disabled="isClosed"
+        :placeholder="isClosed ? t('ticket.closedReplyPh') : t('ticket.replyPh')"
         @keyup.enter="sendReply"
       />
-      <n-button type="primary" size="large" round :loading="sending" @click="sendReply">
+      <n-button
+        type="primary"
+        size="large"
+        round
+        :loading="sending"
+        :disabled="isClosed"
+        @click="sendReply"
+      >
         {{ t('ticket.reply') }}
       </n-button>
     </div>
@@ -160,5 +173,8 @@ onUnmounted(stopPoll)
 }
 .mt-8 {
   margin-top: 32px;
+}
+.closed-hint {
+  margin-top: 16px;
 }
 </style>
