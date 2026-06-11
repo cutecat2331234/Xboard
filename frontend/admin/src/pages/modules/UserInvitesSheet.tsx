@@ -102,17 +102,17 @@ export function UserInvitesSheet({ userId, email, plans, open, onOpenChange }: P
       <SheetContent side="right" className="flex w-full flex-col gap-4 overflow-y-auto p-6 sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>
-            {t('user.columns.actions_menu.invites', { defaultValue: 'TA的邀请' })}
+            {t('user.columns.actions_menu.invites')}
           </SheetTitle>
         </SheetHeader>
         {email ? (
           <p className="text-sm text-muted-foreground">
-            {t('user.dialog.inviteInfo', { defaultValue: '邀请信息' })}: {email}
+            {t('user.dialog.inviteInfo')}: {email}
           </p>
         ) : null}
         {!loading && data.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            {t('user.filter.no_results', { defaultValue: '未找到结果' })}
+            {t('user.filter.no_results')}
           </p>
         ) : (
           <DataTable
@@ -129,7 +129,7 @@ export function UserInvitesSheet({ userId, email, plans, open, onOpenChange }: P
         )}
         <SheetFooter className="mt-auto flex-row justify-end gap-2 border-0 p-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t('common.close', { defaultValue: '关闭' })}
+            {t('common.close')}
           </Button>
         </SheetFooter>
       </SheetContent>
