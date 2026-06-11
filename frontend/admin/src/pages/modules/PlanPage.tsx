@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 type PlanRow = {
   id?: number
@@ -138,6 +139,7 @@ const emptyPlan = (): PlanRow => ({
 
 export default function PlanPage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<PlanRow[]>([])
   const [groups, setGroups] = useState<GroupRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -212,7 +214,7 @@ export default function PlanPage() {
   }
 
   async function deletePlan(row: PlanRow) {
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
     try {
       await postJson('/plan/drop', { id: row.id })
       toast.success(t('common.success'))
@@ -673,6 +675,7 @@ export default function PlanPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }
