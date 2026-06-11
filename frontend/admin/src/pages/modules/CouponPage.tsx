@@ -197,7 +197,18 @@ export default function CouponPage() {
   }
 
   async function deleteRow(row: CouponRow) {
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('coupon.table.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
+        t('coupon.table.actions.deleteConfirm.description', {
+          defaultValue: '此操作将永久删除该优惠券，删除后无法恢复。确定要继续吗？',
+        }),
+        {
+          confirmLabel: t('coupon.table.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
+        },
+      ))
+    )
+      return
     try {
       await postJson('/coupon/drop', { id: row.id })
       toast.success(t('common.success'))
