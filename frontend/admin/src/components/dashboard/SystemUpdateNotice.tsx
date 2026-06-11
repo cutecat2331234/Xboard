@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowUpCircle, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import {
+  executeSystemUpdate,
   fetchSystemUpdateStatus,
-  SYSTEM_UPDATE_DOCS_URL,
   type UpdateCheckInfo,
 } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
@@ -25,6 +26,7 @@ export function SystemUpdateNotice() {
   const { t } = useTranslation()
   const [info, setInfo] = useState<UpdateCheckInfo | null>(null)
   const [dismissed, setDismissed] = useState(false)
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
     fetchSystemUpdateStatus()
@@ -47,9 +49,22 @@ export function SystemUpdateNotice() {
     setDismissed(true)
   }, [info?.latest_version])
 
+  const runUpdate = useCallback(async () => {
+    if (updating) return
+    setUpdating(true)
+    try {
+      await executeSystemUpdate()
+      toast.success(t('common.update.updateSuccess'))
+      dismiss()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t('common.update.updateFailed'))
+    } finally {
+      setUpdating(false)
+    }
+  }, [dismiss, t, updating])
+
   if (!info?.has_update || dismissed) return null
 
-  const docsUrl = info.download_url || SYSTEM_UPDATE_DOCS_URL
   const currentVersion = info.current_version || getSettings().version || '—'
   const latestVersion = info.latest_version || '—'
 
@@ -68,18 +83,20 @@ export function SystemUpdateNotice() {
             {' · '}
             {t('common.update.latestVersion')}: <span className="font-mono">{latestVersion}</span>
           </p>
-          <a
-            href={docsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex font-medium text-amber-800 underline underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-100"
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className="h-auto p-0 font-medium text-amber-800 underline underline-offset-2 hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-100"
+            onClick={() => void runUpdate()}
+            disabled={updating}
           >
             {t('common.update.updateNow')}
-          </a>
+          </Button>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2 self-end sm:self-start">
-        <Button type="button" variant="outline" size="sm" onClick={dismiss}>
+        <Button type="button" variant="outline" size="sm" onClick={dismiss} disabled={updating}>
           {t('common.update.updateLater')}
         </Button>
         <Button
