@@ -15,6 +15,7 @@ import {
   NLayoutContent,
   NLayoutSider,
   NMenu,
+  useDialog,
 } from 'naive-ui'
 import type { DropdownOption, MenuOption } from 'naive-ui'
 import { getSettings } from '@/utils/settings'
@@ -27,7 +28,10 @@ const s = getSettings()
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const dialog = useDialog()
 const { t, locale, setLocale } = useI18n()
+
+const isDark = ref(document.documentElement.classList.contains('dark'))
 
 const langOptions = computed<DropdownOption[]>(() => {
   const langs = getSettings().i18n ?? ['zh-CN', 'en-US']
@@ -95,14 +99,39 @@ function updateMobile() {
   if (!isMobile.value) mobileDrawerOpen.value = false
 }
 
+let themeObserver: MutationObserver | undefined
+
 onMounted(() => {
   updateMobile()
   mobileQuery.addEventListener('change', updateMobile)
+  themeObserver = new MutationObserver(() => {
+    isDark.value = document.documentElement.classList.contains('dark')
+  })
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
 })
 
 onUnmounted(() => {
   mobileQuery.removeEventListener('change', updateMobile)
+  themeObserver?.disconnect()
 })
+
+const NAV_PATH_KEYS: Record<string, string> = {
+  '/dashboard': 'nav.dashboard',
+  '/knowledge': 'nav.knowledge',
+  '/order': 'nav.order',
+  '/invite': 'nav.invite',
+  '/gift-card': 'nav.giftCard',
+  '/plan': 'nav.plan',
+  '/node': 'nav.node',
+  '/profile': 'nav.profile',
+  '/ticket': 'nav.ticket',
+  '/traffic': 'nav.traffic',
+}
+
+function labelForPath(path: string) {
+  const key = NAV_PATH_KEYS[path]
+  return key ? t(key) : t('nav.dashboard')
+}
 
 function resolveMenuKey(path: string) {
   if (path.startsWith('/plan/')) return '/plan'
@@ -111,25 +140,31 @@ function resolveMenuKey(path: string) {
   return path
 }
 
-const menuActiveKey = computed(() => resolveMenuKey(route.path))
-
-const breadcrumb = computed(() => {
-  const metaKey = route.meta.titleKey as string | undefined
-  if (metaKey) return t(metaKey)
-  const map: Record<string, string> = {
-    '/dashboard': t('nav.dashboard'),
-    '/knowledge': t('nav.knowledge'),
-    '/order': t('nav.order'),
-    '/invite': t('nav.invite'),
-    '/gift-card': t('nav.giftCard'),
-    '/plan': t('nav.plan'),
-    '/node': t('nav.node'),
-    '/profile': t('nav.profile'),
-    '/ticket': t('nav.ticket'),
-    '/traffic': t('nav.traffic'),
-  }
-  return map[route.path] ?? t('nav.dashboard')
+const menuActiveKey = computed(() => {
+  const menuKey = route.meta.menuKey as string | undefined
+  return menuKey ?? resolveMenuKey(route.path)
 })
+
+type BreadcrumbItem = { label: string; to?: string }
+
+const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
+  const menuKey = route.meta.menuKey as string | undefined
+  const titleKey = route.meta.titleKey as string | undefined
+
+  if (menuKey && titleKey) {
+    return [
+      { label: labelForPath(menuKey), to: menuKey },
+      { label: t(titleKey) },
+    ]
+  }
+
+  if (titleKey) return [{ label: t(titleKey) }]
+  return [{ label: labelForPath(route.path) }]
+})
+
+const themeAriaLabel = computed(() =>
+  isDark.value ? t('common.switchToLight') : t('common.switchToDark'),
+)
 
 function onMenuSelect(key: string) {
   if (!key.startsWith('/')) return
@@ -148,8 +183,16 @@ function toggleFullscreen() {
 }
 
 function logout() {
-  auth.logout()
-  router.push('/login')
+  dialog.warning({
+    title: t('common.logout'),
+    content: t('common.logoutConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: () => {
+      auth.logout()
+      router.push('/login')
+    },
+  })
 }
 
 const MenuToggleIcon = {
@@ -218,22 +261,39 @@ const MenuToggleIcon = {
         <div class="app-header-left">
           <n-icon :size="20" class="app-menu-icon" @click="onMenuToggle"><MenuToggleIcon /></n-icon>
           <n-breadcrumb style="--n-item-border-radius: 3px">
-            <n-breadcrumb-item>
-              <n-icon :size="18" class="app-crumb-home"><HomeIcon /></n-icon>
-              <span class="app-crumb-text">{{ breadcrumb }}</span>
+            <n-breadcrumb-item
+              v-for="(item, index) in breadcrumbItems"
+              :key="index"
+              :clickable="Boolean(item.to)"
+              @click="item.to && router.push(item.to)"
+            >
+              <n-icon v-if="index === 0" :size="18" class="app-crumb-home"><HomeIcon /></n-icon>
+              <span class="app-crumb-text">{{ item.label }}</span>
             </n-breadcrumb-item>
           </n-breadcrumb>
         </div>
         <div class="app-header-actions">
-          <n-icon :size="18" class="mr-5 cursor-pointer" @click="toggleColorScheme">
+          <n-icon
+            :size="18"
+            class="mr-5 cursor-pointer"
+            role="button"
+            :aria-label="themeAriaLabel"
+            @click="toggleColorScheme"
+          >
             <ThemeIcon />
           </n-icon>
           <n-dropdown :options="langOptions" trigger="click" @select="onLangSelect">
-            <n-button quaternary class="app-lang-btn mr-5">
+            <n-button quaternary class="app-lang-btn mr-5" :aria-label="t('common.selectLanguage')">
               <template #icon><n-icon :size="18"><LangIcon /></n-icon></template>
             </n-button>
           </n-dropdown>
-          <n-icon :size="18" class="mr-5 cursor-pointer app-header-icon" @click="toggleFullscreen">
+          <n-icon
+            :size="18"
+            class="mr-5 cursor-pointer app-header-icon"
+            role="button"
+            :aria-label="t('common.toggleFullscreen')"
+            @click="toggleFullscreen"
+          >
             <ExpandIcon />
           </n-icon>
           <n-button quaternary class="app-user-btn" @click="logout">
