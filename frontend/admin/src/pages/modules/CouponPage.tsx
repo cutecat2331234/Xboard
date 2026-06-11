@@ -199,12 +199,10 @@ export default function CouponPage() {
   async function deleteRow(row: CouponRow) {
     if (
       !(await confirm(
-        t('coupon.table.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
-        t('coupon.table.actions.deleteConfirm.description', {
-          defaultValue: '此操作将永久删除该优惠券，删除后无法恢复。确定要继续吗？',
-        }),
+        t('coupon.table.actions.deleteConfirm.title'),
+        t('coupon.table.actions.deleteConfirm.description'),
         {
-          confirmLabel: t('coupon.table.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
+          confirmLabel: t('coupon.table.actions.deleteConfirm.confirmText'),
         },
       ))
     )
@@ -246,13 +244,13 @@ export default function CouponPage() {
         header: () => t('coupon.table.columns.type'),
         cell: ({ row }) =>
           row.original.type === 2
-            ? t('coupon.type.percent', { defaultValue: '百分比' })
-            : t('coupon.type.amount', { defaultValue: '金额' }),
+            ? t('coupon.type.percent')
+            : t('coupon.type.amount'),
       },
       { accessorKey: 'limit_use', header: () => t('coupon.table.columns.limitUse') },
       {
         accessorKey: 'show',
-        header: () => t('coupon.table.columns.show', { defaultValue: '显示' }),
+        header: () => t('coupon.table.columns.show'),
         cell: ({ row }) => (
           <Switch
             checked={Boolean(row.original.show)}
@@ -262,7 +260,7 @@ export default function CouponPage() {
       },
       {
         id: 'actions',
-        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+        header: () => t('common.table.columns.actions'),
         cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -272,10 +270,10 @@ export default function CouponPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openEdit(row.original)}>
-                {t('coupon.table.actions.edit', { defaultValue: '编辑' })}
+                {t('coupon.table.actions.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive" onClick={() => deleteRow(row.original)}>
-                {t('common.delete', { defaultValue: '删除' })}
+                {t('common.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -304,7 +302,7 @@ export default function CouponPage() {
               onClick={openCreate}
             >
               <Plus className="h-4 w-4" />
-              <span>{t('coupon.form.add', { defaultValue: '生成优惠券' })}</span>
+              <span>{t('coupon.form.add')}</span>
             </Button>
             <select
               className={`h-8 rounded-md border border-input bg-background px-2 text-xs ${inputCls}`}
@@ -314,9 +312,9 @@ export default function CouponPage() {
                 setPage(1)
               }}
             >
-              <option value="">{t('coupon.table.toolbar.type', { defaultValue: '类型' })}</option>
-              <option value="1">{t('coupon.table.toolbar.types.1', { defaultValue: '按金额优惠' })}</option>
-              <option value="2">{t('coupon.table.toolbar.types.2', { defaultValue: '按比例优惠' })}</option>
+              <option value="">{t('coupon.table.toolbar.type')}</option>
+              <option value="1">{t('coupon.table.toolbar.types.1')}</option>
+              <option value="2">{t('coupon.table.toolbar.types.2')}</option>
             </select>
             <Input
               value={search}
@@ -324,7 +322,7 @@ export default function CouponPage() {
                 setSearch(e.target.value)
                 setPage(1)
               }}
-              placeholder={t('coupon.table.toolbar.search', { defaultValue: '搜索优惠券...' })}
+              placeholder={t('coupon.table.toolbar.search')}
               className={`h-8 min-w-[150px] flex-1 sm:w-[150px] lg:w-[250px] ${inputCls}`}
             />
             {(search || typeFilter !== '') && (
@@ -338,7 +336,7 @@ export default function CouponPage() {
                   setPage(1)
                 }}
               >
-                {t('coupon.table.toolbar.reset', { defaultValue: '重置' })}
+                {t('coupon.table.toolbar.reset')}
               </Button>
             )}
           </div>
@@ -361,13 +359,13 @@ export default function CouponPage() {
           <DialogHeader>
             <DialogTitle>
               {editingId
-                ? t('coupon.form.edit', { defaultValue: '编辑优惠券' })
-                : t('coupon.form.add', { defaultValue: '生成优惠券' })}
+                ? t('coupon.form.edit')
+                : t('coupon.form.add')}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-2">
-              <Label>{t('coupon.form.name.label', { defaultValue: '名称' })}</Label>
+              <Label>{t('coupon.form.name.label')}</Label>
               <input
                 className={inputCls}
                 value={String(form.name ?? '')}
@@ -375,28 +373,28 @@ export default function CouponPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('coupon.form.code.label', { defaultValue: '优惠码' })}</Label>
+              <Label>{t('coupon.form.code.label')}</Label>
               <input
                 className={inputCls}
                 value={String(form.code ?? '')}
                 onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
-                placeholder={t('coupon.form.code.placeholder', { defaultValue: '留空自动生成' })}
+                placeholder={t('coupon.form.code.placeholder')}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.form.type.label', { defaultValue: '类型' })}</Label>
+                <Label>{t('coupon.form.type.label')}</Label>
                 <select
                   className={inputCls}
                   value={Number(form.type ?? 1)}
                   onChange={(e) => setForm((f) => ({ ...f, type: Number(e.target.value) }))}
                 >
-                  <option value={1}>{t('coupon.type.amount', { defaultValue: '金额' })}</option>
-                  <option value={2}>{t('coupon.type.percent', { defaultValue: '百分比' })}</option>
+                  <option value={1}>{t('coupon.type.amount')}</option>
+                  <option value={2}>{t('coupon.type.percent')}</option>
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.form.value.placeholder', { defaultValue: '面值' })}</Label>
+                <Label>{t('coupon.form.value.placeholder')}</Label>
                 <input
                   type="number"
                   className={inputCls}
@@ -407,40 +405,40 @@ export default function CouponPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.form.limitUse.label', { defaultValue: '最大使用次数' })}</Label>
+                <Label>{t('coupon.form.limitUse.label')}</Label>
                 <input
                   type="number"
                   className={inputCls}
                   value={form.limit_use}
                   onChange={(e) => setForm((f) => ({ ...f, limit_use: e.target.value }))}
-                  placeholder={t('coupon.form.limitUse.placeholder', { defaultValue: '留空不限制' })}
+                  placeholder={t('coupon.form.limitUse.placeholder')}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.form.limitUseWithUser.label', { defaultValue: '每用户使用次数' })}</Label>
+                <Label>{t('coupon.form.limitUseWithUser.label')}</Label>
                 <input
                   type="number"
                   className={inputCls}
                   value={form.limit_use_with_user}
                   onChange={(e) => setForm((f) => ({ ...f, limit_use_with_user: e.target.value }))}
-                  placeholder={t('coupon.form.limitUseWithUser.placeholder', { defaultValue: '留空不限制' })}
+                  placeholder={t('coupon.form.limitUseWithUser.placeholder')}
                 />
               </div>
             </div>
             {!editingId && (
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.form.generateCount.label', { defaultValue: '批量生成数量' })}</Label>
+                <Label>{t('coupon.form.generateCount.label')}</Label>
                 <input
                   type="number"
                   className={inputCls}
                   value={form.generate_count}
                   onChange={(e) => setForm((f) => ({ ...f, generate_count: e.target.value }))}
-                  placeholder={t('coupon.form.generateCount.placeholder', { defaultValue: '留空生成单个' })}
+                  placeholder={t('coupon.form.generateCount.placeholder')}
                 />
               </div>
             )}
             <div className="flex flex-col gap-2">
-              <Label>{t('coupon.form.limitPlan.label', { defaultValue: '指定订阅' })}</Label>
+              <Label>{t('coupon.form.limitPlan.label')}</Label>
               <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto rounded-md border border-input p-2">
                 {plans.map((p) => (
                   <label key={p.id} className="flex items-center gap-1 text-sm">
@@ -455,7 +453,7 @@ export default function CouponPage() {
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('coupon.form.limitPeriod.label', { defaultValue: '指定周期' })}</Label>
+              <Label>{t('coupon.form.limitPeriod.label')}</Label>
               <div className="flex flex-wrap gap-2">
                 {PERIOD_KEYS.map((period) => (
                   <label key={period} className="flex items-center gap-1 text-sm">
@@ -464,14 +462,14 @@ export default function CouponPage() {
                       checked={form.limit_period.includes(period)}
                       onChange={() => togglePeriod(period)}
                     />
-                    {t(`coupon.period.${period}`, { defaultValue: period })}
+                    {t(`coupon.period.${period}`)}
                   </label>
                 ))}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.table.validity.startTime', { defaultValue: '开始时间' })}</Label>
+                <Label>{t('coupon.table.validity.startTime')}</Label>
                 <input
                   type="datetime-local"
                   className={inputCls}
@@ -480,7 +478,7 @@ export default function CouponPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.table.validity.endTime', { defaultValue: '结束时间' })}</Label>
+                <Label>{t('coupon.table.validity.endTime')}</Label>
                 <input
                   type="datetime-local"
                   className={inputCls}
@@ -492,10 +490,10 @@ export default function CouponPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={saveCoupon} disabled={saving}>
-              {t('coupon.form.submit.save', { defaultValue: '保存' })}
+              {t('coupon.form.submit.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
