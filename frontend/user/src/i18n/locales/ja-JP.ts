@@ -156,7 +156,10 @@ export default {
     incomeRecord: "コミッション履歴",
     incomeTime: "手数料支払時間",
     incomeAmount: "コミッション金額",
-    transferAmount: "Transfer amount (cents)"
+    transferAmount: "振替金額（セント）",
+    transferAmountRequired: "振替金額を入力してください",
+    transferAmountInvalid: "振替金額は正の整数（セント）である必要があります",
+    withdrawSuccess: "出金申請を送信しました。チケットで進捗を確認してください。"
   },
   traffic: {
     hint: "Traffic logs are kept for the last month only.",

@@ -157,6 +157,9 @@ export default {
     incomeTime: '发放时间',
     incomeAmount: '佣金',
     transferAmount: '划转金额（分）',
+    transferAmountRequired: '请输入划转金额',
+    transferAmountInvalid: '划转金额必须为正整数（分）',
+    withdrawSuccess: '提现申请已提交，请前往工单查看进度。',
   },
   traffic: {
     hint: '流量明细仅保留近一个月数据以供查询。',
