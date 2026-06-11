@@ -1,22 +1,22 @@
 [
   {
     "id": "config-safe",
-    "diffPct": 0.065,
+    "diffPct": 0.089,
     "pass": true
   },
   {
     "id": "config-subscribe",
-    "diffPct": 0.146,
+    "diffPct": 0.07,
     "pass": true
   },
   {
     "id": "config-invite",
-    "diffPct": 0.001,
+    "diffPct": 0,
     "pass": true
   },
   {
     "id": "config-server",
-    "diffPct": 0.371,
+    "diffPct": 0.38,
     "pass": true
   },
   {
