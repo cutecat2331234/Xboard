@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { computed, h, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { HEADER_ICON_PATHS, MENU_ICON_PATHS, renderCarbonIcon } from '@/utils/carbon-icon'
 import {
@@ -7,6 +7,8 @@ import {
   NBreadcrumb,
   NBreadcrumbItem,
   NButton,
+  NDrawer,
+  NDrawerContent,
   NDropdown,
   NIcon,
   NLayout,
@@ -58,6 +60,7 @@ const menuOptions = computed<MenuOption[]>(() => [
     children: [
       { label: t('nav.order'), key: '/order', icon: renderIcon(MENU_ICON_PATHS.order) },
       { label: t('nav.invite'), key: '/invite', icon: renderIcon(MENU_ICON_PATHS.invite) },
+      { label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) },
     ],
   },
   {
@@ -82,6 +85,24 @@ const menuOptions = computed<MenuOption[]>(() => [
 ])
 
 const collapsed = ref(false)
+const mobileDrawerOpen = ref(false)
+const isMobile = ref(false)
+
+const mobileQuery = window.matchMedia('(max-width: 767px)')
+
+function updateMobile() {
+  isMobile.value = mobileQuery.matches
+  if (!isMobile.value) mobileDrawerOpen.value = false
+}
+
+onMounted(() => {
+  updateMobile()
+  mobileQuery.addEventListener('change', updateMobile)
+})
+
+onUnmounted(() => {
+  mobileQuery.removeEventListener('change', updateMobile)
+})
 
 function resolveMenuKey(path: string) {
   if (path.startsWith('/plan/')) return '/plan'
@@ -100,6 +121,7 @@ const breadcrumb = computed(() => {
     '/knowledge': t('nav.knowledge'),
     '/order': t('nav.order'),
     '/invite': t('nav.invite'),
+    '/gift-card': t('nav.giftCard'),
     '/plan': t('nav.plan'),
     '/node': t('nav.node'),
     '/profile': t('nav.profile'),
@@ -110,7 +132,14 @@ const breadcrumb = computed(() => {
 })
 
 function onMenuSelect(key: string) {
-  if (key.startsWith('/')) router.push(key)
+  if (!key.startsWith('/')) return
+  router.push(key)
+  if (isMobile.value) mobileDrawerOpen.value = false
+}
+
+function onMenuToggle() {
+  if (isMobile.value) mobileDrawerOpen.value = !mobileDrawerOpen.value
+  else collapsed.value = !collapsed.value
 }
 
 function toggleFullscreen() {
@@ -137,10 +166,18 @@ const MenuToggleIcon = {
 
 <template>
   <n-layout has-sider class="app-layout">
-    <n-layout-sider bordered :width="220" :collapsed="collapsed" :collapsed-width="64" collapse-mode="width" class="app-sider">
+    <n-layout-sider
+      v-if="!isMobile"
+      bordered
+      :width="220"
+      :collapsed="collapsed"
+      :collapsed-width="64"
+      collapse-mode="width"
+      class="app-sider"
+    >
       <div class="app-brand">
         <img v-if="s.logo" :src="s.logo" alt="" class="app-brand__logo" />
-        <h2 class="app-brand__title">{{ s.title || 'Xboard' }}</h2>
+        <h2 v-show="!collapsed" class="app-brand__title">{{ s.title || 'Xboard' }}</h2>
       </div>
       <n-menu
         :value="menuActiveKey"
@@ -152,14 +189,38 @@ const MenuToggleIcon = {
         @update:value="onMenuSelect"
       />
     </n-layout-sider>
+
+    <n-drawer
+      v-model:show="mobileDrawerOpen"
+      placement="left"
+      :width="260"
+      :trap-focus="false"
+      :block-scroll="true"
+      class="app-mobile-drawer"
+    >
+      <n-drawer-content :native-scrollbar="false" body-content-style="padding: 0">
+        <div class="app-brand">
+          <img v-if="s.logo" :src="s.logo" alt="" class="app-brand__logo" />
+          <h2 class="app-brand__title">{{ s.title || 'Xboard' }}</h2>
+        </div>
+        <n-menu
+          :value="menuActiveKey"
+          :options="menuOptions"
+          :indent="18"
+          :root-indent="18"
+          @update:value="onMenuSelect"
+        />
+      </n-drawer-content>
+    </n-drawer>
+
     <n-layout>
-      <header class="app-header flex items-center bg-white px-4">
+      <header class="app-header flex items-center px-4">
         <div class="app-header-left">
-          <n-icon :size="20" class="app-menu-icon" @click="collapsed = !collapsed"><MenuToggleIcon /></n-icon>
+          <n-icon :size="20" class="app-menu-icon" @click="onMenuToggle"><MenuToggleIcon /></n-icon>
           <n-breadcrumb style="--n-item-border-radius: 3px">
             <n-breadcrumb-item>
               <n-icon :size="18" class="app-crumb-home"><HomeIcon /></n-icon>
-              {{ breadcrumb }}
+              <span class="app-crumb-text">{{ breadcrumb }}</span>
             </n-breadcrumb-item>
           </n-breadcrumb>
         </div>
@@ -172,7 +233,7 @@ const MenuToggleIcon = {
               <template #icon><n-icon :size="18"><LangIcon /></n-icon></template>
             </n-button>
           </n-dropdown>
-          <n-icon :size="18" class="mr-5 cursor-pointer" @click="toggleFullscreen">
+          <n-icon :size="18" class="mr-5 cursor-pointer app-header-icon" @click="toggleFullscreen">
             <ExpandIcon />
           </n-icon>
           <n-button quaternary class="app-user-btn" @click="logout">
@@ -181,7 +242,7 @@ const MenuToggleIcon = {
           </n-button>
         </div>
       </header>
-      <n-layout-content class="app-main-outer" :content-style="{ padding: 0, background: '#f5f6fb' }">
+      <n-layout-content class="app-main-outer" :content-style="{ padding: 0, background: 'var(--xb-page-bg)' }">
         <section class="cus-scroll-y app-scroll-main shell-main">
           <router-view />
         </section>
@@ -192,7 +253,7 @@ const MenuToggleIcon = {
 
 <style scoped>
 .app-layout { min-height: 100vh; height: 100vh; }
-.app-sider { background: #fff; }
+.app-sider { background: var(--xb-surface); }
 .app-sider :deep(.n-menu-item-content--selected::before) {
   content: '';
   position: absolute;
@@ -200,13 +261,29 @@ const MenuToggleIcon = {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #316c72;
+  background: var(--xb-primary);
 }
 .app-sider :deep(.n-menu-item-content) { position: relative; }
 .app-sider :deep(.n-menu-item-group-title) {
   font-size: 13.02px;
   text-transform: none;
-  color: #767c82;
+  color: var(--xb-text-muted);
+  letter-spacing: normal;
+}
+.app-mobile-drawer :deep(.n-menu-item-content--selected::before) {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--xb-primary);
+}
+.app-mobile-drawer :deep(.n-menu-item-content) { position: relative; }
+.app-mobile-drawer :deep(.n-menu-item-group-title) {
+  font-size: 13.02px;
+  text-transform: none;
+  color: var(--xb-text-muted);
   letter-spacing: normal;
 }
 .app-brand {
@@ -223,12 +300,14 @@ const MenuToggleIcon = {
   margin: 0 8px;
   font-weight: 700;
   font-size: 16px;
-  color: #316c72;
+  color: var(--xb-primary);
   line-height: 1.5;
 }
 .app-header {
   height: 60px;
   justify-content: space-between;
+  background: var(--xb-surface);
+  border-bottom: 1px solid var(--xb-border);
 }
 .app-header-left {
   display: flex;
@@ -237,15 +316,22 @@ const MenuToggleIcon = {
   gap: 0;
   min-width: 0;
 }
-.app-menu-icon { cursor: pointer; color: #666; }
+.app-menu-icon { cursor: pointer; color: var(--xb-icon); margin-right: 8px; }
 .app-crumb-home { vertical-align: -3px; }
+.app-crumb-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .app-header-actions {
   display: flex;
   align-items: center;
   margin-left: auto;
+  flex-shrink: 0;
 }
 .mr-5 { margin-right: 20px; }
-.cursor-pointer { cursor: pointer; color: rgb(51, 54, 57); }
+.cursor-pointer { cursor: pointer; color: var(--xb-text); }
+.app-header-icon { color: var(--xb-text); }
 .app-lang-btn {
   width: 18px;
   height: 18px;
@@ -257,7 +343,7 @@ const MenuToggleIcon = {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  width: 180px;
+  max-width: 180px;
   height: 32px;
   justify-content: flex-start;
   padding: 0 8px;
@@ -266,11 +352,12 @@ const MenuToggleIcon = {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 .app-user__email {
   font-size: 13px;
   line-height: 20.8px;
-  color: rgb(51, 54, 57);
+  color: var(--xb-text);
   max-width: 128px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -281,7 +368,7 @@ const MenuToggleIcon = {
 }
 .app-scroll-main {
   min-height: calc(100vh - 60px);
-  background: #f5f6fb;
+  background: var(--xb-page-bg);
   padding: 4px;
   overflow-y: auto;
   box-sizing: border-box;
@@ -291,8 +378,12 @@ const MenuToggleIcon = {
     padding: 16px;
   }
 }
+@media (max-width: 767px) {
+  .app-user__email { display: none; }
+  .app-user-btn { max-width: none; width: auto; }
+  .mr-5 { margin-right: 12px; }
+}
 .flex { display: flex; }
 .items-center { align-items: center; }
-.bg-white { background: #fff; }
 .px-4 { padding-left: 16px; padding-right: 16px; }
 </style>
