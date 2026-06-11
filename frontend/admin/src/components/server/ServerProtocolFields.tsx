@@ -221,7 +221,10 @@ export function readProtocolSettings(
         server_name: String(tlsSettings.server_name ?? ''),
         allow_insecure: Boolean(tlsSettings.allow_insecure),
       },
-      network_settings: readTransportNetworkSettings(raw?.network_settings),
+      network_settings: readTransportNetworkSettings(
+        raw?.network_settings,
+        String(raw?.network ?? 'tcp'),
+      ),
     }
   }
   if (type === 'trojan') return normalizeTrojanSettings(raw)
@@ -794,6 +797,7 @@ function TransportNetworkSubFields({
     )
   }
 
+  // tcp, ws, h2, httpupgrade, xhttp
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="xb-stack-2">
