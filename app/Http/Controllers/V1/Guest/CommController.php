@@ -30,6 +30,7 @@ class CommController extends Controller
             'logo' => admin_setting('logo'),
             // 保持向后兼容
             'is_recaptcha' => (int) admin_setting('captcha_enable', 0) ? 1 : 0,
+            'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
         ];
 
         $data = HookManager::filter('guest_comm_config', $data);
