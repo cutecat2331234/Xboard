@@ -31,7 +31,7 @@ export function ExpireDateInput({ value, onChange, placeholder, className }: Pro
       <button
         type="button"
         className={cn(
-          'inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-4 py-2 text-left text-sm font-normal shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+          'inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-left font-mono text-xs font-normal shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
           !dateValue && 'text-muted-foreground',
           className,
         )}
@@ -42,7 +42,7 @@ export function ExpireDateInput({ value, onChange, placeholder, className }: Pro
         }}
       >
         <span className="truncate">{dateValue || placeholder}</span>
-        <IconCalendar className="tabler-icon h-4 w-4 shrink-0 opacity-50" stroke={2} />
+        <IconCalendar className="tabler-icon h-3.5 w-3.5 shrink-0 opacity-50" stroke={2} />
       </button>
       <input
         ref={pickerRef}

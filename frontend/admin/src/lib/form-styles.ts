@@ -15,6 +15,13 @@ export const dialogFieldLabelCls =
 export const dialogInputCls =
   'h-9 font-mono text-xs'
 
+/** 7001 server node dialog labels: mono 12px, not uppercase */
+export const serverFieldLabelCls = 'font-mono text-[12px] text-foreground/80'
+
+/** 7001 plan tags/group/content labels: shadcn FormLabel default */
+export const dialogSubFieldLabelCls =
+  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+
 /** 7001 invite distribution sub-fields: shadcn FormLabel default (text-sm) */
 export const configSubFieldLabelCls =
   'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
