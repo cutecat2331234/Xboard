@@ -9,6 +9,7 @@ import {
   dialogFieldLabelCls,
   dialogInputCls,
   dialogSubFieldLabelCls,
+  formSubLabelCls,
   inputCls,
   textareaCls,
 } from '@/lib/form-styles'
@@ -21,6 +22,7 @@ import { SuffixInput } from '@/components/shared/SuffixInput'
 import { TagInput } from '@/components/shared/TagInput'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -81,22 +83,16 @@ const PRICE_BADGE_PERIODS = [
   { key: 'reset_traffic', unitKey: 'times' },
 ] as const
 
-const PRICE_PERIOD_UNIT_KEYS: Record<string, string> = {
-  monthly: 'month',
-  quarterly: 'quarter',
-  half_yearly: 'half_year',
-  yearly: 'year',
-  two_yearly: 'two_year',
-  three_yearly: 'three_year',
-  reset_traffic: 'times',
-}
-
-function pricePeriodSuffix(period: string, t: (key: string) => string) {
-  const unitKey = PRICE_PERIOD_UNIT_KEYS[period]
-  if (unitKey) {
-    return t(`subscribe.plan.columns.price_period.unit.${unitKey}`)
-  }
-  return '元'
+/** 7001 n6t — base monthly price auto-fills all periods. */
+const PRICE_PERIOD_FACTORS: Record<string, { months: number; discount: number }> = {
+  monthly: { months: 1, discount: 1 },
+  quarterly: { months: 3, discount: 0.95 },
+  half_yearly: { months: 6, discount: 0.9 },
+  yearly: { months: 12, discount: 0.85 },
+  two_yearly: { months: 24, discount: 0.8 },
+  three_yearly: { months: 36, discount: 0.75 },
+  onetime: { months: 1, discount: 1 },
+  reset_traffic: { months: 1, discount: 1 },
 }
 
 function PlanStatsCell({ row }: { row: PlanRow }) {
@@ -263,16 +259,18 @@ export default function PlanPage() {
   }
 
   function setBasePrice(value: string) {
-    const num = value === '' ? undefined : Number(value)
-    setForm((f) => {
-      const prices = { ...(f.prices ?? {}) }
-      if (num === undefined || Number.isNaN(num)) {
-        delete prices.monthly
-      } else {
-        prices.monthly = num
-      }
-      return { ...f, prices }
-    })
+    const base = parseFloat(value)
+    if (Number.isNaN(base)) {
+      setForm((f) => ({ ...f, prices: {} }))
+      return
+    }
+    const prices = Object.fromEntries(
+      Object.entries(PRICE_PERIOD_FACTORS).map(([period, { months, discount }]) => [
+        period,
+        Number((base * months * discount).toFixed(2)),
+      ]),
+    )
+    setForm((f) => ({ ...f, prices }))
   }
 
   function clearAllPrices() {
@@ -600,19 +598,23 @@ export default function PlanPage() {
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</h3>
                 <div className="flex items-center gap-2">
-                  <SuffixInput
-                    prefix="¥"
-                    type="number"
-                    className="h-8 w-24 text-xs"
-                    placeholder={t('subscribe.plan.form.price.base_price')}
-                    value={form.prices?.monthly ?? ''}
-                    onChange={(e) => setBasePrice(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="h-8 w-24 rounded-md border border-input bg-background pl-5 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      placeholder={t('subscribe.plan.form.price.base_price')}
+                      onChange={(e) => setBasePrice(e.target.value)}
+                    />
+                    <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                      ¥
+                    </span>
+                  </div>
                   <Button
                     type="button"
                     variant="outline"
-                    size="icon"
-                    className="h-8 w-8 shrink-0"
+                    size="sm"
+                    className="h-8 px-2"
                     title={t('subscribe.plan.form.price.clear.tooltip')}
                     onClick={clearAllPrices}
                   >
@@ -627,8 +629,9 @@ export default function PlanPage() {
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
                     <SuffixInput
-                      suffix={pricePeriodSuffix(period, t)}
+                      prefix="¥"
                       type="number"
+                      step="0.01"
                       className={`${dialogInputCls} text-xs`}
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
@@ -636,6 +639,7 @@ export default function PlanPage() {
                   </div>
                 ))}
               </div>
+              <Separator />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {EXTRA_PRICE_PERIODS.map((period) => (
                   <div key={period} className="space-y-1.5">
@@ -643,12 +647,20 @@ export default function PlanPage() {
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
                     <SuffixInput
-                      suffix={pricePeriodSuffix(period, t)}
+                      prefix="¥"
                       type="number"
+                      step="0.01"
                       className={`${dialogInputCls} text-xs`}
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
+                    <p className={formSubLabelCls}>
+                      {t(
+                        period === 'onetime'
+                          ? 'subscribe.plan.form.price.onetime_desc'
+                          : 'subscribe.plan.form.price.reset_desc',
+                      )}
+                    </p>
                   </div>
                 ))}
               </div>

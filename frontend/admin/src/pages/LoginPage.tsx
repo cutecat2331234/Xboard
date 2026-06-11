@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
@@ -8,6 +9,7 @@ import { LocaleFlag } from '@/components/shared/LocaleFlag'
 import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +24,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 const inputCls =
   'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
@@ -75,18 +78,25 @@ export default function LoginPage() {
       <div className="absolute right-4 top-4 md:right-8 md:top-8">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="inline-flex h-8 items-center justify-center gap-1 rounded-md px-2 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-            >
+            <Button variant="ghost" size="sm" className="h-8 gap-1 px-2">
               <LocaleFlag locale={i18n.language} />
               <span className="text-sm font-medium">{localeLabel(i18n.language)}</span>
-            </button>
+            </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent align="end" className="w-[120px]">
             {ADMIN_LOCALES.map((l) => (
-              <DropdownMenuItem key={l.code} onClick={() => setLocale(l.code)}>
-                {l.label}
+              <DropdownMenuItem
+                key={l.code}
+                className={cn(
+                  'flex cursor-pointer items-center gap-2 px-2 py-1.5',
+                  i18n.language === l.code && 'bg-accent',
+                )}
+                onClick={() => setLocale(l.code)}
+              >
+                <LocaleFlag locale={l.code} />
+                <span className={cn('text-sm', i18n.language === l.code && 'font-medium')}>
+                  {l.label}
+                </span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -167,19 +177,25 @@ export default function LoginPage() {
       </div>
 
       <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-[90vw] sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{t('auth.signIn.resetPassword.title')}</DialogTitle>
             <DialogDescription>{t('auth.signIn.resetPassword.description')}</DialogDescription>
           </DialogHeader>
-          <pre className="overflow-x-auto rounded-md bg-muted p-3 text-xs">{resetCommand}</pre>
-          <button
-            type="button"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            onClick={copyResetCommand}
-          >
-            {t('common.copy')}
-          </button>
+          <div className="relative mt-4">
+            <pre className="max-w-full overflow-x-auto rounded-md bg-secondary p-4 pr-12 text-sm">
+              {resetCommand}
+            </pre>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-2 h-8 w-8 hover:bg-secondary-foreground/10"
+              onClick={copyResetCommand}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
