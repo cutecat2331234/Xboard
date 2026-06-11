@@ -219,11 +219,11 @@ onMounted(async () => {
   <n-card v-if="!loading && rows.length === 0">
     <n-empty :description="t('order.empty')" />
   </n-card>
-  <div v-else class="order-list">
+  <n-card v-else class="rounded-md order-list-card">
     <n-data-table
       :columns="columns"
       :data="paginatedRows"
-      :bordered="false"
+      :bordered="true"
       :scroll-x="800"
       :loading="loading"
     />
@@ -235,11 +235,11 @@ onMounted(async () => {
       :page-size="ORDER_PAGE_SIZE"
       :prefix="paginationPrefix"
     />
-  </div>
+  </n-card>
 </template>
 
 <style scoped>
-.order-list {
+.order-list-card :deep(.n-card__content) {
   display: flex;
   flex-direction: column;
 }
@@ -296,7 +296,7 @@ onMounted(async () => {
   height: 22px;
   border: none;
   background: transparent;
-  color: #316c72;
+  color: var(--xb-primary);
   cursor: pointer;
   padding: 0;
   border-radius: 3px;
