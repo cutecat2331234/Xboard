@@ -602,7 +602,7 @@ export default function DashboardPage() {
               <AreaChart data={chartPoints} margin={{ top: 20, right: 20, left: 20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(222.2 47.4% 11.2%)" stopOpacity={0.2} />
+                    <stop offset="0%" stopColor="var(--xb-primary)" stopOpacity={0.2} />
                     <stop offset="100%" stopColor="transparent" stopOpacity={0.1} />
                   </linearGradient>
                 </defs>
@@ -612,7 +612,7 @@ export default function DashboardPage() {
                 <Area
                   type="monotone"
                   dataKey="value"
-                  stroke="hsl(222.2 47.4% 11.2%)"
+                  stroke="var(--xb-primary)"
                   fill="url(#incomeGradient)"
                   isAnimationActive={false}
                 />
