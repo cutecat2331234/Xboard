@@ -1,6 +1,7 @@
 export type Settings = {
   base_url?: string
   title?: string
+  description?: string
   version?: string
   logo?: string
   secure_path?: string
