@@ -4,7 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData } from '@/lib/api'
 import { setLocale } from '@/lib/i18n'
-import { titleKeyForPath } from '@/lib/page-title'
+import { titleForPath, titleKeyForPath } from '@/lib/page-title'
+import { pluginTitleForPath } from '@/lib/plugin-menus'
+import { usePluginList } from '@/lib/use-plugin-list'
 import { toolbarModeForPath } from '@/lib/toolbar-mode'
 import { useTheme } from '@/lib/theme'
 import { cn } from '@/lib/utils'
@@ -34,8 +36,10 @@ export function PageToolbar() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const { theme, toggle } = useTheme()
+  const { plugins } = usePluginList()
   const mode = toolbarModeForPath(pathname)
   const titleKey = titleKeyForPath(pathname)
+  const pluginTitle = titleForPath(pathname) ? pluginTitleForPath(pathname, plugins) : null
 
   function logout() {
     clearAuthData()
@@ -58,7 +62,9 @@ export function PageToolbar() {
       {mode === 'icon-title' ? (
         <div className="flex items-center space-x-4">
           <Package className="h-6 w-6" strokeWidth={2} />
-          <h1 className="text-2xl font-bold tracking-tight">{t(titleKey)}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {pluginTitle ?? t(titleKey)}
+          </h1>
         </div>
       ) : null}
 

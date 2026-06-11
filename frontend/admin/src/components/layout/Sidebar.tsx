@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { IconChevronDown, IconMenu2 } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { getSettings } from '@/lib/settings'
 import { NAV_GROUPS } from '@/lib/nav-groups'
+import { buildPluginNavGroups } from '@/lib/plugin-menus'
+import { usePluginList } from '@/lib/use-plugin-list'
 import { GroupIcon, NavIcon } from '@/lib/tabler-nav-icons'
+import { PluginMenuIcon } from '@/components/plugin/PluginMenuIcon'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 
@@ -20,10 +23,20 @@ const subLinkCls =
 type SidebarNavProps = {
   openGroups: Record<string, boolean>
   setOpenGroups: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+  openPluginGroups: Record<string, boolean>
+  setOpenPluginGroups: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+  pluginGroups: ReturnType<typeof buildPluginNavGroups>
   onNavigate?: () => void
 }
 
-function SidebarNav({ openGroups, setOpenGroups, onNavigate }: SidebarNavProps) {
+function SidebarNav({
+  openGroups,
+  setOpenGroups,
+  openPluginGroups,
+  setOpenPluginGroups,
+  pluginGroups,
+  onNavigate,
+}: SidebarNavProps) {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -112,12 +125,78 @@ function SidebarNav({ openGroups, setOpenGroups, onNavigate }: SidebarNavProps) 
           </Collapsible>
         )
       })}
+      {pluginGroups.map((group) => {
+        const open = openPluginGroups[group.id] ?? true
+        return (
+          <Collapsible
+            key={group.id}
+            open={open}
+            onOpenChange={(v) => setOpenPluginGroups((s) => ({ ...s, [group.id]: v }))}
+          >
+            <CollapsibleTrigger
+              className={cn(
+                navLinkCls,
+                'group justify-start hover:bg-accent hover:text-accent-foreground',
+              )}
+            >
+              <div className="mr-2">
+                <PluginMenuIcon pluginType={group.pluginType} />
+              </div>
+              <span className="truncate">{group.title}</span>
+              {group.label ? (
+                <span className="ml-2 rounded-lg bg-primary px-1 text-[0.625rem] text-primary-foreground">
+                  {group.label}
+                </span>
+              ) : null}
+              <IconChevronDown
+                className={cn(
+                  'tabler-icon tabler-icon-chevron-down ml-auto h-4 w-4 shrink-0 transition-transform',
+                  open && '-rotate-180',
+                )}
+                stroke={2}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <ul>
+                {group.items.map((item) => (
+                  <li key={item.id} className="my-1 ml-8">
+                    <NavLink
+                      to={item.path}
+                      onClick={onNavigate}
+                      className={({ isActive }) =>
+                        cn(
+                          subLinkCls,
+                          isActive
+                            ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
+                            : 'hover:bg-accent hover:text-accent-foreground',
+                        )
+                      }
+                    >
+                      <div className="mr-2">
+                        <PluginMenuIcon icon={item.icon} pluginType={group.pluginType} />
+                      </div>
+                      <span className="truncate">{item.title}</span>
+                      {item.label ? (
+                        <span className="ml-2 rounded-lg bg-primary px-1 text-[0.625rem] text-primary-foreground">
+                          {item.label}
+                        </span>
+                      ) : null}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </CollapsibleContent>
+          </Collapsible>
+        )
+      })}
     </nav>
   )
 }
 
 export function Sidebar() {
   const { title, logo, version } = getSettings()
+  const { plugins } = usePluginList()
+  const pluginGroups = useMemo(() => buildPluginNavGroups(plugins), [plugins])
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     system: true,
@@ -125,6 +204,7 @@ export function Sidebar() {
     subscription: true,
     user: true,
   })
+  const [openPluginGroups, setOpenPluginGroups] = useState<Record<string, boolean>>({})
 
   return (
     <aside className="fixed left-0 right-0 top-0 z-50 flex h-auto flex-col border-r-2 border-r-muted transition-[width] md:bottom-0 md:right-auto md:h-svh md:w-64">
@@ -156,7 +236,13 @@ export function Sidebar() {
         </div>
 
         <div className="group hidden min-h-0 flex-1 flex-col overflow-hidden border-b bg-background md:flex md:border-none">
-          <SidebarNav openGroups={openGroups} setOpenGroups={setOpenGroups} />
+          <SidebarNav
+            openGroups={openGroups}
+            setOpenGroups={setOpenGroups}
+            openPluginGroups={openPluginGroups}
+            setOpenPluginGroups={setOpenPluginGroups}
+            pluginGroups={pluginGroups}
+          />
         </div>
         {version ? (
           <div className="border-t border-border/50 bg-background px-4 py-2.5 text-xs text-muted-foreground hidden md:block text-left">
@@ -177,6 +263,9 @@ export function Sidebar() {
             <SidebarNav
               openGroups={openGroups}
               setOpenGroups={setOpenGroups}
+              openPluginGroups={openPluginGroups}
+              setOpenPluginGroups={setOpenPluginGroups}
+              pluginGroups={pluginGroups}
               onNavigate={() => setMobileOpen(false)}
             />
           </div>
