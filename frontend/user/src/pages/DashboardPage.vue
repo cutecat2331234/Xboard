@@ -10,11 +10,12 @@ import { fetchSubscribe, type SubscribeInfo } from '@/api/subscribe'
 import { fetchNotices, type NoticeItem } from '@/api/notice'
 import { fetchUserStat } from '@/api/user'
 import { useI18n } from '@/i18n'
+import { resolvePopupNoticeTags } from '@/utils/settings'
 
 const auth = useAuthStore()
 const msg = useMessage()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const subscribe = ref<SubscribeInfo | null>(null)
 const subscribeUrl = ref('')
 const hasPlan = ref(false)
@@ -26,6 +27,14 @@ const unpaidOrders = ref(0)
 const openTickets = ref(0)
 
 const promoNotices = computed(() => notices.value.filter((n) => n.img_url))
+const popupNoticeTags = computed(() =>
+  resolvePopupNoticeTags(
+    t('dashboard.popupNoticeTags')
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean),
+  ),
+)
 const trafficPercent = computed(() => {
   const u = auth.user
   if (!u?.transfer_enable) return 0
@@ -77,7 +86,10 @@ function openClientImport() {
 async function loadNotices() {
   try {
     notices.value = await fetchNotices()
-    const popup = notices.value.find((n) => n.tags?.some((tag) => tag.includes('弹窗')))
+    const needles = popupNoticeTags.value
+    const popup = notices.value.find((n) =>
+      n.tags?.some((tag) => needles.some((needle) => tag.includes(needle))),
+    )
     if (popup) popupNotice.value = popup
   } catch {
     notices.value = []
@@ -156,7 +168,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       closable
       class="mb-1"
     >
-      {{ openTickets }} {{ t('dashboard.openTicketsProcessing') }}
+      {{ t('dashboard.openTickets', { count: openTickets }) }}
       <n-button text strong @click="router.push('/ticket')">{{ t('dashboard.goView') }}</n-button>
     </n-alert>
     <n-alert
@@ -167,7 +179,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       closable
       class="mb-1"
     >
-      {{ t('dashboard.unpaidOrdersAlert') }}
+      {{ t('dashboard.unpaidOrders', { count: unpaidOrders }) }}
       <n-button text strong @click="router.push('/order')">{{ t('dashboard.payNow') }}</n-button>
     </n-alert>
     <n-alert
@@ -178,7 +190,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       closable
       class="mb-1"
     >
-      {{ t('dashboard.trafficUsed', { rate: trafficPercent.toFixed(0) }) }}
+      {{ t('dashboard.trafficWarning', { percent: trafficPercent.toFixed(0) }) }}
       <n-button text @click="router.push('/plan')">
         <span class="dash-traffic-link">{{ t('dashboard.learnAndBuy') }}</span>
       </n-button>
@@ -207,7 +219,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
     <template v-else-if="hasPlan && subscribeUrl">
       <div v-if="subscribe?.plan?.name" class="sub-plan-name">{{ subscribe.plan.name }}</div>
       <div class="sub-meta">
-        <span>{{ t('dashboard.expireAt') }}: {{ formatExpire(subscribe?.expired_at) }}</span>
+        <span>{{ t('dashboard.expireAt') }}: {{ formatExpire(subscribe?.expired_at, locale) }}</span>
         <span v-if="subscribe?.reset_day != null">{{ t('dashboard.resetDay', { day: subscribe.reset_day }) }}</span>
       </div>
       <div class="sub-traffic">
