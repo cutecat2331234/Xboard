@@ -77,6 +77,9 @@ const USER_MAIN_BOX = { x: 236, y: 60, w: 1044, h: 840 }
 
 const USER_ROUTE_PATHS = {
   'gift-card': 'gift-card', // #/gift-card
+  'plan-detail': (fx) => `plan/${fx.planId}`,
+  'order-detail': (fx) => (fx.tradeNo ? `order/${fx.tradeNo}` : null),
+  'ticket-detail': (fx) => `ticket/${fx.ticketId}`,
 }
 
 const ADMIN_ROUTE_PATHS = {
@@ -208,6 +211,15 @@ async function ensureUserGateFixtures(base) {
     tradeNo = refreshed.data?.find((o) => o.status === 0)?.trade_no ?? ''
   }
 
+  if (!tradeNo) {
+    const retrySave = await fetch(`${base}/api/v1/user/order/save`, {
+      method: 'POST',
+      headers: userHdr,
+      body: JSON.stringify({ plan_id: planId, period: 'month_price' }),
+    }).then((r) => r.json())
+    if (retrySave.status === 'success' && retrySave.data) tradeNo = retrySave.data
+  }
+
   userFixtures = { planId, tradeNo, ticketId }
 }
 
@@ -217,10 +229,10 @@ function routeToPath(route) {
     if (route === 'dashboard') return ''
     return ADMIN_ROUTE_PATHS[route] ?? route.replace(/_/g, '/')
   }
-  if (route === 'plan-detail') return `plan/${userFixtures.planId}`
-  if (route === 'order-detail' && userFixtures.tradeNo) return `order/${userFixtures.tradeNo}`
-  if (route === 'ticket-detail') return `ticket/${userFixtures.ticketId}`
-  return USER_ROUTE_PATHS[route] ?? route
+  const mapped = USER_ROUTE_PATHS[route]
+  if (typeof mapped === 'function') return mapped(userFixtures)
+  if (mapped) return mapped
+  return route
 }
 
 function buildUrl(base, route) {
@@ -447,18 +459,39 @@ async function waitUserRouteReady(page, route) {
     await page.waitForSelector('.page-title, .n-radio-group', { timeout: 45000 }).catch(() => {})
   }
   if (route === 'order-detail') {
-    await page.waitForSelector('.order-detail-page .summary-panel', { timeout: 45000 }).catch(() => {})
+    await page.waitForSelector('.order-detail-page', { timeout: 45000 }).catch(() => {})
+    await page
+      .waitForSelector('.order-detail-page .summary-panel, .summary-panel, .order-summary', {
+        timeout: 45000,
+      })
+      .catch(() => {})
+    await page
+      .waitForSelector('.summary-panel__grand, .order-summary__grand', { timeout: 30000 })
+      .catch(() => {})
     await page
       .waitForFunction(
         () => {
-          const panel = document.querySelector('.summary-panel__grand')
+          const panel =
+            document.querySelector('.summary-panel__grand') ||
+            document.querySelector('.order-summary__grand')
           return panel && /\d/.test(panel.textContent || '')
         },
-        { timeout: 20000 },
+        { timeout: 30000 },
       )
       .catch(() => {})
+    await page
+      .evaluate(async () => {
+        await document.fonts?.ready
+        const panel = document.querySelector('.summary-panel, .order-summary')
+        if (!panel) return
+        const targets = panel.querySelectorAll(
+          '.summary-panel__grand, .summary-panel__plan-price, .summary-panel__amount, .order-summary__grand',
+        )
+        await Promise.all([...targets].map(() => document.fonts.ready))
+      })
+      .catch(() => {})
     await page.evaluate(() => document.fonts?.ready).catch(() => {})
-    await page.waitForTimeout(2500)
+    await page.waitForTimeout(4000)
   }
 }
 
@@ -595,9 +628,11 @@ async function main() {
   const browser = await chromium.launch()
   const failures = []
 
-  const needsFixtures = side === 'user' && routes.some((r) => /-detail$/.test(r))
+  const needsFixtures =
+    side === 'user' && routes.some((r) => r === 'order-detail' || /-detail$/.test(r))
   if (needsFixtures) {
     await ensureUserGateFixtures(refBase)
+    if (!userFixtures.tradeNo) await ensureUserGateFixtures(cmpBase)
   }
 
   for (const route of routes) {
