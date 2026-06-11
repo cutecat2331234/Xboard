@@ -52,18 +52,18 @@ function formatTs(ts?: number) {
   return new Date(ts * 1000).toLocaleString()
 }
 
-function statusLabel(t: (key: string, opts?: { defaultValue?: string }) => string, status?: number) {
-  if (status === 1) return t('ticket.status.closed', { defaultValue: '已关闭' })
-  if (status === 0) return t('ticket.status.processing', { defaultValue: '处理中' })
+function statusLabel(t: (key: string) => string, status?: number) {
+  if (status === 1) return t('ticket.status.closed')
+  if (status === 0) return t('ticket.status.processing')
   return String(status ?? '—')
 }
 
 function replyStatusLabel(
-  t: (key: string, opts?: { defaultValue?: string }) => string,
+  t: (key: string) => string,
   replyStatus?: number,
 ) {
-  if (replyStatus === 0) return t('ticket.status.pending', { defaultValue: '待回复' })
-  if (replyStatus === 1) return t('ticket.status.replied', { defaultValue: '已回复' })
+  if (replyStatus === 0) return t('ticket.status.pending')
+  if (replyStatus === 1) return t('ticket.status.replied')
   return String(replyStatus ?? '—')
 }
 
@@ -163,7 +163,7 @@ export default function TicketPage() {
       },
       {
         accessorKey: 'reply_status',
-        header: () => t('ticket.columns.reply_status', { defaultValue: '回复状态' }),
+        header: () => t('ticket.columns.reply_status'),
         cell: ({ row }) => replyStatusLabel(t, row.original.reply_status),
       },
       {
@@ -173,7 +173,7 @@ export default function TicketPage() {
       },
       {
         id: 'actions',
-        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+        header: () => t('common.table.columns.actions'),
         cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -184,10 +184,10 @@ export default function TicketPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openDetail(row.original)}>
                 <MessageSquare className="mr-2 h-4 w-4" />
-                {t('ticket.actions.reply', { defaultValue: '回复' })}
+                {t('ticket.actions.reply')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => closeTicket(row.original)}>
-                {t('ticket.actions.close', { defaultValue: '关闭' })}
+                {t('ticket.actions.close')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -215,8 +215,8 @@ export default function TicketPage() {
           }}
         >
           <TabsList>
-            <TabsTrigger value="open">{t('ticket.status.processing', { defaultValue: '处理中' })}</TabsTrigger>
-            <TabsTrigger value="closed">{t('ticket.status.closed', { defaultValue: '已关闭' })}</TabsTrigger>
+            <TabsTrigger value="open">{t('ticket.status.processing')}</TabsTrigger>
+            <TabsTrigger value="closed">{t('ticket.status.closed')}</TabsTrigger>
           </TabsList>
           <TabsContent value={statusTab} className="flex w-full flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -226,7 +226,7 @@ export default function TicketPage() {
                   setSearch(e.target.value)
                   setPage(1)
                 }}
-                placeholder={t('ticket.list.search_placeholder', { defaultValue: '搜索工单标题或用户邮箱' })}
+                placeholder={t('ticket.list.search_placeholder')}
                 className={`h-8 max-w-xs ${inputCls}`}
               />
               <select
@@ -238,10 +238,10 @@ export default function TicketPage() {
                 }}
               >
                 <option value="">
-                  {t('ticket.filter.reply_status_all', { defaultValue: '全部回复状态' })}
+                  {t('ticket.filter.reply_status_all')}
                 </option>
-                <option value="0">{t('ticket.status.pending', { defaultValue: '待回复' })}</option>
-                <option value="1">{t('ticket.status.replied', { defaultValue: '已回复' })}</option>
+                <option value="0">{t('ticket.status.pending')}</option>
+                <option value="1">{t('ticket.status.replied')}</option>
               </select>
               <Button variant="outline" size="sm" className="h-8" onClick={() => load()}>
                 {t('common.search')}
@@ -265,7 +265,7 @@ export default function TicketPage() {
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{detail?.subject ?? t('ticket.detail.title', { defaultValue: '工单详情' })}</DialogTitle>
+            <DialogTitle>{detail?.subject ?? t('ticket.detail.title')}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             {detail?.user?.email ? (
@@ -283,7 +283,7 @@ export default function TicketPage() {
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('ticket.reply.label', { defaultValue: '回复内容' })}</Label>
+              <Label>{t('ticket.reply.label')}</Label>
               <textarea
                 className={textareaCls}
                 value={reply}
@@ -293,10 +293,10 @@ export default function TicketPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={sendReply} disabled={saving || !reply.trim()}>
-              {t('ticket.actions.reply', { defaultValue: '回复' })}
+              {t('ticket.actions.reply')}
             </Button>
           </DialogFooter>
         </DialogContent>
