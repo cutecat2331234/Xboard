@@ -1516,7 +1516,7 @@ export default function ServerManagePage() {
 
         <DialogContent className="!flex h-[838px] max-h-[838px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
-          <div className="shrink-0 border-b bg-muted/20 px-6 pb-4 pt-6">
+          <div className="shrink-0 border-b bg-muted/20 px-6 pb-3 pt-5">
 
             <div className="flex items-center justify-between pr-8">
 
@@ -1546,8 +1546,8 @@ export default function ServerManagePage() {
 
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
-          <div className="space-y-6">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          <div className="space-y-5">
 
             <div className="flex gap-4">
 
@@ -1615,7 +1615,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
+            <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-1">
 
               <div>
 
@@ -1641,7 +1641,7 @@ export default function ServerManagePage() {
 
             <div className="grid grid-cols-2 gap-4">
 
-              <div className="xb-stack-2">
+              <div className="space-y-1.5">
 
                 <Label className={serverFieldLabelCls}>{t('server.form.traffic_limit.label')}(GB)</Label>
 
@@ -1655,7 +1655,7 @@ export default function ServerManagePage() {
 
               </div>
 
-              <div className="xb-stack-2">
+              <div className="space-y-1.5">
 
                 <Label className={serverFieldLabelCls}>
                   {t('server.form.code.label')}
@@ -1678,7 +1678,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-1.5">
 
               <Label className={serverFieldLabelCls}>{t('server.form.tags.label')}</Label>
 
@@ -1696,7 +1696,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-1.5">
 
               <div className="flex items-center justify-between gap-2">
 
@@ -1729,7 +1729,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-1.5">
 
               <Label className={serverFieldLabelCls}>{t('server.form.host.label')}</Label>
 
@@ -1851,7 +1851,7 @@ export default function ServerManagePage() {
 
             <div className="grid grid-cols-2 gap-4">
 
-              <div className="xb-stack-2">
+              <div className="space-y-1.5">
 
                 <Label className={serverFieldLabelCls}>{t('server.form.parent.label')}</Label>
 
@@ -1876,7 +1876,7 @@ export default function ServerManagePage() {
 
               </div>
 
-              <div className="xb-stack-2">
+              <div className="space-y-1.5">
 
                 <Label className={serverFieldLabelCls}>{t('server.form.route.label')}</Label>
 
@@ -1897,7 +1897,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-1.5">
 
               <Label className={serverFieldLabelCls}>{t('server.form.machine.label')}</Label>
 
@@ -1922,7 +1922,7 @@ export default function ServerManagePage() {
             ) : null}
 
             {shouldShowEchFields(form.type, protocolSettings) ? (
-              <div className="col-span-2 xb-stack-2 rounded-lg border border-dashed p-3">
+              <div className="col-span-2 space-y-1.5 rounded-lg border border-dashed p-3">
                 <div className="flex items-center justify-between gap-2">
                   <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.generate')}</Label>
                   <Button
