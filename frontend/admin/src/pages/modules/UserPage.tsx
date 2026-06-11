@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -1067,12 +1068,12 @@ export default function UserPage() {
       </Dialog>
 
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t('user.send_mail.title')}</DialogTitle>
+            <DialogDescription>{t('user.send_mail.description')}</DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">{t('user.send_mail.description')}</p>
-          <div className="xb-stack-3 py-3.5">
+          <div className="xb-stack-3">
             <div className="xb-stack-2">
               <Label>{t('user.send_mail.subject')}</Label>
               <Input
@@ -1084,7 +1085,7 @@ export default function UserPage() {
             <div className="xb-stack-2">
               <Label>{t('user.send_mail.content')}</Label>
               <textarea
-                className={textareaCls}
+                className={`${textareaCls} min-h-[220px]`}
                 value={mailContent}
                 onChange={(e) => setMailContent(e.target.value)}
               />
