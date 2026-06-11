@@ -94,91 +94,89 @@ export default function LoginPage() {
         </DropdownMenu>
       </div>
 
-      <div className="mx-auto flex w-full flex-col justify-center gap-6 sm:w-[350px] md:w-[420px] lg:p-8">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px] md:w-[420px] lg:p-8">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="m-0 text-2xl font-bold sm:text-3xl">{settings.title || 'XBoard'}</h1>
-          <p className="m-0 text-sm text-muted-foreground" />
+          <h1 className="text-2xl font-bold sm:text-3xl">{settings.title || 'XBoard'}</h1>
+          <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
           <div className="flex flex-col space-y-2 text-left">
-            <h1 className="m-0 text-xl font-semibold tracking-tight sm:text-2xl">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}
             </h1>
-            <p className="m-0 text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
+            <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
           </div>
           <div className="grid gap-6">
-            <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-              <div className="space-y-4">
-                {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                <div>
-                  <Label
-                    htmlFor="email"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {t('auth.signIn.email')}
-                  </Label>
+            <form className="space-y-4" onSubmit={onSubmit}>
+              {error ? <p className="text-sm text-destructive">{error}</p> : null}
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {t('auth.signIn.email')}
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="text"
+                  autoComplete="email"
+                  placeholder={t('auth.signIn.emailPlaceholder')}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputCls}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {t('auth.signIn.password')}
+                </Label>
+                <div className="relative rounded-md">
                   <Input
-                    id="email"
-                    name="email"
-                    type="text"
-                    autoComplete="email"
-                    placeholder={t('auth.signIn.emailPlaceholder')}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`mt-2 ${inputCls}`}
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder={t('auth.signIn.passwordPlaceholder')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={inputCls}
                     required
                   />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="password"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {t('auth.signIn.password')}
-                  </Label>
-                  <div className="relative mt-2 rounded-md">
-                    <Input
-                      id="password"
-                      name="password"
-                      type={showPassword ? 'text' : 'password'}
-                      autoComplete="current-password"
-                      placeholder={t('auth.signIn.passwordPlaceholder')}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={inputCls}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-1 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                      onClick={() => setShowPassword((v) => !v)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-[18px] w-[18px]" />
-                      ) : (
-                        <Eye className="h-[18px] w-[18px]" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
                   <button
                     type="button"
-                    className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-0 py-2 text-sm font-normal text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                    onClick={() => setForgotOpen(true)}
+                    className="absolute right-1 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => setShowPassword((v) => !v)}
                   >
-                    {t('auth.signIn.forgotPassword')}
+                    {showPassword ? (
+                      <EyeOff className="h-[18px] w-[18px]" />
+                    ) : (
+                      <Eye className="h-[18px] w-[18px]" />
+                    )}
                   </button>
                 </div>
+              </div>
+              <div className="flex items-center justify-between">
                 <button
-                  type="submit"
-                  className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                  disabled={loading}
+                  type="button"
+                  className="inline-flex items-center justify-center px-0 text-sm font-normal text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                  onClick={() => setForgotOpen(true)}
                 >
-                  {loading ? t('common.saving') : t('auth.signIn.submit')}
+                  {t('auth.signIn.forgotPassword')}
                 </button>
               </div>
+              <button
+                type="submit"
+                className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? t('common.saving') : t('auth.signIn.submit')}
+              </button>
             </form>
           </div>
         </div>
