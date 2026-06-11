@@ -94,6 +94,8 @@ export default {
     periodReset: "流量重置包",
     empty: "No plans available",
     loadFailed: "載入套餐失敗",
+    periodPricesHint: "週期價格",
+    capacityRemaining: "剩餘 {count} 個名額",
     tryOutBadge: "試用套餐",
     tryOutHint: "此套餐為註冊試用套餐，新用戶註冊時將自動獲得試用時長；您也可以在此正常下單購買。"
   },

@@ -94,6 +94,8 @@ export default {
     periodReset: "データリセットパッケージ",
     empty: "No plans available",
     loadFailed: "プランの読み込みに失敗しました",
+    periodPricesHint: "Period prices",
+    capacityRemaining: "{count} slots remaining",
     tryOutBadge: "Trial plan",
     tryOutHint: "This is the registration trial plan. New users receive a trial automatically; you can also purchase it here."
   },

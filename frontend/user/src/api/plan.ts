@@ -13,7 +13,11 @@ export interface PlanItem {
   three_year_price?: number | null
   onetime_price: number | null
   reset_price: number | null
-  show: number
+  capacity_limit?: number | string | null
+  show?: boolean | number
+  sell?: boolean
+  renew?: boolean
+  tags?: string[]
 }
 
 export async function fetchPlans() {

@@ -94,6 +94,8 @@ export default {
     periodReset: "Gói Reset Dữ liệu",
     empty: "No plans available",
     loadFailed: "Failed to load plans",
+    periodPricesHint: "Period prices",
+    capacityRemaining: "{count} slots remaining",
     tryOutBadge: "Trial plan",
     tryOutHint: "This is the registration trial plan. New users receive a trial automatically; you can also purchase it here."
   },
