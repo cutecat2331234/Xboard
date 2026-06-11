@@ -23,10 +23,8 @@ const viewportHeight = Number(process.env.VIEWPORT_H || 900)
 
 const USER_ROUTES_DEFAULT =
   'login,register,forgetpassword,dashboard,plan,plan-detail,order,order-detail,invite,traffic,knowledge,ticket,ticket-detail,profile,node'
-// traffic-reset omitted: 7001 legacy admin #/traffic-reset is 404 (ui-spec baseline matches).
-// Backend API exists but no admin UI on reference; 7002 aligns by omitting the route.
 const ADMIN_ROUTES_DEFAULT =
-  'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket'
+  'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset'
 const ADMIN_LOCALE = process.env.ADMIN_LOCALE || 'zh-CN'
 
 const routes = (process.env.ROUTES || (side === 'admin' ? ADMIN_ROUTES_DEFAULT : USER_ROUTES_DEFAULT))
@@ -281,6 +279,7 @@ const ADMIN_MASK_TABLE_ROUTES = new Set([
   'gift-card',
   'user',
   'ticket',
+  'traffic-reset',
 ])
 
 async function maskAdminVolatile(page, route) {
@@ -319,6 +318,7 @@ const ADMIN_TABLE_ROUTES = new Set([
   'gift-card',
   'user',
   'ticket',
+  'traffic-reset',
 ])
 
 async function waitAdminRouteReady(page, route) {

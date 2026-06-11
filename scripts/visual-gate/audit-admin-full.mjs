@@ -41,6 +41,7 @@ const ROUTES = [
   { id: 'gift-card', hash: '#/finance/gift-card' },
   { id: 'user', hash: '#/user/manage' },
   { id: 'ticket', hash: '#/user/ticket' },
+  { id: 'traffic-reset', hash: '#/traffic-reset' },
 ]
 
 const TABLE_ROUTES = new Set([
@@ -54,6 +55,7 @@ const TABLE_ROUTES = new Set([
   'gift-card',
   'user',
   'ticket',
+  'traffic-reset',
 ])
 
 async function login(page, base, attempt = 1) {
