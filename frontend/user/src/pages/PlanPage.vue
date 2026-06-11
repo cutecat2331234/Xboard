@@ -77,7 +77,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h2 class="page-title">{{ t('nav.plan') }}</h2>
   <n-grid v-if="!loaded" :cols="gridCols" :x-gap="12" :y-gap="12">
     <n-gi v-for="i in 2" :key="i">
       <n-card>

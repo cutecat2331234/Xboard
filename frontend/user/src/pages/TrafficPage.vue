@@ -49,7 +49,7 @@ onMounted(async () => {
 .traffic-hint {
   margin: 0 0 8px;
   font-size: 14px;
-  color: #666;
+  color: var(--xb-text-muted);
   line-height: 1.5;
 }
 </style>
