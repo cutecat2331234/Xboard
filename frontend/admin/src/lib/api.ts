@@ -1,4 +1,4 @@
-import { getAdminApiPrefix, getPassportApiPrefix } from '@/lib/settings'
+import { getAdminApiPrefix, getPassportApiPrefix, getSettings } from '@/lib/settings'
 
 const AUTH_STORAGE_KEY = 'xboard_admin_auth_data'
 
@@ -459,4 +459,74 @@ export type PaymentFormField = {
   options?: Array<{ label?: string; value?: string | number }>
   name?: string
   key?: string
+}
+
+export interface UpdateCheckInfo {
+  has_update?: boolean
+  is_local_newer?: boolean
+  latest_version?: string
+  current_version?: string
+  update_logs?: Array<{
+    version?: string
+    message?: string
+    author?: string
+    date?: string
+    is_local?: boolean
+  }>
+  download_url?: string
+  published_at?: string
+  author?: string
+}
+
+const GITHUB_COMMITS_API = 'https://api.github.com/repos/cedar2025/xboard/commits?per_page=1'
+export const SYSTEM_UPDATE_DOCS_URL = 'https://github.com/cedar2025/Xboard#documentation'
+
+function parseVersionHash(version?: string): string {
+  if (!version) return ''
+  const parts = version.split('-')
+  return (parts[parts.length - 1] ?? '').slice(0, 7).toLowerCase()
+}
+
+/** GET /update/check — route exists in AdminRoute but is currently commented out. */
+export async function checkSystemUpdate(): Promise<UpdateCheckInfo | null> {
+  try {
+    return await fetchJsonObject<UpdateCheckInfo>('/update/check')
+  } catch {
+    return null
+  }
+}
+
+async function checkSystemUpdateFromConfig(): Promise<UpdateCheckInfo | null> {
+  const currentVersion = getSettings().version ?? ''
+  const currentHash = parseVersionHash(currentVersion)
+  if (!currentHash) return null
+
+  try {
+    const response = await fetch(GITHUB_COMMITS_API, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+      },
+    })
+    if (!response.ok) return null
+
+    const commits = (await response.json()) as Array<{ sha?: string; html_url?: string }>
+    const latest = commits[0]
+    if (!latest?.sha) return null
+
+    const latestHash = latest.sha.slice(0, 7).toLowerCase()
+    return {
+      has_update: latestHash !== currentHash,
+      current_version: currentVersion || currentHash,
+      latest_version: latestHash,
+      download_url: latest.html_url ?? SYSTEM_UPDATE_DOCS_URL,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function fetchSystemUpdateStatus(): Promise<UpdateCheckInfo | null> {
+  const fromApi = await checkSystemUpdate()
+  if (fromApi) return fromApi
+  return checkSystemUpdateFromConfig()
 }
