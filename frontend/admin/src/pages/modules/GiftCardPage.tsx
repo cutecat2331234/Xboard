@@ -706,12 +706,10 @@ export default function GiftCardPage() {
 
     if (
       !(await confirm(
-        t('giftCard.template.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
-        t('giftCard.template.actions.deleteConfirm.description', {
-          defaultValue: '此操作将永久删除该模板，确定要继续吗？',
-        }),
+        t('giftCard.template.actions.deleteConfirm.title'),
+        t('giftCard.template.actions.deleteConfirm.description'),
         {
-          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
+          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText'),
         },
       ))
     )
@@ -767,12 +765,10 @@ export default function GiftCardPage() {
 
     if (
       !(await confirm(
-        t('giftCard.template.actions.deleteConfirm.title', { defaultValue: '确认删除' }),
-        t('giftCard.template.actions.deleteConfirm.description', {
-          defaultValue: '此操作将永久删除该模板，确定要继续吗？',
-        }),
+        t('giftCard.template.actions.deleteConfirm.title'),
+        t('giftCard.template.actions.deleteConfirm.description'),
         {
-          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText', { defaultValue: '删除' }),
+          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText'),
         },
       ))
     )
@@ -842,7 +838,7 @@ export default function GiftCardPage() {
 
       await postJson('/gift-card/update-code', payload)
 
-      toast.success(t('giftCard.messages.codeStatusUpdated', { defaultValue: '兑换码更新成功' }))
+      toast.success(t('giftCard.messages.codeStatusUpdated'))
 
       setCodeEditOpen(false)
 
@@ -852,7 +848,7 @@ export default function GiftCardPage() {
 
       toast.error(
 
-        e instanceof Error ? e.message : t('giftCard.messages.updateCodeStatusFailed', { defaultValue: '兑换码更新失败' }),
+        e instanceof Error ? e.message : t('giftCard.messages.updateCodeStatusFailed'),
 
       )
 
@@ -902,7 +898,7 @@ export default function GiftCardPage() {
 
         accessorKey: 'codes_count',
 
-        header: () => t('giftCard.template.table.columns.codes', { defaultValue: '卡密数' }),
+        header: () => t('giftCard.code.form.count.label'),
 
       },
 
@@ -910,7 +906,7 @@ export default function GiftCardPage() {
 
         id: 'actions',
 
-        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+        header: () => t('common.table.columns.actions'),
 
         cell: ({ row }) => (
 
@@ -920,7 +916,7 @@ export default function GiftCardPage() {
 
               <Pencil className="mr-1 h-3 w-3" />
 
-              {t('common.edit', { defaultValue: '编辑' })}
+              {t('common.edit')}
 
             </Button>
 
@@ -928,7 +924,7 @@ export default function GiftCardPage() {
 
               <Sparkles className="mr-1 h-3 w-3" />
 
-              {t('giftCard.template.generate', { defaultValue: '生成卡密' })}
+              {t('giftCard.code.generate.title')}
 
             </Button>
 
@@ -944,7 +940,7 @@ export default function GiftCardPage() {
 
             >
 
-              {t('common.delete', { defaultValue: '删除' })}
+              {t('giftCard.template.actions.delete')}
 
             </Button>
 
@@ -968,19 +964,19 @@ export default function GiftCardPage() {
 
       { accessorKey: 'id', header: 'ID' },
 
-      { accessorKey: 'code', header: () => t('giftCard.codes.columns.code', { defaultValue: '卡密' }) },
+      { accessorKey: 'code', header: () => t('giftCard.code.table.columns.code') },
 
-      { accessorKey: 'status', header: () => t('giftCard.codes.columns.status', { defaultValue: '状态' }) },
+      { accessorKey: 'status', header: () => t('giftCard.code.table.columns.status') },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.codes.columns.template', { defaultValue: '模板' }) },
+      { accessorKey: 'template_id', header: () => t('giftCard.code.table.columns.template_name') },
 
-      { accessorKey: 'batch_id', header: () => t('giftCard.codes.columns.batch', { defaultValue: '批次' }) },
+      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.id') },
 
       {
 
         id: 'actions',
 
-        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+        header: () => t('common.table.columns.actions'),
 
         cell: ({ row }) => (
 
@@ -990,7 +986,7 @@ export default function GiftCardPage() {
 
               <Button variant="ghost" size="sm" onClick={() => exportBatch(String(row.original.batch_id))}>
 
-                {t('giftCard.codes.export', { defaultValue: '导出批次' })}
+                {t('giftCard.code.actions.export')}
 
               </Button>
 
@@ -1000,13 +996,15 @@ export default function GiftCardPage() {
 
               <Pencil className="mr-1 h-3 w-3" />
 
-              {t('common.edit', { defaultValue: '编辑' })}
+              {t('common.edit')}
 
             </Button>
 
             <Button variant="ghost" size="sm" onClick={() => toggleCode(row.original)}>
 
-              {t('giftCard.codes.toggle', { defaultValue: '切换状态' })}
+              {Number(row.original.status) === 3
+                ? t('giftCard.code.actions.enable')
+                : t('giftCard.code.actions.disable')}
 
             </Button>
 
@@ -1022,7 +1020,7 @@ export default function GiftCardPage() {
 
             >
 
-              {t('common.delete', { defaultValue: '删除' })}
+              {t('giftCard.template.actions.delete')}
 
             </Button>
 
@@ -1046,11 +1044,11 @@ export default function GiftCardPage() {
 
       { accessorKey: 'id', header: 'ID' },
 
-      { accessorKey: 'user_id', header: () => t('giftCard.usages.columns.user', { defaultValue: '用户' }) },
+      { accessorKey: 'user_id', header: () => t('giftCard.usage.table.columns.user_email') },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.usages.columns.template', { defaultValue: '模板' }) },
+      { accessorKey: 'template_id', header: () => t('giftCard.usage.table.columns.template_name') },
 
-      { accessorKey: 'created_at', header: () => t('giftCard.usages.columns.time', { defaultValue: '时间' }) },
+      { accessorKey: 'created_at', header: () => t('giftCard.usage.table.columns.created_at') },
 
     ],
 
@@ -1928,7 +1926,7 @@ export default function GiftCardPage() {
 
           <DialogHeader>
 
-            <DialogTitle>{t('giftCard.template.generate', { defaultValue: '生成卡密' })}</DialogTitle>
+            <DialogTitle>{t('giftCard.code.generate.title')}</DialogTitle>
 
           </DialogHeader>
 
@@ -1936,7 +1934,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.generate.count', { defaultValue: '数量' })}</Label>
+              <Label>{t('giftCard.code.generate.count')}</Label>
 
               <input
 
@@ -1958,7 +1956,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.generate.prefix', { defaultValue: '前缀' })}</Label>
+              <Label>{t('giftCard.code.generate.prefix')}</Label>
 
               <input
 
@@ -1974,7 +1972,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.generate.expires', { defaultValue: '过期时间（小时，可选）' })}</Label>
+              <Label>{t('giftCard.code.generate.expires_hours')}</Label>
 
               <input
 
@@ -1992,7 +1990,7 @@ export default function GiftCardPage() {
 
             <div className="flex flex-col gap-2">
 
-              <Label>{t('giftCard.generate.maxUsage', { defaultValue: '最大使用次数' })}</Label>
+              <Label>{t('giftCard.code.generate.max_usage')}</Label>
 
               <input
 
@@ -2024,7 +2022,7 @@ export default function GiftCardPage() {
 
               <Label htmlFor="gift-download-csv">
 
-                {t('giftCard.generate.downloadCsv', { defaultValue: '生成后下载 CSV' })}
+                {t('giftCard.code.form.download_csv')}
 
               </Label>
 
@@ -2036,13 +2034,13 @@ export default function GiftCardPage() {
 
             <Button variant="outline" onClick={() => setGenerateOpen(false)}>
 
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
 
             </Button>
 
             <Button onClick={generateCodes} disabled={generating}>
 
-              {t('common.confirm', { defaultValue: '确认' })}
+              {t('common.confirm')}
 
             </Button>
 
@@ -2062,7 +2060,7 @@ export default function GiftCardPage() {
 
             <DialogTitle>
 
-              {t('giftCard.code.form.edit', { defaultValue: '编辑兑换码' })}
+              {t('giftCard.template.actions.edit')}
 
             </DialogTitle>
 
@@ -2074,7 +2072,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.table.columns.code', { defaultValue: '兑换码' })}</Label>
+                <Label>{t('giftCard.code.table.columns.code')}</Label>
 
                 <input className={inputCls} value={codeEditForm.code} readOnly disabled />
 
@@ -2082,7 +2080,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.table.columns.status', { defaultValue: '状态' })}</Label>
+                <Label>{t('giftCard.code.table.columns.status')}</Label>
 
                 <select
 
@@ -2102,11 +2100,7 @@ export default function GiftCardPage() {
 
                     <option key={value} value={value}>
 
-                      {t(`giftCard.code.status.${value}`, {
-
-                        defaultValue: ['未使用', '已使用', '已过期', '已禁用'][value],
-
-                      })}
+                      {t(`giftCard.code.status.${value}`)}
 
                     </option>
 
@@ -2118,7 +2112,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.form.max_usage.label', { defaultValue: '最大使用次数' })}</Label>
+                <Label>{t('giftCard.code.form.max_usage.label')}</Label>
 
                 <input
 
@@ -2144,7 +2138,7 @@ export default function GiftCardPage() {
 
               <div className="flex flex-col gap-2">
 
-                <Label>{t('giftCard.code.table.columns.expires_at', { defaultValue: '过期时间' })}</Label>
+                <Label>{t('giftCard.code.table.columns.expires_at')}</Label>
 
                 <input
 
@@ -2164,7 +2158,7 @@ export default function GiftCardPage() {
 
                 <p className="text-xs text-muted-foreground">
 
-                  {t('giftCard.code.form.expires_clear', { defaultValue: '留空表示永不过期' })}
+                  {t('giftCard.template.form.limits.max_use_per_user.placeholder')}
 
                 </p>
 
@@ -2178,13 +2172,13 @@ export default function GiftCardPage() {
 
             <Button variant="outline" onClick={() => setCodeEditOpen(false)}>
 
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
 
             </Button>
 
             <Button onClick={saveCode} disabled={codeEditSaving || !codeEditForm}>
 
-              {t('common.save', { defaultValue: '保存' })}
+              {t('common.save')}
 
             </Button>
 
