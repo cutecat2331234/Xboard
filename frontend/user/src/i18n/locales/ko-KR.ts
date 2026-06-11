@@ -156,7 +156,10 @@ export default {
     incomeRecord: "수수료 지불 기록",
     incomeTime: "수수료 지급 시간",
     incomeAmount: "수수료",
-    transferAmount: "Transfer amount (cents)"
+    transferAmount: "이체 금액(센트)",
+    transferAmountRequired: "이체 금액을 입력하세요",
+    transferAmountInvalid: "이체 금액은 양의 정수(센트)여야 합니다",
+    withdrawSuccess: "출금 요청이 제출되었습니다. 티켓에서 진행 상황을 확인하세요."
   },
   traffic: {
     hint: "Traffic logs are kept for the last month only.",
