@@ -24,6 +24,6 @@ export const tokens = {
   },
   spacing: {
     shellSideWidth: '220px',
-    headerHeight: '56px',
+    headerHeight: '60px',
   },
 } as const
