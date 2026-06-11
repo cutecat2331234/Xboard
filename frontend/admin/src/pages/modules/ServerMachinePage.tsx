@@ -241,11 +241,7 @@ export default function ServerMachinePage() {
         : 'common.copy.failed'
 
   const infoCopyLabel =
-    infoKind === 'token'
-      ? t('machine.token.copy')
-      : infoKind === 'install'
-        ? t('machine.install.copy')
-        : t('common.copy.success')
+    infoKind === 'install' ? t('machine.install.copy') : t('machine.token.copy')
 
   const columns = useMemo<ColumnDef<MachineRow, unknown>[]>(
     () => [
@@ -293,7 +289,7 @@ export default function ServerMachinePage() {
                 {t('machine.actions.resetToken')}
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive" onClick={() => deleteRow(row.original)}>
-                {t('common.delete')}
+                {t('machine.messages.deleteButton')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
