@@ -283,6 +283,7 @@ class AdminRoute
                 $router->get('config', [\App\Http\Controllers\V2\Admin\PluginController::class, 'getConfig']);
                 $router->post('config', [\App\Http\Controllers\V2\Admin\PluginController::class, 'updateConfig']);
                 $router->post('upgrade', [\App\Http\Controllers\V2\Admin\PluginController::class, 'upgrade']);
+                $router->get('{code}/page', [\App\Http\Controllers\V2\Admin\PluginController::class, 'page']);
             });
 
             // 流量重置管理

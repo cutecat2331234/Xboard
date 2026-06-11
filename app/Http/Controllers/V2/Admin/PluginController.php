@@ -315,6 +315,24 @@ class PluginController extends Controller
     }
 
     /**
+     * 获取插件后台菜单页面 HTML（供 iframe / srcDoc 嵌入）
+     */
+    public function page(Request $request, string $code)
+    {
+        $path = trim((string) $request->query('path', ''));
+        if ($path === '') {
+            return $this->fail([400, 'path 参数不能为空']);
+        }
+
+        $html = $this->pluginManager->renderAdminMenuPage($code, $path, $request);
+        if ($html === null) {
+            return $this->fail([404, '插件菜单页面不存在']);
+        }
+
+        return response($html, 200)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
+
+    /**
      * 删除插件
      */
     public function delete(Request $request)
