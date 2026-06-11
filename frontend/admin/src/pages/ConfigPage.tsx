@@ -4,7 +4,7 @@ import { IconBuilding, IconRefresh } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
-import { inputCls } from '@/lib/form-styles'
+import { configFieldLabelCls, inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { Switch } from '@/components/ui/switch'
 import { ConfigFormSelect } from '@/components/shared/ConfigFormSelect'
@@ -678,6 +678,7 @@ function FormField({
   placeholder,
   onChange,
   type = 'text',
+  compactLabel,
 }: {
   label: string
   description?: string
@@ -685,10 +686,17 @@ function FormField({
   placeholder?: string
   onChange: (v: string) => void
   type?: string
+  compactLabel?: boolean
 }) {
   return (
     <div className="xb-stack-2">
-      <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">
+      <label
+        className={
+          compactLabel
+            ? configFieldLabelCls
+            : 'font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base'
+        }
+      >
         {label}
       </label>
       <input
@@ -747,16 +755,24 @@ function FormTextarea({
   value,
   placeholder,
   onChange,
+  compactLabel,
 }: {
   label: string
   description?: string
   value: string
   placeholder?: string
   onChange: (v: string) => void
+  compactLabel?: boolean
 }) {
   return (
     <div className="xb-stack-2">
-      <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">
+      <label
+        className={
+          compactLabel
+            ? configFieldLabelCls
+            : 'font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base'
+        }
+      >
         {label}
       </label>
       <textarea
@@ -801,6 +817,7 @@ function SwitchField({
   checked,
   onChange,
   flat,
+  compactLabel,
 }: {
   label: string
   description?: string
@@ -808,13 +825,15 @@ function SwitchField({
   onChange: (v: boolean) => void
   /** 7001 subscribe 子页：label → desc → switch 同级 space-y-2 */
   flat?: boolean
+  compactLabel?: boolean
 }) {
+  const labelCls = compactLabel
+    ? configFieldLabelCls
+    : 'font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base'
   if (flat) {
     return (
       <div className="xb-stack-2">
-        <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">
-          {label}
-        </label>
+        <label className={labelCls}>{label}</label>
         {description ? <p className="text-[0.8rem] text-muted-foreground">{description}</p> : null}
         <Switch checked={checked} onCheckedChange={onChange} />
       </div>
@@ -823,9 +842,7 @@ function SwitchField({
   return (
     <div className="xb-stack-2">
       <div className="xb-stack-05">
-        <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">
-          {label}
-        </label>
+        <label className={labelCls}>{label}</label>
         {description ? <p className="text-[0.8rem] text-muted-foreground">{description}</p> : null}
       </div>
       <Switch checked={checked} onCheckedChange={onChange} />

@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { configFieldLabelCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 
 /** Radix Select forbids empty string item values — map API '' to this sentinel. */
@@ -22,6 +23,7 @@ type Props = {
   onChange: (value: string) => void
   /** 7001 event fields use w-max combobox; reset traffic uses full width */
   triggerWidth?: 'full' | 'max'
+  compactLabel?: boolean
 }
 
 export function ConfigFormSelect({
@@ -31,13 +33,20 @@ export function ConfigFormSelect({
   options,
   onChange,
   triggerWidth = 'full',
+  compactLabel,
 }: Props) {
   const selectValue = toSelectValue(value)
   const current = options.find((o) => o.value === value)?.label ?? options[0]?.label
 
   return (
     <div className="xb-stack-2">
-      <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">
+      <label
+        className={
+          compactLabel
+            ? configFieldLabelCls
+            : 'font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base'
+        }
+      >
         {label}
       </label>
       <div className={cn(triggerWidth === 'max' && 'relative w-max')}>
