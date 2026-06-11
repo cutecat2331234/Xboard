@@ -50,6 +50,12 @@ async function sendReply() {
   }
 }
 
+function onReplyKeydown(e: KeyboardEvent) {
+  if (e.key !== 'Enter' || e.shiftKey) return
+  e.preventDefault()
+  sendReply()
+}
+
 async function close() {
   if (!ticket.value) return
   try {
@@ -112,11 +118,12 @@ onUnmounted(stopPoll)
     <div class="reply-group mt-8">
       <n-input
         v-model:value="replyText"
-        type="text"
+        type="textarea"
+        :rows="2"
         size="large"
         :disabled="isClosed"
         :placeholder="isClosed ? t('ticket.closedReplyPh') : t('ticket.replyPh')"
-        @keyup.enter="sendReply"
+        @keydown="onReplyKeydown"
       />
       <n-button
         type="primary"
@@ -159,10 +166,11 @@ onUnmounted(stopPoll)
   display: inline-block;
   margin-bottom: 8px;
   border-radius: 6px;
-  background: #f9fafb;
-  padding: 8px 16px 32px;
+  background: var(--xb-hover);
+  padding: 8px 16px;
   font-size: 14px;
   text-align: left;
+  white-space: pre-wrap;
 }
 .text-right .message-bubble {
   text-align: right;
@@ -170,7 +178,7 @@ onUnmounted(stopPoll)
 .reply-group {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-end;
 }
 .reply-group :deep(.n-input) {
   flex: 1;
