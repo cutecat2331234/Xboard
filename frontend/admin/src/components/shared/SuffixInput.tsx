@@ -1,9 +1,22 @@
 import { cn } from '@/lib/utils'
-import { inputCls } from '@/lib/form-styles'
+import { dialogSuffixAddonCls, inputCls } from '@/lib/form-styles'
 
 type SuffixInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   suffix: string
   prefix?: string
+}
+
+function isDialogStyle(className?: string) {
+  return Boolean(className?.includes('font-mono') || className?.includes('text-xs'))
+}
+
+function addonCls(className: string | undefined, rounded: 'left' | 'right') {
+  const dialog = isDialogStyle(className)
+  return cn(
+    dialog ? dialogSuffixAddonCls : 'inline-flex h-9 shrink-0 items-center border border-input bg-transparent px-3 text-sm text-muted-foreground shadow-sm',
+    'z-[-1]',
+    rounded === 'left' ? 'rounded-l-md rounded-r-none border-r-0' : 'rounded-r-md rounded-l-none border-l-0',
+  )
 }
 
 export function SuffixInput({ suffix, prefix, className, type = 'text', ...props }: SuffixInputProps) {
@@ -15,9 +28,7 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
   if (prefix) {
     return (
       <div className="flex w-full">
-        <span className="z-[-1] inline-flex h-9 shrink-0 items-center rounded-l-md rounded-r-none border border-r-0 border-input px-3 text-sm text-muted-foreground shadow-sm">
-          {prefix}
-        </span>
+        <span className={addonCls(className, 'left')}>{prefix}</span>
         <input className={cn(inputCls, 'rounded-l-none', spinless, className)} type={type} {...props} />
       </div>
     )
@@ -30,9 +41,7 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
         type={type}
         {...props}
       />
-      <span className="z-[-1] inline-flex h-9 shrink-0 items-center rounded-r-md rounded-l-none border border-l-0 border-input px-3 text-sm text-muted-foreground shadow-sm">
-        {suffix}
-      </span>
+      <span className={addonCls(className, 'right')}>{suffix}</span>
     </div>
   )
 }

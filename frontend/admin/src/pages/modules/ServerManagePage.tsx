@@ -1615,13 +1615,13 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
+            <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
 
               <div>
 
                 <Label className={serverFieldLabelCls}>{t('server.form.dynamic_rate.enable_label')}</Label>
 
-                <p className="text-xs text-muted-foreground">
+                <p className="m-0 text-[11px] leading-tight text-muted-foreground">
 
                   {t('server.form.dynamic_rate.enable_description')}
 
@@ -1725,7 +1725,9 @@ export default function ServerManagePage() {
                 emptyText={t('server.form.groups.empty')}
               />
 
-              <p className={formSubLabelCls} aria-hidden="true" />
+              <p className={`${formSubLabelCls} min-h-5 leading-5`} aria-hidden="true">
+                {'\u00a0'}
+              </p>
 
             </div>
 
@@ -1891,7 +1893,9 @@ export default function ServerManagePage() {
                   emptyText={t('server.form.route.empty')}
                 />
 
-                <p className={formSubLabelCls} aria-hidden="true" />
+                <p className={`${formSubLabelCls} min-h-5 leading-5`} aria-hidden="true">
+                  {'\u00a0'}
+                </p>
 
               </div>
 
