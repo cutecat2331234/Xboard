@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { Check, ChevronsUpDown, Key, RefreshCw } from 'lucide-react'
+import { Check, ChevronsUpDown, ExternalLink, Key, RefreshCw } from 'lucide-react'
 
 import { useTranslation } from 'react-i18next'
 
@@ -21,6 +21,8 @@ import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 import { Switch } from '@/components/ui/switch'
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { generateRealityKeyPair, generateRealityShortId } from '@/lib/reality-keys'
 
@@ -49,8 +51,14 @@ import {
   normalizeTrojanSettings,
   normalizeTuicSettings,
   normalizeVlessSettings,
+  defaultShadowsocksCertConfig,
+  normalizeShadowsocksCertConfig,
   randomObfsPassword,
   serializeAnyTlsSettings,
+  serializeShadowsocksCertConfig,
+  setPluginOptsPassword,
+  SHADOWSOCKS_CERT_MODES,
+  type ShadowsocksCertConfig,
   serializeHysteriaSettings,
   serializeTrojanSettings,
   serializeTuicSettings,
@@ -116,6 +124,7 @@ export type ShadowsocksProtocolForm = {
   client_fingerprint: string
   obfs: string
   obfs_settings: { path: string; host: string }
+  cert_config: ShadowsocksCertConfig
 }
 
 export type VmessProtocolForm = {
@@ -145,7 +154,18 @@ export function defaultShadowsocksSettings(): ShadowsocksProtocolForm {
     client_fingerprint: 'chrome',
     obfs: '',
     obfs_settings: { path: '', host: '' },
+    cert_config: defaultShadowsocksCertConfig(),
   }
+}
+
+export function readShadowsocksCertConfig(raw?: Record<string, unknown>): ShadowsocksCertConfig {
+  return normalizeShadowsocksCertConfig(raw)
+}
+
+export function toShadowsocksCertConfigPayload(
+  config: ShadowsocksCertConfig,
+): Record<string, unknown> | undefined {
+  return serializeShadowsocksCertConfig(config)
 }
 
 export function defaultVmessSettings(): VmessProtocolForm {
@@ -189,6 +209,7 @@ export function readProtocolSettings(
       client_fingerprint: String(raw?.client_fingerprint ?? 'chrome'),
       obfs: String(raw?.obfs ?? ''),
       obfs_settings: readObfsSettings(raw),
+      cert_config: defaultShadowsocksCertConfig(),
     }
   }
   if (type === 'vmess') {
@@ -405,7 +426,165 @@ function CipherSelect({
   )
 }
 
-function ShadowsocksFields({
+const SS_OBFS_GENERATE_KEY = 'server.dynamic_form.shadowsocks.generate_obfs_password'
+const SS_OBFS_GENERATE_SUCCESS_KEY = 'server.dynamic_form.shadowsocks.generate_obfs_password_success'
+
+function certModeDescriptionKey(mode: ShadowsocksCertConfig['cert_mode']): string | null {
+  switch (mode) {
+    case 'self':
+      return 'server.dynamic_form.shadowsocks.cert_config.cert_mode.self_description'
+    case 'http':
+      return 'server.dynamic_form.shadowsocks.cert_config.cert_mode.http_description'
+    case 'dns':
+      return 'server.dynamic_form.shadowsocks.cert_config.cert_mode.dns_description'
+    case 'content':
+      return 'server.dynamic_form.shadowsocks.cert_config.cert_mode.content_description'
+    case 'none':
+      return 'server.dynamic_form.shadowsocks.cert_config.cert_mode.description'
+    default:
+      return null
+  }
+}
+
+function ShadowsocksCertFields({
+  value,
+  onChange,
+}: {
+  value: ShadowsocksCertConfig
+  onChange: (next: ShadowsocksCertConfig) => void
+}) {
+  const { t } = useTranslation()
+  const locale = 'server.dynamic_form.shadowsocks.cert_config'
+  const mode = value.cert_mode
+  const modeDescKey = certModeDescriptionKey(mode)
+
+  function patch(patch: Partial<ShadowsocksCertConfig>) {
+    onChange({ ...value, ...patch })
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="xb-stack-2">
+        <Label>{t(`${locale}.cert_mode.label`)}</Label>
+        <FormSelect
+          value={mode}
+          onChange={(cert_mode) => patch({ cert_mode: cert_mode as ShadowsocksCertConfig['cert_mode'] })}
+          options={SHADOWSOCKS_CERT_MODES.map((opt) => ({ value: opt.value, label: opt.label }))}
+          placeholder="none"
+          className="font-mono text-xs"
+        />
+        {modeDescKey ? (
+          <p className="text-xs text-muted-foreground">{t(modeDescKey)}</p>
+        ) : null}
+      </div>
+
+      {mode === 'none' ? (
+        <p className="py-8 text-center text-xs text-muted-foreground">{t(`${locale}.none_desc`)}</p>
+      ) : null}
+
+      {mode === 'http' || mode === 'dns' || mode === 'self' || mode === 'content' ? (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="xb-stack-2">
+            <Label>{t(`${locale}.domain.label`)}</Label>
+            <input
+              className={cn(inputCls, 'font-mono text-xs')}
+              value={value.domain}
+              onChange={(e) => patch({ domain: e.target.value })}
+              placeholder={t(`${locale}.domain.placeholder`)}
+            />
+          </div>
+          {mode === 'http' || mode === 'dns' ? (
+            <div className="xb-stack-2">
+              <Label>{t(`${locale}.email.label`)}</Label>
+              <input
+                className={cn(inputCls, 'font-mono text-xs')}
+                value={value.email}
+                onChange={(e) => patch({ email: e.target.value })}
+                placeholder={t(`${locale}.email.placeholder`)}
+              />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {mode === 'http' ? (
+        <div className="xb-stack-2">
+          <Label>{t(`${locale}.http_port.label`)}</Label>
+          <input
+            type="number"
+            className={cn(inputCls, 'font-mono text-xs')}
+            value={value.http_port}
+            onChange={(e) => patch({ http_port: e.target.value })}
+          />
+          <p className="text-xs text-muted-foreground">{t(`${locale}.http_port.description`)}</p>
+        </div>
+      ) : null}
+
+      {mode === 'dns' ? (
+        <div className="space-y-3">
+          <div className="xb-stack-2">
+            <Label>{t(`${locale}.dns_provider.label`)}</Label>
+            <input
+              className={cn(inputCls, 'font-mono text-xs')}
+              value={value.dns_provider}
+              onChange={(e) => patch({ dns_provider: e.target.value })}
+              placeholder="cloudflare / alidns / dnspod"
+            />
+            <a
+              href="https://go-acme.github.io/lego/dns/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              {t(`${locale}.dns_provider.doc_link`)}
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+          <div className="xb-stack-2">
+            <Label>{t(`${locale}.dns_env.label`)}</Label>
+            <textarea
+              className={cn(textareaCls, 'min-h-[100px] font-mono text-xs')}
+              value={value.dns_env_text}
+              onChange={(e) => patch({ dns_env_text: e.target.value })}
+              placeholder={'CF_API_TOKEN=xxxxxx\nALIDNS_ACCESS_KEY_ID=xxxx'}
+              spellCheck={false}
+            />
+            <p className="text-xs text-muted-foreground">
+              {t(`${locale}.dns_env.description_short`)}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      {mode === 'content' ? (
+        <div className="space-y-3">
+          <div className="xb-stack-2">
+            <Label>{t(`${locale}.cert_content.label`)}</Label>
+            <textarea
+              className={cn(textareaCls, 'min-h-[100px] font-mono text-xs')}
+              value={value.cert_content}
+              onChange={(e) => patch({ cert_content: e.target.value })}
+              placeholder={'-----BEGIN CERTIFICATE-----\n...'}
+              spellCheck={false}
+            />
+          </div>
+          <div className="xb-stack-2">
+            <Label>{t(`${locale}.key_content.label`)}</Label>
+            <textarea
+              className={cn(textareaCls, 'min-h-[100px] font-mono text-xs')}
+              value={value.key_content}
+              onChange={(e) => patch({ key_content: e.target.value })}
+              placeholder={'-----BEGIN RSA PRIVATE KEY-----\n...'}
+              spellCheck={false}
+            />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function ShadowsocksProtocolFields({
   value,
   onChange,
 }: {
@@ -414,6 +593,10 @@ function ShadowsocksFields({
 }) {
   const { t, i18n } = useTranslation()
   const hintKey = pluginHintKey(value.plugin)
+  const showPluginOpts = Boolean(value.plugin && value.plugin !== 'none')
+  const showObfsPasswordGenerate =
+    i18n.exists(SS_OBFS_GENERATE_KEY) &&
+    (value.plugin === 'shadow-tls' || value.plugin === 'restls')
 
   const pluginOptions = useMemo(
     () =>
@@ -429,8 +612,16 @@ function ShadowsocksFields({
     [i18n, t],
   )
 
+  function generateObfsPassword() {
+    const password = randomObfsPassword()
+    onChange({ ...value, plugin_opts: setPluginOptsPassword(value.plugin_opts, password) })
+    if (i18n.exists(SS_OBFS_GENERATE_SUCCESS_KEY)) {
+      toast.success(t(SS_OBFS_GENERATE_SUCCESS_KEY))
+    }
+  }
+
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="space-y-3">
       <CipherSelect
         value={value.cipher}
         onChange={(cipher) => onChange({ ...value, cipher })}
@@ -448,18 +639,32 @@ function ShadowsocksFields({
         {hintKey ? <p className="text-xs text-muted-foreground">{t(hintKey)}</p> : null}
       </div>
 
-      {value.plugin && value.plugin !== 'none' ? (
+      {showPluginOpts ? (
         <div className="xb-stack-2">
           <Label>{t('server.dynamic_form.shadowsocks.plugin_opts.label')}</Label>
           <p className="text-xs text-muted-foreground">
             {t('server.dynamic_form.shadowsocks.plugin_opts.description')}
           </p>
-          <input
-            className={cn(inputCls, 'font-mono text-xs')}
-            value={value.plugin_opts}
-            onChange={(e) => onChange({ ...value, plugin_opts: e.target.value })}
-            placeholder={t('server.dynamic_form.shadowsocks.plugin_opts.placeholder')}
-          />
+          <div className="relative">
+            <input
+              className={cn(inputCls, 'font-mono text-xs', showObfsPasswordGenerate && 'pr-10')}
+              value={value.plugin_opts}
+              onChange={(e) => onChange({ ...value, plugin_opts: e.target.value })}
+              placeholder={t('server.dynamic_form.shadowsocks.plugin_opts.placeholder')}
+            />
+            {showObfsPasswordGenerate ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full w-9"
+                onClick={generateObfsPassword}
+                title={t(SS_OBFS_GENERATE_KEY)}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            ) : null}
+          </div>
         </div>
       ) : null}
 
@@ -527,6 +732,39 @@ function ShadowsocksFields({
   )
 }
 
+function ShadowsocksFields({
+  value,
+  onChange,
+}: {
+  value: ShadowsocksProtocolForm
+  onChange: (next: ShadowsocksProtocolForm) => void
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+      <Tabs defaultValue="protocol">
+        <TabsList className="grid h-9 w-full grid-cols-2">
+          <TabsTrigger value="protocol" className="text-xs">
+            {t('server.dynamic_form.shadowsocks.plugin.label')}
+          </TabsTrigger>
+          <TabsTrigger value="cert" className="text-xs">
+            {t('server.dynamic_form.shadowsocks.cert_config.tab')}
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="protocol" className="mt-3 space-y-3">
+          <ShadowsocksProtocolFields value={value} onChange={onChange} />
+        </TabsContent>
+        <TabsContent value="cert" className="mt-3">
+          <ShadowsocksCertFields
+            value={value.cert_config}
+            onChange={(cert_config) => onChange({ ...value, cert_config })}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
 function TransportNetworkSubFields({
   locale,
   network,

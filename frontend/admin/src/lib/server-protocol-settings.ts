@@ -496,3 +496,112 @@ export function randomObfsPassword(length = 16): string {
     .map((b) => chars[b % chars.length])
     .join('')
 }
+
+export type ShadowsocksCertMode = 'none' | 'http' | 'dns' | 'self' | 'content'
+
+export type ShadowsocksCertConfig = {
+  cert_mode: ShadowsocksCertMode
+  domain: string
+  email: string
+  http_port: string
+  dns_provider: string
+  dns_env_text: string
+  cert_content: string
+  key_content: string
+}
+
+export const SHADOWSOCKS_CERT_MODES = [
+  { value: 'none', label: 'none' },
+  { value: 'http', label: 'http-01 (ACME)' },
+  { value: 'dns', label: 'dns-01 (ACME)' },
+  { value: 'self', label: 'self-signed' },
+  { value: 'content', label: 'content (Cert Push)' },
+] as const
+
+export function defaultShadowsocksCertConfig(): ShadowsocksCertConfig {
+  return {
+    cert_mode: 'none',
+    domain: '',
+    email: '',
+    http_port: '80',
+    dns_provider: '',
+    dns_env_text: '',
+    cert_content: '',
+    key_content: '',
+  }
+}
+
+export function serializeDnsEnvText(env?: unknown): string {
+  if (!env || typeof env !== 'object' || Array.isArray(env)) {
+    return typeof env === 'string' ? env : ''
+  }
+  return Object.entries(env as Record<string, unknown>)
+    .map(([key, value]) => `${key}=${value ?? ''}`)
+    .join('\n')
+}
+
+export function parseDnsEnvText(text: string): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const line of text.split('\n')) {
+    const idx = line.indexOf('=')
+    if (idx <= 0) continue
+    const key = line.slice(0, idx).trim()
+    if (key) result[key] = line.slice(idx + 1).trim()
+  }
+  return result
+}
+
+export function normalizeShadowsocksCertConfig(raw?: Record<string, unknown>): ShadowsocksCertConfig {
+  const d = defaultShadowsocksCertConfig()
+  if (!raw) return d
+  const mode = String(raw.cert_mode ?? d.cert_mode)
+  const cert_mode = (
+    ['none', 'http', 'dns', 'self', 'content'].includes(mode) ? mode : d.cert_mode
+  ) as ShadowsocksCertMode
+  return {
+    cert_mode,
+    domain: String(raw.domain ?? d.domain),
+    email: String(raw.email ?? d.email),
+    http_port:
+      raw.http_port != null && raw.http_port !== '' ? String(raw.http_port) : d.http_port,
+    dns_provider: String(raw.dns_provider ?? d.dns_provider),
+    dns_env_text: serializeDnsEnvText(raw.dns_env),
+    cert_content: String(raw.cert_content ?? d.cert_content),
+    key_content: String(raw.key_content ?? d.key_content),
+  }
+}
+
+export function serializeShadowsocksCertConfig(
+  config: ShadowsocksCertConfig,
+): Record<string, unknown> | undefined {
+  if (config.cert_mode === 'none') return undefined
+  const payload: Record<string, unknown> = { cert_mode: config.cert_mode }
+  if (config.domain) payload.domain = config.domain
+  if (config.email && (config.cert_mode === 'http' || config.cert_mode === 'dns')) {
+    payload.email = config.email
+  }
+  if (config.cert_mode === 'http' && config.http_port) {
+    payload.http_port = Number(config.http_port)
+  }
+  if (config.cert_mode === 'dns') {
+    if (config.dns_provider) payload.dns_provider = config.dns_provider
+    const dns_env = parseDnsEnvText(config.dns_env_text)
+    if (Object.keys(dns_env).length) payload.dns_env = dns_env
+  }
+  if (config.cert_mode === 'content') {
+    if (config.cert_content) payload.cert_content = config.cert_content
+    if (config.key_content) payload.key_content = config.key_content
+  }
+  return payload
+}
+
+export function setPluginOptsPassword(opts: string, password: string): string {
+  const trimmed = opts.trim()
+  if (!trimmed) return `password=${password}`
+  if (/(?:^|;)password=/.test(trimmed)) {
+    return trimmed.replace(/(?:^|;)password=[^;]*/, (part) =>
+      part.startsWith(';') ? `;password=${password}` : `password=${password}`,
+    )
+  }
+  return `${trimmed};password=${password}`
+}
