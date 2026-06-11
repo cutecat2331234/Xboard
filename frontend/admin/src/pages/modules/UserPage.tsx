@@ -1132,13 +1132,13 @@ export default function UserPage() {
         open={dialogMode === 'create'}
         onOpenChange={(o) => !o && setDialogMode(null)}
       >
-        <DialogContent className="sm:max-w-[576px]">
+        <DialogContent className="gap-4 p-6 sm:max-w-[576px]">
           <DialogHeader>
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="xb-stack-3 py-3.5 text-sm">
+          <div className="flex flex-col gap-4">
             <div className="xb-stack-3">
-              <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+              <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
                 {t('user.generate.form.email')}
                 <span className="ml-1 text-destructive">*</span>
               </Label>
@@ -1169,7 +1169,7 @@ export default function UserPage() {
               </div>
             </div>
             <div className="xb-stack-3">
-              <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+              <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
                 {t('user.generate.form.password')}
               </Label>
               <input
@@ -1182,7 +1182,7 @@ export default function UserPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="xb-stack-3">
-                <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
                   {t('user.generate.form.expire_time')}
                 </Label>
                 <ExpireDateInput
@@ -1192,7 +1192,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="xb-stack-3">
-                <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
                   {t('user.generate.form.subscription')}
                 </Label>
                 <FormSelect
@@ -1215,7 +1215,7 @@ export default function UserPage() {
             </div>
             {!form.email_prefix ? (
               <div className="xb-stack-3">
-                <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
                   {t('user.generate.form.generate_count')}
                 </Label>
                 <input
