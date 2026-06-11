@@ -126,6 +126,9 @@ html, body, #app {
 .mt-1 { margin-top: 4px; }
 .mt-4 { margin-top: 16px; }
 .rounded-md { border-radius: 6px; }
+.p-6 { padding: 24px; }
+.px-6 { padding-left: 24px; padding-right: 24px; }
+.py-4 { padding-top: 16px; padding-bottom: 16px; }
 .mt-2\.5 { margin-top: 10px; }
 .max-w-125 { max-width: 500px; }
 .mt-5 { margin-top: 20px; }
