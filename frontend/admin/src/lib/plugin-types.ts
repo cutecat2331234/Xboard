@@ -14,6 +14,42 @@ export type PluginConfigField = {
   description?: string
   value?: unknown
   options?: Array<{ label?: string; value?: string | number }>
+  required?: boolean
+}
+
+export type PluginAdminCrudColumnType = 'string' | 'number' | 'boolean' | 'datetime' | 'tag'
+
+export type PluginAdminCrudColumn = {
+  key: string
+  title?: string
+  type?: PluginAdminCrudColumnType
+  sortable?: boolean
+  searchable?: boolean
+  width?: number
+  options?: Array<{ value: string; label?: string; variant?: string }>
+}
+
+export type PluginAdminCrudApi = {
+  list?: string
+  save?: string
+  delete?: string
+}
+
+export type PluginAdminCrudActions = {
+  create?: boolean
+  edit?: boolean
+  delete?: boolean
+}
+
+export type PluginAdminCrudSchema = {
+  version?: number
+  title?: string
+  description?: string
+  id_field?: string
+  api?: PluginAdminCrudApi
+  columns?: PluginAdminCrudColumn[]
+  form?: Record<string, PluginConfigField>
+  actions?: PluginAdminCrudActions
 }
 
 export type PluginRow = {
@@ -31,7 +67,7 @@ export type PluginRow = {
   config?: Record<string, PluginConfigField>
   readme?: string
   admin_menus?: PluginAdminMenu[] | null
-  admin_crud?: Record<string, { title?: string; description?: string }> | null
+  admin_crud?: Record<string, PluginAdminCrudSchema> | null
 }
 
 export type PluginNavItem = {
