@@ -250,9 +250,7 @@ export default function GiftCardPage() {
 
   const [plans, setPlans] = useState<PlanRow[]>([])
 
-  const [giftTypeIds, setGiftTypeIds] = useState<number[]>([])
-
-  const [typesLoading, setTypesLoading] = useState(true)
+  const [giftTypeIds, setGiftTypeIds] = useState<number[]>([1, 2, 3])
 
   const [loading, setLoading] = useState(true)
 
@@ -325,8 +323,6 @@ export default function GiftCardPage() {
       })
 
       .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
-
-      .finally(() => setTypesLoading(false))
 
   }, [t])
 
@@ -912,7 +908,13 @@ export default function GiftCardPage() {
 
           <div className="flex flex-wrap gap-1">
 
-            <Button type="button" variant="ghost" size="sm" onClick={() => openEdit(row.original)}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              data-testid="gift-template-edit"
+              onClick={() => openEdit(row.original)}
+            >
 
               <Pencil className="mr-1 h-3 w-3" />
 
@@ -1104,12 +1106,6 @@ export default function GiftCardPage() {
 
 
 
-      {typesLoading ? (
-
-        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-
-      ) : (
-
       <Tabs value={tab} onValueChange={setTab} className="flex-1">
 
         <TabsList className="grid h-9 w-full grid-cols-4">
@@ -1285,8 +1281,6 @@ export default function GiftCardPage() {
         </TabsContent>
 
       </Tabs>
-
-      )}
 
 
 

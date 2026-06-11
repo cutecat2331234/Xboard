@@ -49,9 +49,12 @@ const SCENARIOS = [
     hash: '#/finance/gift-card',
     wait: 'tbody tr',
     async open(page) {
-      await page.locator('[role=tab]:has-text("模板")').click({ timeout: 8000 }).catch(() => {})
-      await page.waitForTimeout(500)
-      await page.locator('tbody button:has-text("编辑")').first().click({ timeout: 8000 })
+      await page.locator('[role=tab]:has-text("模板")').first().click({ timeout: 8000 }).catch(() => {})
+      const editBtn = page
+        .locator('[data-testid="gift-template-edit"], tbody button:has-text("编辑")')
+        .first()
+      await editBtn.waitFor({ state: 'visible', timeout: 45000 })
+      await editBtn.click({ timeout: 8000 })
       await page.waitForSelector('[role=dialog]', { timeout: 10000 })
     },
   },

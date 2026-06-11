@@ -223,6 +223,40 @@ async function ensureUserGateFixtures(base) {
   userFixtures = { planId, tradeNo, ticketId }
 }
 
+/** Seed a gift card template so gift-template dialog gate can open edit on empty DBs. */
+async function ensureAdminGiftTemplateFixture(base) {
+  const adminAuth = await passportLogin(base, 'v2')
+  if (!adminAuth) return
+  const adminHdr = {
+    Authorization: adminAuth,
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  }
+  const adminPrefix = `${base}/api/v2/${securePath}`
+
+  const tplJson = await fetch(`${adminPrefix}/gift-card/templates?per_page=1`, { headers: adminHdr }).then(
+    (r) => r.json(),
+  )
+  const items = Array.isArray(tplJson?.data) ? tplJson.data : []
+  if (items.length > 0) return
+
+  await fetch(`${adminPrefix}/gift-card/create-template`, {
+    method: 'POST',
+    headers: adminHdr,
+    body: JSON.stringify({
+      name: 'Gate Gift Template',
+      description: 'visual gate seed',
+      type: 1,
+      status: true,
+      rewards: { balance: 1000 },
+      conditions: {},
+      limits: {},
+      theme_color: '#2d6565',
+      sort: 0,
+    }),
+  })
+}
+
 function routeToPath(route) {
   if (side === 'admin') {
     if (route === 'sign-in') return 'sign-in'
@@ -346,9 +380,12 @@ async function openAdminDialog(page, route) {
     await page.locator('button:has-text("操作")').first().click({ timeout: 8000 })
     await page.locator('[role=menuitem]:has-text("发送邮件")').first().click({ timeout: 8000 })
   } else if (route === 'gift-template') {
-    await page.locator('[role=tab]:has-text("模板")').click({ timeout: 8000 }).catch(() => {})
-    await page.waitForTimeout(500)
-    await page.locator('tbody button:has-text("编辑")').first().click({ timeout: 8000 })
+    await page.locator('[role=tab]:has-text("模板")').first().click({ timeout: 8000 }).catch(() => {})
+    const editBtn = page
+      .locator('[data-testid="gift-template-edit"], tbody button:has-text("编辑")')
+      .first()
+    await editBtn.waitFor({ state: 'visible', timeout: 45000 })
+    await editBtn.click({ timeout: 8000 })
   } else if (route === 'plan-add') {
     await page.locator('button:has-text("添加套餐"), button:has-text("添加")').first().click({ timeout: 8000 })
   } else if (route === 'server-add') {
@@ -647,11 +684,18 @@ async function main() {
   const browser = await chromium.launch()
   const failures = []
 
-  const needsFixtures =
+  const needsUserFixtures =
     side === 'user' && routes.some((r) => r === 'order-detail' || /-detail$/.test(r))
-  if (needsFixtures) {
+  if (needsUserFixtures) {
     await ensureUserGateFixtures(refBase)
     if (!userFixtures.tradeNo) await ensureUserGateFixtures(cmpBase)
+  }
+
+  const needsGiftTemplate =
+    side === 'admin' && routes.some((r) => r === 'gift-template' || r === 'gift-card')
+  if (needsGiftTemplate) {
+    await ensureAdminGiftTemplateFixture(refBase)
+    await ensureAdminGiftTemplateFixture(cmpBase)
   }
 
   for (const route of routes) {
