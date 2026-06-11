@@ -2,11 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { NCard, NGrid, NGi, NButton, NTag, NEmpty, NSkeleton, useMessage } from 'naive-ui'
 import { fetchPlans, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
+import { resolveTryOutPlanId } from '@/api/comm'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
 
 const plans = ref<PlanItem[]>([])
+const tryOutPlanId = ref(0)
 const loaded = ref(false)
 const msg = useMessage()
 const router = useRouter()
@@ -30,10 +32,16 @@ function openPlan(planId: number) {
   router.push(`/plan/${planId}`)
 }
 
+function isTryOutPlan(planId: number) {
+  return tryOutPlanId.value > 0 && planId === tryOutPlanId.value
+}
+
 onMounted(async () => {
   await loadCurrency()
   try {
-    plans.value = await fetchPlans()
+    const [planList, trialPlanId] = await Promise.all([fetchPlans(), resolveTryOutPlanId()])
+    plans.value = planList
+    tryOutPlanId.value = trialPlanId
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('plan.loadFailed'))
   } finally {
@@ -59,7 +67,13 @@ onMounted(async () => {
   </n-card>
   <n-grid v-else :cols="gridCols" :x-gap="12" :y-gap="12">
     <n-gi v-for="p in plans" :key="p.id">
-      <n-card :title="p.name">
+      <n-card>
+        <template #header>
+          <div class="plan-header">
+            <span>{{ p.name }}</span>
+            <n-tag v-if="isTryOutPlan(p.id)" size="small" type="info" round>{{ t('plan.tryOutBadge') }}</n-tag>
+          </div>
+        </template>
         <p class="plan-price">{{ priceLabel(p) }}</p>
         <n-tag size="small" type="info">{{ (p.transfer_enable / 1073741824).toFixed(0) }} GB</n-tag>
         <div style="margin-top:12px">
@@ -71,6 +85,12 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.plan-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .plan-price {
   margin: 0 0 12px;
   color: var(--xb-text-muted);
