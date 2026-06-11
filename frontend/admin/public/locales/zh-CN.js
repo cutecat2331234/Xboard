@@ -3094,14 +3094,27 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "send_mail": {
         "success": "邮件发送成功",
         "failed": "邮件发送失败",
-        "required_fields": "请填写所有必填字段"
+        "required_fields": "请填写所有必填字段",
+        "required_selected": "请先选择用户"
       }
     },
     "send_mail": {
       "title": "发送邮件",
       "description": "向所选或已筛选的用户发送邮件",
+      "scope": "发送范围",
+      "scope_selected": "仅选中（{{count}}）",
+      "scope_filtered": "筛选后的用户",
+      "scope_all": "全部用户",
       "subject": "主题",
+      "subject_placeholder": "例如：系统通知（支持占位符）",
+      "subject_placeholder_hint": "支持占位符：{{key}} 或 {{key|默认值}}（未知变量会原样保留）",
       "content": "内容",
+      "content_placeholder": "请输入邮件正文（可使用占位符）",
+      "content_plain_hint": "content 默认按纯文本处理（会转义），不支持 HTML 富文本。",
+      "apply_system_notice": "填入系统通知模板",
+      "available_vars": "可用变量",
+      "system_notice_subject": "【{{app.name}}】系统通知（{{now}}）",
+      "system_notice_content": "尊敬的用户 {{user.email}} 您好：\n\n这里是来自 {{app.name}} 的系统通知。\n\n如有问题请访问：{{app.url}}\n",
       "sending": "发送中...",
       "send": "发送"
     },

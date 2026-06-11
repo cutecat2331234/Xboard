@@ -8,6 +8,13 @@ export const textareaCls =
 export const configFieldLabelCls =
   'text-[11px] font-semibold leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 
+/** 7001 dialog form labels (user-create, send-mail, etc.): uppercase 11px */
+export const dialogFieldLabelCls =
+  'text-[11px] font-semibold uppercase tracking-wider text-muted-foreground'
+
+export const dialogInputCls =
+  'h-9 font-mono text-xs'
+
 /** 7001 invite distribution sub-fields: shadcn FormLabel default (text-sm) */
 export const configSubFieldLabelCls =
   'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'

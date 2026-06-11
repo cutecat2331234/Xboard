@@ -2934,7 +2934,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "send_mail": {
         "success": "Email отправлен",
         "failed": "Ошибка отправки email",
-        "required_fields": "Пожалуйста, заполните обязательные поля"
+        "required_fields": "Пожалуйста, заполните обязательные поля",
+        "required_selected": "Сначала выберите пользователей"
       }
     },
     "traffic_reset": {
@@ -3051,8 +3052,20 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "send_mail": {
       "title": "Отправить Email",
       "description": "Отправить сообщение выбранным или отфильтрованным пользователям",
+      "scope": "Область отправки",
+      "scope_selected": "Только выбранные ({{count}})",
+      "scope_filtered": "Отфильтрованные пользователи",
+      "scope_all": "Все пользователи",
       "subject": "Тема",
+      "subject_placeholder": "Например: системное уведомление (поддерживаются плейсхолдеры)",
+      "subject_placeholder_hint": "Поддерживаются плейсхолдеры: {{key}} или {{key|default}} (неизвестные переменные сохраняются)",
       "content": "Содержимое",
+      "content_placeholder": "Введите текст письма (можно использовать плейсхолдеры)",
+      "content_plain_hint": "Содержимое обрабатывается как обычный текст (экранируется); HTML не поддерживается.",
+      "apply_system_notice": "Вставить шаблон системного уведомления",
+      "available_vars": "Доступные переменные",
+      "system_notice_subject": "[{{app.name}}] Системное уведомление ({{now}})",
+      "system_notice_content": "Уважаемый {{user.email}},\n\nЭто системное уведомление от {{app.name}}.\n\nПо вопросам посетите: {{app.url}}\n",
       "sending": "Отправка...",
       "send": "Отправить"
     },
