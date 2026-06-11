@@ -44,6 +44,20 @@ type TemplateRow = Record<string, unknown>
 
 type CodeRow = Record<string, unknown>
 
+type CodeForm = {
+
+  id: number
+
+  code: string
+
+  status: number
+
+  max_usage: number
+
+  expires_at_input: string
+
+}
+
 type UsageRow = Record<string, unknown>
 
 type PlanRow = { id?: number; name?: string }
@@ -139,6 +153,30 @@ const emptyForm = (): TemplateForm => ({
   conditions: {},
 
 })
+
+
+
+function tsToInput(ts?: number | null) {
+
+  if (!ts) return ''
+
+  const d = new Date(ts * 1000)
+
+  const pad = (n: number) => String(n).padStart(2, '0')
+
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+
+}
+
+
+
+function inputToTs(value: string) {
+
+  if (!value) return null
+
+  return Math.floor(new Date(value).getTime() / 1000)
+
+}
 
 
 
@@ -251,6 +289,12 @@ export default function GiftCardPage() {
   })
 
   const [generating, setGenerating] = useState(false)
+
+  const [codeEditOpen, setCodeEditOpen] = useState(false)
+
+  const [codeEditForm, setCodeEditForm] = useState<CodeForm | null>(null)
+
+  const [codeEditSaving, setCodeEditSaving] = useState(false)
 
 
 
@@ -722,6 +766,76 @@ export default function GiftCardPage() {
 
 
 
+  function openEditCode(row: CodeRow) {
+
+    const expiresAt = row.expires_at != null ? Number(row.expires_at) : null
+
+    setCodeEditForm({
+
+      id: Number(row.id),
+
+      code: String(row.code ?? ''),
+
+      status: Number(row.status ?? 0),
+
+      max_usage: Number(row.max_usage ?? 1),
+
+      expires_at_input: tsToInput(expiresAt),
+
+    })
+
+    setCodeEditOpen(true)
+
+  }
+
+
+
+  async function saveCode() {
+
+    if (!codeEditForm) return
+
+    setCodeEditSaving(true)
+
+    try {
+
+      const payload: Record<string, unknown> = {
+
+        id: codeEditForm.id,
+
+        status: codeEditForm.status,
+
+        max_usage: codeEditForm.max_usage,
+
+        expires_at: inputToTs(codeEditForm.expires_at_input),
+
+      }
+
+      await postJson('/gift-card/update-code', payload)
+
+      toast.success(t('giftCard.messages.codeStatusUpdated', { defaultValue: '兑换码更新成功' }))
+
+      setCodeEditOpen(false)
+
+      loadCodes()
+
+    } catch (e) {
+
+      toast.error(
+
+        e instanceof Error ? e.message : t('giftCard.messages.updateCodeStatusFailed', { defaultValue: '兑换码更新失败' }),
+
+      )
+
+    } finally {
+
+      setCodeEditSaving(false)
+
+    }
+
+  }
+
+
+
   function togglePlanInCondition(field: 'allowed_plans' | 'disallowed_plans', planId: number) {
 
     setForm((f) => {
@@ -851,6 +965,14 @@ export default function GiftCardPage() {
               </Button>
 
             ) : null}
+
+            <Button variant="ghost" size="sm" onClick={() => openEditCode(row.original)}>
+
+              <Pencil className="mr-1 h-3 w-3" />
+
+              {t('common.edit', { defaultValue: '编辑' })}
+
+            </Button>
 
             <Button variant="ghost" size="sm" onClick={() => toggleCode(row.original)}>
 
@@ -1825,6 +1947,148 @@ export default function GiftCardPage() {
             <Button onClick={generateCodes} disabled={generating}>
 
               {t('common.confirm', { defaultValue: '确认' })}
+
+            </Button>
+
+          </DialogFooter>
+
+        </DialogContent>
+
+      </Dialog>
+
+
+
+      <Dialog open={codeEditOpen} onOpenChange={setCodeEditOpen}>
+
+        <DialogContent className="sm:max-w-md">
+
+          <DialogHeader>
+
+            <DialogTitle>
+
+              {t('giftCard.code.form.edit', { defaultValue: '编辑兑换码' })}
+
+            </DialogTitle>
+
+          </DialogHeader>
+
+          {codeEditForm ? (
+
+            <div className="flex flex-col gap-4 py-2">
+
+              <div className="flex flex-col gap-2">
+
+                <Label>{t('giftCard.code.table.columns.code', { defaultValue: '兑换码' })}</Label>
+
+                <input className={inputCls} value={codeEditForm.code} readOnly disabled />
+
+              </div>
+
+              <div className="flex flex-col gap-2">
+
+                <Label>{t('giftCard.code.table.columns.status', { defaultValue: '状态' })}</Label>
+
+                <select
+
+                  className={inputCls}
+
+                  value={codeEditForm.status}
+
+                  onChange={(e) =>
+
+                    setCodeEditForm((f) => (f ? { ...f, status: Number(e.target.value) } : f))
+
+                  }
+
+                >
+
+                  {[0, 1, 2, 3].map((value) => (
+
+                    <option key={value} value={value}>
+
+                      {t(`giftCard.code.status.${value}`, {
+
+                        defaultValue: ['未使用', '已使用', '已过期', '已禁用'][value],
+
+                      })}
+
+                    </option>
+
+                  ))}
+
+                </select>
+
+              </div>
+
+              <div className="flex flex-col gap-2">
+
+                <Label>{t('giftCard.code.form.max_usage.label', { defaultValue: '最大使用次数' })}</Label>
+
+                <input
+
+                  type="number"
+
+                  min={1}
+
+                  max={1000}
+
+                  className={inputCls}
+
+                  value={codeEditForm.max_usage}
+
+                  onChange={(e) =>
+
+                    setCodeEditForm((f) => (f ? { ...f, max_usage: Number(e.target.value) } : f))
+
+                  }
+
+                />
+
+              </div>
+
+              <div className="flex flex-col gap-2">
+
+                <Label>{t('giftCard.code.table.columns.expires_at', { defaultValue: '过期时间' })}</Label>
+
+                <input
+
+                  type="datetime-local"
+
+                  className={inputCls}
+
+                  value={codeEditForm.expires_at_input}
+
+                  onChange={(e) =>
+
+                    setCodeEditForm((f) => (f ? { ...f, expires_at_input: e.target.value } : f))
+
+                  }
+
+                />
+
+                <p className="text-xs text-muted-foreground">
+
+                  {t('giftCard.code.form.expires_clear', { defaultValue: '留空表示永不过期' })}
+
+                </p>
+
+              </div>
+
+            </div>
+
+          ) : null}
+
+          <DialogFooter>
+
+            <Button variant="outline" onClick={() => setCodeEditOpen(false)}>
+
+              {t('common.cancel', { defaultValue: '取消' })}
+
+            </Button>
+
+            <Button onClick={saveCode} disabled={codeEditSaving || !codeEditForm}>
+
+              {t('common.save', { defaultValue: '保存' })}
 
             </Button>
 
