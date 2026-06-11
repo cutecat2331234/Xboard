@@ -22,7 +22,7 @@ const viewportWidth = Number(process.env.VIEWPORT_W || 1280)
 const viewportHeight = Number(process.env.VIEWPORT_H || 900)
 
 const USER_ROUTES_DEFAULT =
-  'login,register,forgetpassword,dashboard,plan,plan-detail,order,order-detail,invite,traffic,knowledge,ticket,ticket-detail,profile,node'
+  'login,register,forgetpassword,dashboard,plan,plan-detail,order,order-detail,invite,gift-card,traffic,knowledge,ticket,ticket-detail,profile,node'
 const ADMIN_ROUTES_DEFAULT =
   'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset'
 const ADMIN_LOCALE = process.env.ADMIN_LOCALE || 'zh-CN'
@@ -43,6 +43,7 @@ const USER_SHELL_ROUTES = new Set([
   'order',
   'order-detail',
   'invite',
+  'gift-card',
   'traffic',
   'knowledge',
   'ticket',
@@ -52,6 +53,10 @@ const USER_SHELL_ROUTES = new Set([
 ])
 const USER_PUBLIC_ROUTES = new Set(['login', 'register', 'forgetpassword'])
 const USER_MAIN_BOX = { x: 236, y: 60, w: 1044, h: 840 }
+
+const USER_ROUTE_PATHS = {
+  'gift-card': 'gift-card', // #/gift-card
+}
 
 const ADMIN_ROUTE_PATHS = {
   'sign-in': 'sign-in',
@@ -194,7 +199,7 @@ function routeToPath(route) {
   if (route === 'plan-detail') return `plan/${userFixtures.planId}`
   if (route === 'order-detail' && userFixtures.tradeNo) return `order/${userFixtures.tradeNo}`
   if (route === 'ticket-detail') return `ticket/${userFixtures.ticketId}`
-  return route
+  return USER_ROUTE_PATHS[route] ?? route
 }
 
 function buildUrl(base, route) {
