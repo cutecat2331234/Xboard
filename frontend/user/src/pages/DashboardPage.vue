@@ -197,7 +197,12 @@ function onShortcut(item: { to?: string; action?: () => void }) {
     </n-alert>
   </div>
 
-  <n-carousel v-if="promoNotices.length" autoplay class="dash-promo-carousel">
+  <n-carousel
+    v-if="promoNotices.length"
+    autoplay
+    dot-placement="bottom"
+    class="dash-promo-carousel"
+  >
     <img
       v-for="n in promoNotices"
       :key="n.id"
@@ -253,9 +258,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       <n-list-item
         v-for="(item, idx) in shortcuts"
         :key="idx"
-        :class="idx === 0
-          ? 'flex flex cursor-pointer justify-between p-5 hover:bg-gray-100'
-          : 'flex cursor-pointer justify-between p-5 hover:bg-gray-100'"
+        class="flex cursor-pointer justify-between p-5 hover:bg-gray-100"
         @click="onShortcut(item)"
       >
         <div class="flex items-center justify-between shortcut-row">
@@ -290,9 +293,6 @@ function onShortcut(item: { to?: string; action?: () => void }) {
 .sub-meta { display: flex; flex-wrap: wrap; gap: 16px; color: var(--xb-text-muted); font-size: 14px; margin-bottom: 12px; }
 .sub-traffic { margin-bottom: 16px; font-size: 14px; color: var(--xb-text); }
 .sub-traffic .n-progress { margin-top: 8px; }
-.dash-promo-card {
-  display: none !important;
-}
 .dash-promo-carousel {
   border-radius: 6px;
   overflow: hidden;
