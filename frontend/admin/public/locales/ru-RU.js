@@ -1271,6 +1271,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         }
       },
       "hysteria": {
+        "generate": "Generate Obfuscation Password",
+        "copy_success": "Obfuscation password copied to clipboard",
         "version": {
           "label": "Protocol Version",
           "placeholder": "Protocol version"

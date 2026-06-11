@@ -431,6 +431,8 @@ function CipherSelect({
 
 const SS_OBFS_GENERATE_KEY = 'server.dynamic_form.shadowsocks.generate_obfs_password'
 const SS_OBFS_GENERATE_SUCCESS_KEY = 'server.dynamic_form.shadowsocks.generate_obfs_password_success'
+const HYSTERIA_OBFS_GENERATE_KEY = 'server.dynamic_form.hysteria.generate'
+const HYSTERIA_OBFS_COPY_SUCCESS_KEY = 'server.dynamic_form.hysteria.copy_success'
 
 function certModeDescriptionKey(mode: ShadowsocksCertConfig['cert_mode']): string | null {
   switch (mode) {
@@ -1243,7 +1245,9 @@ function HysteriaFields({
   value: HysteriaProtocolSettings
   onChange: (next: HysteriaProtocolSettings) => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  const showObfsPasswordGenerate = i18n.exists(HYSTERIA_OBFS_GENERATE_KEY)
 
   function patch(partial: Partial<HysteriaProtocolSettings>) {
     onChange({ ...value, ...partial })
@@ -1259,6 +1263,21 @@ function HysteriaFields({
 
   function patchBandwidth(partial: Partial<HysteriaProtocolSettings['bandwidth']>) {
     onChange({ ...value, bandwidth: { ...value.bandwidth, ...partial } })
+  }
+
+  async function generateObfsPassword() {
+    const password = randomObfsPassword()
+    patchObfs({ password })
+    try {
+      await navigator.clipboard.writeText(password)
+      if (i18n.exists(HYSTERIA_OBFS_COPY_SUCCESS_KEY)) {
+        toast.success(t(HYSTERIA_OBFS_COPY_SUCCESS_KEY))
+      } else {
+        toast.success(t('common.copy.success'))
+      }
+    } catch {
+      toast.error(t('common.copy.failed'))
+    }
   }
 
   const bbrTip =
@@ -1317,23 +1336,23 @@ function HysteriaFields({
           <Label>{t('server.dynamic_form.hysteria.obfs.password.label')}</Label>
           <div className="relative">
             <input
-              className={cn(inputCls, 'pr-10 font-mono text-xs')}
+              className={cn(inputCls, 'font-mono text-xs', showObfsPasswordGenerate && 'pr-10')}
               value={value.obfs.password}
               onChange={(e) => patchObfs({ password: e.target.value })}
               placeholder={t('server.dynamic_form.hysteria.obfs.password.placeholder')}
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-0 top-0 h-full px-2"
-              onClick={() => {
-                patchObfs({ password: randomObfsPassword() })
-                toast.success(t('server.dynamic_form.hysteria.obfs.password.generate_success'))
-              }}
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            {showObfsPasswordGenerate ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full w-9"
+                onClick={() => void generateObfsPassword()}
+                title={t(HYSTERIA_OBFS_GENERATE_KEY)}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            ) : null}
           </div>
         </div>
       ) : null}

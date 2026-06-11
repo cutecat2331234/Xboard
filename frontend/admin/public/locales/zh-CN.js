@@ -1271,6 +1271,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         }
       },
       "hysteria": {
+        "generate": "生成混淆密码",
+        "copy_success": "混淆密码已复制到剪贴板",
         "version": {
           "label": "协议版本",
           "placeholder": "协议版本"
