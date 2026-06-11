@@ -115,7 +115,7 @@ function PlanStatsCell({ row }: { row: PlanRow }) {
   )
 }
 
-function PlanPriceCell({ row, t }: { row: PlanRow; t: (key: string, opts?: { defaultValue?: string }) => string }) {
+function PlanPriceCell({ row, t }: { row: PlanRow; t: (key: string) => string }) {
   const prices = row.prices ?? {}
   const priced = PRICE_BADGE_PERIODS.filter(({ key }) => prices[key] != null)
   if (!priced.length) {
@@ -234,10 +234,8 @@ export default function PlanPage() {
   async function deletePlan(row: PlanRow) {
     if (
       !(await confirm(
-        t('subscribe.plan.columns.delete_confirm.title', { defaultValue: '确认删除' }),
-        t('subscribe.plan.columns.delete_confirm.description', {
-          defaultValue: '此操作将永久删除该订阅，删除后无法恢复。确定要继续吗？',
-        }),
+        t('subscribe.plan.columns.delete_confirm.title'),
+        t('subscribe.plan.columns.delete_confirm.description'),
       ))
     )
       return
@@ -437,8 +435,8 @@ export default function PlanPage() {
             <SortToolbar
               sortMode={sort.sortMode}
               saving={sort.sortSaving}
-              editLabel={t('subscribe.plan.sort.edit', { defaultValue: '编辑排序' })}
-              saveLabel={t('subscribe.plan.sort.save', { defaultValue: '保存排序' })}
+              editLabel={t('subscribe.plan.sort.edit')}
+              saveLabel={t('subscribe.plan.sort.save')}
               onEdit={sort.enterSort}
               onSave={handleSaveSort}
               onCancel={sort.cancelSort}
@@ -460,8 +458,8 @@ export default function PlanPage() {
           <DialogHeader className="shrink-0 border-b px-6 py-4">
             <DialogTitle>
               {editing
-                ? t('subscribe.plan.form.edit_title', { defaultValue: '编辑套餐' })
-                : t('subscribe.plan.form.add_title', { defaultValue: '添加套餐' })}
+                ? t('subscribe.plan.form.edit_title')
+                : t('subscribe.plan.form.add_title')}
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
@@ -693,12 +691,12 @@ export default function PlanPage() {
           </div>
           <DialogFooter className="shrink-0 border-t px-6 py-4">
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              {t('subscribe.plan.form.submit.cancel', { defaultValue: '取消' })}
+              {t('subscribe.plan.form.submit.cancel')}
             </Button>
             <Button onClick={savePlan} disabled={saving}>
               {saving
-                ? t('subscribe.plan.form.submit.submitting', { defaultValue: '提交中...' })
-                : t('subscribe.plan.form.submit.submit', { defaultValue: '提交' })}
+                ? t('subscribe.plan.form.submit.submitting')
+                : t('subscribe.plan.form.submit.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>
