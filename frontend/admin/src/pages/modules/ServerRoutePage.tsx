@@ -102,11 +102,9 @@ export default function ServerRoutePage() {
   async function deleteRow(row: RouteRow) {
     if (
       !(await confirm(
-        t('route.messages.deleteConfirm', { defaultValue: '确认删除' }),
-        t('route.messages.deleteDescription', {
-          defaultValue: '此操作将永久删除该路由组，删除后无法恢复。确定要继续吗？',
-        }),
-        { confirmLabel: t('route.messages.deleteButton', { defaultValue: '删除' }) },
+        t('route.messages.deleteConfirm'),
+        t('route.messages.deleteDescription'),
+        { confirmLabel: t('route.messages.deleteButton') },
       ))
     )
       return
@@ -127,7 +125,7 @@ export default function ServerRoutePage() {
       { accessorKey: 'action_value', header: () => t('route.columns.action_value.title') },
       {
         id: 'actions',
-        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+        header: () => t('common.table.columns.actions'),
         cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -137,10 +135,10 @@ export default function ServerRoutePage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openEdit(row.original)}>
-                {t('common.edit', { defaultValue: '编辑' })}
+                {t('common.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive" onClick={() => deleteRow(row.original)}>
-                {t('common.delete', { defaultValue: '删除' })}
+                {t('common.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -167,7 +165,7 @@ export default function ServerRoutePage() {
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="sm" className="h-8" onClick={openCreate}>
               <Plus className="mr-2 h-4 w-4" />
-              {t('route.form.add', { defaultValue: '添加路由' })}
+              {t('route.form.add')}
             </Button>
             <Input
               value={search}
@@ -184,7 +182,7 @@ export default function ServerRoutePage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editing ? t('route.form.edit', { defaultValue: '编辑路由' }) : t('route.form.add', { defaultValue: '添加路由' })}
+              {editing ? t('route.form.edit') : t('route.form.add')}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
@@ -207,16 +205,16 @@ export default function ServerRoutePage() {
               <input className={inputCls} value={form.action_value} onChange={(e) => setForm((f) => ({ ...f, action_value: e.target.value }))} />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('route.form.match', { defaultValue: '匹配规则（每行一条）' })}</Label>
+              <Label>{t('route.form.match')}</Label>
               <textarea className={textareaCls} value={form.match} onChange={(e) => setForm((f) => ({ ...f, match: e.target.value }))} />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={saveRoute} disabled={saving}>
-              {t('common.save', { defaultValue: '保存' })}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
