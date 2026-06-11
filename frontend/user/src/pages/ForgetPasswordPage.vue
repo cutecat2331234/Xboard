@@ -21,6 +21,7 @@ const { t, setLocale } = useI18n()
 const settings = computed(() => getSettings())
 const authPageStyle = useAuthPageStyle()
 const { config, load } = useGuestConfig()
+const showCaptcha = computed(() => Boolean(config.value?.is_captcha))
 const captchaRef = ref<InstanceType<typeof CaptchaWidget> | null>(null)
 
 const langOptions = computed<DropdownOption[]>(() => {
@@ -114,7 +115,9 @@ async function submit() {
               show-password-on="click"
             />
           </div>
-          <CaptchaWidget ref="captchaRef" :config="config" />
+          <div v-if="showCaptcha" class="auth-field">
+            <CaptchaWidget ref="captchaRef" :config="config" />
+          </div>
           <p v-if="errorText" class="auth-error">{{ errorText }}</p>
           <div class="auth-field">
             <n-button type="primary" attr-type="submit" block :loading="loading" class="auth-submit">
