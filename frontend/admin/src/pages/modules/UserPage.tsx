@@ -1136,7 +1136,7 @@ export default function UserPage() {
           <DialogHeader>
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="xb-stack-gap text-sm">
+          <div className="xb-stack-3 py-3.5 text-sm">
             <div className="xb-stack-3">
               <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
                 {t('user.generate.form.email')}
