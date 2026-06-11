@@ -12,10 +12,10 @@ import {
   dateKoKR,
   dateViVN,
   dateZhTW,
-  dateFaIR,
   type NDateLocale,
   type NLocale,
 } from 'naive-ui'
+import { faIR as dateFnsFaIR } from 'date-fns/locale/fa-IR'
 
 import { getSettings } from '@/utils/settings'
 
@@ -73,7 +73,7 @@ const naiveDateLocales: Partial<Record<string, NDateLocale>> = {
   'ko-KR': dateKoKR,
   'vi-VN': dateViVN,
   'zh-TW': dateZhTW,
-  'fa-IR': dateFaIR,
+  'fa-IR': { name: 'fa-IR', locale: dateFnsFaIR },
 }
 
 
