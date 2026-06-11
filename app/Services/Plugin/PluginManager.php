@@ -4,6 +4,7 @@ namespace App\Services\Plugin;
 
 use App\Models\Plugin;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
@@ -703,6 +704,110 @@ class PluginManager
     public function getEnabledPaymentPlugins(): array
     {
         return $this->getEnabledPluginsByType('payment');
+    }
+
+    /**
+     * Render admin menu page HTML for an enabled plugin, if available.
+     */
+    public function renderAdminMenuPage(string $pluginCode, string $menuPath, Request $request): ?string
+    {
+        $menuPath = $this->normalizeAdminMenuPath($menuPath);
+        if ($menuPath === '') {
+            return null;
+        }
+
+        $dbPlugin = Plugin::where('code', $pluginCode)->first();
+        if (!$dbPlugin?->is_enabled) {
+            return null;
+        }
+
+        $configFile = $this->getPluginPath($pluginCode) . '/config.json';
+        if (!File::exists($configFile)) {
+            return null;
+        }
+
+        $config = json_decode(File::get($configFile), true);
+        if (!is_array($config)) {
+            return null;
+        }
+
+        $menu = $this->findAdminMenuConfig($config['admin_menus'] ?? [], $menuPath);
+        if ($menu === null) {
+            return null;
+        }
+
+        $this->initializeEnabledPlugins();
+        $plugin = $this->loadedPlugins[$pluginCode] ?? null;
+
+        if ($plugin !== null && method_exists($plugin, 'renderAdminMenuPage')) {
+            $html = $plugin->renderAdminMenuPage($menuPath, $request, $menu);
+            if (is_string($html) && $html !== '') {
+                return $html;
+            }
+        }
+
+        if (!empty($menu['view']) && is_string($menu['view'])) {
+            $html = $this->renderAdminMenuView($pluginCode, $menu['view'], $request, $menu);
+            if ($html !== null) {
+                return $html;
+            }
+        }
+
+        $pathView = 'admin.' . str_replace('/', '.', $menuPath);
+        $html = $this->renderAdminMenuView($pluginCode, $pathView, $request, $menu);
+        if ($html !== null) {
+            return $html;
+        }
+
+        $staticHtmlPath = $this->getPluginPath($pluginCode) . '/resources/views/admin/' . $menuPath . '.html';
+        if (File::exists($staticHtmlPath)) {
+            return File::get($staticHtmlPath);
+        }
+
+        $html = HookManager::filter('plugin.admin.menu.page', null, $pluginCode, $menuPath, $request, $menu);
+        if (is_string($html) && $html !== '') {
+            return $html;
+        }
+
+        return null;
+    }
+
+    protected function normalizeAdminMenuPath(string $path): string
+    {
+        return trim($path, "/ \t\n\r\0\x0B");
+    }
+
+    protected function findAdminMenuConfig(array $menus, string $menuPath): ?array
+    {
+        foreach ($menus as $menu) {
+            if (!is_array($menu)) {
+                continue;
+            }
+
+            $candidate = $this->normalizeAdminMenuPath($menu['path'] ?? '');
+            if ($candidate !== '' && $candidate === $menuPath) {
+                return $menu;
+            }
+        }
+
+        return null;
+    }
+
+    protected function renderAdminMenuView(string $pluginCode, string $view, Request $request, array $menu): ?string
+    {
+        $namespace = Str::studly($pluginCode);
+        $viewName = str_contains($view, '::')
+            ? $view
+            : $namespace . '::' . ltrim(str_replace('/', '.', $view), '/');
+
+        if (!View::exists($viewName)) {
+            return null;
+        }
+
+        return view($viewName, [
+            'request' => $request,
+            'menu' => $menu,
+        ])->render();
     }
 
     /**
