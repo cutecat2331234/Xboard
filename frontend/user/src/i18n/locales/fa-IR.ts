@@ -173,6 +173,8 @@ export default {
   order: {
     listTradeNo: "# Order No.",
     tradeNo: "شماره سفارش",
+    copyTradeNo: "Copy order no.",
+    tradeNoCopied: "Order no. copied",
     period: "چرخه",
     amount: "مقدار سفارش",
     status: "وضعیت سفارش",

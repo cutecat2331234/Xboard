@@ -173,6 +173,8 @@ export default {
   order: {
     listTradeNo: "# Order No.",
     tradeNo: "Mã đơn hàng",
+    copyTradeNo: "Sao chép mã đơn hàng",
+    tradeNoCopied: "Đã sao chép mã đơn hàng",
     period: "Chu Kỳ",
     amount: "Tiền đơn hàng",
     status: "Trạng thái đơn",

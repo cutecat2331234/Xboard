@@ -173,6 +173,8 @@ export default {
   order: {
     listTradeNo: "# 訂單號",
     tradeNo: "訂單號",
+    copyTradeNo: "複製訂單號",
+    tradeNoCopied: "訂單號已複製",
     period: "週期",
     amount: "訂單金額",
     status: "訂單狀態",

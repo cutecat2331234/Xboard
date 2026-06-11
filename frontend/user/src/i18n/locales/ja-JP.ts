@@ -173,6 +173,8 @@ export default {
   order: {
     listTradeNo: "# Order No.",
     tradeNo: "受注番号",
+    copyTradeNo: "注文番号をコピー",
+    tradeNoCopied: "注文番号をコピーしました",
     period: "サイクル",
     amount: "ご注文金額",
     status: "ご注文状況",

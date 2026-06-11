@@ -173,6 +173,8 @@ export default {
   order: {
     listTradeNo: "# Order No.",
     tradeNo: "주문 번호",
+    copyTradeNo: "주문 번호 복사",
+    tradeNoCopied: "주문 번호가 복사되었습니다",
     period: "유형/기간",
     amount: "주문량",
     status: "주문 상태",
