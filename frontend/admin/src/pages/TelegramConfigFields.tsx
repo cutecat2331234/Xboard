@@ -38,7 +38,7 @@ export function TelegramConfigFields({ t, telegram, update, FormField, SwitchFie
     setWebhookLoading(true)
     setTelegramWebhook(token)
       .then(() => toast.success(t('settings.telegram.webhook.success')))
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error', { defaultValue: '操作失败' })))
+      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
       .finally(() => setWebhookLoading(false))
   }
 

@@ -783,12 +783,12 @@ function TransportNetworkSubFields({
   if (network === 'grpc') {
     return (
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.serviceName`, { defaultValue: 'Service Name' })}</Label>
+        <Label>{t(`${locale}.serviceName`)}</Label>
         <input
           className={cn(inputCls, 'font-mono text-xs')}
           value={value.serviceName}
           onChange={(e) => onChange({ ...value, serviceName: e.target.value })}
-          placeholder={t(`${locale}.serviceName_placeholder`, { defaultValue: 'GunService' })}
+          placeholder={t(`${locale}.serviceName_placeholder`)}
         />
       </div>
     )
@@ -797,21 +797,21 @@ function TransportNetworkSubFields({
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.path`, { defaultValue: 'Path' })}</Label>
+        <Label>{t(`${locale}.path`)}</Label>
         <input
           className={cn(inputCls, 'font-mono text-xs')}
           value={value.path}
           onChange={(e) => onChange({ ...value, path: e.target.value })}
-          placeholder={t(`${locale}.path_placeholder`, { defaultValue: '/' })}
+          placeholder={t(`${locale}.path_placeholder`)}
         />
       </div>
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.host`, { defaultValue: 'Host' })}</Label>
+        <Label>{t(`${locale}.host`)}</Label>
         <input
           className={cn(inputCls, 'font-mono text-xs')}
           value={value.host}
           onChange={(e) => onChange({ ...value, host: e.target.value })}
-          placeholder={t(`${locale}.host_placeholder`, { defaultValue: 'v2ray.com' })}
+          placeholder={t(`${locale}.host_placeholder`)}
         />
       </div>
     </div>
@@ -835,8 +835,8 @@ function VmessFields({
           value={String(value.tls)}
           onChange={(v) => onChange({ ...value, tls: Number(v) })}
           options={[
-            { value: '0', label: t('server.dynamic_form.vmess.tls.disabled', { defaultValue: 'None' }) },
-            { value: '1', label: t('server.dynamic_form.vmess.tls.enabled', { defaultValue: 'TLS' }) },
+            { value: '0', label: t('server.dynamic_form.vmess.tls.disabled') },
+            { value: '1', label: t('server.dynamic_form.vmess.tls.enabled') },
           ]}
           placeholder={t('server.dynamic_form.vmess.tls.placeholder')}
           className="font-mono text-xs"
