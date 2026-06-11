@@ -26,6 +26,9 @@ function formatTime(ts?: number) {
 async function load() {
   const id = Number(route.params.id)
   ticket.value = await fetchTicketById(id)
+  if (ticket.value.status !== 0) {
+    stopPoll()
+  }
   requestAnimationFrame(() => {
     const el = scrollContentRef.value
     if (el) el.scrollTop = el.scrollHeight
@@ -60,6 +63,7 @@ async function close() {
 
 function startPoll() {
   stopPoll()
+  if (ticket.value?.status !== 0) return
   pollTimer = setInterval(() => {
     load().catch(() => {})
   }, 2000)
@@ -75,7 +79,7 @@ function stopPoll() {
 onMounted(async () => {
   try {
     await load()
-    startPoll()
+    if (ticket.value?.status === 0) startPoll()
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
   }
