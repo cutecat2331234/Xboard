@@ -24,7 +24,7 @@ import { sendEmailVerify } from '@/api/comm'
 import AuthEmailInput from '@/components/AuthEmailInput.vue'
 import CaptchaWidget from '@/components/CaptchaWidget.vue'
 import TelegramLoginWidget from '@/components/TelegramLoginWidget.vue'
-import { loginWithMailLink, token2Login } from '@/api/auth'
+import { forgetPassword, loginWithMailLink, token2Login } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
@@ -54,12 +54,14 @@ const authPageStyle = useAuthPageStyle()
 const { config, load: loadGuest } = useGuestConfig()
 const { emailLocal, emailFull, emailSuffix, resolvedEmail } = useAuthEmail(config)
 
+const isForget = computed(() => route.query.tab === 'forget')
 const isRegister = computed(
   () => route.query.tab === 'register' || route.meta?.authTab === 'register',
 )
 const activeTab = computed(() => (isRegister.value ? 'register' : 'login'))
 
 function switchAuthTab(name: string) {
+  if (isForget.value) return
   const query = { ...route.query }
   if (name === 'register') {
     query.tab = 'register'
@@ -68,6 +70,16 @@ function switchAuthTab(name: string) {
   }
   const currentTab = route.query.tab === 'register' ? 'register' : 'login'
   if (route.path === '/login' && currentTab === name) return
+  router.replace({ path: '/login', query })
+}
+
+function openForgetTab() {
+  router.replace({ path: '/login', query: { ...route.query, tab: 'forget' } })
+}
+
+function backToLoginTab() {
+  const query = { ...route.query }
+  delete query.tab
   router.replace({ path: '/login', query })
 }
 
@@ -88,6 +100,7 @@ const sending = ref(false)
 const tokenLoading = ref(false)
 const mailLinkMode = ref(false)
 const mailLinkLoading = ref(false)
+const forgetLoading = ref(false)
 
 const showTelegram = computed(
   () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
@@ -107,7 +120,7 @@ function applyInviteFromQuery() {
 
 async function tryTokenLogin() {
   const verify = route.query.verify
-  if (typeof verify !== 'string' || !verify || isRegister.value) return
+  if (typeof verify !== 'string' || !verify || isRegister.value || isForget.value) return
   tokenLoading.value = true
   try {
     await token2Login(verify)
@@ -132,7 +145,7 @@ watch(
     errorText.value = ''
     mailLinkMode.value = false
     applyInviteFromQuery()
-    if (!isRegister.value) tryTokenLogin()
+    if (!isRegister.value && !isForget.value) tryTokenLogin()
   },
 )
 
@@ -218,8 +231,39 @@ async function submitRegister() {
   }
 }
 
+async function submitForget() {
+  errorText.value = ''
+  if (password.value !== confirmPassword.value) {
+    errorText.value = t('passwordMismatch')
+    return
+  }
+  forgetLoading.value = true
+  try {
+    const captcha = await captchaRef.value?.getPayload()
+    await forgetPassword({
+      email: resolvedEmail(),
+      password: password.value,
+      email_code: emailCode.value,
+      ...captcha,
+    })
+    msg.success(t('common.success'))
+    password.value = ''
+    confirmPassword.value = ''
+    emailCode.value = ''
+    backToLoginTab()
+  } catch (e: unknown) {
+    const message = resolveApiError(e, t)
+    errorText.value = message
+    msg.error(message)
+    captchaRef.value?.reset()
+  } finally {
+    forgetLoading.value = false
+  }
+}
+
 function submit() {
-  if (isRegister.value) submitRegister()
+  if (isForget.value) submitForget()
+  else if (isRegister.value) submitRegister()
   else if (mailLinkMode.value) submitMailLink()
   else submitLogin()
 }
@@ -227,12 +271,19 @@ function submit() {
 
 <template>
   <div class="auth-page" :style="authPageStyle">
-    <n-card class="auth-card" :class="{ 'auth-card--login': !isRegister }" :bordered="true">
+    <n-card
+      class="auth-card"
+      :class="{ 'auth-card--login': !isRegister && !isForget }"
+      :bordered="true"
+    >
       <div class="auth-card__body">
-        <h1 class="auth-card__title-main">{{ settings.title || 'Xboard' }}</h1>
+        <h1 class="auth-card__title-main">
+          {{ isForget ? t('forgotPassword') : settings.title || 'Xboard' }}
+        </h1>
         <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard is best' }}</h5>
 
         <n-tabs
+          v-if="!isForget"
           :value="activeTab"
           type="line"
           class="auth-tabs"
@@ -253,12 +304,15 @@ function submit() {
             />
           </div>
 
-          <div v-if="isRegister && showEmailVerify" class="auth-field auth-field--row">
+          <div
+            v-if="(isRegister && showEmailVerify) || isForget"
+            class="auth-field auth-field--row"
+          >
             <n-input v-model:value="emailCode" :placeholder="t('emailCode')" />
             <n-button :loading="sending" @click.prevent="sendCode">{{ t('sendCode') }}</n-button>
           </div>
 
-          <div v-if="!mailLinkMode" class="auth-field">
+          <div v-if="!mailLinkMode || isForget" class="auth-field">
             <n-input
               v-model:value="password"
               type="password"
@@ -267,7 +321,21 @@ function submit() {
             />
           </div>
 
-          <template v-if="isRegister">
+          <template v-if="isForget">
+            <div class="auth-field">
+              <n-input
+                v-model:value="confirmPassword"
+                type="password"
+                :placeholder="t('confirmPassword')"
+                show-password-on="click"
+              />
+            </div>
+            <div v-if="showCaptcha" class="auth-field">
+              <CaptchaWidget ref="captchaRef" :config="config" />
+            </div>
+          </template>
+
+          <template v-else-if="isRegister">
             <div class="auth-field">
               <n-input
                 v-model:value="confirmPassword"
@@ -310,22 +378,36 @@ function submit() {
               type="primary"
               attr-type="submit"
               block
-              :loading="isRegister ? auth.loading : mailLinkMode ? mailLinkLoading : auth.loading"
+              :loading="
+                isForget
+                  ? forgetLoading
+                  : isRegister
+                    ? auth.loading
+                    : mailLinkMode
+                      ? mailLinkLoading
+                      : auth.loading
+              "
               class="auth-submit"
             >
-              <template v-if="!mailLinkMode" #icon>
+              <template v-if="!mailLinkMode && !isForget" #icon>
                 <n-icon :size="16">
                   <component :is="isRegister ? PersonAddOutline : LoginIcon" />
                 </n-icon>
               </template>
               {{
-                isRegister ? t('register') : mailLinkMode ? t('mailLinkSend') : t('login')
+                isForget
+                  ? t('resetPassword')
+                  : isRegister
+                    ? t('register')
+                    : mailLinkMode
+                      ? t('mailLinkSend')
+                      : t('login')
               }}
             </n-button>
           </div>
 
           <TelegramLoginWidget
-            v-if="showTelegram && config?.telegram_bot_username && !mailLinkMode"
+            v-if="showTelegram && config?.telegram_bot_username && !mailLinkMode && !isForget"
             :bot-username="config.telegram_bot_username"
           />
         </form>
@@ -334,14 +416,17 @@ function submit() {
       </div>
 
       <div v-if="!tokenLoading" class="auth-card__footer-bar">
-        <div v-if="!isRegister" class="auth-footer-left">
+        <div v-if="isForget" class="auth-footer-left">
+          <a href="#" class="auth-footer-link" @click.prevent="backToLoginTab">{{ t('backToLogin') }}</a>
+        </div>
+        <div v-else-if="!isRegister" class="auth-footer-left">
           <template v-if="mailLinkMode">
             <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = false">
               {{ t('backToPasswordLogin') }}
             </a>
           </template>
           <template v-else>
-            <router-link to="/forgetpassword" class="auth-footer-link">{{ t('forgotPassword') }}</router-link>
+            <a href="#" class="auth-footer-link" @click.prevent="openForgetTab">{{ t('forgotPassword') }}</a>
             <n-divider vertical />
             <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = true">
               {{ t('mailLinkLogin') }}

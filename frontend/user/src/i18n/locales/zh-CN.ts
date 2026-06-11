@@ -113,6 +113,7 @@ export default {
   knowledge: {
     searchPh: '搜索文档…',
     empty: '暂无相关内容',
+    allCategory: '全部',
   },
   auth: {
     or: '或',

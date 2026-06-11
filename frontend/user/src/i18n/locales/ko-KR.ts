@@ -112,7 +112,8 @@ export default {
   },
   knowledge: {
     searchPh: "사용 설명서 검색…",
-    empty: "검색 결과가 없습니다"
+    empty: "검색 결과가 없습니다",
+    allCategory: "전체"
   },
   auth: {
     or: "또는",

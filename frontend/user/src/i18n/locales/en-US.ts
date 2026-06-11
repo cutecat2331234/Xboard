@@ -113,6 +113,7 @@ export default {
   knowledge: {
     searchPh: 'Search knowledge base…',
     empty: 'No matching articles',
+    allCategory: 'All',
   },
   auth: {
     or: 'or',

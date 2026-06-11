@@ -112,7 +112,8 @@ export default {
   },
   knowledge: {
     searchPh: "ナレッジベースを検索…",
-    empty: "該当する記事がありません"
+    empty: "該当する記事がありません",
+    allCategory: "すべて"
   },
   auth: {
     or: "または",
