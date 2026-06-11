@@ -69,7 +69,8 @@ body {
   font-size: 16px;
 }
 
-.shadow-card {
+.shadow-card,
+.bg-card.text-card-foreground.shadow {
   box-shadow: var(--xb-shadow-card);
 }
 
