@@ -15,6 +15,7 @@ import {
 } from '@/lib/api'
 import { dialogFieldLabelCls, dialogInputCls, inputCls, textareaCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
+import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
 import { FormSelect } from '@/components/shared/FormSelect'
 import { SuffixInput } from '@/components/shared/SuffixInput'
@@ -1212,25 +1213,14 @@ export default function UserPage() {
               </div>
             </div>
           </div>
-          <DialogFooter className="shrink-0 border-t px-6 py-4">
-            <div className="flex w-full items-center justify-end gap-3">
-              <Button
-                variant="ghost"
-                className="h-8 px-4 text-xs font-bold"
-                onClick={() => setMailOpen(false)}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                onClick={sendMail}
-                disabled={mailSending}
-                className="h-8 gap-2 px-8 text-xs font-bold"
-              >
-                <Send className="h-4 w-4" />
-                {mailSending ? t('user.send_mail.sending') : t('user.send_mail.send')}
-              </Button>
-            </div>
-          </DialogFooter>
+          <DialogFormFooter
+            onCancel={() => setMailOpen(false)}
+            onSubmit={sendMail}
+            cancelLabel={t('common.cancel')}
+            submitLabel={mailSending ? t('user.send_mail.sending') : t('user.send_mail.send')}
+            submitting={mailSending}
+            submitIcon={<Send className="h-4 w-4" />}
+          />
         </DialogContent>
       </Dialog>
 
@@ -1369,24 +1359,13 @@ export default function UserPage() {
             ) : null}
             </div>
           </div>
-          <DialogFooter className="shrink-0 border-t px-6 py-4">
-            <div className="flex w-full items-center justify-end gap-3">
-              <Button
-                variant="ghost"
-                className="h-8 px-4 text-xs font-bold"
-                onClick={() => setDialogMode(null)}
-              >
-                {t('user.generate.form.cancel')}
-              </Button>
-              <Button
-                onClick={saveUser}
-                disabled={saving}
-                className="h-8 px-8 text-xs font-bold"
-              >
-                {t('user.generate.form.submit')}
-              </Button>
-            </div>
-          </DialogFooter>
+          <DialogFormFooter
+            onCancel={() => setDialogMode(null)}
+            onSubmit={saveUser}
+            cancelLabel={t('user.generate.form.cancel')}
+            submitLabel={saving ? t('common.saving') : t('user.generate.form.submit')}
+            submitting={saving}
+          />
         </DialogContent>
       </Dialog>
 

@@ -104,6 +104,16 @@ type GiftCardConditions = {
 
 }
 
+type GiftCardLimits = {
+
+  max_use_per_user?: number | null
+
+  cooldown_hours?: number | null
+
+  invite_reward_rate?: number | null
+
+}
+
 
 
 type TemplateForm = {
@@ -124,6 +134,8 @@ type TemplateForm = {
 
   conditions: GiftCardConditions
 
+  limits: GiftCardLimits
+
 }
 
 
@@ -143,6 +155,8 @@ const emptyForm = (): TemplateForm => ({
   rewards: { balance: 0 },
 
   conditions: {},
+
+  limits: {},
 
 })
 
@@ -219,6 +233,24 @@ function parseConditions(raw: unknown): GiftCardConditions {
     allowed_plans: Array.isArray(c.allowed_plans) ? c.allowed_plans.map(Number) : [],
 
     disallowed_plans: Array.isArray(c.disallowed_plans) ? c.disallowed_plans.map(Number) : [],
+
+  }
+
+}
+
+function parseLimits(raw: unknown): GiftCardLimits {
+
+  if (!raw || typeof raw !== 'object') return {}
+
+  const l = raw as GiftCardLimits
+
+  return {
+
+    max_use_per_user: l.max_use_per_user != null ? Number(l.max_use_per_user) : null,
+
+    cooldown_hours: l.cooldown_hours != null ? Number(l.cooldown_hours) : null,
+
+    invite_reward_rate: l.invite_reward_rate != null ? Number(l.invite_reward_rate) : null,
 
   }
 
@@ -454,6 +486,8 @@ export default function GiftCardPage() {
 
       conditions: parseConditions(row.conditions),
 
+      limits: parseLimits(row.limits),
+
     })
 
     setDialogOpen(true)
@@ -542,6 +576,26 @@ export default function GiftCardPage() {
 
     }
 
+    const limits: GiftCardLimits = {}
+
+    if (form.limits.max_use_per_user != null) {
+
+      limits.max_use_per_user = form.limits.max_use_per_user
+
+    }
+
+    if (form.limits.cooldown_hours != null) {
+
+      limits.cooldown_hours = form.limits.cooldown_hours
+
+    }
+
+    if (form.limits.invite_reward_rate != null) {
+
+      limits.invite_reward_rate = form.limits.invite_reward_rate
+
+    }
+
 
 
     return {
@@ -559,6 +613,8 @@ export default function GiftCardPage() {
       rewards,
 
       conditions: Object.keys(conditions).length ? conditions : null,
+
+      limits: Object.keys(limits).length ? limits : null,
 
     }
 
@@ -1303,7 +1359,7 @@ export default function GiftCardPage() {
 
           <div className="min-h-0 flex-1 overflow-y-auto bg-background">
 
-            <div className="space-y-6 px-6 py-4 text-sm">
+            <div className="space-y-4 px-6 py-4 text-sm">
 
               <div className="space-y-4 rounded-xl border bg-card/50 p-4">
 
@@ -1533,6 +1589,8 @@ export default function GiftCardPage() {
 
                         <SuffixInput
 
+                          className={dialogInputCls}
+
                           suffix="¥"
 
                           type="number"
@@ -1562,6 +1620,8 @@ export default function GiftCardPage() {
                         <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.transfer_enable.label')}</Label>
 
                         <SuffixInput
+
+                          className={dialogInputCls}
 
                           suffix="GB"
 
@@ -1598,6 +1658,8 @@ export default function GiftCardPage() {
                         <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.expire_days.label')}</Label>
 
                         <SuffixInput
+
+                          className={dialogInputCls}
 
                           suffix={t('common.days')}
 
@@ -1637,7 +1699,7 @@ export default function GiftCardPage() {
 
                           type="number"
 
-                          className={inputCls}
+                          className={`${inputCls} ${dialogInputCls}`}
 
                           placeholder={t('giftCard.template.form.rewards.device_limit.placeholder')}
 
@@ -1876,6 +1938,142 @@ export default function GiftCardPage() {
                     ))}
 
                   </div>
+
+                </div>
+
+              </div>
+
+
+
+              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
+
+                <div className="mb-2 flex items-center gap-2">
+
+                  <SlidersHorizontal className="h-4 w-4 text-primary" />
+
+                  <h3 className="text-sm font-semibold">{t('giftCard.template.form.limits.title')}</h3>
+
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+
+                  <div className="space-y-1.5">
+
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.max_use_per_user.label')}</Label>
+
+                    <input
+
+                      type="number"
+
+                      className={`${inputCls} ${dialogInputCls}`}
+
+                      placeholder={t('giftCard.template.form.limits.max_use_per_user.placeholder')}
+
+                      value={form.limits.max_use_per_user ?? ''}
+
+                      onChange={(e) =>
+
+                        setForm((f) => ({
+
+                          ...f,
+
+                          limits: {
+
+                            ...f.limits,
+
+                            max_use_per_user: e.target.value ? Number(e.target.value) : null,
+
+                          },
+
+                        }))
+
+                      }
+
+                    />
+
+                  </div>
+
+                  <div className="space-y-1.5">
+
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.cooldown_hours.label')}</Label>
+
+                    <SuffixInput
+
+                      className={dialogInputCls}
+
+                      suffix="h"
+
+                      type="number"
+
+                      placeholder={t('giftCard.template.form.limits.cooldown_hours.placeholder')}
+
+                      value={form.limits.cooldown_hours ?? ''}
+
+                      onChange={(e) =>
+
+                        setForm((f) => ({
+
+                          ...f,
+
+                          limits: {
+
+                            ...f.limits,
+
+                            cooldown_hours: e.target.value ? Number(e.target.value) : null,
+
+                          },
+
+                        }))
+
+                      }
+
+                    />
+
+                  </div>
+
+                </div>
+
+                <div className="space-y-1.5">
+
+                  <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.invite_reward_rate.label')}</Label>
+
+                  <input
+
+                    type="number"
+
+                    step="0.01"
+
+                    className={`${inputCls} ${dialogInputCls}`}
+
+                    placeholder={t('giftCard.template.form.limits.invite_reward_rate.placeholder')}
+
+                    value={form.limits.invite_reward_rate ?? ''}
+
+                    onChange={(e) =>
+
+                      setForm((f) => ({
+
+                        ...f,
+
+                        limits: {
+
+                          ...f.limits,
+
+                          invite_reward_rate: e.target.value ? Number(e.target.value) : null,
+
+                        },
+
+                      }))
+
+                    }
+
+                  />
+
+                  <p className="m-0 text-[10px] leading-relaxed text-muted-foreground">
+
+                    {t('giftCard.template.form.limits.invite_reward_rate.description')}
+
+                  </p>
 
                 </div>
 
