@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { telegramLogin } from '@/api/auth'
-import { useAuthStore } from '@/stores/auth'
+import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 
 const props = defineProps<{
@@ -11,6 +11,7 @@ const props = defineProps<{
 }>()
 
 const auth = useAuthStore()
+const route = useRoute()
 const router = useRouter()
 const msg = useMessage()
 const { t } = useI18n()
@@ -35,7 +36,7 @@ async function handleAuth(user: Record<string, unknown>) {
     await telegramLogin(user)
     await auth.loadUser()
     msg.success(t('login'))
-    router.push('/dashboard')
+    router.push(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
   }

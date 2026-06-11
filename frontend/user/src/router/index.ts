@@ -74,7 +74,7 @@ router.beforeEach((to) => {
 
   if (!authed && !publicPaths.includes(to.path)) {
 
-    return { path: '/login' }
+    return { path: '/login', query: { redirect: to.fullPath } }
 
   }
 
