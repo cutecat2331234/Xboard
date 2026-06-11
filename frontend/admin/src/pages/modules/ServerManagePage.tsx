@@ -1095,7 +1095,9 @@ export default function ServerManagePage() {
 
         id: 'traffic',
 
-        header: () => t('server.columns.traffic.title'),
+        header: () => (
+          <span title={t('server.columns.traffic.tooltip')}>{t('server.columns.traffic.title')}</span>
+        ),
 
         cell: ({ row }) => {
 
@@ -1217,7 +1219,11 @@ export default function ServerManagePage() {
 
         id: 'loadStatus',
 
-        header: () => t('server.columns.loadStatus.title'),
+        header: () => (
+          <span title={t('server.columns.loadStatus.tooltip')}>
+            {t('server.columns.loadStatus.title')}
+          </span>
+        ),
 
         cell: ({ row }) => {
 
