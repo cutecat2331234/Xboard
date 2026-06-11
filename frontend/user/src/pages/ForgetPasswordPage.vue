@@ -122,18 +122,18 @@ async function submit() {
             </n-button>
           </div>
         </form>
+      </div>
 
-        <div class="auth-card__actions">
-          <router-link to="/login" class="auth-footer-link">{{ t('backToLogin') }}</router-link>
-          <n-dropdown :options="langOptions" trigger="click" @select="(k: string) => setLocale(k)">
-            <n-button class="auth-lang-btn">
-              <template #icon>
-                <n-icon><LanguageOutline /></n-icon>
-              </template>
-              {{ t('common.language') }}
-            </n-button>
-          </n-dropdown>
-        </div>
+      <div class="auth-card__footer-bar">
+        <router-link to="/login" class="auth-footer-link">{{ t('backToLogin') }}</router-link>
+        <n-dropdown :options="langOptions" trigger="click" @select="(k: string) => setLocale(k)">
+          <n-button class="auth-lang-btn" quaternary>
+            <template #icon>
+              <n-icon><LanguageOutline /></n-icon>
+            </template>
+            {{ t('common.language') }}
+          </n-button>
+        </n-dropdown>
       </div>
     </n-card>
   </div>
@@ -143,17 +143,19 @@ async function submit() {
 .auth-card__body { padding: 24px; }
 .auth-card__body form { margin: 0; }
 .auth-card__title-main {
-  margin: 24px 0;
+  margin: 24.12px 0;
   text-align: center;
   font-size: 36px;
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 40px;
   color: #343a40;
 }
 .auth-card__subtitle {
-  margin: 0;
+  margin: 23.38px 0 0;
   text-align: center;
   font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
   color: #6c757d;
 }
 .auth-field { margin-top: 20px; width: 100%; }
@@ -161,12 +163,26 @@ async function submit() {
 .auth-field--row .n-input { flex: 1; }
 .auth-error { margin: 20px 0 0; color: #d03050; font-size: 13px; }
 .auth-submit { height: 36px; }
-.auth-card__actions {
+.auth-card__footer-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 20px;
+  padding: 16px 24px;
+  background: rgb(250, 250, 252);
+  color: #6b7280;
 }
-.auth-footer-link { color: #6b7280; font-size: 14px; text-decoration: none; }
-.auth-lang-btn :deep(.n-button__content) { font-size: 14px; color: #6b7280; }
+.auth-footer-link {
+  color: #6b7280;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.auth-lang-btn {
+  height: 30px;
+  padding: 0 !important;
+}
+.auth-lang-btn :deep(.n-button__content) {
+  font-size: 14px;
+  color: #6b7280;
+}
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { NCard, NText } from 'naive-ui'
+import { NCard } from 'naive-ui'
 import { useSettingsStore } from '@/stores/settings'
 
 const settingsStore = useSettingsStore()
@@ -20,41 +20,57 @@ const backgroundStyle = computed(() => {
 <template>
   <div class="auth-page" :style="backgroundStyle">
     <NCard class="auth-card" :bordered="true">
-      <div class="auth-card__header">
-        <img
-          v-if="settings.logo"
-          :src="settings.logo"
-          alt="logo"
-          class="auth-card__logo"
-        />
-        <NText strong class="auth-card__title">{{ settings.title }}</NText>
-        <NText depth="3" class="auth-card__desc">{{ settings.description }}</NText>
+      <div class="auth-card__body">
+        <div v-if="settings.logo" class="auth-card__header">
+          <img :src="settings.logo" alt="logo" class="auth-card__logo" />
+        </div>
+        <h1 class="auth-card__title-main">{{ settings.title }}</h1>
+        <h5 class="auth-card__subtitle">{{ settings.description }}</h5>
+        <RouterView />
       </div>
-      <RouterView />
+      <div v-if="$slots.footer" class="auth-card__footer-bar">
+        <slot name="footer" />
+      </div>
     </NCard>
   </div>
 </template>
 
 <style scoped>
+.auth-card__body {
+  padding: 24px;
+}
 .auth-card__header {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  justify-content: center;
+  margin-bottom: 8px;
 }
-
 .auth-card__logo {
   width: 48px;
   height: 48px;
   object-fit: contain;
 }
-
-.auth-card__title {
-  font-size: 24px;
+.auth-card__title-main {
+  margin: 24.12px 0;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 40px;
+  color: #343a40;
 }
-
-.auth-card__desc {
+.auth-card__subtitle {
+  margin: 23.38px 0 0;
+  text-align: center;
   font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #6c757d;
+}
+.auth-card__footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: rgb(250, 250, 252);
+  color: #6b7280;
 }
 </style>
