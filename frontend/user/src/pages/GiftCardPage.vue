@@ -24,10 +24,11 @@ import {
   type GiftCardRewards,
 } from '@/api/gift-card'
 import { useCurrency } from '@/composables/useCurrency'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
 const msg = useMessage()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 
 const history = ref<GiftCardHistoryItem[]>([])
@@ -45,13 +46,6 @@ const checkResult = ref<GiftCardCheckResult | null>(null)
 const detailOpen = ref(false)
 const detailLoading = ref(false)
 const detail = ref<GiftCardDetail | null>(null)
-
-function formatTime(ts?: number) {
-  if (!ts) return '—'
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-}
 
 function formatRewards(rewards?: GiftCardRewards | null) {
   if (!rewards) return '—'
@@ -185,7 +179,7 @@ const columns = computed<DataTableColumns<GiftCardHistoryItem>>(() => [
     title: t('giftCard.redeemedAt'),
     key: 'created_at',
     width: 170,
-    render: (row) => formatTime(row.created_at),
+    render: (row) => formatLocaleDateTime(row.created_at, locale.value),
   },
   {
     title: t('common.actions'),
@@ -312,7 +306,7 @@ onMounted(async () => {
           ×{{ detail.multiplier_applied }}
         </n-descriptions-item>
         <n-descriptions-item :label="t('giftCard.redeemedAt')">
-          {{ formatTime(detail.created_at) }}
+          {{ formatLocaleDateTime(detail.created_at, locale) }}
         </n-descriptions-item>
       </n-descriptions>
     </template>

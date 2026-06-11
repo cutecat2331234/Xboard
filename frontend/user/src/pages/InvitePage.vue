@@ -24,6 +24,7 @@ import {
 } from '@/api/invite'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useCurrency } from '@/composables/useCurrency'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
 const INVITE_PAGE_SIZE = 10
@@ -35,7 +36,7 @@ const codesPage = ref(1)
 const detailsPage = ref(1)
 const msg = useMessage()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { formatPrice, load: loadCurrency, code: currencyCode } = useCurrency()
 const transferOpen = ref(false)
 const withdrawOpen = ref(false)
@@ -97,13 +98,6 @@ const commissionRateLabel = computed(() => {
   }
   return `${base}%`
 })
-
-function formatTime(ts?: number) {
-  if (!ts) return '—'
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-}
 
 function inviteLink(code: string) {
   return `${window.location.origin}${window.location.pathname}#/register?code=${code}`
@@ -211,7 +205,7 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
     title: t('invite.createdAt'),
     key: 'created_at',
     width: 474,
-    render: (r) => formatTime(r.created_at),
+    render: (r) => formatLocaleDateTime(r.created_at, locale.value),
   },
 ])
 
@@ -220,7 +214,7 @@ const detailColumns = computed(() => [
     title: t('invite.incomeTime'),
     key: 'created_at',
     width: 592,
-    render: (r: { created_at?: number }) => formatTime(r.created_at),
+    render: (r: { created_at?: number }) => formatLocaleDateTime(r.created_at, locale.value),
   },
   {
     title: t('invite.incomeAmount'),
