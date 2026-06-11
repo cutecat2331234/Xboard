@@ -8,7 +8,7 @@ export default {
   confirmPassword: '再次输入密码',
   emailCode: '邮箱验证码',
   sendCode: '发送',
-  inviteCode: '邀请码,（选填）',
+  inviteCode: '邀请码（选填）',
   inviteCodeRequiredPh: '邀请码（必填）',
   inviteCodeRequired: '请填写邀请码',
   backToLogin: '返回登入',
@@ -182,6 +182,11 @@ export default {
     error: '错误',
     reset: '重置',
     search: '搜索',
+    pagination: {
+      summary: '第 {current}/{total} 页，共 {count} 条',
+      previous: '上一页',
+      next: '下一页',
+    },
   },
   invite: {
     title: '我的邀请',
