@@ -1136,9 +1136,12 @@ export default function UserPage() {
           <DialogHeader>
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="xb-stack-3 py-3.5">
-            <div className="xb-stack-2">
-              <Label>{t('user.generate.form.email')}</Label>
+          <div className="xb-stack-gap text-sm">
+            <div className="xb-stack-3">
+              <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                {t('user.generate.form.email')}
+                <span className="ml-1 text-destructive">*</span>
+              </Label>
               <div className="flex w-full items-center">
                 {!form.generate_count ? (
                   <input
@@ -1165,8 +1168,10 @@ export default function UserPage() {
                 />
               </div>
             </div>
-            <div className="xb-stack-2">
-              <Label>{t('user.generate.form.password')}</Label>
+            <div className="xb-stack-3">
+              <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                {t('user.generate.form.password')}
+              </Label>
               <input
                 className={inputCls}
                 type="password"
@@ -1176,16 +1181,20 @@ export default function UserPage() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="xb-stack-2">
-                <Label>{t('user.generate.form.expire_time')}</Label>
+              <div className="xb-stack-3">
+                <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                  {t('user.generate.form.expire_time')}
+                </Label>
                 <ExpireDateInput
                   value={form.expired_at as number | null | undefined}
                   onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
                   placeholder={t('user.generate.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
-                <Label>{t('user.generate.form.subscription')}</Label>
+              <div className="xb-stack-3">
+                <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                  {t('user.generate.form.subscription')}
+                </Label>
                 <FormSelect
                   value={String(form.plan_id ?? '')}
                   onChange={(v) =>
@@ -1205,8 +1214,10 @@ export default function UserPage() {
               </div>
             </div>
             {!form.email_prefix ? (
-              <div className="xb-stack-2">
-                <Label>{t('user.generate.form.generate_count')}</Label>
+              <div className="xb-stack-3">
+                <Label className="uppercase tracking-wider text-muted-foreground leading-tight">
+                  {t('user.generate.form.generate_count')}
+                </Label>
                 <input
                   type="number"
                   className={inputCls}
@@ -1441,7 +1452,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.remarks_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={Boolean(form.is_admin)}
