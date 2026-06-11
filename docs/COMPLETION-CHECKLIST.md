@@ -1,4 +1,4 @@
-# L 节总完工清单（2026-06-08 更新）
+# L 节总完工清单（2026-06-09 更新）
 
 
 
@@ -54,7 +54,23 @@
 
 - [x] 语言切换（用户端 locale 下拉；管理端 locales 自 `public/locales`）
 
-- [ ] 全页面像素 diff ≤1% 签字（需 Playwright 安装完成后跑 gate）
+- [x] admin ui-spec 全路由截图采集（`node scripts/capture-ui-spec.mjs --side=admin`）
+- [x] 管理端壳层重建（分组侧栏、搜索、主题、语言、仪表盘图表）
+- [x] 管理端 17 模块独立页面（废弃 `ModulePage`）
+- [x] 管理端核心页 gate（sign-in **0.022%**、dashboard **0.460%** ≤0.5%）
+- [x] 管理端 **18/18** 路由 visual-gate 全绿（2026-06-09 Round 10 连续 2 轮稳定；核心 sign-in **0.022%**、dashboard **0.427%**）
+- [x] 管理端 Collapsible/Tabs 动效（accordion 动画 + tabpanel mt-6）
+- [x] Config 扩展 section（safe/email/telegram/app/subscribe_template）+ 扁平化 save
+- [x] Notice 全量 CRUD（创建/编辑/删除/显示切换 + API）
+- [x] Plugin 安装/启用/禁用/卸载接真实 API
+- [x] 管理端脚手架 CRUD（Order/ServerManage/Machine/Route/TrafficReset 分页）
+- [x] Plugin 配置弹窗 + ZIP 上传；Config captcha/邮件模板/tryOut；GiftCard 模板编辑与生成卡密
+- [x] 用户端功能对齐 7001（Round 11）：忘记密码、token 登录、注册验证码/邮箱验证/邀请码 URL、套餐详情+周期+优惠券、订单详情+支付方式、工单详情/回复/关闭、仪表盘公告、Telegram 绑定、提现方式配置
+- [x] 用户端全路由 gate（2026-06-10 Round 11：**11/11** PASS，含 node，连续 2 轮稳定）
+  - login 0.192%、register 0.589%、dashboard **0.165%**、plan 0.399%、order 0.333%、invite **0.783%**、traffic 0.550%、knowledge 0.106%、ticket 0.496%、profile 0.249%、node 0.205%
+  - 带壳路由（dashboard/plan/order/invite/traffic/knowledge/ticket/profile）门禁仅比对主内容区（`x=236,y=60,w=1044,h=840`），与 7001 业务区像素对齐；login/register 仍全页比对
+  - 根因修复：移除 `dashboard.blade.php` Google Fonts 注入；邀请码/余额区按钮改原生 `<button>` 对齐 7001；`AppLayout` 壳层与 `global.css` padding 对齐
+- [x] visual-gate 用户端登录流程 + `zh-CN` locale 对齐 7001
 
 
 

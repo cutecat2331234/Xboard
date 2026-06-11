@@ -1,3 +1,3 @@
 # config
 
-Run `node scripts/capture-ui-spec.mjs --side=admin` after Playwright install.
+Captured from http://127.0.0.1:7001/#/config

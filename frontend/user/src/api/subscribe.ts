@@ -5,6 +5,11 @@ export interface SubscribeInfo {
   reset_day: number
   plan: { name: string; transfer_enable: number } | null
   token: string
+  u?: number
+  d?: number
+  transfer_enable?: number
+  expired_at?: number | null
+  next_reset_at?: number | null
 }
 
 export async function fetchSubscribe() {

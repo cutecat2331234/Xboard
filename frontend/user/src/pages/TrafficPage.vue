@@ -1,15 +1,31 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { NCard, NDataTable } from 'naive-ui'
 import { fetchTrafficLog } from '@/api/traffic'
 import { useI18n } from '@/i18n'
 
-const rows = ref<{ record_at: number; u: number; d: number }[]>([])
+const rows = ref<{ record_at: number; u: number; d: number; rate?: number }[]>([])
 const { t } = useI18n()
 
 function gb(n: number) {
   return (n / 1073741824).toFixed(3)
 }
+
+const columns = computed(() => [
+  {
+    title: t('traffic.recordAt'),
+    key: 'record_at',
+    render: (r: { record_at: number }) => new Date(r.record_at * 1000).toLocaleDateString('zh-CN'),
+  },
+  { title: t('traffic.upload'), key: 'u', render: (r: { u: number }) => `${gb(r.u)} GB` },
+  { title: t('traffic.download'), key: 'd', render: (r: { d: number }) => `${gb(r.d)} GB` },
+  { title: t('traffic.rate'), key: 'rate', render: (r: { rate?: number }) => String(r.rate ?? 1) },
+  {
+    title: t('traffic.total'),
+    key: 'total',
+    render: (r: { u: number; d: number }) => `${gb(r.u + r.d)} GB`,
+  },
+])
 
 onMounted(async () => {
   rows.value = await fetchTrafficLog()
@@ -17,15 +33,21 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h2 class="page-title">{{ t('nav.traffic') }}</h2>
-  <n-card>
-    <n-data-table
-      :columns="[
-        { title: 'Date', key: 'record_at', render: (r) => new Date(r.record_at * 1000).toLocaleDateString() },
-        { title: 'Upload', key: 'u', render: (r) => gb(r.u) + ' GB' },
-        { title: 'Download', key: 'd', render: (r) => gb(r.d) + ' GB' },
-      ]"
-      :data="rows"
-    />
+  <n-card class="traffic-card">
+    <p class="traffic-hint">{{ t('traffic.hint') }}</p>
+    <n-data-table :columns="columns" :data="rows" :bordered="false" />
   </n-card>
 </template>
+
+<style scoped>
+.traffic-card :deep(.n-card-content),
+.traffic-card :deep(.n-card__content) {
+  padding: 20px 24px;
+}
+.traffic-hint {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+</style>

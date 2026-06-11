@@ -5,12 +5,17 @@ export interface TicketItem {
   subject: string
   level: number
   status: number
+  created_at?: number
   updated_at: number
   message?: { id: number; message: string; created_at: number; is_me: boolean }[]
 }
 
 export async function fetchTickets() {
   return request<TicketItem[]>(api.get('/user/ticket/fetch'))
+}
+
+export async function fetchTicketById(id: number) {
+  return request<TicketItem>(api.get('/user/ticket/fetch', { params: { id } }))
 }
 
 export async function saveTicket(payload: { subject: string; level: number; message: string }) {

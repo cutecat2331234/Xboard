@@ -1,0 +1,392 @@
+<script setup lang="ts">
+import { ref, computed, h, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  NCard,
+  NInput,
+  NButton,
+  NIcon,
+  NDivider,
+  NCheckbox,
+  NDropdown,
+  useMessage,
+} from 'naive-ui'
+import type { DropdownOption } from 'naive-ui'
+import { LanguageOutline, PersonAddOutline } from '@vicons/ionicons5'
+import { getSettings } from '@/utils/settings'
+import { useAuthPageStyle } from '@/composables/useAuthPageStyle'
+import { useGuestConfig } from '@/composables/useGuestConfig'
+import { useAuthEmail } from '@/composables/useAuthEmail'
+import { LANG_LABELS } from '@/lib/lang-labels'
+import { sendEmailVerify } from '@/api/comm'
+import AuthEmailInput from '@/components/AuthEmailInput.vue'
+import CaptchaWidget from '@/components/CaptchaWidget.vue'
+import TelegramLoginWidget from '@/components/TelegramLoginWidget.vue'
+import { token2Login } from '@/api/auth'
+import { useAuthStore } from '@/stores/auth'
+import { useI18n } from '@/i18n'
+
+const LoginIcon = {
+  render() {
+    return h('svg', { class: 'inline-block', viewBox: '0 0 32 32', width: '1em', height: '1em' }, [
+      h('path', {
+        fill: 'currentColor',
+        d: 'M26 30H14a2 2 0 0 1-2-2v-3h2v3h12V4H14v3h-2V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v24a2 2 0 0 1-2 2',
+      }),
+      h('path', {
+        fill: 'currentColor',
+        d: 'M14.59 20.59L18.17 17H4v-2h14.17l-3.58-3.59L16 10l6 6l-6 6z',
+      }),
+    ])
+  },
+}
+
+const route = useRoute()
+const router = useRouter()
+const msg = useMessage()
+const auth = useAuthStore()
+const { t, setLocale } = useI18n()
+const settings = computed(() => getSettings())
+const authPageStyle = useAuthPageStyle()
+const { config, load: loadGuest } = useGuestConfig()
+const { emailLocal, emailFull, emailSuffix, resolvedEmail } = useAuthEmail(config)
+
+const isRegister = computed(() => route.path === '/register')
+
+const langOptions = computed<DropdownOption[]>(() => {
+  const langs = settings.value.i18n ?? ['zh-CN', 'en-US']
+  return langs.map((code) => ({ key: code, label: LANG_LABELS[code] ?? code }))
+})
+
+const captchaRef = ref<InstanceType<typeof CaptchaWidget> | null>(null)
+const password = ref('')
+const confirmPassword = ref('')
+const inviteCode = ref('')
+const emailCode = ref('')
+const lockInvite = ref(false)
+const agreed = ref(true)
+const errorText = ref('')
+const sending = ref(false)
+const tokenLoading = ref(false)
+
+const showTelegram = computed(
+  () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
+)
+const showCaptcha = computed(() => Boolean(config.value?.is_captcha) && !isRegister.value)
+const showTerms = computed(() => Boolean(config.value?.tos_url))
+const showEmailVerify = computed(() => Boolean(config.value?.is_email_verify))
+const inviteRequired = computed(() => Boolean(config.value?.is_invite_force))
+
+function applyInviteFromQuery() {
+  const code = route.query.code
+  if (typeof code === 'string' && code) {
+    inviteCode.value = code
+    lockInvite.value = true
+  }
+}
+
+async function tryTokenLogin() {
+  const verify = route.query.verify
+  if (typeof verify !== 'string' || !verify || isRegister.value) return
+  tokenLoading.value = true
+  try {
+    await token2Login(verify)
+    await auth.loadUser()
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
+    router.replace(redirect.startsWith('/') ? redirect : `/${redirect}`)
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
+  } finally {
+    tokenLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  await loadGuest()
+  applyInviteFromQuery()
+  await tryTokenLogin()
+})
+
+watch(
+  () => route.path,
+  () => {
+    errorText.value = ''
+    applyInviteFromQuery()
+    if (!isRegister.value) tryTokenLogin()
+  },
+)
+
+async function sendCode() {
+  const addr = resolvedEmail()
+  if (!addr) return
+  sending.value = true
+  try {
+    const captcha = await captchaRef.value?.getPayload()
+    await sendEmailVerify(addr, captcha)
+    msg.success(t('common.success'))
+    captchaRef.value?.reset()
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
+    captchaRef.value?.reset()
+  } finally {
+    sending.value = false
+  }
+}
+
+async function submitLogin() {
+  errorText.value = ''
+  try {
+    const captcha = await captchaRef.value?.getPayload()
+    await auth.login({ email: resolvedEmail(), password: password.value, ...captcha })
+    msg.success(t('login'))
+    router.push('/dashboard')
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : '登录失败'
+    errorText.value = message
+    msg.error(message)
+    captchaRef.value?.reset()
+  }
+}
+
+async function submitRegister() {
+  errorText.value = ''
+  if (showTerms.value && !agreed.value) {
+    errorText.value = t('termsRequired')
+    return
+  }
+  if (password.value !== confirmPassword.value) {
+    errorText.value = t('passwordMismatch')
+    return
+  }
+  if (inviteRequired.value && !inviteCode.value.trim()) {
+    errorText.value = t('inviteCodeRequired')
+    return
+  }
+  try {
+    const captcha = await captchaRef.value?.getPayload()
+    await auth.register({
+      email: resolvedEmail(),
+      password: password.value,
+      invite_code: inviteCode.value || undefined,
+      email_code: showEmailVerify.value ? emailCode.value : undefined,
+      ...captcha,
+    })
+    msg.success(t('register'))
+    router.push('/dashboard')
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : '注册失败'
+    errorText.value = message
+    msg.error(message)
+    captchaRef.value?.reset()
+  }
+}
+
+function submit() {
+  if (isRegister.value) submitRegister()
+  else submitLogin()
+}
+</script>
+
+<template>
+  <div class="auth-page" :style="authPageStyle">
+    <n-card class="auth-card" :bordered="true">
+      <div class="auth-card__body">
+        <h1 class="auth-card__title-main">{{ settings.title || 'Xboard' }}</h1>
+        <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard is best' }}</h5>
+
+        <form v-if="!tokenLoading" @submit.prevent="submit">
+          <div class="auth-field">
+            <AuthEmailInput
+              v-model:local="emailLocal"
+              v-model:full="emailFull"
+              v-model:suffix="emailSuffix"
+              :suffixes="config?.email_whitelist_suffix"
+              autofocus
+            />
+          </div>
+
+          <div v-if="isRegister && showEmailVerify" class="auth-field auth-field--row">
+            <n-input v-model:value="emailCode" :placeholder="t('emailCode')" />
+            <n-button :loading="sending" @click.prevent="sendCode">{{ t('sendCode') }}</n-button>
+          </div>
+
+          <div class="auth-field">
+            <n-input
+              v-model:value="password"
+              type="password"
+              :placeholder="t('password')"
+              show-password-on="click"
+            />
+          </div>
+
+          <div v-if="isRegister" class="auth-field">
+            <n-input
+              v-model:value="confirmPassword"
+              type="password"
+              :placeholder="t('confirmPassword')"
+              show-password-on="click"
+            />
+          </div>
+
+          <div v-if="isRegister" class="auth-field">
+            <n-input
+              v-model:value="inviteCode"
+              :placeholder="inviteRequired ? t('inviteCodeRequiredPh') : t('inviteCode')"
+              :disabled="lockInvite"
+            />
+          </div>
+
+          <div v-if="isRegister" class="auth-field">
+            <CaptchaWidget ref="captchaRef" :config="config" />
+          </div>
+          <div v-else-if="showCaptcha" class="auth-field">
+            <CaptchaWidget ref="captchaRef" :config="config" />
+          </div>
+
+          <div v-if="isRegister && showTerms" class="auth-field auth-terms">
+            <n-checkbox v-model:checked="agreed">
+              {{ t('termsPrefix') }}
+              <a :href="config?.tos_url" target="_blank" rel="noopener" class="auth-terms-link">
+                {{ t('termsLink') }}
+              </a>
+            </n-checkbox>
+          </div>
+          <div v-else-if="isRegister" class="auth-field auth-terms" style="display: none">
+            <n-checkbox v-model:checked="agreed" />
+          </div>
+
+          <p v-if="errorText" class="auth-error">{{ errorText }}</p>
+
+          <div class="auth-field">
+            <n-button type="primary" attr-type="submit" block :loading="auth.loading" class="auth-submit">
+              <template #icon>
+                <n-icon :size="16">
+                  <component :is="isRegister ? PersonAddOutline : LoginIcon" />
+                </n-icon>
+              </template>
+              {{ isRegister ? t('register') : t('login') }}
+            </n-button>
+          </div>
+
+          <TelegramLoginWidget
+            v-if="showTelegram && config?.telegram_bot_username"
+            :bot-username="config.telegram_bot_username"
+          />
+        </form>
+
+        <p v-else class="auth-loading">{{ t('common.loading') }}</p>
+      </div>
+
+      <div v-if="!tokenLoading" class="auth-card__footer-bar">
+        <div v-if="!isRegister" class="auth-footer-left">
+          <router-link to="/register" class="auth-footer-link">{{ t('register') }}</router-link>
+          <n-divider vertical />
+          <router-link to="/forgetpassword" class="auth-footer-link">{{ t('forgotPassword') }}</router-link>
+        </div>
+        <router-link v-else to="/login" class="auth-footer-link">{{ t('backToLogin') }}</router-link>
+
+        <n-dropdown :options="langOptions" trigger="click" @select="(k: string) => setLocale(k)">
+          <n-button class="auth-lang-btn" quaternary>
+            <template #icon>
+              <n-icon><LanguageOutline /></n-icon>
+            </template>
+            {{ t('common.language') }}
+          </n-button>
+        </n-dropdown>
+      </div>
+    </n-card>
+  </div>
+</template>
+
+<style scoped>
+.auth-card__body {
+  padding: 24px;
+}
+.auth-card__body form {
+  margin: 0;
+}
+.auth-card__title-main {
+  margin: 24.12px 0;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 40px;
+  color: #343a40;
+}
+.auth-card__subtitle {
+  margin: 23.38px 0 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #6c757d;
+}
+.auth-field {
+  margin-top: 20px;
+  width: 100%;
+}
+.auth-field--row {
+  display: flex;
+  gap: 8px;
+}
+.auth-field--row .n-input {
+  flex: 1;
+}
+.auth-terms {
+  margin-top: 20px;
+}
+.auth-terms :deep(.n-checkbox__label) {
+  font-size: 14px;
+}
+.auth-terms-link {
+  color: #316c72;
+  text-decoration: none;
+}
+.auth-error {
+  margin: 20px 0 0;
+  color: #d03050;
+  font-size: 13px;
+}
+.auth-loading {
+  margin: 24px 0;
+  text-align: center;
+  color: #6b7280;
+}
+.auth-submit {
+  height: 36px;
+}
+.auth-submit :deep(.n-button__content) {
+  font-size: 14px;
+}
+.auth-card__footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: rgb(250, 250, 252);
+  color: #6b7280;
+}
+.auth-footer-left {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.auth-footer-left :deep(.n-divider--vertical) {
+  margin: 0 8px;
+  height: 16px;
+}
+.auth-footer-link {
+  color: #6b7280;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.auth-lang-btn {
+  height: 30px;
+  padding: 0 !important;
+}
+.auth-lang-btn :deep(.n-button__content) {
+  font-size: 14px;
+  color: #6b7280;
+}
+</style>

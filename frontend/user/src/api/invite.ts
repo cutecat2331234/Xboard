@@ -1,7 +1,14 @@
 import { api, request } from '@/api'
 
+export interface InviteCode {
+  code: string
+  pv: number
+  status: number
+  created_at?: number
+}
+
 export interface InviteStat {
-  codes: { code: string; pv: number; status: number }[]
+  codes: InviteCode[]
   stat: number[]
 }
 
@@ -13,6 +20,16 @@ export async function generateInviteCode() {
   return request<null>(api.get('/user/invite/save'))
 }
 
+export async function transferCommission(transfer_amount: number) {
+  return request<null>(api.post('/user/transfer', { transfer_amount }))
+}
+
+export async function withdrawCommission(payload: { withdraw_method: string; withdraw_account: string }) {
+  return request<null>(api.post('/user/ticket/withdraw', payload))
+}
+
 export async function fetchInviteDetails() {
-  return request<unknown[]>(api.get('/user/invite/details'))
+  return request<{ data?: Array<{ created_at?: number; get_amount?: number }> }>(
+    api.get('/user/invite/details'),
+  )
 }

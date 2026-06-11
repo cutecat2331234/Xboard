@@ -1,11 +1,12 @@
-/** Design tokens extracted from 7001 ui-spec (legacy dist). */
+/** Design tokens aligned with 7001 ui-spec computed-styles. */
 export const tokens = {
   colors: {
-    primary: '#2d6565',
-    primaryHover: '#245252',
-    pageBg: '#f0f2f5',
+    primary: '#316C72FF',
+    primaryHover: '#316C72E3',
+    primaryPressed: '#2B4C59FF',
+    pageBg: '#f2f2f2',
     shellBg: '#ffffff',
-    mainBg: '#f5f7fa',
+    mainBg: '#f2f2f2',
     text: '#333333',
     textMuted: '#666666',
     border: '#e5e7eb',
@@ -13,11 +14,11 @@ export const tokens = {
     danger: '#d03050',
   },
   radius: {
-    card: '8px',
-    button: '4px',
+    card: '6px',
+    button: '3px',
   },
   shadow: {
-    card: '0 1px 2px -2px rgba(0, 0, 0, 0.16), 0 3px 6px 0 rgba(0, 0, 0, 0.12), 0 5px 12px 4px rgba(0, 0, 0, 0.09)',
+    card: 'none',
     authCard: '0 2px 8px rgba(0, 0, 0, 0.15)',
     header: '0 1px 4px rgba(0, 21, 41, 0.08)',
   },

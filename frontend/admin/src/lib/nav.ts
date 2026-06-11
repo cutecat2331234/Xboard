@@ -23,5 +23,4 @@ export const ADMIN_NAV: NavItem[] = [
   { path: '/gift-card', labelKey: 'nav.giftCardManagement', apiPath: '/gift-card/templates' },
   { path: '/user', labelKey: 'nav.userManagement', apiPath: '/user/fetch' },
   { path: '/ticket', labelKey: 'nav.ticketManagement', apiPath: '/ticket/fetch' },
-  { path: '/traffic-reset', labelKey: 'nav.trafficResetLogs', apiPath: '/traffic-reset/logs' },
 ]

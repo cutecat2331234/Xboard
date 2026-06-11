@@ -1,0 +1,32 @@
+[
+  {
+    "id": "config-safe",
+    "diffPct": 0.065,
+    "pass": true
+  },
+  {
+    "id": "config-subscribe",
+    "diffPct": 0.146,
+    "pass": true
+  },
+  {
+    "id": "config-invite",
+    "diffPct": 0.001,
+    "pass": true
+  },
+  {
+    "id": "config-server",
+    "diffPct": 0.371,
+    "pass": true
+  },
+  {
+    "id": "config-telegram",
+    "diffPct": 0,
+    "pass": true
+  },
+  {
+    "id": "config-site",
+    "diffPct": 0,
+    "pass": true
+  }
+]
