@@ -1,7 +1,19 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NDataTable, NModal, NInput, NSelect, NSpace, useMessage, type DataTableColumns } from 'naive-ui'
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NModal,
+  NInput,
+  NPagination,
+  NSelect,
+  NSpace,
+  useMessage,
+  type DataTableColumns,
+  type PaginationInfo,
+} from 'naive-ui'
 import {
   fetchInvite,
   fetchInviteDetails,
@@ -14,9 +26,13 @@ import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useCurrency } from '@/composables/useCurrency'
 import { useI18n } from '@/i18n'
 
+const INVITE_PAGE_SIZE = 10
+
 const codes = ref<InviteCode[]>([])
 const stat = ref<number[]>([0, 0, 0, 0, 0])
 const details = ref<Array<{ created_at?: number; get_amount?: number }>>([])
+const codesPage = ref(1)
+const detailsPage = ref(1)
 const msg = useMessage()
 const router = useRouter()
 const { t } = useI18n()
@@ -29,6 +45,46 @@ const withdrawMethod = ref('Alipay')
 const withdrawAccount = ref('')
 
 const available = computed(() => (stat.value[4] ?? 0) / 100)
+
+const showCodesPagination = computed(() => codes.value.length > INVITE_PAGE_SIZE)
+const showDetailsPagination = computed(() => details.value.length > INVITE_PAGE_SIZE)
+
+const paginatedCodes = computed(() => {
+  if (!showCodesPagination.value) return codes.value
+  const start = (codesPage.value - 1) * INVITE_PAGE_SIZE
+  return codes.value.slice(start, start + INVITE_PAGE_SIZE)
+})
+
+const paginatedDetails = computed(() => {
+  if (!showDetailsPagination.value) return details.value
+  const start = (detailsPage.value - 1) * INVITE_PAGE_SIZE
+  return details.value.slice(start, start + INVITE_PAGE_SIZE)
+})
+
+function paginationPrefix(info: PaginationInfo) {
+  const pageCount = Math.max(1, Math.ceil(info.itemCount / info.pageSize))
+  return t('common.pagination.summary', {
+    current: info.page,
+    total: pageCount,
+    count: info.itemCount,
+  })
+}
+
+watch(
+  () => codes.value.length,
+  () => {
+    const maxPage = Math.max(1, Math.ceil(codes.value.length / INVITE_PAGE_SIZE))
+    if (codesPage.value > maxPage) codesPage.value = maxPage
+  },
+)
+
+watch(
+  () => details.value.length,
+  () => {
+    const maxPage = Math.max(1, Math.ceil(details.value.length / INVITE_PAGE_SIZE))
+    if (detailsPage.value > maxPage) detailsPage.value = maxPage
+  },
+)
 
 const commissionRateLabel = computed(() => {
   const base = stat.value[3] ?? 0
@@ -257,20 +313,26 @@ onMounted(async () => {
         <div aria-hidden="true" class="n-base-wave" />
       </button>
     </template>
-    <n-data-table
-      :columns="codeColumns"
-      :data="codes"
-      :bordered="true"
-      :pagination="codes.length > 10 ? { pageSize: 10 } : false"
+    <n-data-table :columns="codeColumns" :data="paginatedCodes" :bordered="true" />
+    <n-pagination
+      v-if="showCodesPagination"
+      v-model:page="codesPage"
+      class="invite-pagination"
+      :item-count="codes.length"
+      :page-size="INVITE_PAGE_SIZE"
+      :prefix="paginationPrefix"
     />
   </n-card>
 
   <n-card :title="t('invite.incomeRecord')" class="mt-5 rounded-md">
-    <n-data-table
-      :columns="detailColumns"
-      :data="details"
-      :bordered="true"
-      :pagination="{ pageSize: 10, showSizePicker: true, pageSizes: [10] }"
+    <n-data-table :columns="detailColumns" :data="paginatedDetails" :bordered="true" />
+    <n-pagination
+      v-if="showDetailsPagination"
+      v-model:page="detailsPage"
+      class="invite-pagination"
+      :item-count="details.length"
+      :page-size="INVITE_PAGE_SIZE"
+      :prefix="paginationPrefix"
     />
   </n-card>
 
@@ -304,6 +366,10 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+.invite-pagination {
+  margin-top: 16px;
+  justify-content: flex-end;
 }
 .modal-actions {
   margin-top: 16px;
