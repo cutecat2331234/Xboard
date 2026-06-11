@@ -7,6 +7,7 @@
     "dev": "vite",
     "prebuild": "node ../../scripts/sync-admin-locales.mjs",
     "build": "vite build",
+    "postbuild": "node -e \"const fs=require('fs');const s='../../public/assets/admin/.vite/manifest.json';const d='../../public/assets/admin/manifest.json';if(fs.existsSync(s))fs.copyFileSync(s,d)\"",
     "preview": "vite preview"
   },
   "dependencies": {

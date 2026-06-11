@@ -1200,7 +1200,7 @@ export default function ServerManagePage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 
-        <DialogContent className="!flex max-h-[800px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]">
+        <DialogContent className="!flex max-h-[837px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
           <div className="flex shrink-0 items-start justify-between gap-4 border-b px-6 py-4">
 
