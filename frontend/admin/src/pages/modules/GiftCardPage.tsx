@@ -912,11 +912,11 @@ export default function GiftCardPage() {
 
           <div className="flex flex-wrap gap-1">
 
-            <Button variant="ghost" size="sm" onClick={() => openEdit(row.original)}>
+            <Button type="button" variant="ghost" size="sm" onClick={() => openEdit(row.original)}>
 
               <Pencil className="mr-1 h-3 w-3" />
 
-              {t('common.edit')}
+              {t('giftCard.template.actions.edit')}
 
             </Button>
 
@@ -952,7 +952,7 @@ export default function GiftCardPage() {
 
     ],
 
-    [t],
+    [t, openEdit, openGenerate, deleteTemplate],
 
   )
 
@@ -1308,7 +1308,7 @@ export default function GiftCardPage() {
 
             <div className="xb-stack-4 px-6 py-4">
 
-              <div className="xb-stack-4 rounded-xl border bg-card/50 p-4">
+              <div className="xb-stack-4">
 
                 <div className="flex items-center gap-2">
 
@@ -1438,7 +1438,7 @@ export default function GiftCardPage() {
 
 
 
-              <div className="xb-stack-4 rounded-xl border bg-card/50 p-4">
+              <div className="xb-stack-4 rounded-md border p-3">
 
                 <div className="flex items-center gap-2">
 
@@ -1714,7 +1714,7 @@ export default function GiftCardPage() {
 
 
 
-              <div className="xb-stack-4 rounded-xl border bg-card/50 p-4">
+              <div className="xb-stack-4 rounded-md border p-3">
 
                 <div className="flex items-center gap-2">
 
