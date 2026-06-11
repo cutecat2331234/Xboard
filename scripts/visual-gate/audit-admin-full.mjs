@@ -9,11 +9,11 @@ import pixelmatch from 'pixelmatch'
 import { chromium } from 'playwright'
 
 const __dir = path.dirname(fileURLToPath(import.meta.url))
-const REF = 'http://127.0.0.1:7001'
-const CMP = 'http://127.0.0.1:7002'
-const SECURE = ''
-const ADMIN_EMAIL = 'admin@example.com'
-const ADMIN_PASSWORD = 'your-password'
+const REF = process.env.VG_REF || 'http://127.0.0.1:7001'
+const CMP = process.env.VG_CMP || 'http://127.0.0.1:7002'
+const SECURE = process.env.VG_SECURE || ''
+const ADMIN_EMAIL = process.env.VG_ADMIN_EMAIL || 'admin@example.com'
+const ADMIN_PASSWORD = process.env.VG_ADMIN_PASSWORD || 'your-password'
 
 const ROUTES = [
   { id: 'dashboard', hash: '#/' },

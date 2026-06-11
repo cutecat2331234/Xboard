@@ -3,9 +3,9 @@
  */
 import { chromium } from 'playwright'
 
-const REF = 'http://127.0.0.1:7001'
-const CMP = 'http://127.0.0.1:7002'
-const SECURE = ''
+const REF = process.env.VG_REF || 'http://127.0.0.1:7001'
+const CMP = process.env.VG_CMP || 'http://127.0.0.1:7002'
+const SECURE = process.env.VG_SECURE || ''
 
 async function login(page, base, n = 1) {
   await page.goto(`${base}/${SECURE}#/sign-in`, { waitUntil: 'domcontentloaded', timeout: 90000 })
