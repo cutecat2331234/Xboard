@@ -638,7 +638,8 @@ export default function PlanPage() {
                 ))}
               </div>
             </div>
-            <div className="xb-stack-2">
+            {editing ? (
+              <div className="xb-stack-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Label>{t('subscribe.plan.form.content.label')}</Label>
                   <div className="flex items-center gap-2">
@@ -681,6 +682,7 @@ export default function PlanPage() {
                   </div>
                 ) : null}
               </div>
+            ) : null}
             {editing ? (
               <div className="flex items-center gap-2">
                 <Switch checked={forceUpdate} onCheckedChange={setForceUpdate} />
