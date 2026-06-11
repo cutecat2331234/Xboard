@@ -15,6 +15,21 @@ export type PluginConfigField = {
   value?: unknown
   options?: Array<{ label?: string; value?: string | number }>
   required?: boolean
+  hidden?: boolean
+  readonly?: boolean
+}
+
+export type PluginAdminCrudFormFieldType =
+  | 'string'
+  | 'text'
+  | 'number'
+  | 'boolean'
+  | 'select'
+  | 'textarea'
+
+export type PluginAdminCrudFormField = PluginConfigField & {
+  name: string
+  type?: PluginAdminCrudFormFieldType | string
 }
 
 export type PluginAdminCrudColumnType = 'string' | 'number' | 'boolean' | 'datetime' | 'tag'
@@ -48,7 +63,7 @@ export type PluginAdminCrudSchema = {
   id_field?: string
   api?: PluginAdminCrudApi
   columns?: PluginAdminCrudColumn[]
-  form?: Record<string, PluginConfigField>
+  form?: Record<string, PluginConfigField> | PluginAdminCrudFormField[]
   actions?: PluginAdminCrudActions
 }
 

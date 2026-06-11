@@ -1,7 +1,50 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { fetchPaginatedList, postJson } from '@/lib/api'
-import type { PluginAdminCrudColumn, PluginAdminCrudSchema } from '@/lib/plugin-types'
+import { inputCls, textareaCls } from '@/lib/form-styles'
+import type {
+  PluginAdminCrudColumn,
+  PluginAdminCrudFormField,
+  PluginAdminCrudSchema,
+  PluginConfigField,
+} from '@/lib/plugin-types'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+
+export type NormalizedPluginCrudFormField = {
+  key: string
+  field: PluginConfigField
+}
+
+export function normalizePluginCrudFormFields(
+  form?: PluginAdminCrudSchema['form'],
+): NormalizedPluginCrudFormField[] {
+  if (!form) return []
+  if (Array.isArray(form)) {
+    return form
+      .filter((item): item is PluginAdminCrudFormField => Boolean(item.name))
+      .map((item) => ({
+        key: item.name,
+        field: {
+          type: item.type,
+          label: item.label,
+          placeholder: item.placeholder,
+          description: item.description,
+          value: item.value,
+          options: item.options,
+          required: item.required,
+          hidden: item.hidden,
+          readonly: item.readonly,
+        },
+      }))
+  }
+  return Object.entries(form).map(([key, field]) => ({ key, field }))
+}
+
+export function hasPluginCrudTypedForm(schema: PluginAdminCrudSchema): boolean {
+  return normalizePluginCrudFormFields(schema.form).some((item) => !item.field.hidden)
+}
 
 export type PluginCrudListParams = {
   current?: number
@@ -91,11 +134,12 @@ export function buildPluginCrudColumns(
     onDelete?: (row: Record<string, unknown>) => void
   },
 ): ColumnDef<Record<string, unknown>, unknown>[] {
+  const formFields = normalizePluginCrudFormFields(schema.form)
   const columns = schema.columns?.length
     ? schema.columns
-    : Object.keys(schema.form ?? {}).map((key) => ({
+    : formFields.map(({ key, field }) => ({
         key,
-        title: schema.form?.[key]?.label ?? key,
+        title: field.label ?? key,
         type: 'string' as const,
       }))
 
@@ -147,8 +191,111 @@ export function defaultPluginCrudFormValues(
   schema: PluginAdminCrudSchema,
 ): Record<string, unknown> {
   const values: Record<string, unknown> = {}
-  for (const [key, field] of Object.entries(schema.form ?? {})) {
+  for (const { key, field } of normalizePluginCrudFormFields(schema.form)) {
     values[key] = field.value ?? (field.type === 'boolean' ? false : '')
   }
   return values
+}
+
+type PluginCrudFormFieldsProps = {
+  fields: NormalizedPluginCrudFormField[]
+  values: Record<string, unknown>
+  idField?: string
+  onChange: (key: string, value: unknown) => void
+}
+
+export function PluginCrudFormFields({
+  fields,
+  values,
+  idField = 'id',
+  onChange,
+}: PluginCrudFormFieldsProps) {
+  const visibleFields = fields.filter((item) => !item.field.hidden)
+
+  return (
+    <div className="flex flex-col gap-4 py-1">
+      {visibleFields.map(({ key, field }) => {
+        const label = field.label ?? key
+        const value = values[key]
+        const isIdField = key === idField
+        const readOnly = Boolean(field.readonly || (isIdField && value != null && value !== ''))
+        const fieldType = field.type ?? 'string'
+
+        return (
+          <div key={key} className="flex flex-col gap-2">
+            {fieldType === 'boolean' ? (
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor={`plugin-crud-${key}`}>{label}</Label>
+                  {field.description ? (
+                    <p className="text-xs text-muted-foreground">{field.description}</p>
+                  ) : null}
+                </div>
+                <Switch
+                  id={`plugin-crud-${key}`}
+                  checked={Boolean(value)}
+                  disabled={readOnly}
+                  onCheckedChange={(checked) => onChange(key, checked)}
+                />
+              </div>
+            ) : (
+              <>
+                <Label htmlFor={`plugin-crud-${key}`}>
+                  {label}
+                  {field.required ? <span className="text-destructive"> *</span> : null}
+                </Label>
+                {fieldType === 'select' && field.options?.length ? (
+                  <select
+                    id={`plugin-crud-${key}`}
+                    className={inputCls}
+                    value={value == null ? '' : String(value)}
+                    disabled={readOnly}
+                    onChange={(e) => {
+                      const raw = e.target.value
+                      const matched = field.options?.find((opt) => String(opt.value) === raw)
+                      onChange(key, matched?.value ?? raw)
+                    }}
+                  >
+                    {field.options.map((opt) => (
+                      <option key={String(opt.value)} value={String(opt.value)}>
+                        {opt.label ?? opt.value}
+                      </option>
+                    ))}
+                  </select>
+                ) : fieldType === 'textarea' ? (
+                  <textarea
+                    id={`plugin-crud-${key}`}
+                    className={textareaCls}
+                    value={value == null ? '' : String(value)}
+                    placeholder={field.placeholder}
+                    readOnly={readOnly}
+                    onChange={(e) => onChange(key, e.target.value)}
+                  />
+                ) : (
+                  <Input
+                    id={`plugin-crud-${key}`}
+                    type={fieldType === 'number' ? 'number' : 'text'}
+                    value={value == null ? '' : String(value)}
+                    placeholder={field.placeholder}
+                    readOnly={readOnly}
+                    onChange={(e) =>
+                      onChange(
+                        key,
+                        fieldType === 'number' && e.target.value !== ''
+                          ? Number(e.target.value)
+                          : e.target.value,
+                      )
+                    }
+                  />
+                )}
+                {field.description && fieldType !== 'boolean' ? (
+                  <p className="text-xs text-muted-foreground">{field.description}</p>
+                ) : null}
+              </>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
 }
