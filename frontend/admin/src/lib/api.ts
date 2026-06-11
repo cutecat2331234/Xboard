@@ -160,6 +160,22 @@ export async function fetchPaginatedList<T = unknown>(
         last_page: result.last_page,
       }
     }
+    const nested =
+      'pagination' in result &&
+      result.pagination &&
+      typeof result.pagination === 'object' &&
+      !Array.isArray(result.pagination)
+        ? (result.pagination as PaginatedResult<T>)
+        : null
+    if (nested && typeof nested.total === 'number') {
+      return {
+        data: result.data as T[],
+        total: nested.total,
+        current_page: nested.current_page,
+        per_page: nested.per_page,
+        last_page: nested.last_page,
+      }
+    }
     if (result.status !== 'fail') {
       return { data: result.data as T[], total: result.data.length }
     }
