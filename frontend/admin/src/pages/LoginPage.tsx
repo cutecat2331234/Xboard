@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Copy } from 'lucide-react'
+import { Copy, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
@@ -103,20 +103,21 @@ export default function LoginPage() {
         </DropdownMenu>
       </div>
 
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px] md:w-[420px] lg:p-8">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:w-[350px] md:w-[420px] lg:p-8">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-bold sm:text-3xl">{settings.title || 'XBoard'}</h1>
           <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
+          <div className="flex flex-col gap-6">
           <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}
             </h1>
             <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
           </div>
-          <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+          <form className="space-y-4" onSubmit={onSubmit}>
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
               <div className="space-y-2">
                 <Label
@@ -168,9 +169,17 @@ export default function LoginPage() {
                 className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                 disabled={loading}
               >
-                {loading ? t('common.saving') : t('auth.signIn.submit')}
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t('common.saving')}
+                  </>
+                ) : (
+                  t('auth.signIn.submit')
+                )}
               </button>
           </form>
+          </div>
         </div>
       </div>
 

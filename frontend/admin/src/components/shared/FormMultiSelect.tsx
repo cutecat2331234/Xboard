@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { Check, ChevronsUpDown } from 'lucide-react'
 
-import { inputCls } from '@/lib/form-styles'
+import { dialogInputCls, inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
@@ -46,7 +46,8 @@ export function FormMultiSelect<T extends string | number = number>({
           aria-expanded={open}
           className={cn(
             inputCls,
-            'flex h-9 cursor-pointer items-center justify-between text-left font-normal',
+            dialogInputCls,
+            'flex cursor-pointer items-center justify-between text-left font-normal',
             !summary && 'text-muted-foreground',
             className,
           )}
