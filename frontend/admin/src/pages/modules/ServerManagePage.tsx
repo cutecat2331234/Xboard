@@ -42,6 +42,8 @@ import {
 
 import { TLS_OBJECT_NODE_TYPES } from '@/lib/server-protocol-settings'
 
+import { buildProtocolSettingsForSave } from '@/lib/protocol-settings-save'
+
 import { Button } from '@/components/ui/button'
 
 import {
@@ -208,36 +210,6 @@ function readEchSettings(protocolSettings?: Record<string, unknown>) {
     config: ech.config ?? '',
     query_server_name: ech.query_server_name ?? '',
   }
-}
-
-function tlsSettingsKey(protocolSettings?: Record<string, unknown>): 'tls' | 'tls_settings' {
-  if (protocolSettings?.tls != null && typeof protocolSettings.tls === 'object') {
-    return 'tls'
-  }
-  return 'tls_settings'
-}
-
-function readTlsSettingsContainer(protocolSettings?: Record<string, unknown>) {
-  const key = tlsSettingsKey(protocolSettings)
-  const raw = protocolSettings?.[key]
-  return typeof raw === 'object' && raw != null ? (raw as Record<string, unknown>) : {}
-}
-
-function mergeEchSettings(
-  protocolSettings: Record<string, unknown> | undefined,
-  ech: { key: string; config: string; query_server_name: string },
-) {
-  const base = { ...(protocolSettings ?? {}) }
-  const tlsKey = tlsSettingsKey(base)
-  const tls = { ...readTlsSettingsContainer(base) }
-  tls.ech = {
-    ...((tls.ech as Record<string, unknown>) ?? {}),
-    key: ech.key || undefined,
-    config: ech.config || undefined,
-    query_server_name: ech.query_server_name || undefined,
-  }
-  base[tlsKey] = tls
-  return base
 }
 
 function shouldShowEchFields(type: string, protocolSettings: ProtocolFormSettings | null) {
@@ -536,21 +508,12 @@ export default function ServerManagePage() {
       let protocol_settings: Record<string, unknown> = { ...baseProtocol }
 
       if (protocolSettings) {
-        protocol_settings = {
-          ...baseProtocol,
-          ...toProtocolSettingsPayload(form.type, protocolSettings),
-        }
-        if (form.type === 'vmess' && (protocolSettings as VmessProtocolForm).tls !== 1) {
-          delete protocol_settings.tls_settings
-        }
-      }
-
-      const shouldMergeEch =
-        (TLS_NODE_TYPES.has(form.type) || TLS_OBJECT_NODE_TYPES.has(form.type)) &&
-        (echForm.key || echForm.config || echForm.query_server_name)
-
-      if (shouldMergeEch) {
-        protocol_settings = mergeEchSettings(protocol_settings, echForm)
+        protocol_settings = buildProtocolSettingsForSave(
+          form.type,
+          baseProtocol,
+          protocolSettings,
+          echForm,
+        )
       }
 
       const payload: Record<string, unknown> = editing
