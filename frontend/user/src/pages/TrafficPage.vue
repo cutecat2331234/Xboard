@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { NCard, NDataTable } from 'naive-ui'
+import { NCard, NDataTable, NEmpty } from 'naive-ui'
 import { fetchTrafficLog } from '@/api/traffic'
+import { formatLocaleDate } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
 const rows = ref<{ record_at: number; u: number; d: number; rate?: number }[]>([])
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 function gb(n: number) {
   return (n / 1073741824).toFixed(3)
@@ -15,7 +16,7 @@ const columns = computed(() => [
   {
     title: t('traffic.recordAt'),
     key: 'record_at',
-    render: (r: { record_at: number }) => new Date(r.record_at * 1000).toLocaleDateString('zh-CN'),
+    render: (r: { record_at: number }) => formatLocaleDate(r.record_at, locale.value),
   },
   { title: t('traffic.upload'), key: 'u', render: (r: { u: number }) => `${gb(r.u)} GB` },
   { title: t('traffic.download'), key: 'd', render: (r: { d: number }) => `${gb(r.d)} GB` },
@@ -35,7 +36,8 @@ onMounted(async () => {
 <template>
   <n-card class="traffic-card">
     <p class="traffic-hint">{{ t('traffic.hint') }}</p>
-    <n-data-table :columns="columns" :data="rows" :bordered="false" />
+    <n-empty v-if="rows.length === 0" :description="t('traffic.empty')" />
+    <n-data-table v-else :columns="columns" :data="rows" :bordered="false" />
   </n-card>
 </template>
 
