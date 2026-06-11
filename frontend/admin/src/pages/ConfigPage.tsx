@@ -613,8 +613,7 @@ export default function ConfigPage() {
                         placeholder={t('settings.server.server_push_interval.placeholder')}
                         onChange={(v) => update('server', 'server_push_interval', v)}
                       />
-                      <SwitchField
-                        flat
+                      <ServerWsSwitchCard
                         label={t('settings.server.server_ws_enable.title')}
                         description={t('settings.server.server_ws_enable.description')}
                         checked={Boolean(server.server_ws_enable)}
@@ -789,6 +788,31 @@ function FormTextarea({
         onChange={(e) => onChange(e.target.value)}
       />
       {description ? <p className="text-[0.8rem] text-muted-foreground">{description}</p> : null}
+    </div>
+  )
+}
+
+/** 7001 server 子页：WebSocket 开关为横向卡片 */
+function ServerWsSwitchCard({
+  label,
+  description,
+  checked,
+  onChange,
+}: {
+  label: string
+  description?: string
+  checked: boolean
+  onChange: (v: boolean) => void
+}) {
+  return (
+    <div className="flex flex-row items-center justify-between space-y-2 rounded-lg border p-4">
+      <div className="space-y-0.5">
+        <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">
+          {label}
+        </label>
+        {description ? <p className="m-0 text-[0.8rem] text-muted-foreground">{description}</p> : null}
+      </div>
+      <Switch checked={checked} onCheckedChange={onChange} />
     </div>
   )
 }
