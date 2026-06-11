@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import {
   NConfigProvider,
   NMessageProvider,
@@ -7,23 +7,26 @@ import {
   NLoadingBarProvider,
   darkTheme,
 } from 'naive-ui'
-import { themeOverrides } from '@/theme/naiveTheme'
 import { initLocale, useI18n } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
+import { useSettingsStore } from '@/stores/settings'
 import { recordPageView } from '@/api/pv'
 
 initLocale()
 const auth = useAuthStore()
+const settings = useSettingsStore()
 const { naiveLocale, naiveDateLocale } = useI18n()
 
-const isDark = ref(document.documentElement.classList.contains('dark'))
+const prefersDark = ref(document.documentElement.classList.contains('dark'))
 let observer: MutationObserver | undefined
+
+const isDark = computed(() => settings.isDarkTheme || prefersDark.value)
 
 onMounted(() => {
   recordPageView()
   auth.checkSession()
   observer = new MutationObserver(() => {
-    isDark.value = document.documentElement.classList.contains('dark')
+    prefersDark.value = document.documentElement.classList.contains('dark')
   })
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
 })
@@ -36,7 +39,7 @@ onUnmounted(() => observer?.disconnect())
     :theme="isDark ? darkTheme : undefined"
     :locale="naiveLocale"
     :date-locale="naiveDateLocale"
-    :theme-overrides="themeOverrides"
+    :theme-overrides="settings.themeOverrides"
   >
     <n-loading-bar-provider>
       <n-message-provider>

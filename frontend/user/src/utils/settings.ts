@@ -24,10 +24,3 @@ export function resolvePopupNoticeTags(i18nTags: string[]): string[] {
 export function getRouterBase(): string {
   return (window as unknown as { routerBase?: string }).routerBase ?? '/'
 }
-
-export function getThemeOverrides(color?: string) {
-  if (color === 'black') {
-    return { common: { primaryColor: '#18a058' } }
-  }
-  return { common: { primaryColor: '#2080f0' } }
-}
