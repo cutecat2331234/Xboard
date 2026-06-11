@@ -5,7 +5,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import * as Tooltip from '@radix-ui/react-tooltip'
 
 import { IconDots } from '@tabler/icons-react'
-import { HardDrive, Loader2, Plus, Sparkles, Users, X } from 'lucide-react'
+import { ArrowRight, HardDrive, Info, Loader2, Plus, Sparkles, Users, X } from 'lucide-react'
 
 import { Link, useSearchParams } from 'react-router-dom'
 
@@ -1720,40 +1720,102 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex gap-4">
 
-              <div className="xb-stack-2">
+              <div className="min-w-0 flex-1 space-y-1.5">
 
-                <Label className={serverFieldLabelCls}>{t('server.form.port.label')}</Label>
+                <Label className={`${serverFieldLabelCls} flex items-center gap-1.5`}>
+                  {t('server.form.port.label')}
+                  <Tooltip.Provider delayDuration={100}>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button type="button" className="inline-flex opacity-70">
+                          <Info className="size-3.5" />
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          side="top"
+                          sideOffset={8}
+                          className="z-50 max-w-80 rounded-md border bg-popover p-3 font-mono text-[11px] text-popover-foreground shadow-md"
+                        >
+                          {t('server.form.port.tooltip')}
+                          <Tooltip.Arrow className="fill-border" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </Label>
 
-                <input
-
-                  className={inputCls}
-
-                  placeholder={t('server.form.port.placeholder')}
-
-                  value={form.port}
-
-                  onChange={(e) => setForm((f) => ({ ...f, port: e.target.value }))}
-
-                />
+                <div className="flex items-center gap-1">
+                  <input
+                    className={`${inputCls} ${dialogInputCls} min-w-0 flex-1`}
+                    placeholder={t('server.form.port.placeholder')}
+                    value={form.port}
+                    onChange={(e) => setForm((f) => ({ ...f, port: e.target.value }))}
+                  />
+                  <Tooltip.Provider delayDuration={100}>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-6 shrink-0 text-muted-foreground/50 hover:text-muted-foreground"
+                          onClick={() => {
+                            if (form.port) {
+                              setForm((f) => ({ ...f, server_port: f.port }))
+                            }
+                          }}
+                        >
+                          <ArrowRight className="size-3" />
+                        </Button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          side="right"
+                          className="z-50 rounded-md border bg-popover px-3 py-1.5 font-mono text-[11px] text-popover-foreground shadow-md"
+                        >
+                          {t('server.form.port.sync')}
+                          <Tooltip.Arrow className="fill-border" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </div>
 
               </div>
 
-              <div className="xb-stack-2">
+              <div className="min-w-0 flex-1 space-y-1.5">
 
-                <Label className={serverFieldLabelCls}>{t('server.form.server_port.label')}</Label>
+                <Label className={`${serverFieldLabelCls} flex items-center gap-1.5`}>
+                  {t('server.form.server_port.label')}
+                  <Tooltip.Provider delayDuration={100}>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button type="button" className="inline-flex opacity-70">
+                          <Info className="size-3.5" />
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          side="top"
+                          sideOffset={8}
+                          className="z-50 max-w-80 rounded-md border bg-popover p-3 font-mono text-[11px] text-popover-foreground shadow-md"
+                        >
+                          {t('server.form.server_port.tooltip')}
+                          <Tooltip.Arrow className="fill-border" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </Label>
 
                 <input
-
-                  className={inputCls}
-
+                  className={`${inputCls} ${dialogInputCls}`}
                   placeholder={t('server.form.server_port.placeholder')}
-
                   value={form.server_port}
-
                   onChange={(e) => setForm((f) => ({ ...f, server_port: e.target.value }))}
-
                 />
 
               </div>
