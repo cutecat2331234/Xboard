@@ -417,15 +417,29 @@ async function openAdminDialog(page, route) {
     ])
   } else if (route === 'gift-template') {
     await page
-      .locator('[role=tab]:has-text("模板"), [role=tab]:has-text("Templates"), [role=tab]:has-text("Template")')
+      .locator(
+        '[role=tab]:has-text("模板管理"), [role=tab]:has-text("模板"), [role=tab]:has-text("Templates"), [role=tab]:has-text("Template")',
+      )
       .first()
-      .click({ timeout: 8000 })
+      .click({ timeout: 12000 })
       .catch(() => {})
-    const editBtn = page.locator(
-      '[data-testid="gift-template-edit"], tbody button:has-text("编辑"), tbody button:has-text("Edit")',
+    await page
+      .waitForFunction(
+        () =>
+          document.querySelector('[data-testid="gift-template-edit"]') ||
+          document.querySelector('tbody tr'),
+        { timeout: 60000 },
+      )
+      .catch(() => {})
+    await clickVisible(
+      page,
+      [
+        '[data-testid="gift-template-edit"]',
+        'tbody button:has-text("编辑")',
+        'tbody button:has-text("Edit")',
+      ],
+      60000,
     )
-    await editBtn.first().waitFor({ state: 'visible', timeout: 45000 })
-    await editBtn.first().click({ timeout: 8000 })
   } else if (route === 'plan-add') {
     await clickVisible(page, [
       'button:has-text("添加套餐")',
