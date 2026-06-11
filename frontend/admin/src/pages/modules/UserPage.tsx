@@ -1133,13 +1133,13 @@ export default function UserPage() {
         open={dialogMode === 'create'}
         onOpenChange={(o) => !o && setDialogMode(null)}
       >
-        <DialogContent className="gap-4 p-6 sm:max-w-[576px]">
-          <DialogHeader>
+        <DialogContent className="!flex flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+          <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4">
-            <div className="xb-stack-3">
-              <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
+          <div className="xb-stack-4 px-6 py-4 text-sm">
+            <div className="space-y-1.5">
+              <Label className="uppercase tracking-wider text-muted-foreground">
                 {t('user.generate.form.email')}
                 <span className="ml-1 text-destructive">*</span>
               </Label>
@@ -1169,8 +1169,8 @@ export default function UserPage() {
                 />
               </div>
             </div>
-            <div className="xb-stack-3">
-              <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
+            <div className="space-y-1.5">
+              <Label className="uppercase tracking-wider text-muted-foreground">
                 {t('user.generate.form.password')}
               </Label>
               <input
@@ -1182,8 +1182,8 @@ export default function UserPage() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="xb-stack-3">
-                <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.generate.form.expire_time')}
                 </Label>
                 <ExpireDateInput
@@ -1192,8 +1192,8 @@ export default function UserPage() {
                   placeholder={t('user.generate.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="xb-stack-3">
-                <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.generate.form.subscription')}
                 </Label>
                 <FormSelect
@@ -1215,8 +1215,8 @@ export default function UserPage() {
               </div>
             </div>
             {!form.email_prefix ? (
-              <div className="xb-stack-3">
-                <Label className="text-[11px] font-semibold uppercase leading-5 tracking-wider text-muted-foreground">
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.generate.form.generate_count')}
                 </Label>
                 <input
@@ -1234,7 +1234,7 @@ export default function UserPage() {
               </div>
             ) : null}
           </div>
-          <DialogFooter>
+          <DialogFooter className="shrink-0 border-t px-6 py-4">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
               {t('user.generate.form.cancel')}
             </Button>
