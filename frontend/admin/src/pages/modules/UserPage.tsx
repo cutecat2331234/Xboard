@@ -1246,40 +1246,53 @@ export default function UserPage() {
       </Dialog>
 
       <Sheet open={dialogMode === 'edit'} onOpenChange={(o) => !o && setDialogMode(null)}>
-        <SheetContent side="right" className="flex w-full flex-col gap-4 overflow-y-scroll p-6 sm:max-w-md">
-          <SheetHeader>
+        <SheetContent
+          side="right"
+          showCloseButton={false}
+          className="!flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md"
+        >
+          <SheetHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <SheetTitle>{t('user.edit.title')}</SheetTitle>
           </SheetHeader>
-          <div className="xb-stack-3 py-3.5">
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.email')}</Label>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="xb-stack-4 px-6 py-4 text-sm">
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.email')}
+                </Label>
                   <input
                     className={inputCls}
                     value={String(form.email ?? '')}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   />
-                </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.inviter_email')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.inviter_email')}
+                </Label>
                   <input
                     className={inputCls}
                     value={String(form.invite_user_email ?? '')}
                     onChange={(e) => setForm((f) => ({ ...f, invite_user_email: e.target.value }))}
                     placeholder={t('user.edit.form.inviter_email_placeholder')}
                   />
-                </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.password')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.password')}
+                </Label>
                   <input
                     className={inputCls}
                     type="password"
                     placeholder={t('user.edit.form.password_placeholder')}
                     onChange={(e) => setForm((f) => ({ ...f, password: e.target.value || undefined }))}
                   />
-                </div>
-                <div className="grid gap-2 md:grid-cols-2">
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.balance')}</Label>
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.balance')}
+                  </Label>
                     <SuffixInput
                       suffix="¥"
                       type="number"
@@ -1287,9 +1300,11 @@ export default function UserPage() {
                       onChange={(e) => setForm((f) => ({ ...f, balance: Number(e.target.value) }))}
                       placeholder={t('user.edit.form.balance_placeholder')}
                     />
-                  </div>
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.commission_balance')}</Label>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.commission_balance')}
+                  </Label>
                     <SuffixInput
                       suffix="¥"
                       type="number"
@@ -1299,9 +1314,11 @@ export default function UserPage() {
                       }
                       placeholder={t('user.edit.form.commission_balance_placeholder')}
                     />
-                  </div>
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.upload')}</Label>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.upload')}
+                  </Label>
                     <SuffixInput
                       suffix="GB"
                       type="number"
@@ -1309,9 +1326,11 @@ export default function UserPage() {
                       onChange={(e) => setForm((f) => ({ ...f, u: Number(e.target.value) }))}
                       placeholder={t('user.edit.form.upload_placeholder')}
                     />
-                  </div>
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.download')}</Label>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.download')}
+                  </Label>
                     <SuffixInput
                       suffix="GB"
                       type="number"
@@ -1319,10 +1338,12 @@ export default function UserPage() {
                       onChange={(e) => setForm((f) => ({ ...f, d: Number(e.target.value) }))}
                       placeholder={t('user.edit.form.download_placeholder')}
                     />
-                  </div>
                 </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.total_traffic')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.total_traffic')}
+                </Label>
                   <SuffixInput
                     suffix="GB"
                     type="number"
@@ -1332,17 +1353,21 @@ export default function UserPage() {
                     }
                     placeholder={t('user.edit.form.total_traffic_placeholder')}
                   />
-                </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.expire_time')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.expire_time')}
+                </Label>
                   <ExpireDateInput
                     value={form.expired_at as number | null | undefined}
                     onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
                     placeholder={t('user.edit.form.expire_time_placeholder')}
                   />
-                </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.subscription')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.subscription')}
+                </Label>
                   <FormSelect
                     value={String(form.plan_id ?? '')}
                     onChange={(v) =>
@@ -1356,9 +1381,11 @@ export default function UserPage() {
                       ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
                     ]}
                   />
-                </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.account_status')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.account_status')}
+                </Label>
                   <FormSelect
                     value={form.banned ? 'banned' : 'normal'}
                     onChange={(v) => setForm((f) => ({ ...f, banned: v === 'banned' }))}
@@ -1367,10 +1394,12 @@ export default function UserPage() {
                       { value: 'banned', label: t('user.columns.status_text.banned') },
                     ]}
                   />
-                </div>
-                <div className="grid gap-2 md:grid-cols-2">
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.commission_type')}</Label>
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.commission_type')}
+                  </Label>
                     <FormSelect
                       value={String(form.commission_type ?? 0)}
                       onChange={(v) => setForm((f) => ({ ...f, commission_type: Number(v) }))}
@@ -1380,9 +1409,11 @@ export default function UserPage() {
                         { value: '2', label: t('user.edit.form.commission_type_onetime') },
                       ]}
                     />
-                  </div>
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.commission_rate')}</Label>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.commission_rate')}
+                  </Label>
                     <input
                       type="number"
                       className={inputCls}
@@ -1395,11 +1426,13 @@ export default function UserPage() {
                       }
                       placeholder={t('user.edit.form.commission_rate_placeholder')}
                     />
-                  </div>
                 </div>
-                <div className="grid gap-2 md:grid-cols-2">
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.discount')}</Label>
+              </div>
+              <div className="grid gap-2 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.discount')}
+                  </Label>
                     <input
                       type="number"
                       className={inputCls}
@@ -1412,9 +1445,11 @@ export default function UserPage() {
                       }
                       placeholder={t('user.edit.form.discount_placeholder')}
                     />
-                  </div>
-                  <div className="xb-stack-2">
-                    <Label>{t('user.edit.form.speed_limit')}</Label>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="uppercase tracking-wider text-muted-foreground">
+                    {t('user.edit.form.speed_limit')}
+                  </Label>
                     <input
                       type="number"
                       className={inputCls}
@@ -1427,10 +1462,12 @@ export default function UserPage() {
                       }
                       placeholder={t('user.edit.form.speed_limit_placeholder')}
                     />
-                  </div>
                 </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.device_limit')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.device_limit')}
+                </Label>
                   <input
                     type="number"
                     className={inputCls}
@@ -1443,34 +1480,37 @@ export default function UserPage() {
                     }
                     placeholder={t('user.edit.form.device_limit_placeholder')}
                   />
-                </div>
-                <div className="xb-stack-2">
-                  <Label>{t('user.edit.form.remarks')}</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.remarks')}
+                </Label>
                   <textarea
                     className={`${textareaCls} min-h-[96px]`}
                     value={String(form.remarks ?? '')}
                     onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))}
                     placeholder={t('user.edit.form.remarks_placeholder')}
                   />
+              </div>
+              <div className="xb-stack-2">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={Boolean(form.is_admin)}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, is_admin: v }))}
+                  />
+                  <Label>{t('user.edit.form.is_admin')}</Label>
                 </div>
-                <div className="xb-stack-2">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={Boolean(form.is_admin)}
-                      onCheckedChange={(v) => setForm((f) => ({ ...f, is_admin: v }))}
-                    />
-                    <Label>{t('user.edit.form.is_admin')}</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={Boolean(form.is_staff)}
-                      onCheckedChange={(v) => setForm((f) => ({ ...f, is_staff: v }))}
-                    />
-                    <Label>{t('user.edit.form.is_staff')}</Label>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={Boolean(form.is_staff)}
+                    onCheckedChange={(v) => setForm((f) => ({ ...f, is_staff: v }))}
+                  />
+                  <Label>{t('user.edit.form.is_staff')}</Label>
                 </div>
+              </div>
+            </div>
           </div>
-          <SheetFooter className="mt-0 flex-row justify-end gap-2 border-0 p-0 pt-0">
+          <SheetFooter className="shrink-0 border-t px-6 py-4">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
               {t('user.edit.form.cancel')}
             </Button>
