@@ -1,0 +1,20 @@
+{
+  "cards": [
+    {
+      "title": "商品信息"
+    },
+    {
+      "title": "订单信息"
+    },
+    {
+      "title": "支付方式"
+    }
+  ],
+  "darkPanel": null,
+  "checkoutBtn": null,
+  "closeBtn": null,
+  "grid": null,
+  "firstRow": null,
+  "cardContent": null,
+  "cardHeader": null
+}

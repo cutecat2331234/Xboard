@@ -1,0 +1,114 @@
+[
+  {
+    "page": "user",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "order",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 0,
+    "clicked": false
+  },
+  {
+    "page": "server_manage",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "plugin",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "gift-card",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 0,
+    "clicked": false
+  },
+  {
+    "page": "plan",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "coupon",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "dashboard",
+    "side": "ref",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "user",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "order",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 0,
+    "clicked": false
+  },
+  {
+    "page": "server_manage",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "plugin",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "gift-card",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "plan",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "coupon",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  },
+  {
+    "page": "dashboard",
+    "side": "cmp",
+    "idleDialogs": 0,
+    "openedDialogs": 1,
+    "clicked": true
+  }
+]

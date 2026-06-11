@@ -1,0 +1,136 @@
+{
+  "scroll": {
+    "className": "cus-scroll-y app-scroll-main shell-main",
+    "x": 220,
+    "y": 60,
+    "w": 1060,
+    "h": 840,
+    "bg": "rgb(245, 246, 251)",
+    "padding": "16px",
+    "margin": "0px",
+    "fontSize": "16px",
+    "fontWeight": "400"
+  },
+  "productCard": {
+    "className": "n-card n-card--bordered rounded-md",
+    "x": 236,
+    "y": 76,
+    "w": 672,
+    "h": 193,
+    "bg": "rgb(255, 255, 255)",
+    "padding": "0px",
+    "margin": "0px",
+    "fontSize": "14px",
+    "fontWeight": "400"
+  },
+  "orderCard": {
+    "className": "n-card n-card--bordered mt-5 rounded-md",
+    "x": 236,
+    "y": 289,
+    "w": 672,
+    "h": 159,
+    "bg": "rgb(255, 255, 255)",
+    "padding": "0px",
+    "margin": "20px 0px 0px",
+    "fontSize": "14px",
+    "fontWeight": "400"
+  },
+  "payCard": {
+    "className": "n-card n-card--bordered mt-5 rounded-md pay-card",
+    "x": 236,
+    "y": 468,
+    "w": 672,
+    "h": 70,
+    "bg": "rgb(255, 255, 255)",
+    "padding": "0px",
+    "margin": "20px 0px 0px",
+    "fontSize": "14px",
+    "fontWeight": "400"
+  },
+  "summary": {
+    "className": "n-layout n-layout--static-positioned app-layout",
+    "x": 0,
+    "y": 0,
+    "w": 1280,
+    "h": 900,
+    "bg": "rgb(255, 255, 255)",
+    "padding": "0px",
+    "margin": "0px",
+    "fontSize": "16px",
+    "fontWeight": "400"
+  },
+  "checkoutBtn": {
+    "className": "n-button n-button--primary-type n-button--medium-type checkout-btn w-full text-white",
+    "x": 948,
+    "y": 297,
+    "w": 296,
+    "h": 34,
+    "bg": "rgb(49, 108, 114)",
+    "padding": "0px 14px",
+    "margin": "0px",
+    "fontSize": "14px",
+    "fontWeight": "500"
+  },
+  "closeBtn": {
+    "className": "n-button n-button--default-type n-button--small-type n-button--color",
+    "x": 799,
+    "y": 309,
+    "w": 84,
+    "h": 28,
+    "bg": "rgb(219, 70, 25)",
+    "padding": "0px 14px",
+    "margin": "0px",
+    "fontSize": "14px",
+    "fontWeight": "500"
+  },
+  "infoRows": [
+    {
+      "className": "n-card-content",
+      "x": 237,
+      "y": 145,
+      "w": 670,
+      "h": 123,
+      "bg": "rgba(0, 0, 0, 0)",
+      "padding": "0px 24px 20px",
+      "margin": "0px",
+      "fontSize": "14px",
+      "fontWeight": "400"
+    },
+    {
+      "className": "info-row",
+      "x": 261,
+      "y": 145,
+      "w": 622,
+      "h": 34,
+      "bg": "rgba(0, 0, 0, 0)",
+      "padding": "6px 0px",
+      "margin": "0px",
+      "fontSize": "14px",
+      "fontWeight": "400"
+    },
+    {
+      "className": "info-row",
+      "x": 261,
+      "y": 179,
+      "w": 622,
+      "h": 34,
+      "bg": "rgba(0, 0, 0, 0)",
+      "padding": "6px 0px",
+      "margin": "0px",
+      "fontSize": "14px",
+      "fontWeight": "400"
+    }
+  ],
+  "mainBg": {
+    "className": "cus-scroll-y app-scroll-main shell-main",
+    "x": 220,
+    "y": 60,
+    "w": 1060,
+    "h": 840,
+    "bg": "rgb(245, 246, 251)",
+    "padding": "16px",
+    "margin": "0px",
+    "fontSize": "16px",
+    "fontWeight": "400"
+  }
+}

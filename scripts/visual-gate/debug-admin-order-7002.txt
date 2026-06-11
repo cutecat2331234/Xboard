@@ -1,0 +1,180 @@
+XBoard
+Dashboard
+System Management
+System Configuration
+Plugin Management
+Theme Configuration
+Notice Management
+Payment Configuration
+Knowledge Management
+Node Management
+Server Management
+Node Management
+Permission Group
+Route Management
+Subscription
+Plan Management
+Order Management
+Coupon Management
+Gift Card Management
+User Management
+User Management
+Ticket Management
+v20260610-unknown
+Search menus and functions...
+Search
+⌘K
+EN
+Order Management
+
+Here you can view user orders, including assignment, viewing, deletion and other operations.
+
+Add Order
+Type
+Period
+Order Status
+Commission Status
+Order No.	Type	Subscription Plan	Period	Payment Amount	
+Order Status
+	Commission Amount	Commission Status	Created At
+
+e33...4dc
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Pending
+Open Menu
+	
+-
+	-	
+2026/06/10 18:54:28
+
+
+b7c...cec
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 18:17:43
+
+
+e8c...178
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 13:00:27
+
+
+01a...9b2
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 12:47:55
+
+
+ff9...6be
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 12:26:24
+
+
+ec6...b76
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 12:23:19
+
+
+3fc...aae
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 12:06:29
+
+
+762...e60
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 12:04:56
+
+
+742...524
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥100.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 12:03:58
+
+
+ebc...fe6
+	New Purchase	
+Gate Test Plan
+	Monthly	
+¥1.00
+	
+Cancelled
+	
+-
+	-	
+2026/06/10 11:11:06
+0 of 10 items selected
+
+Per page
+
+20
+Page
+of 1 pages
+Go to first page
+Previous page
+Next page
+Go to last page

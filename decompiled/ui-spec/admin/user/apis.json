@@ -1,10 +1,5 @@
 {
   "route": "user",
-  "side": "admin",
-  "ref": "http://43.248.77.134:7001",
-  "viewports": [
-    375,
-    768,
-    1280
-  ]
+  "url": "http://43.248.77.134:7001/d7f5c92b#/user",
+  "note": "Populate from Network tab during manual audit"
 }

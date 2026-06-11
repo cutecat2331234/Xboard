@@ -11,6 +11,9 @@ export interface UserInfo {
   commission_balance: number
   uuid: string
   avatar_url?: string
+  remind_expire?: number
+  remind_traffic?: number
+  telegram_id?: number | null
 }
 
 export async function fetchUserInfo() {
@@ -19,4 +22,8 @@ export async function fetchUserInfo() {
 
 export async function checkLogin() {
   return request<{ is_login: boolean }>(api.get('/user/checkLogin'))
+}
+
+export async function fetchUserStat() {
+  return request<number[]>(api.get('/user/getStat'))
 }

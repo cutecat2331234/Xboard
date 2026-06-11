@@ -1,0 +1,58 @@
+[
+  {
+    "id": "user-edit",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": 3.979,
+    "pass": false,
+    "error": null
+  },
+  {
+    "id": "user-create",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": null,
+    "pass": false,
+    "error": "Error: Image sizes do not match. Image 1 size: 1078272, image 2 size: 1433600"
+  },
+  {
+    "id": "user-mail",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": null,
+    "pass": false,
+    "error": "Error: Image sizes do not match. Image 1 size: 1935360, image 2 size: 827392"
+  },
+  {
+    "id": "gift-template-edit",
+    "refOpened": false,
+    "cmpOpened": false,
+    "diffPct": null,
+    "pass": false,
+    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody button:has-text(\"编辑\")').first()\n"
+  },
+  {
+    "id": "gift-generate",
+    "refOpened": false,
+    "cmpOpened": false,
+    "diffPct": null,
+    "pass": false,
+    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody button:has-text(\"生成\")').first()\n"
+  },
+  {
+    "id": "plan-add",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": null,
+    "pass": false,
+    "error": "Error: Image sizes do not match. Image 1 size: 1658880, image 2 size: 1935360"
+  },
+  {
+    "id": "server-add",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": null,
+    "pass": false,
+    "error": "Error: Image sizes do not match. Image 1 size: 1751040, image 2 size: 1171456"
+  }
+]

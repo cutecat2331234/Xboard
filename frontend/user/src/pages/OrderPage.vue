@@ -1,59 +1,158 @@
 <script setup lang="ts">
-import { h, onMounted, ref } from 'vue'
-import { NCard, NDataTable, NButton, useMessage, type DataTableColumns } from 'naive-ui'
-import { fetchOrders, cancelOrder, checkoutOrder, type OrderItem } from '@/api/order'
+import { computed, h, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import {
+  NDataTable,
+  NTag,
+  useMessage,
+  useDialog,
+  type DataTableColumns,
+} from 'naive-ui'
+import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
+import { PERIOD_OPTIONS } from '@/api/plan'
+import { orderStatusLabel } from '@/lib/order-status'
 import { useI18n } from '@/i18n'
+import { useCurrency } from '@/composables/useCurrency'
 
+const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const msg = useMessage()
+const dialog = useDialog()
 const { t } = useI18n()
+const { formatPrice, load: loadCurrency } = useCurrency()
 
-async function pay(tradeNo: string) {
-  try {
-    const res = await checkoutOrder(tradeNo)
-    if (res.type === 1) window.open(res.data, '_blank')
-    else msg.info(res.data)
-  } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : 'Failed')
-  }
+function periodLabel(period?: string) {
+  if (!period) return ''
+  const hit = PERIOD_OPTIONS.find((o) => o.key === period)
+  return hit ? t(hit.labelKey) : period
 }
 
-async function cancel(tradeNo: string) {
-  try {
-    await cancelOrder(tradeNo)
-    msg.success('Cancelled')
-    rows.value = await fetchOrders()
-  } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : 'Failed')
-  }
+function formatTime(ts?: number) {
+  if (!ts) return ''
+  const d = new Date(ts * 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
-const columns: DataTableColumns<OrderItem> = [
-  { title: 'Trade No', key: 'trade_no' },
-  { title: 'Plan', key: 'plan', render: (r) => r.plan?.name ?? String(r.plan_id) },
-  { title: 'Amount', key: 'total_amount', render: (r) => `¥${(r.total_amount / 100).toFixed(2)}` },
-  { title: 'Status', key: 'status' },
+function confirmCancel(tradeNo: string) {
+  dialog.warning({
+    title: t('order.notice'),
+    content: t('order.closeConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      await cancelOrder(tradeNo)
+      msg.success(t('order.closeSuccess'))
+      rows.value = await fetchOrders()
+    },
+  })
+}
+
+const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
-    title: 'Actions',
-    key: 'actions',
+    title: t('order.listTradeNo'),
+    key: 'trade_no',
     render: (row) =>
-      row.status === 0
-        ? [
-            h(NButton, { size: 'small', onClick: () => pay(row.trade_no) }, () => 'Pay'),
-            h(NButton, { size: 'small', quaternary: true, style: 'margin-left:8px', onClick: () => cancel(row.trade_no) }, () => 'Cancel'),
-          ]
-        : '—',
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'order-link-btn',
+          onClick: () => router.push(`/order/${row.trade_no}`),
+        },
+        row.trade_no,
+      ),
   },
-]
+  {
+    title: t('order.period'),
+    key: 'period',
+    render: (row) => h(NTag, { round: true, size: 'small' }, () => periodLabel(row.period)),
+  },
+  {
+    title: t('order.amount'),
+    key: 'total_amount',
+    render: (row) => formatPrice(row.total_amount),
+  },
+  {
+    title: t('order.status'),
+    key: 'status',
+    render: (row) =>
+      h('div', { class: 'flex items-center' }, [
+        h('div', {
+          class: [
+            'order-status-dot',
+            row.status === 3 ? 'order-status-dot--ok' : 'order-status-dot--bad',
+          ],
+        }),
+        orderStatusLabel(row.status),
+      ]),
+  },
+  {
+    title: t('order.createdAt'),
+    key: 'created_at',
+    render: (row) => formatTime(row.created_at),
+  },
+  {
+    title: t('common.actions'),
+    key: 'actions',
+    fixed: 'right',
+    render: (row) =>
+      h('div', { class: 'order-actions' }, [
+        h(
+          'button',
+          {
+            type: 'button',
+            class: 'order-link-btn',
+            onClick: () => router.push(`/order/${row.trade_no}`),
+          },
+          t('order.viewDetail'),
+        ),
+        h('span', { class: 'order-actions-divider' }),
+        h(
+          'button',
+          {
+            type: 'button',
+            class: 'order-link-btn',
+            disabled: row.status !== 0,
+            onClick: () => confirmCancel(row.trade_no),
+          },
+          t('common.cancel'),
+        ),
+      ]),
+  },
+])
 
 onMounted(async () => {
+  await loadCurrency()
   rows.value = await fetchOrders()
 })
 </script>
 
 <template>
-  <h2 class="page-title">{{ t('nav.order') }}</h2>
-  <n-card>
-    <n-data-table :columns="columns" :data="rows" :bordered="false" />
-  </n-card>
+  <n-data-table :columns="columns" :data="rows" :bordered="false" :scroll-x="800" />
 </template>
+
+<style scoped>
+.order-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  margin-right: 5px;
+}
+.order-status-dot--ok {
+  background: #22c55e;
+}
+.order-status-dot--bad {
+  background: #ef4444;
+}
+.order-actions {
+  display: flex;
+  align-items: center;
+}
+.flex {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+</style>

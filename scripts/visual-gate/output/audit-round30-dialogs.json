@@ -1,0 +1,58 @@
+[
+  {
+    "id": "user-edit",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": 4.313,
+    "pass": false,
+    "error": null
+  },
+  {
+    "id": "user-create",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": 3.78,
+    "pass": false,
+    "error": null
+  },
+  {
+    "id": "user-mail",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": 3.732,
+    "pass": false,
+    "error": null
+  },
+  {
+    "id": "gift-template-edit",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": 3.547,
+    "pass": false,
+    "error": null
+  },
+  {
+    "id": "gift-generate",
+    "refOpened": false,
+    "cmpOpened": true,
+    "diffPct": null,
+    "pass": false,
+    "error": "ref: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog]') to be visible\n"
+  },
+  {
+    "id": "plan-add",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": 4.902,
+    "pass": false,
+    "error": null
+  },
+  {
+    "id": "server-add",
+    "refOpened": true,
+    "cmpOpened": true,
+    "diffPct": 4.621,
+    "pass": false,
+    "error": null
+  }
+]

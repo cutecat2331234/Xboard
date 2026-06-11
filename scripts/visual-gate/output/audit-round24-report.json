@@ -1,0 +1,679 @@
+[
+  {
+    "id": "dashboard",
+    "diffPct": 0.458,
+    "pass": true,
+    "limit": 0.5,
+    "ref": {
+      "h1": "仪表盘",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 2,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "仪表盘",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 2,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-site",
+    "diffPct": 1.684,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-safe",
+    "diffPct": 1.497,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-subscribe",
+    "diffPct": 2.031,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-invite",
+    "diffPct": 1.578,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-server",
+    "diffPct": 1.892,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-email",
+    "diffPct": 1.899,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 2,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 0,
+      "hasChinese": false
+    },
+    "gaps": [
+      "tabs 2 vs 0",
+      "asideLucide 1 vs 0",
+      "cmp missing Chinese"
+    ]
+  },
+  {
+    "id": "config-telegram",
+    "diffPct": 1.455,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-app",
+    "diffPct": 1.072,
+    "pass": false,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "config-subscribe-template",
+    "diffPct": 0.514,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 1,
+      "tabs": 6,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "系统设置",
+      "dialogs": 0,
+      "monaco": 1,
+      "tabs": 6,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 35,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "plugin",
+    "diffPct": 0.819,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "h1": "插件管理",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 3,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "插件管理",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 3,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "theme",
+    "diffPct": 0.273,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "h1": "主题配置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "h1": "主题配置",
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 0,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "notice",
+    "error": "Error: page.goto: net::ERR_EMPTY_RESPONSE at http://43.248.77.134:7001/d7f5c92b#/config/notice\nCall log:\n  - navigating to \"http://43.248.77.134:7001/d7f5c92b#/config/notice\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "id": "payment",
+    "diffPct": 0.614,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "knowledge",
+    "diffPct": 0.517,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "server_manage",
+    "diffPct": 0.722,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "server_machine",
+    "diffPct": 0.914,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "server_group",
+    "diffPct": 0.479,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "server_route",
+    "diffPct": 0.477,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "plan",
+    "diffPct": 0.69,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "order",
+    "diffPct": 0.577,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "coupon",
+    "diffPct": 0.734,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "gift-card",
+    "diffPct": 0.517,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 4,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 4,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "user",
+    "diffPct": 0.841,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 0,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  },
+  {
+    "id": "ticket",
+    "diffPct": 0.707,
+    "pass": true,
+    "limit": 1,
+    "ref": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 2,
+      "tables": 1,
+      "asideLucide": 1,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "cmp": {
+      "dialogs": 0,
+      "monaco": 0,
+      "tabs": 2,
+      "tables": 1,
+      "asideLucide": 0,
+      "asideTabler": 25,
+      "hasChinese": true
+    },
+    "gaps": [
+      "asideLucide 1 vs 0"
+    ]
+  }
+]

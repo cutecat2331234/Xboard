@@ -1,3 +1,3 @@
 # gift-card
 
-Run `node scripts/capture-ui-spec.mjs --side=admin` after Playwright install.
+Captured from http://43.248.77.134:7001/d7f5c92b#/gift-card

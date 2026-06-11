@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { checkLogin as apiCheckLogin } from '@/api/user'
 import { clearAuthData, getAuthData } from '@/api'
 import { login as apiLogin, logout as apiLogout, register as apiRegister } from '@/api/auth'
-import type { LoginForm, RegisterForm } from '@/api/auth'
+import type { AuthFormPayload, LoginForm, RegisterForm } from '@/api/auth'
 import type { UserInfo } from '@/api/user'
 import { fetchUserInfo } from '@/api/user'
 
@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function register(form: RegisterForm) {
+  async function register(form: RegisterForm & AuthFormPayload) {
     loading.value = true
     try {
       await apiRegister(form)

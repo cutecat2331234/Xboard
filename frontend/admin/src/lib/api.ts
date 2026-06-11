@@ -8,6 +8,7 @@ export interface ApiResponse<T = unknown> {
   message?: string
   total?: number
   current_page?: number
+  code?: number
 }
 
 export function getAuthData(): string | null {
@@ -30,15 +31,14 @@ function parseApiError(result: ApiResponse<unknown>): void {
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers)
-  if (!headers.has('Content-Type') && options.body) {
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData
+  if (!headers.has('Content-Type') && options.body && !isFormData) {
     headers.set('Content-Type', 'application/json')
   }
   headers.set('Accept', 'application/json')
 
   const auth = getAuthData()
-  if (auth) {
-    headers.set('Authorization', auth)
-  }
+  if (auth) headers.set('Authorization', auth)
 
   const response = await fetch(url, { ...options, headers })
   if (response.status === 403) {
@@ -87,44 +87,307 @@ export async function login(payload: LoginPayload): Promise<AuthPayload> {
     body: JSON.stringify(payload),
   })
   parseApiError(result)
-  if (!result.data?.auth_data) {
-    throw new Error(result.message ?? 'Login failed')
-  }
+  if (!result.data?.auth_data) throw new Error(result.message ?? 'Login failed')
   setAuthData(result.data.auth_data)
   return result.data
 }
 
-export async function fetchJsonList(path: string, options?: RequestInit): Promise<unknown[]> {
-  const result = await adminApi<ApiResponse<unknown[]> | unknown[]>(path, options)
-  if (Array.isArray(result)) return result
-  parseApiError(result)
-  if (Array.isArray(result.data)) return result.data
-  if (result.status && result.status !== 'success') {
-    throw new Error(result.message || 'Request failed')
+export interface PaginatedResult<T = unknown> {
+  data: T[]
+  total: number
+  current_page?: number
+  per_page?: number
+  last_page?: number
+}
+
+export function buildQuery(
+  params?: Record<string, string | number | boolean | undefined | null>,
+): string {
+  if (!params) return ''
+  const sp = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      sp.set(key, String(value))
+    }
   }
+  const qs = sp.toString()
+  return qs ? `?${qs}` : ''
+}
+
+function parseListPayload(result: unknown): unknown[] {
+  if (Array.isArray(result)) return result
+  if (!result || typeof result !== 'object') return []
+
+  const payload = result as ApiResponse<unknown> & PaginatedResult<unknown>
+  if (payload.status === 'fail') {
+    parseApiError(payload)
+  }
+
+  if (Array.isArray(payload.data)) {
+    return payload.data
+  }
+
+  if (payload.data && typeof payload.data === 'object' && !Array.isArray(payload.data)) {
+    const nested = payload.data as Record<string, unknown>
+    if (Array.isArray(nested.themes)) return nested.themes
+    if (Array.isArray(nested.list)) return nested.list
+  }
+
   return []
+}
+
+export async function fetchPaginatedList<T = unknown>(
+  path: string,
+  params?: Record<string, string | number | boolean | undefined | null>,
+  options?: RequestInit,
+): Promise<PaginatedResult<T>> {
+  const result = await adminApi<PaginatedResult<T> & ApiResponse<T[]> | T[]>(
+    `${path}${buildQuery(params)}`,
+    options,
+  )
+
+  if (Array.isArray(result)) {
+    return { data: result as T[], total: result.length }
+  }
+
+  if (result && typeof result === 'object' && Array.isArray(result.data)) {
+    if ('total' in result && typeof result.total === 'number') {
+      return {
+        data: result.data as T[],
+        total: result.total,
+        current_page: result.current_page,
+        per_page: result.per_page,
+        last_page: result.last_page,
+      }
+    }
+    if (result.status !== 'fail') {
+      return { data: result.data as T[], total: result.data.length }
+    }
+  }
+
+  parseApiError(result as ApiResponse)
+  return { data: [], total: 0 }
+}
+
+export async function fetchJsonList(
+  path: string,
+  params?: Record<string, string | number | boolean | undefined | null>,
+  options?: RequestInit,
+): Promise<unknown[]> {
+  const page = await fetchPaginatedList(path, params, options)
+  return page.data
 }
 
 export async function fetchJsonObject<T>(path: string, options?: RequestInit): Promise<T> {
   const result = await adminApi<ApiResponse<T>>(path, options)
   parseApiError(result)
   if (result.data !== undefined) return result.data
-  if (result.status && result.status !== 'success') {
-    throw new Error(result.message || 'Request failed')
-  }
   return {} as T
 }
 
-export interface DashboardOverride {
-  online_nodes?: number
-  online_users?: number
-  online_devices?: number
-  today_traffic?: { total?: number }
-  month_traffic?: { total?: number }
+export async function postJson<T>(path: string, body?: unknown): Promise<T> {
+  const result = await adminApi<ApiResponse<T>>(path, {
+    method: 'POST',
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+  parseApiError(result)
+  return (result.data ?? result) as T
 }
 
-export async function fetchDashboardStats(): Promise<DashboardOverride> {
-  const result = await adminApi<ApiResponse<DashboardOverride>>('/stat/getOverride')
+function parseContentDispositionFilename(header: string | null): string | undefined {
+  if (!header) return undefined
+  const utf8 = header.match(/filename\*=UTF-8''([^;]+)/i)
+  if (utf8?.[1]) return decodeURIComponent(utf8[1])
+  const plain = header.match(/filename="?([^";]+)"?/i)
+  return plain?.[1]
+}
+
+/** Download a file from admin API (e.g. CSV export). */
+export async function downloadAdminFile(
+  path: string,
+  options?: RequestInit & { jsonBody?: unknown },
+  fallbackFilename = 'download.csv',
+): Promise<void> {
+  const prefix = getAdminApiPrefix()
+  const normalized = path.startsWith('/') ? path : `/${path}`
+  const headers = new Headers(options?.headers)
+  headers.set('Accept', 'text/csv,application/octet-stream,application/json')
+
+  const auth = getAuthData()
+  if (auth) headers.set('Authorization', auth)
+
+  const body =
+    options?.jsonBody !== undefined
+      ? JSON.stringify(options.jsonBody)
+      : options?.body
+
+  if (body && !(body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
+
+  const response = await fetch(`${prefix}${normalized}`, {
+    ...options,
+    headers,
+    body,
+  })
+
+  if (response.status === 403) {
+    clearAuthData()
+    window.location.hash = '#/sign-in'
+  }
+
+  if (!response.ok) {
+    let message = response.statusText
+    try {
+      const payload = (await response.json()) as ApiResponse
+      message = payload.message ?? message
+    } catch {
+      // ignore
+    }
+    throw new Error(message || 'Download failed')
+  }
+
+  const blob = await response.blob()
+  const filename =
+    parseContentDispositionFilename(response.headers.get('Content-Disposition')) ??
+    fallbackFilename
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  URL.revokeObjectURL(url)
+}
+
+export interface DashboardStats {
+  todayIncome?: number
+  dayIncomeGrowth?: number
+  currentMonthIncome?: number
+  lastMonthIncome?: number
+  monthIncomeGrowth?: number
+  ticketPendingTotal?: number
+  commissionPendingTotal?: number
+  currentMonthNewUsers?: number
+  totalUsers?: number
+  activeUsers?: number
+  userGrowth?: number
+  onlineUsers?: number
+  onlineDevices?: number
+  onlineNodes?: number
+  todayTraffic?: { upload?: number; download?: number; total?: number }
+  monthTraffic?: { upload?: number; download?: number; total?: number }
+}
+
+export async function fetchDashboardStats(): Promise<DashboardStats> {
+  const result = await adminApi<ApiResponse<DashboardStats>>('/stat/getStats')
   parseApiError(result)
   return result.data ?? {}
+}
+
+export interface OrderChartData {
+  list: Array<Record<string, unknown>>
+  summary: Record<string, unknown>
+}
+
+export async function fetchOrderChart(params?: Record<string, string>): Promise<OrderChartData> {
+  const qs = params ? `?${new URLSearchParams(params)}` : ''
+  const result = await adminApi<ApiResponse<OrderChartData>>(`/stat/getOrder${qs}`)
+  parseApiError(result)
+  return result.data ?? { list: [], summary: {} }
+}
+
+export async function fetchTrafficRank(type: 'node' | 'user', start?: number, end?: number) {
+  const params = new URLSearchParams({ type })
+  if (start) params.set('start_time', String(start))
+  if (end) params.set('end_time', String(end))
+  const result = await adminApi<ApiResponse<unknown[]>>(`/stat/getTrafficRank?${params}`)
+  parseApiError(result)
+  return result.data ?? []
+}
+
+export interface QueueStats {
+  failedJobs?: number
+  jobsPerMinute?: number
+  processes?: number
+  recentJobs?: number
+  status?: boolean
+  queueWithMaxRuntime?: string
+  wait?: Record<string, number>
+}
+
+export async function fetchQueueStats(): Promise<QueueStats> {
+  const result = await adminApi<ApiResponse<QueueStats>>('/system/getQueueStats')
+  parseApiError(result)
+  return result.data ?? {}
+}
+
+export interface HorizonFailedJob {
+  id?: string
+  uuid?: string
+  connection?: string
+  queue?: string
+  name?: string
+  failed_at?: string | number
+  exception?: string
+  payload?: string
+}
+
+export async function fetchHorizonFailedJobs(
+  current = 1,
+  pageSize = 20,
+): Promise<PaginatedResult<HorizonFailedJob>> {
+  return fetchPaginatedList<HorizonFailedJob>('/system/getHorizonFailedJobs', {
+    current,
+    page_size: pageSize,
+  })
+}
+
+export interface EchKeyPair {
+  key?: string
+  config?: string
+}
+
+export async function generateEchKey(publicName?: string): Promise<EchKeyPair> {
+  const qs = publicName ? buildQuery({ public_name: publicName }) : ''
+  return fetchJsonObject<EchKeyPair>(`/server/manage/generateEchKey${qs}`)
+}
+
+export async function fetchConfig(): Promise<Record<string, unknown>> {
+  return fetchJsonObject<Record<string, unknown>>('/config/fetch')
+}
+
+export async function saveConfig(data: Record<string, unknown>) {
+  return postJson('/config/save', data)
+}
+
+export interface ThemeItem {
+  name?: string
+  theme?: string
+  version?: string
+  description?: string
+  [key: string]: unknown
+}
+
+export interface ThemeListData {
+  themes: ThemeItem[]
+  active: string
+}
+
+export async function fetchThemes(): Promise<ThemeListData> {
+  const data = await fetchJsonObject<ThemeListData>('/theme/getThemes')
+  return {
+    themes: Array.isArray(data.themes) ? data.themes : [],
+    active: data.active ?? 'Xboard',
+  }
+}
+
+export type PaymentFormField = {
+  type?: string
+  label?: string
+  placeholder?: string
+  description?: string
+  value?: unknown
+  options?: Array<{ label?: string; value?: string | number }>
+  name?: string
+  key?: string
 }
