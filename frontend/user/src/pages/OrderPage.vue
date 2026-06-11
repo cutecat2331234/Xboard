@@ -1,21 +1,23 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NDataTable, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
+import { NButton, NDataTable, NDivider, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
 import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { orderStatusLabel } from '@/lib/order-status'
 import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
-import { useCurrency } from '@/composables/useCurrency'
-
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
 const msg = useMessage()
 const dialog = useDialog()
 const { t, locale } = useI18n()
-const { formatPrice, load: loadCurrency } = useCurrency()
+function formatOrderAmount(cents: number) {
+  const value = typeof cents === 'string' ? parseFloat(cents) : cents
+  if (!Number.isFinite(value)) return '0.00'
+  return (value / 100).toFixed(2)
+}
 
 function periodLabel(period?: string) {
   if (!period) return ''
@@ -26,13 +28,13 @@ function periodLabel(period?: string) {
 function renderTradeNoCell(row: OrderItem) {
   const tradeNo = row.trade_no
   return h(
-    'button',
+    NButton,
     {
-      type: 'button',
-      class: 'order-link-btn color-primary',
+      text: true,
+      class: 'color-primary',
       onClick: () => router.push(`/order/${tradeNo}`),
     },
-    tradeNo,
+    { default: () => tradeNo },
   )
 }
 
@@ -64,7 +66,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.amount'),
     key: 'total_amount',
-    render: (row) => formatPrice(row.total_amount),
+    render: (row) => formatOrderAmount(row.total_amount),
   },
   {
     title: t('order.status'),
@@ -89,24 +91,24 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
     render: (row) =>
       h('div', { class: 'order-actions' }, [
         h(
-          'button',
+          NButton,
           {
-            type: 'button',
-            class: 'order-link-btn',
+            text: true,
+            type: 'primary',
             onClick: () => router.push(`/order/${row.trade_no}`),
           },
-          t('order.viewDetail'),
+          { default: () => t('order.viewDetail') },
         ),
-        h('span', { class: 'order-actions-divider' }),
+        h(NDivider, { vertical: true }),
         h(
-          'button',
+          NButton,
           {
-            type: 'button',
-            class: 'order-link-btn',
+            text: true,
+            type: 'primary',
             disabled: row.status !== 0,
             onClick: () => confirmCancel(row.trade_no),
           },
-          t('common.cancel'),
+          { default: () => t('common.cancel') },
         ),
       ]),
   },
@@ -115,7 +117,6 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
 onMounted(async () => {
   loading.value = true
   try {
-    await loadCurrency()
     rows.value = await fetchOrders()
   } finally {
     loading.value = false
