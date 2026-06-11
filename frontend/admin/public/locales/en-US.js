@@ -2960,7 +2960,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "send_mail": {
         "success": "Email sent successfully",
         "failed": "Failed to send email",
-        "required_fields": "Please fill in all required fields"
+        "required_fields": "Please fill in all required fields",
+        "required_selected": "Please select users first"
       }
     },
     "traffic_reset": {
@@ -3077,8 +3078,20 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "send_mail": {
       "title": "Send Email",
       "description": "Send email to selected or filtered users",
+      "scope": "Send Scope",
+      "scope_selected": "Selected only ({{count}})",
+      "scope_filtered": "Filtered users",
+      "scope_all": "All users",
       "subject": "Subject",
+      "subject_placeholder": "e.g. System notice (supports placeholders)",
+      "subject_placeholder_hint": "Supports placeholders: {{key}} or {{key|default}} (unknown vars are kept as-is)",
       "content": "Content",
+      "content_placeholder": "Enter email body (placeholders supported)",
+      "content_plain_hint": "Content is treated as plain text (escaped); HTML is not supported.",
+      "apply_system_notice": "Apply system notice template",
+      "available_vars": "Available variables",
+      "system_notice_subject": "[{{app.name}}] System Notice ({{now}})",
+      "system_notice_content": "Dear {{user.email}},\n\nThis is a system notice from {{app.name}}.\n\nFor assistance, please visit: {{app.url}}\n",
       "sending": "Sending...",
       "send": "Send"
     },

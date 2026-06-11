@@ -23,9 +23,6 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 
-const REMEMBER_KEY = 'xboard_admin_remember_me'
-const REMEMBER_EMAIL_KEY = 'xboard_admin_remember_email'
-
 const inputCls =
   'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
 
@@ -38,21 +35,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
   const [forgotOpen, setForgotOpen] = useState(false)
 
   const resetCommand = t('auth.signIn.resetPassword.command')
 
   useEffect(() => {
     if (getAuthData()) navigate('/', { replace: true })
-    try {
-      const remembered = localStorage.getItem(REMEMBER_KEY) === '1'
-      const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY) ?? ''
-      setRememberMe(remembered)
-      if (remembered && savedEmail) setEmail(savedEmail)
-    } catch {
-      /* ignore */
-    }
   }, [navigate])
 
   async function copyResetCommand() {
@@ -74,17 +62,6 @@ export default function LoginPage() {
         clearAuthData()
         setError(t('login.notAdmin'))
         return
-      }
-      try {
-        if (rememberMe) {
-          localStorage.setItem(REMEMBER_KEY, '1')
-          localStorage.setItem(REMEMBER_EMAIL_KEY, email)
-        } else {
-          localStorage.removeItem(REMEMBER_KEY)
-          localStorage.removeItem(REMEMBER_EMAIL_KEY)
-        }
-      } catch {
-        /* ignore */
       }
       navigate('/')
     } catch (err) {
@@ -118,13 +95,13 @@ export default function LoginPage() {
       </div>
 
       <div className="mx-auto flex w-full flex-col justify-center gap-6 sm:w-[350px] md:w-[420px] lg:p-8">
-        <div className="flex flex-col gap-2 text-center">
+        <div className="flex flex-col space-y-2 text-center">
           <h1 className="m-0 text-2xl font-bold sm:text-3xl">{settings.title || 'XBoard'}</h1>
           <p className="m-0 text-sm text-muted-foreground" />
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
-          <div className="flex flex-col gap-2 text-left">
+          <div className="flex flex-col space-y-2 text-left">
             <h1 className="m-0 text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}
             </h1>
@@ -132,7 +109,8 @@ export default function LoginPage() {
           </div>
           <div className="grid gap-6">
             <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-              <div className="flex flex-col gap-4">
+              <div className="space-y-4">
+                {error ? <p className="text-sm text-destructive">{error}</p> : null}
                 <div>
                   <Label
                     htmlFor="email"
@@ -184,16 +162,7 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-2">
-                  <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-input"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                    />
-                    {t('auth.signIn.rememberMe')}
-                  </label>
+                <div className="flex items-center justify-between">
                   <button
                     type="button"
                     className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-0 py-2 text-sm font-normal text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
@@ -202,7 +171,6 @@ export default function LoginPage() {
                     {t('auth.signIn.forgotPassword')}
                   </button>
                 </div>
-                {error ? <p className="text-sm text-destructive">{error}</p> : null}
                 <button
                   type="submit"
                   className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"

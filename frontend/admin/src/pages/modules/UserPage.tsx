@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { IconDots } from '@tabler/icons-react'
-import { ArrowUpDown, Filter, Mail, Plus, ShieldBan, SlidersHorizontal } from 'lucide-react'
+import { ArrowUpDown, Filter, Mail, Plus, Send, ShieldBan, SlidersHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -13,7 +13,7 @@ import {
   postJson,
   type PaginatedResult,
 } from '@/lib/api'
-import { configFieldLabelCls, inputCls, textareaCls } from '@/lib/form-styles'
+import { dialogFieldLabelCls, dialogInputCls, inputCls, textareaCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
 import { FormSelect } from '@/components/shared/FormSelect'
@@ -38,6 +38,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
@@ -263,6 +270,7 @@ export default function UserPage() {
   const [mailOpen, setMailOpen] = useState(false)
   const [mailSubject, setMailSubject] = useState('')
   const [mailContent, setMailContent] = useState('')
+  const [mailScope, setMailScope] = useState<'selected' | 'filtered' | 'all'>('all')
   const [mailSending, setMailSending] = useState(false)
 
   const [banOpen, setBanOpen] = useState(false)
@@ -458,11 +466,34 @@ export default function UserPage() {
     }
     setMailSending(true)
     try {
-      await postJson('/user/sendMail', {
-        ...buildBulkBody(),
-        subject: mailSubject.trim(),
-        content: mailContent.trim(),
-      })
+      const subject = mailSubject.trim()
+      const content = mailContent.trim()
+      if (mailScope === 'selected') {
+        if (selectedIds.size === 0) {
+          toast.error(t('user.messages.send_mail.required_selected'))
+          return
+        }
+        for (const id of selectedIds) {
+          await postJson('/user/sendMail', {
+            scope: 'filtered',
+            filter: [{ id: 'id', value: `eq:${id}` }],
+            subject,
+            content,
+          })
+        }
+      } else if (mailScope === 'filtered') {
+        await postJson('/user/sendMail', {
+          scope: 'filtered',
+          filter: filters,
+          ...(sorts[0]
+            ? { sort: sorts[0].id, sort_type: sorts[0].desc ? 'DESC' : 'ASC' }
+            : {}),
+          subject,
+          content,
+        })
+      } else {
+        await postJson('/user/sendMail', { scope: 'all', subject, content })
+      }
       toast.success(t('user.messages.send_mail.success'))
       setMailOpen(false)
       setMailSubject('')
@@ -896,6 +927,11 @@ export default function UserPage() {
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
   const banScope =
     selectedIds.size > 0 ? 'selected' : filters.length > 0 ? 'filtered' : 'all'
+  const defaultMailScope = banScope
+
+  useEffect(() => {
+    if (mailOpen) setMailScope(defaultMailScope)
+  }, [mailOpen, defaultMailScope])
 
   return (
     <div>
@@ -1099,29 +1135,89 @@ export default function UserPage() {
               {t('user.send_mail.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-4 text-sm">
-            <div className="space-y-2">
-              <Label>{t('user.send_mail.subject')}</Label>
-              <Input
-                value={mailSubject}
-                onChange={(e) => setMailSubject(e.target.value)}
-                className={inputCls}
-              />
-            </div>
-            <div className="mt-4 flex min-h-0 flex-1 flex-col space-y-2">
-              <Label>{t('user.send_mail.content')}</Label>
-              <textarea
-                className={`${textareaCls} min-h-0 flex-1 resize-none`}
-                value={mailContent}
-                onChange={(e) => setMailContent(e.target.value)}
-              />
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background px-6 py-4 text-sm">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
+                <Select
+                  value={mailScope}
+                  onValueChange={(v) => setMailScope(v as 'selected' | 'filtered' | 'all')}
+                >
+                  <SelectTrigger className={dialogInputCls}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="selected" disabled={selectedIds.size === 0}>
+                      {t('user.send_mail.scope_selected', { count: selectedIds.size })}
+                    </SelectItem>
+                    <SelectItem value="filtered" disabled={filters.length === 0}>
+                      {t('user.send_mail.scope_filtered')}
+                    </SelectItem>
+                    <SelectItem value="all">{t('user.send_mail.scope_all')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="mail-subject" className={dialogFieldLabelCls}>
+                  {t('user.send_mail.subject')}
+                </label>
+                <Input
+                  id="mail-subject"
+                  value={mailSubject}
+                  onChange={(e) => setMailSubject(e.target.value)}
+                  placeholder={t('user.send_mail.subject_placeholder')}
+                  className={dialogInputCls}
+                  disabled={mailSending}
+                />
+                <p className="font-mono text-[10px] leading-relaxed opacity-70">
+                  {t('user.send_mail.subject_placeholder_hint')}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <label htmlFor="mail-content" className={dialogFieldLabelCls}>
+                    {t('user.send_mail.content')}
+                  </label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 font-mono text-[10px]"
+                    disabled={mailSending}
+                    onClick={() => {
+                      setMailSubject(t('user.send_mail.system_notice_subject'))
+                      setMailContent(t('user.send_mail.system_notice_content'))
+                    }}
+                  >
+                    {t('user.send_mail.apply_system_notice')}
+                  </Button>
+                </div>
+                <textarea
+                  id="mail-content"
+                  className={`${textareaCls} min-h-[220px] font-mono text-xs`}
+                  value={mailContent}
+                  onChange={(e) => setMailContent(e.target.value)}
+                  placeholder={t('user.send_mail.content_placeholder')}
+                  disabled={mailSending}
+                />
+                <p className="font-mono text-[10px] leading-relaxed opacity-70">
+                  {t('user.send_mail.content_plain_hint')}
+                </p>
+              </div>
+              <div className="rounded-md border bg-muted/10 p-3">
+                <div className={dialogFieldLabelCls}>{t('user.send_mail.available_vars')}</div>
+                <div className="mt-2 font-mono text-[10px] leading-relaxed opacity-80">
+                  {'{{app.name}} {{app.url}} {{now}} {{user.id}} {{user.email}} {{user.uuid}} {{user.plan_name}} {{user.expired_at}} {{user.transfer_enable}} {{user.transfer_used}} {{user.transfer_left}}'}
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter className="shrink-0 border-t px-6 py-4 sm:justify-end">
             <Button variant="outline" onClick={() => setMailOpen(false)}>
               {t('common.cancel')}
             </Button>
-            <Button onClick={sendMail} disabled={mailSending}>
+            <Button onClick={sendMail} disabled={mailSending} className="gap-2">
+              <Send className="h-4 w-4" />
               {mailSending ? t('user.send_mail.sending') : t('user.send_mail.send')}
             </Button>
           </DialogFooter>
@@ -1163,16 +1259,17 @@ export default function UserPage() {
           <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-3 text-sm">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-3 text-sm">
+            <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className={configFieldLabelCls}>
+              <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
                 <span className="ml-1 text-destructive">*</span>
               </Label>
-              <div className="flex w-full items-center">
+              <div className="flex w-full items-center gap-0">
                 {!form.generate_count ? (
                   <input
-                    className={`${inputCls} min-w-0 flex-[5] rounded-r-none border-r-0`}
+                    className={`${inputCls} ${dialogInputCls} min-w-0 flex-[5] rounded-l-md rounded-r-none border-r-0 bg-background`}
                     placeholder={t('user.generate.form.email_prefix')}
                     value={String(form.email_prefix ?? '')}
                     onChange={(e) =>
@@ -1188,7 +1285,7 @@ export default function UserPage() {
                   @
                 </div>
                 <input
-                  className={`${inputCls} min-w-0 flex-[4] rounded-l-none border-l-0`}
+                  className={`${inputCls} ${dialogInputCls} min-w-0 flex-[4] rounded-l-none rounded-r-md border border-l-0 border-input bg-background`}
                   placeholder={t('user.generate.form.email_domain')}
                   value={String(form.email_suffix ?? '')}
                   onChange={(e) => setForm((f) => ({ ...f, email_suffix: e.target.value }))}
@@ -1196,11 +1293,11 @@ export default function UserPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className={configFieldLabelCls}>
+              <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.password')}
               </Label>
               <input
-                className={inputCls}
+                className={`${inputCls} ${dialogInputCls}`}
                 type="password"
                 placeholder={t('user.generate.form.password_placeholder')}
                 value={String(form.password ?? '')}
@@ -1209,7 +1306,7 @@ export default function UserPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className={configFieldLabelCls}>
+                <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.expire_time')}
                 </Label>
                 <ExpireDateInput
@@ -1219,7 +1316,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className={configFieldLabelCls}>
+                <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.subscription')}
                 </Label>
                 <FormSelect
@@ -1242,12 +1339,12 @@ export default function UserPage() {
             </div>
             {!form.email_prefix ? (
               <div className="space-y-1.5">
-                <Label className={configFieldLabelCls}>
+                <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.generate_count')}
                 </Label>
                 <input
                   type="number"
-                  className={inputCls}
+                  className={`${inputCls} ${dialogInputCls}`}
                   placeholder={t('user.generate.form.generate_count_placeholder')}
                   value={form.generate_count != null ? Number(form.generate_count) : ''}
                   onChange={(e) =>
@@ -1259,6 +1356,7 @@ export default function UserPage() {
                 />
               </div>
             ) : null}
+            </div>
           </div>
           <DialogFooter className="shrink-0 border-t px-6 py-3">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
