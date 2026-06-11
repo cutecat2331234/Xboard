@@ -9,6 +9,16 @@
   --xb-hover: #f3f4f6;
   --xb-icon: #666666;
   --xb-divider: rgb(224, 224, 230);
+  --xb-order-summary-bg: #232e3c;
+  --xb-order-summary-fg: #fff;
+  --xb-order-summary-plan-price: #f8f9fa;
+  --xb-order-summary-muted: #f8f9fa40;
+  --xb-order-summary-row-border: #646669;
+  --xb-order-summary-plan-border: rgb(75, 85, 99);
+  --xb-order-summary-grand-size: 36px;
+  --xb-order-summary-grand-lh: 40px;
+  --xb-info-row-padding: 5px 0;
+  --xb-info-row-lh: 16px;
 }
 
 html.dark {
