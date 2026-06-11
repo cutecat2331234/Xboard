@@ -138,12 +138,16 @@ export default {
     success: "Thành công",
     error: "Lỗi",
     reset: "Đặt lại",
+<<<<<<< HEAD
     search: "Tìm kiếm",
     pagination: {
       summary: "Trang {current}/{total}, tổng {count} mục",
       previous: "Trang trước",
       next: "Trang sau"
     }
+=======
+    search: "Tìm kiếm"
+>>>>>>> 187910a (refactor(admin): misc modules remove defaultValue)
   },
   invite: {
     title: "Lời Mời Của Tôi",
