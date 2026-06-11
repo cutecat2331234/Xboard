@@ -9,6 +9,8 @@ import {
   NDivider,
   NCheckbox,
   NDropdown,
+  NTabs,
+  NTab,
   useMessage,
 } from 'naive-ui'
 import type { DropdownOption } from 'naive-ui'
@@ -53,6 +55,13 @@ const { config, load: loadGuest } = useGuestConfig()
 const { emailLocal, emailFull, emailSuffix, resolvedEmail } = useAuthEmail(config)
 
 const isRegister = computed(() => route.path === '/register')
+const activeTab = computed(() => (isRegister.value ? 'register' : 'login'))
+
+function switchAuthTab(name: string) {
+  const path = name === 'register' ? '/register' : '/login'
+  if (route.path === path) return
+  router.push({ path, query: route.query })
+}
 
 const langOptions = computed<DropdownOption[]>(() => {
   const langs = settings.value.i18n ?? ['zh-CN', 'en-US']
@@ -215,6 +224,16 @@ function submit() {
         <h1 class="auth-card__title-main">{{ settings.title || 'Xboard' }}</h1>
         <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard is best' }}</h5>
 
+        <n-tabs
+          :value="activeTab"
+          type="line"
+          class="auth-tabs"
+          @update:value="switchAuthTab"
+        >
+          <n-tab name="login">{{ t('login') }}</n-tab>
+          <n-tab name="register">{{ t('register') }}</n-tab>
+        </n-tabs>
+
         <form v-if="!tokenLoading" @submit.prevent="submit">
           <div class="auth-field">
             <AuthEmailInput
@@ -314,8 +333,6 @@ function submit() {
             </a>
           </template>
           <template v-else>
-            <router-link to="/register" class="auth-footer-link">{{ t('register') }}</router-link>
-            <n-divider vertical />
             <router-link to="/forgetpassword" class="auth-footer-link">{{ t('forgotPassword') }}</router-link>
             <n-divider vertical />
             <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = true">
@@ -323,7 +340,7 @@ function submit() {
             </a>
           </template>
         </div>
-        <router-link v-else to="/login" class="auth-footer-link">{{ t('backToLogin') }}</router-link>
+        <div v-else class="auth-footer-left" />
 
         <n-dropdown :options="langOptions" trigger="click" @select="(k: string) => setLocale(k)">
           <n-button class="auth-lang-btn" quaternary>
@@ -360,6 +377,24 @@ function submit() {
   font-weight: 400;
   line-height: 20px;
   color: #6c757d;
+}
+.auth-tabs {
+  margin-top: 20px;
+}
+.auth-tabs :deep(.n-tabs-nav) {
+  justify-content: center;
+}
+.auth-tabs :deep(.n-tabs-tab) {
+  font-size: 14px;
+  color: #6c757d;
+  padding: 12px 16px;
+}
+.auth-tabs :deep(.n-tabs-tab--active) {
+  color: #343a40;
+  font-weight: 500;
+}
+.auth-tabs :deep(.n-tabs-bar) {
+  background-color: #316c72;
 }
 .auth-field {
   margin-top: 20px;
