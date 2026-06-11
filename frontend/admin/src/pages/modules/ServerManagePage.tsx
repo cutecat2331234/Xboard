@@ -487,7 +487,18 @@ export default function ServerManagePage() {
 
   async function deleteNode(row: NodeRow) {
 
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('server.columns.actions_dropdown.delete.title', { defaultValue: '确认删除' }),
+        t('server.columns.actions_dropdown.delete.description', {
+          defaultValue: '此操作将永久删除该节点，删除后无法恢复。确定要继续吗？',
+        }),
+        {
+          confirmLabel: t('server.columns.actions_dropdown.delete.confirm', { defaultValue: '删除' }),
+        },
+      ))
+    )
+      return
 
     try {
 
@@ -949,6 +960,204 @@ export default function ServerManagePage() {
           </span>
 
         ),
+
+      },
+
+      {
+
+        id: 'traffic',
+
+        header: () => t('server.columns.traffic.title'),
+
+        cell: ({ row }) => {
+
+          const used = Number(row.original.u ?? 0) + Number(row.original.d ?? 0)
+
+          const total = Number(row.original.transfer_enable ?? 0)
+
+          const banned = Boolean(row.original.banned)
+
+          const usedLabel = formatBytes(used)
+
+          const totalLabel = formatBytes(total)
+
+          if (total <= 0) {
+
+            return <div className="text-sm text-muted-foreground">{usedLabel}</div>
+
+          }
+
+          const pct = Math.min((used / total) * 100, 100)
+
+          return (
+
+            <Tooltip.Provider delayDuration={100}>
+
+              <Tooltip.Root>
+
+                <Tooltip.Trigger asChild>
+
+                  <div className="flex cursor-default items-center gap-2">
+
+                    <div className="h-1.5 w-12 rounded-full bg-secondary">
+
+                      <div
+
+                        className={cn(
+
+                          'h-full rounded-full transition-all',
+
+                          banned || pct > 90 ? 'bg-destructive' : 'bg-primary',
+
+                        )}
+
+                        style={{ width: `${pct}%` }}
+
+                      />
+
+                    </div>
+
+                    <span
+
+                      className={cn(
+
+                        'text-xs tabular-nums text-muted-foreground',
+
+                        banned && 'text-destructive',
+
+                      )}
+
+                    >
+
+                      {usedLabel}
+
+                    </span>
+
+                  </div>
+
+                </Tooltip.Trigger>
+
+                <Tooltip.Portal>
+
+                  <Tooltip.Content
+
+                    side="bottom"
+
+                    className="z-50 rounded-md border bg-popover px-3 py-2 text-sm text-popover-foreground shadow-md"
+
+                  >
+
+                    <div className="space-y-1">
+
+                      <p>
+
+                        {t('server.columns.traffic.used')}: {usedLabel}
+
+                      </p>
+
+                      <p>
+
+                        {t('server.columns.traffic.total')}: {totalLabel}
+
+                      </p>
+
+                      <p>
+
+                        {t('server.columns.traffic.percentage')}: {pct.toFixed(1)}%
+
+                      </p>
+
+                    </div>
+
+                    <Tooltip.Arrow className="fill-border" />
+
+                  </Tooltip.Content>
+
+                </Tooltip.Portal>
+
+              </Tooltip.Root>
+
+            </Tooltip.Provider>
+
+          )
+
+        },
+
+      },
+
+      {
+
+        id: 'loadStatus',
+
+        header: () => t('server.columns.loadStatus.title'),
+
+        cell: ({ row }) => {
+
+          const load = row.original.load_status
+
+          if (!load) {
+
+            return (
+
+              <span className="text-xs text-muted-foreground">
+
+                {t('server.columns.loadStatus.noData')}
+
+              </span>
+
+            )
+
+          }
+
+          const { cpu, mem, disk } = loadPercents(load)
+
+          return (
+
+            <div className="w-[180px] space-y-2">
+
+              <LoadBar label="CPU" value={cpu} />
+
+              <LoadBar label="MEM" value={mem} />
+
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+
+                <span className="flex items-center gap-1">
+
+                  <HardDrive className="size-3" />
+
+                  DISK
+
+                </span>
+
+                <span className="font-mono">
+
+                  {formatBytes(load.disk?.used)} / {formatBytes(load.disk?.total)}
+
+                </span>
+
+              </div>
+
+              {disk > 0 ? (
+
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+
+                  <div
+
+                    className={cn('h-full transition-all', loadBarTone(disk))}
+
+                    style={{ width: `${Math.min(100, disk)}%` }}
+
+                  />
+
+                </div>
+
+              ) : null}
+
+            </div>
+
+          )
+
+        },
 
       },
 
