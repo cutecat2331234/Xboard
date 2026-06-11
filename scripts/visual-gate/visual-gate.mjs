@@ -525,6 +525,8 @@ async function waitUserRouteReady(page, route) {
     await page
       .waitForSelector('.n-data-table-tbody .n-data-table-tr', { timeout: 45000 })
       .catch(() => {})
+    // Legacy balance uses NNumberAnimation (duration 500ms).
+    await page.waitForTimeout(600)
   }
   if (route === 'ticket-detail') {
     await page

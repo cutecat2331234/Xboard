@@ -5,8 +5,10 @@ import {
   NButton,
   NCard,
   NDataTable,
+  NIcon,
   NModal,
   NInput,
+  NNumberAnimation,
   NPagination,
   NSelect,
   NSpace,
@@ -29,15 +31,38 @@ import { useI18n } from '@/i18n'
 
 const INVITE_PAGE_SIZE = 10
 
+const TransferIcon = {
+  render() {
+    return h('svg', { class: 'inline-block', viewBox: '0 0 1024 1024', width: '1em', height: '1em' }, [
+      h('path', {
+        fill: 'currentColor',
+        d: 'M668.6 320c0-4.4-3.6-8-8-8h-54.5c-3 0-5.8 1.7-7.1 4.4l-84.7 168.8H511l-84.7-168.8a8 8 0 0 0-7.1-4.4h-55.7c-1.3 0-2.6.3-3.8 1c-3.9 2.1-5.3 7-3.2 10.8l103.9 191.6h-57c-4.4 0-8 3.6-8 8v27.1c0 4.4 3.6 8 8 8h76v39h-76c-4.4 0-8 3.6-8 8v27.1c0 4.4 3.6 8 8 8h76V704c0 4.4 3.6 8 8 8h49.9c4.4 0 8-3.6 8-8v-63.5h76.3c4.4 0 8-3.6 8-8v-27.1c0-4.4-3.6-8-8-8h-76.3v-39h76.3c4.4 0 8-3.6 8-8v-27.1c0-4.4-3.6-8-8-8H564l103.7-191.6c.5-1.1.9-2.4.9-3.7M157.9 504.2a352.7 352.7 0 0 1 103.5-242.4c32.5-32.5 70.3-58.1 112.4-75.9c43.6-18.4 89.9-27.8 137.6-27.8c47.8 0 94.1 9.3 137.6 27.8c42.1 17.8 79.9 43.4 112.4 75.9c10 10 19.3 20.5 27.9 31.4l-50 39.1a8 8 0 0 0 3 14.1l156.8 38.3c5 1.2 9.9-2.6 9.9-7.7l.8-161.5c0-6.7-7.7-10.5-12.9-6.3l-47.8 37.4C770.7 146.3 648.6 82 511.5 82C277 82 86.3 270.1 82 503.8a8 8 0 0 0 8 8.2h60c4.3 0 7.8-3.5 7.9-7.8M934 512h-60c-4.3 0-7.9 3.5-8 7.8a352.7 352.7 0 0 1-103.5 242.4a352.6 352.6 0 0 1-112.4 75.9c-43.6 18.4-89.9 27.8-137.6 27.8s-94.1-9.3-137.6-27.8a352.6 352.6 0 0 1-112.4-75.9c-10-10-19.3-20.5-27.9-31.4l49.9-39.1a8 8 0 0 0-3-14.1l-156.8-38.3c-5-1.2-9.9 2.6-9.9 7.7l-.8 161.7c0 6.7 7.7 10.5 12.9 6.3l47.8-37.4C253.3 877.7 375.4 942 512.5 942C747 942 937.7 753.9 942 520.2a8 8 0 0 0-8-8.2',
+      }),
+    ])
+  },
+}
+
+const WithdrawIcon = {
+  render() {
+    return h('svg', { class: 'inline-block', viewBox: '0 0 1024 1024', width: '1em', height: '1em' }, [
+      h('path', {
+        fill: 'currentColor',
+        d: 'M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448s448-200.6 448-448S759.4 64 512 64m0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372s372 166.6 372 372s-166.6 372-372 372m159.6-585h-59.5c-3 0-5.8 1.7-7.1 4.4l-90.6 180H511l-90.6-180a8 8 0 0 0-7.1-4.4h-60.7c-1.3 0-2.6.3-3.8 1c-3.9 2.1-5.3 7-3.2 10.9L457 515.7h-61.4c-4.4 0-8 3.6-8 8v29.9c0 4.4 3.6 8 8 8h81.7V603h-81.7c-4.4 0-8 3.6-8 8v29.9c0 4.4 3.6 8 8 8h81.7V717c0 4.4 3.6 8 8 8h54.3c4.4 0 8-3.6 8-8v-68.1h82c4.4 0 8-3.6 8-8V611c0-4.4-3.6-8-8-8h-82v-41.5h82c4.4 0 8-3.6 8-8v-29.9c0-4.4-3.6-8-8-8h-62l111.1-204.8c.6-1.2 1-2.5 1-3.8c-.1-4.4-3.7-8-8.1-8',
+      }),
+    ])
+  },
+}
+
 const codes = ref<InviteCode[]>([])
 const stat = ref<number[]>([0, 0, 0, 0, 0])
 const details = ref<Array<{ created_at?: number; get_amount?: number }>>([])
 const codesPage = ref(1)
 const detailsPage = ref(1)
+const detailsPageSize = ref(INVITE_PAGE_SIZE)
 const msg = useMessage()
 const router = useRouter()
 const { t } = useI18n()
-const { formatPrice, load: loadCurrency, code: currencyCode } = useCurrency()
+const { formatAmount, formatPriceSpaced, load: loadCurrency, code: currencyCode } = useCurrency()
 const transferOpen = ref(false)
 const withdrawOpen = ref(false)
 const transferAmount = ref('')
@@ -48,7 +73,6 @@ const withdrawAccount = ref('')
 const available = computed(() => (stat.value[4] ?? 0) / 100)
 
 const showCodesPagination = computed(() => codes.value.length > INVITE_PAGE_SIZE)
-const showDetailsPagination = computed(() => details.value.length > INVITE_PAGE_SIZE)
 
 const paginatedCodes = computed(() => {
   if (!showCodesPagination.value) return codes.value
@@ -56,11 +80,20 @@ const paginatedCodes = computed(() => {
   return codes.value.slice(start, start + INVITE_PAGE_SIZE)
 })
 
-const paginatedDetails = computed(() => {
-  if (!showDetailsPagination.value) return details.value
-  const start = (detailsPage.value - 1) * INVITE_PAGE_SIZE
-  return details.value.slice(start, start + INVITE_PAGE_SIZE)
-})
+const detailTablePagination = computed(() => ({
+  page: detailsPage.value,
+  pageSize: detailsPageSize.value,
+  itemCount: details.value.length,
+  showSizePicker: true,
+  pageSizes: [10, 50, 100, 150],
+  onUpdatePage: (page: number) => {
+    detailsPage.value = page
+  },
+  onUpdatePageSize: (size: number) => {
+    detailsPageSize.value = size
+    detailsPage.value = 1
+  },
+}))
 
 function paginationPrefix(info: PaginationInfo) {
   const pageCount = Math.max(1, Math.ceil(info.itemCount / info.pageSize))
@@ -100,7 +133,7 @@ const commissionRateLabel = computed(() => {
 })
 
 function inviteLink(code: string) {
-  return `${window.location.origin}${window.location.pathname}#/login?tab=register&code=${code}`
+  return `${window.location.protocol}//${window.location.host}/#/register?code=${code}`
 }
 
 async function load() {
@@ -172,36 +205,32 @@ function copyLink(code: string) {
   msg.success(t('common.success'))
 }
 
-function renderCopyLinkButton(code: string) {
-  return h(
-    'button',
-    {
-      class: 'n-button n-button--info-type n-button--small-type invite-copy-link-btn',
-      type: 'button',
-      tabindex: 0,
-      onClick: (e: MouseEvent) => {
-        e.stopPropagation()
-        copyLink(code)
-      },
-    },
-    [
-      h('span', { class: 'n-button__content' }, t('invite.copyLink')),
-      h('div', { 'aria-hidden': 'true', class: 'n-base-wave' }),
-    ],
-  )
-}
-
 const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
   {
     title: t('invite.code'),
     key: 'code',
-    width: 502,
-    render: (r) => h('div', {}, [h('span', {}, r.code), renderCopyLinkButton(r.code)]),
+    render: (r) =>
+      h('div', {}, [
+        h('span', {}, r.code),
+        h(
+          NButton,
+          {
+            size: 'small',
+            type: 'info',
+            onClick: (e: MouseEvent) => {
+              e.stopPropagation()
+              copyLink(r.code)
+            },
+          },
+          { default: () => t('invite.copyLink') },
+        ),
+      ]),
   },
   {
     title: t('invite.createdAt'),
     key: 'created_at',
-    width: 474,
+    fixed: 'right',
+    align: 'right',
     render: (r) => formatFixedDateTime(r.created_at),
   },
 ])
@@ -210,14 +239,14 @@ const detailColumns = computed(() => [
   {
     title: t('invite.incomeTime'),
     key: 'created_at',
-    width: 592,
     render: (r: { created_at?: number }) => formatFixedDateTime(r.created_at),
   },
   {
     title: t('invite.incomeAmount'),
     key: 'get_amount',
-    width: 384,
-    render: (r: { get_amount?: number }) => formatPrice(r.get_amount ?? 0),
+    fixed: 'right',
+    align: 'right',
+    render: (r: { get_amount?: number }) => formatAmount(r.get_amount ?? 0),
   },
 ])
 
@@ -243,34 +272,29 @@ onMounted(async () => {
       </svg>
     </template>
     <div>
-      <span class="text-5xl font-normal">{{ available.toFixed(2) }}</span>
+      <span class="text-5xl font-normal">
+        <n-number-animation :from="0" :to="available" :active="true" :precision="2" :duration="500" />
+      </span>
       <span class="ml-2.5 text-xl text-gray-500 md:ml-5">{{ currencyCode }}</span>
     </div>
     <div class="text-gray-500">{{ t('invite.available') }}</div>
     <n-space class="invite-balance-actions mt-2.5" :size="[12, 8]">
-      <button
-        class="n-button n-button--primary-type n-button--small-type invite-primary-btn"
-        type="button"
-        tabindex="0"
-        @click="transferOpen = true"
-      >
-        <span class="n-button__content">{{ t('invite.transfer') }}</span>
-        <div aria-hidden="true" class="n-base-wave" />
-      </button>
-      <button
-        v-if="!commConfig?.withdraw_close"
-        class="n-button n-button--primary-type n-button--small-type invite-primary-btn"
-        type="button"
-        tabindex="0"
-        @click="withdrawOpen = true"
-      >
-        <span class="n-button__content">{{ t('invite.withdraw') }}</span>
-        <div aria-hidden="true" class="n-base-wave" />
-      </button>
+      <n-button size="small" type="primary" @click="transferOpen = true">
+        <template #icon>
+          <n-icon><TransferIcon /></n-icon>
+        </template>
+        {{ t('invite.transfer') }}
+      </n-button>
+      <n-button v-if="!commConfig?.withdraw_close" size="small" type="primary" @click="withdrawOpen = true">
+        <template #icon>
+          <n-icon><WithdrawIcon /></n-icon>
+        </template>
+        {{ t('invite.withdraw') }}
+      </n-button>
     </n-space>
   </n-card>
 
-  <n-card class="mt-5 rounded-md" :bordered="true">
+  <n-card class="mt-4 rounded-md" :bordered="true">
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.registered') }}</div>
       <div>{{ t('invite.peopleCount', { number: stat[0] ?? 0 }) }}</div>
@@ -281,25 +305,19 @@ onMounted(async () => {
     </div>
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.pendingCommission') }}</div>
-      <div>{{ formatPrice(stat[2] ?? 0) }}</div>
+      <div>{{ formatPriceSpaced(stat[2] ?? 0) }}</div>
     </div>
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.totalCommission') }}</div>
-      <div>{{ formatPrice(stat[1] ?? 0) }}</div>
+      <div>{{ formatPriceSpaced(stat[1] ?? 0) }}</div>
     </div>
   </n-card>
 
   <n-card :title="t('invite.codeMgmt')" class="invite-code-card mt-4 rounded-md">
     <template #header-extra>
-      <button
-        class="n-button n-button--primary-type n-button--small-type invite-primary-btn"
-        type="button"
-        tabindex="0"
-        @click="generate"
-      >
-        <span class="n-button__content">{{ t('invite.generate') }}</span>
-        <div aria-hidden="true" class="n-base-wave" />
-      </button>
+      <n-button size="small" type="primary" round @click="generate">
+        {{ t('invite.generate') }}
+      </n-button>
     </template>
     <n-data-table class="invite-data-table" :columns="codeColumns" :data="paginatedCodes" :bordered="true" />
     <n-pagination
@@ -312,15 +330,13 @@ onMounted(async () => {
     />
   </n-card>
 
-  <n-card :title="t('invite.incomeRecord')" class="mt-5 rounded-md">
-    <n-data-table class="invite-data-table" :columns="detailColumns" :data="paginatedDetails" :bordered="true" />
-    <n-pagination
-      v-if="showDetailsPagination"
-      v-model:page="detailsPage"
-      class="invite-pagination"
-      :item-count="details.length"
-      :page-size="INVITE_PAGE_SIZE"
-      :prefix="paginationPrefix"
+  <n-card :title="t('invite.incomeRecord')" class="mt-4 rounded-md">
+    <n-data-table
+      class="invite-data-table"
+      :columns="detailColumns"
+      :data="details"
+      :bordered="true"
+      :pagination="detailTablePagination"
     />
   </n-card>
 
@@ -349,12 +365,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.card-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
 .invite-pagination {
   margin-top: 16px;
   justify-content: flex-end;

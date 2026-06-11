@@ -20,9 +20,18 @@ export function useCurrency() {
     return loading
   }
 
-  function formatPrice(cents: number) {
-    return `${symbol.value}${(cents / 100).toFixed(2)}`
+  function formatAmount(cents: number) {
+    return (cents / 100).toFixed(2)
   }
 
-  return { symbol, code, load, formatPrice }
+  function formatPrice(cents: number) {
+    return `${symbol.value}${formatAmount(cents)}`
+  }
+
+  /** Legacy invite stats: `currency_symbol + " " + amount` */
+  function formatPriceSpaced(cents: number) {
+    return `${symbol.value} ${formatAmount(cents)}`
+  }
+
+  return { symbol, code, load, formatAmount, formatPrice, formatPriceSpaced }
 }

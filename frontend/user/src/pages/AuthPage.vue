@@ -258,12 +258,8 @@ function submit() {
 
 <template>
   <div class="auth-page" :style="authPageStyle">
-    <n-card
-      class="auth-card"
-      :class="{ 'auth-card--login': isLogin }"
-      :bordered="true"
-    >
-      <div class="auth-card__body">
+    <n-card class="auth-card" :bordered="true">
+      <div class="auth-card__body p-6">
         <h1 class="auth-card__title-main">
           {{ isForget ? t('forgotPassword') : settings.title || 'Xboard' }}
         </h1>
@@ -391,7 +387,10 @@ function submit() {
         <p v-else class="auth-loading">{{ t('common.loading') }}</p>
       </div>
 
-      <div v-if="!tokenLoading" class="auth-card__footer-bar">
+      <div
+        v-if="!tokenLoading"
+        class="auth-card__footer-bar flex justify-between px-6 py-4 text-gray-500"
+      >
         <div v-if="isForget || isRegister" class="auth-footer-left">
           <router-link class="auth-footer-link" to="/login">{{ t('backToLogin') }}</router-link>
         </div>
@@ -428,9 +427,6 @@ function submit() {
 </template>
 
 <style scoped>
-.auth-card__body {
-  padding: 24px;
-}
 .auth-card__body form {
   margin: 0;
 }
@@ -450,24 +446,8 @@ function submit() {
   line-height: 20px;
   color: #6c757d;
 }
-.auth-card--login {
-  min-height: 0;
-}
-.auth-card--login .auth-card__body {
-  min-height: 0;
-  padding: 18px 24px 20px;
-}
-.auth-card--login .auth-card__title-main {
-  margin: 18px 0;
-}
-.auth-card--login .auth-card__subtitle {
-  margin: 14px 0 0;
-}
 .auth-footer-link.text-gray-500 {
   color: var(--xb-text-secondary);
-}
-.auth-card--login .auth-field {
-  margin-top: 16px;
 }
 .auth-field {
   margin-top: 20px;
@@ -510,13 +490,9 @@ function submit() {
   font-size: 14px;
 }
 .auth-card__footer-bar {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
   background-color: var(--n-color-embedded, rgb(250, 250, 252));
   border-radius: 0 0 6px 6px;
-  color: #6b7280;
 }
 .auth-footer-left {
   display: flex;
