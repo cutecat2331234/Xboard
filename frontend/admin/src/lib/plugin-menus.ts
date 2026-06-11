@@ -1,4 +1,10 @@
-import type { PluginAdminMenu, PluginNavGroup, PluginNavItem, PluginRow } from '@/lib/plugin-types'
+import type {
+  PluginAdminCrudSchema,
+  PluginAdminMenu,
+  PluginNavGroup,
+  PluginNavItem,
+  PluginRow,
+} from '@/lib/plugin-types'
 
 export function normalizePluginPath(path?: string): string {
   if (!path) return ''
@@ -19,7 +25,7 @@ export function findAdminMenu(plugin: PluginRow | undefined, subpath: string): P
 export function findAdminCrud(
   plugin: PluginRow | undefined,
   subpath: string,
-): { title?: string; description?: string } | null {
+): PluginAdminCrudSchema | null {
   const normalized = normalizePluginPath(subpath)
   if (!normalized || !plugin?.admin_crud) return null
   return plugin.admin_crud[normalized] ?? null
