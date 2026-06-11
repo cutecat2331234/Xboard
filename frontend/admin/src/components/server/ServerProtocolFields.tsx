@@ -1091,6 +1091,13 @@ function TrojanFields({
           className="font-mono text-xs"
         />
       </div>
+
+      <TransportNetworkSubFields
+        locale="server.dynamic_form.trojan.network_settings"
+        network={value.network}
+        value={value.network_settings}
+        onChange={(network_settings) => onChange({ ...value, network_settings })}
+      />
     </div>
   )
 }
