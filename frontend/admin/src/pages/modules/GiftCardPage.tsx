@@ -25,6 +25,8 @@ import {
 
   DialogContent,
 
+  DialogFooter,
+
   DialogHeader,
 
   DialogTitle,
