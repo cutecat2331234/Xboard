@@ -6,6 +6,14 @@ import { JsonEditor, type JsonEditorHandle } from '@/components/JsonEditor'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { inputCls } from '@/lib/form-styles'
 import {
@@ -13,6 +21,9 @@ import {
   defaultPluginCrudFormValues,
   deletePluginCrudRecord,
   fetchPluginCrudList,
+  hasPluginCrudTypedForm,
+  normalizePluginCrudFormFields,
+  PluginCrudFormFields,
   resolvePluginCrudApiPath,
   savePluginCrudRecord,
 } from '@/lib/plugin-crud'
@@ -42,6 +53,10 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
   const [draft, setDraft] = useState<Record<string, unknown>>(() => defaultPluginCrudFormValues(schema))
   const [editing, setEditing] = useState(false)
   const editorRef = useRef<JsonEditorHandle>(null)
+
+  const formFields = useMemo(() => normalizePluginCrudFormFields(schema.form), [schema.form])
+  const hasTypedForm = hasPluginCrudTypedForm(schema)
+  const isCreate = editing && (draft[idField] == null || draft[idField] === '')
 
   const pageSize = 20
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
@@ -74,15 +89,24 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
     void loadRows()
   }, [loadRows])
 
-  const beginCreate = useCallback(() => {
+  const resetDraft = useCallback(() => {
     setDraft(defaultPluginCrudFormValues(schema))
-    setEditing(true)
   }, [schema])
 
-  const beginEdit = useCallback((row: Record<string, unknown>) => {
-    setDraft(row)
+  const closeEditor = useCallback(() => {
+    setEditing(false)
+    resetDraft()
+  }, [resetDraft])
+
+  const beginCreate = useCallback(() => {
+    resetDraft()
     setEditing(true)
-  }, [])
+  }, [resetDraft])
+
+  const beginEdit = useCallback((row: Record<string, unknown>) => {
+    setDraft({ ...defaultPluginCrudFormValues(schema), ...row })
+    setEditing(true)
+  }, [schema])
 
   const handleDelete = useCallback(
     async (row: Record<string, unknown>) => {
@@ -111,14 +135,26 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
 
   async function handleSave() {
     if (!savePath) return
+
+    if (hasTypedForm) {
+      const missing = formFields.filter(
+        (item) => item.field.required && !item.field.hidden && (draft[item.key] == null || draft[item.key] === ''),
+      )
+      if (missing.length > 0) {
+        const labels = missing.map((item) => item.field.label ?? item.key).join(', ')
+        toast.error(t('plugin.runtime.requiredFields', { fields: labels, defaultValue: `Required: ${labels}` }))
+        return
+      }
+    }
+
     setSaving(true)
     try {
-      const raw = editorRef.current?.getValue() ?? JSON.stringify(draft, null, 2)
-      const payload = JSON.parse(raw) as Record<string, unknown>
+      const payload = hasTypedForm
+        ? draft
+        : (JSON.parse(editorRef.current?.getValue() ?? JSON.stringify(draft, null, 2)) as Record<string, unknown>)
       await savePluginCrudRecord(savePath, payload)
       toast.success(t('common.success'))
-      setEditing(false)
-      setDraft(defaultPluginCrudFormValues(schema))
+      closeEditor()
       await loadRows()
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t('common.error'))
@@ -128,7 +164,31 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
   }
 
   const showList = Boolean(listPath)
-  const showEditor = Boolean(savePath && (editing || !showList))
+  const showStandaloneEditor = Boolean(savePath && !showList)
+  const editorTitle = isCreate ? t('plugin.runtime.create') : t('plugin.runtime.edit')
+
+  function renderEditorBody() {
+    if (hasTypedForm) {
+      return (
+        <PluginCrudFormFields
+          fields={formFields}
+          values={draft}
+          idField={idField}
+          onChange={(key, value) => setDraft((prev) => ({ ...prev, [key]: value }))}
+        />
+      )
+    }
+
+    return (
+      <JsonEditor
+        key={editing ? `edit:${String(draft[idField] ?? 'new')}` : 'schema'}
+        ref={editorRef}
+        value={draft}
+        readOnly={false}
+        height="320px"
+      />
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -175,16 +235,41 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
         </Card>
       ) : null}
 
-      {showEditor ? (
+      {showList && savePath ? (
+        <Dialog
+          open={editing}
+          onOpenChange={(open) => {
+            if (!open) closeEditor()
+          }}
+        >
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{editorTitle}</DialogTitle>
+              {schema.description ? (
+                <DialogDescription>{schema.description}</DialogDescription>
+              ) : null}
+            </DialogHeader>
+            {renderEditorBody()}
+            <DialogFooter>
+              <Button variant="outline" onClick={closeEditor} disabled={saving}>
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {t('common.save')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
+
+      {showStandaloneEditor ? (
         <Card>
           <CardHeader>
-            <CardTitle>
-              {editing
-                ? t('plugin.runtime.edit')
-                : t('plugin.runtime.schemaEditor')}
-            </CardTitle>
+            <CardTitle>{schema.title ?? t('plugin.runtime.schemaEditor')}</CardTitle>
             <CardDescription>
-              {savePath ? (
+              {schema.description ? (
+                schema.description
+              ) : savePath ? (
                 <code className="text-xs">{savePath}</code>
               ) : (
                 t('plugin.runtime.crudPageDescription')
@@ -192,34 +277,17 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <JsonEditor
-              key={editing ? `edit:${String(draft[idField] ?? 'new')}` : 'schema'}
-              ref={editorRef}
-              value={editing ? draft : defaultPluginCrudFormValues(schema)}
-              readOnly={false}
-              height="320px"
-            />
+            {renderEditorBody()}
             <div className="flex items-center gap-2">
               <Button onClick={handleSave} disabled={saving}>
                 {t('common.save')}
               </Button>
-              {editing ? (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditing(false)
-                    setDraft(defaultPluginCrudFormValues(schema))
-                  }}
-                >
-                  {t('common.cancel')}
-                </Button>
-              ) : null}
             </div>
           </CardContent>
         </Card>
       ) : null}
 
-      {!showList && !showEditor ? (
+      {!showList && !showStandaloneEditor ? (
         <Card>
           <CardHeader>
             <CardTitle>{schema.title ?? subpath}</CardTitle>
