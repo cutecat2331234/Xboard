@@ -1278,7 +1278,7 @@ export default function UserPage() {
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="!flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md"
+          className="!flex w-full max-w-[90%] flex-col gap-0 overflow-hidden p-0 sm:w-[448px] sm:max-w-[448px]"
         >
           <SheetHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <SheetTitle>{t('user.edit.title')}</SheetTitle>
@@ -1289,247 +1289,232 @@ export default function UserPage() {
                 <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.edit.form.email')}
                 </Label>
-                  <input
-                    className={inputCls}
-                    value={String(form.email ?? '')}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  />
+                <input
+                  className={inputCls}
+                  value={String(form.email ?? '')}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.edit.form.inviter_email')}
                 </Label>
-                  <input
-                    className={inputCls}
-                    value={String(form.invite_user_email ?? '')}
-                    onChange={(e) => setForm((f) => ({ ...f, invite_user_email: e.target.value }))}
-                    placeholder={t('user.edit.form.inviter_email_placeholder')}
-                  />
+                <input
+                  className={inputCls}
+                  value={String(form.invite_user_email ?? '')}
+                  onChange={(e) => setForm((f) => ({ ...f, invite_user_email: e.target.value }))}
+                  placeholder={t('user.edit.form.inviter_email_placeholder')}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.edit.form.password')}
                 </Label>
-                  <input
-                    className={inputCls}
-                    type="password"
-                    placeholder={t('user.edit.form.password_placeholder')}
-                    onChange={(e) => setForm((f) => ({ ...f, password: e.target.value || undefined }))}
-                  />
+                <input
+                  className={inputCls}
+                  type="password"
+                  placeholder={t('user.edit.form.password_placeholder')}
+                  onChange={(e) => setForm((f) => ({ ...f, password: e.target.value || undefined }))}
+                />
               </div>
               <div className="grid gap-2 md:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label className="uppercase tracking-wider text-muted-foreground">
                     {t('user.edit.form.balance')}
                   </Label>
-                    <SuffixInput
-                      suffix="¥"
-                      type="number"
-                      value={Number(form.balance ?? 0)}
-                      onChange={(e) => setForm((f) => ({ ...f, balance: Number(e.target.value) }))}
-                      placeholder={t('user.edit.form.balance_placeholder')}
-                    />
+                  <SuffixInput
+                    suffix="¥"
+                    type="number"
+                    value={Number(form.balance ?? 0)}
+                    onChange={(e) => setForm((f) => ({ ...f, balance: Number(e.target.value) }))}
+                    placeholder={t('user.edit.form.balance_placeholder')}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="uppercase tracking-wider text-muted-foreground">
                     {t('user.edit.form.commission_balance')}
                   </Label>
-                    <SuffixInput
-                      suffix="¥"
-                      type="number"
-                      value={Number(form.commission_balance ?? 0)}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, commission_balance: Number(e.target.value) }))
-                      }
-                      placeholder={t('user.edit.form.commission_balance_placeholder')}
-                    />
+                  <SuffixInput
+                    suffix="¥"
+                    type="number"
+                    value={Number(form.commission_balance ?? 0)}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, commission_balance: Number(e.target.value) }))
+                    }
+                    placeholder={t('user.edit.form.commission_balance_placeholder')}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="uppercase tracking-wider text-muted-foreground">
                     {t('user.edit.form.upload')}
                   </Label>
-                    <SuffixInput
-                      suffix="GB"
-                      type="number"
-                      step="any"
-                      value={form.u ?? ''}
-                      onChange={(e) => setForm((f) => ({ ...f, u: e.target.value }))}
-                      placeholder={t('user.edit.form.upload_placeholder')}
-                    />
+                  <SuffixInput
+                    suffix="GB"
+                    type="number"
+                    step="any"
+                    value={form.u ?? ''}
+                    onChange={(e) => setForm((f) => ({ ...f, u: e.target.value }))}
+                    placeholder={t('user.edit.form.upload_placeholder')}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="uppercase tracking-wider text-muted-foreground">
                     {t('user.edit.form.download')}
                   </Label>
-                    <SuffixInput
-                      suffix="GB"
-                      type="number"
-                      step="any"
-                      value={form.d ?? ''}
-                      onChange={(e) => setForm((f) => ({ ...f, d: e.target.value }))}
-                      placeholder={t('user.edit.form.download_placeholder')}
-                    />
+                  <SuffixInput
+                    suffix="GB"
+                    type="number"
+                    step="any"
+                    value={form.d ?? ''}
+                    onChange={(e) => setForm((f) => ({ ...f, d: e.target.value }))}
+                    placeholder={t('user.edit.form.download_placeholder')}
+                  />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
-                    {t('user.edit.form.total_traffic')}
-                  </Label>
-                    <SuffixInput
-                      suffix="GB"
-                      type="number"
-                      step="any"
-                      value={
-                        form.transfer_enable != null && form.transfer_enable !== ''
-                          ? Number(form.transfer_enable)
-                          : ''
-                      }
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          transfer_enable: e.target.value === '' ? 0 : Number(e.target.value),
-                        }))
-                      }
-                      placeholder={t('user.edit.form.total_traffic_placeholder')}
-                    />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
-                    {t('user.edit.form.expire_time')}
-                  </Label>
-                    <ExpireDateInput
-                      value={form.expired_at as number | null | undefined}
-                      onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
-                      placeholder={t('user.edit.form.expire_time_placeholder')}
-                    />
-                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.total_traffic')}
+                </Label>
+                <SuffixInput
+                  suffix="GB"
+                  type="number"
+                  step="any"
+                  value={
+                    form.transfer_enable != null && form.transfer_enable !== ''
+                      ? Number(form.transfer_enable)
+                      : ''
+                  }
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      transfer_enable: e.target.value === '' ? 0 : Number(e.target.value),
+                    }))
+                  }
+                  placeholder={t('user.edit.form.total_traffic_placeholder')}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.expire_time')}
+                </Label>
+                <ExpireDateInput
+                  value={form.expired_at as number | null | undefined}
+                  onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
+                  placeholder={t('user.edit.form.expire_time_placeholder')}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.edit.form.subscription')}
                 </Label>
-                  <FormSelect
-                    value={String(form.plan_id ?? '')}
-                    onChange={(v) =>
-                      setForm((f) => ({
-                        ...f,
-                        plan_id: v ? Number(v) : null,
-                      }))
-                    }
-                    options={[
-                      { value: '', label: t('user.edit.form.subscription_none') },
-                      ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
-                    ]}
-                  />
+                <FormSelect
+                  value={String(form.plan_id ?? '')}
+                  onChange={(v) =>
+                    setForm((f) => ({
+                      ...f,
+                      plan_id: v ? Number(v) : null,
+                    }))
+                  }
+                  options={[
+                    { value: '', label: t('user.edit.form.subscription_none') },
+                    ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
+                  ]}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.edit.form.account_status')}
                 </Label>
-                  <FormSelect
-                    value={form.banned ? 'true' : 'false'}
-                    onChange={(v) => setForm((f) => ({ ...f, banned: v === 'true' }))}
-                    options={[
-                      { value: 'false', label: t('user.columns.status_text.normal') },
-                      { value: 'true', label: t('user.columns.status_text.banned') },
-                    ]}
-                  />
+                <FormSelect
+                  value={form.banned ? 'true' : 'false'}
+                  onChange={(v) => setForm((f) => ({ ...f, banned: v === 'true' }))}
+                  options={[
+                    { value: 'true', label: t('user.columns.status_text.banned') },
+                    { value: 'false', label: t('user.columns.status_text.normal') },
+                  ]}
+                />
               </div>
-              <div className="grid gap-2 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
-                    {t('user.edit.form.commission_type')}
-                  </Label>
-                    <FormSelect
-                      value={String(form.commission_type ?? 0)}
-                      onChange={(v) => setForm((f) => ({ ...f, commission_type: Number(v) }))}
-                      options={[
-                        { value: '0', label: t('user.edit.form.commission_type_system') },
-                        { value: '1', label: t('user.edit.form.commission_type_cycle') },
-                        { value: '2', label: t('user.edit.form.commission_type_onetime') },
-                      ]}
-                    />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
-                    {t('user.edit.form.commission_rate')}
-                  </Label>
-                    <input
-                      type="number"
-                      className={inputCls}
-                      value={form.commission_rate != null ? Number(form.commission_rate) : ''}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          commission_rate: e.target.value === '' ? null : Number(e.target.value),
-                        }))
-                      }
-                      placeholder={t('user.edit.form.commission_rate_placeholder')}
-                    />
-                </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.commission_type')}
+                </Label>
+                <FormSelect
+                  value={String(form.commission_type ?? 0)}
+                  onChange={(v) => setForm((f) => ({ ...f, commission_type: Number(v) }))}
+                  options={[
+                    { value: '0', label: t('user.edit.form.commission_type_system') },
+                    { value: '1', label: t('user.edit.form.commission_type_cycle') },
+                    { value: '2', label: t('user.edit.form.commission_type_onetime') },
+                  ]}
+                />
               </div>
-              <div className="grid gap-2 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
-                    {t('user.edit.form.discount')}
-                  </Label>
-                    <input
-                      type="number"
-                      className={inputCls}
-                      value={form.discount != null ? Number(form.discount) : ''}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          discount: e.target.value === '' ? null : Number(e.target.value),
-                        }))
-                      }
-                      placeholder={t('user.edit.form.discount_placeholder')}
-                    />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
-                    {t('user.edit.form.speed_limit')}
-                  </Label>
-                    <input
-                      type="number"
-                      className={inputCls}
-                      value={form.speed_limit != null ? Number(form.speed_limit) : ''}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          speed_limit: e.target.value === '' ? null : Number(e.target.value),
-                        }))
-                      }
-                      placeholder={t('user.edit.form.speed_limit_placeholder')}
-                    />
-                </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.commission_rate')}
+                </Label>
+                <SuffixInput
+                  suffix="%"
+                  type="number"
+                  value={form.commission_rate != null ? Number(form.commission_rate) : ''}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      commission_rate: e.target.value === '' ? null : Number(e.target.value),
+                    }))
+                  }
+                  placeholder={t('user.edit.form.commission_rate_placeholder')}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.discount')}
+                </Label>
+                <SuffixInput
+                  suffix="%"
+                  type="number"
+                  value={form.discount != null ? Number(form.discount) : ''}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      discount: e.target.value === '' ? null : Number(e.target.value),
+                    }))
+                  }
+                  placeholder={t('user.edit.form.discount_placeholder')}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.speed_limit')}
+                </Label>
+                <SuffixInput
+                  suffix="Mbps"
+                  type="number"
+                  value={form.speed_limit != null ? Number(form.speed_limit) : ''}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      speed_limit: e.target.value === '' ? null : Number(e.target.value),
+                    }))
+                  }
+                  placeholder={t('user.edit.form.speed_limit_placeholder')}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="uppercase tracking-wider text-muted-foreground">
                   {t('user.edit.form.device_limit')}
                 </Label>
-                  <input
-                    type="number"
-                    className={inputCls}
-                    value={form.device_limit != null ? Number(form.device_limit) : ''}
-                    onChange={(e) =>
-                      setForm((f) => ({
-                        ...f,
-                        device_limit: e.target.value === '' ? null : Number(e.target.value),
-                      }))
-                    }
-                    placeholder={t('user.edit.form.device_limit_placeholder')}
-                  />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
-                  {t('user.edit.form.remarks')}
-                </Label>
-                  <textarea
-                    className={`${textareaCls} min-h-[96px]`}
-                    value={String(form.remarks ?? '')}
-                    onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))}
-                    placeholder={t('user.edit.form.remarks_placeholder')}
-                  />
+                <SuffixInput
+                  suffix="台"
+                  type="number"
+                  value={form.device_limit != null ? Number(form.device_limit) : ''}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      device_limit: e.target.value === '' ? null : Number(e.target.value),
+                    }))
+                  }
+                  placeholder={t('user.edit.form.device_limit_placeholder')}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label className="uppercase tracking-wider text-muted-foreground">
@@ -1552,6 +1537,17 @@ export default function UserPage() {
                     onCheckedChange={(v) => setForm((f) => ({ ...f, is_staff: v }))}
                   />
                 </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="uppercase tracking-wider text-muted-foreground">
+                  {t('user.edit.form.remarks')}
+                </Label>
+                <textarea
+                  className={`${textareaCls} h-24`}
+                  value={String(form.remarks ?? '')}
+                  onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))}
+                  placeholder={t('user.edit.form.remarks_placeholder')}
+                />
               </div>
             </div>
           </div>
