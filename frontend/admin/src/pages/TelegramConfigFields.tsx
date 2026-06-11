@@ -29,17 +29,21 @@ type Props = {
 export function TelegramConfigFields({ t, telegram, update, FormField, SwitchField }: Props) {
   const [webhookLoading, setWebhookLoading] = useState(false)
 
-  const handleSetWebhook = () => {
+  const handleSetWebhook = async () => {
     const token = String(telegram.telegram_bot_token ?? '').trim()
     if (!token) {
       toast.error(t('settings.telegram.bot_token.description'))
       return
     }
     setWebhookLoading(true)
-    setTelegramWebhook(token)
-      .then(() => toast.success(t('settings.telegram.webhook.success')))
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
-      .finally(() => setWebhookLoading(false))
+    try {
+      await setTelegramWebhook(token)
+      toast.success(t('settings.telegram.webhook.success'))
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t('common.error'))
+    } finally {
+      setWebhookLoading(false)
+    }
   }
 
   return (
