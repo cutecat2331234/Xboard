@@ -251,13 +251,23 @@ function cropPng(img, { x, y, w, h }) {
   return box
 }
 
-function diffPct(img1, img2, diffPath) {
+/** Crop both PNGs to min(width) x min(height) so pixelmatch never aborts on size mismatch. */
+function normalizePngPair(img1, img2) {
   const width = Math.min(img1.width, img2.width)
   const height = Math.min(img1.height, img2.height)
+  if (img1.width === width && img1.height === height && img2.width === width && img2.height === height) {
+    return [img1, img2]
+  }
   const a = new PNG({ width, height })
   const b = new PNG({ width, height })
   PNG.bitblt(img1, a, 0, 0, width, height, 0, 0)
   PNG.bitblt(img2, b, 0, 0, width, height, 0, 0)
+  return [a, b]
+}
+
+function diffPct(img1, img2, diffPath) {
+  const [a, b] = normalizePngPair(img1, img2)
+  const { width, height } = a
   const diff = new PNG({ width, height })
   const n = pixelmatch(a.data, b.data, diff.data, width, height, { threshold: 0.15, includeAA: false })
   if (diffPath) fs.writeFileSync(diffPath, PNG.sync.write(diff))
@@ -269,6 +279,15 @@ function scorePng(refPng, cmpPng, diffPath, route) {
     const refMain = cropPng(refPng, USER_MAIN_BOX)
     const cmpMain = cropPng(cmpPng, USER_MAIN_BOX)
     return diffPct(refMain, cmpMain, diffPath)
+  }
+  if (DIALOG_ROUTES.has(route)) {
+    if (refPng.width !== cmpPng.width || refPng.height !== cmpPng.height) {
+      console.warn(
+        `${route}: dialog screenshot size ref=${refPng.width}x${refPng.height} cmp=${cmpPng.width}x${cmpPng.height} → cropping to min`,
+      )
+    }
+    const [refNorm, cmpNorm] = normalizePngPair(refPng, cmpPng)
+    return diffPct(refNorm, cmpNorm, diffPath)
   }
   return diffPct(refPng, cmpPng, diffPath)
 }
@@ -719,7 +738,7 @@ async function main() {
       isDialog ? await screenshotDialog(cmpPage, shotOpts) : await cmpPage.screenshot(shotOpts),
     )
     const diffPath = path.join(outDir, `${route}-diff.png`)
-    const pct = scorePng(refPng, cmpPng, diffPath, isDialog ? '' : route)
+    const pct = scorePng(refPng, cmpPng, diffPath, route)
     const limit = routeLimit(route)
     const ok = pct <= limit && consoleErrors.length === 0
     const line = `${route}: diff=${pct.toFixed(3)}% limit=${limit}% consoleErrors=${consoleErrors.length} ${ok ? 'PASS' : 'FAIL'}`
