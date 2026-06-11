@@ -11,7 +11,7 @@ import { FormSelect } from '@/components/shared/FormSelect'
 
 import { SuffixInput } from '@/components/shared/SuffixInput'
 
-import { inputCls, textareaCls } from '@/lib/form-styles'
+import { dialogInputCls, inputCls, serverFieldLabelCls, textareaCls } from '@/lib/form-styles'
 
 import { cn } from '@/lib/utils'
 
@@ -351,7 +351,7 @@ function CipherSelect({
 
   return (
     <div className="xb-stack-2">
-      <Label>{t('server.dynamic_form.shadowsocks.cipher.label')}</Label>
+      <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.cipher.label')}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -368,7 +368,7 @@ function CipherSelect({
         <PopoverContent className="w-[min(400px,calc(100vw-3rem))] p-0" align="start">
           <div className="border-b p-2">
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={search}
               onChange={(e) => {
                 const next = e.target.value
@@ -473,7 +473,7 @@ function ShadowsocksCertFields({
   return (
     <div className="space-y-3">
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.cert_mode.label`)}</Label>
+        <Label className={serverFieldLabelCls}>{t(`${locale}.cert_mode.label`)}</Label>
         <FormSelect
           value={mode}
           onChange={(cert_mode) => patch({ cert_mode: cert_mode as ShadowsocksCertConfig['cert_mode'] })}
@@ -493,9 +493,9 @@ function ShadowsocksCertFields({
       {mode === 'http' || mode === 'dns' || mode === 'self' || mode === 'content' ? (
         <div className="grid grid-cols-2 gap-4">
           <div className="xb-stack-2">
-            <Label>{t(`${locale}.domain.label`)}</Label>
+            <Label className={serverFieldLabelCls}>{t(`${locale}.domain.label`)}</Label>
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={value.domain}
               onChange={(e) => patch({ domain: e.target.value })}
               placeholder={t(`${locale}.domain.placeholder`)}
@@ -503,9 +503,9 @@ function ShadowsocksCertFields({
           </div>
           {mode === 'http' || mode === 'dns' ? (
             <div className="xb-stack-2">
-              <Label>{t(`${locale}.email.label`)}</Label>
+              <Label className={serverFieldLabelCls}>{t(`${locale}.email.label`)}</Label>
               <input
-                className={cn(inputCls, 'font-mono text-xs')}
+                className={cn(inputCls, dialogInputCls)}
                 value={value.email}
                 onChange={(e) => patch({ email: e.target.value })}
                 placeholder={t(`${locale}.email.placeholder`)}
@@ -517,10 +517,10 @@ function ShadowsocksCertFields({
 
       {mode === 'http' ? (
         <div className="xb-stack-2">
-          <Label>{t(`${locale}.http_port.label`)}</Label>
+          <Label className={serverFieldLabelCls}>{t(`${locale}.http_port.label`)}</Label>
           <input
             type="number"
-            className={cn(inputCls, 'font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls)}
             value={value.http_port}
             onChange={(e) => patch({ http_port: e.target.value })}
           />
@@ -531,9 +531,9 @@ function ShadowsocksCertFields({
       {mode === 'dns' ? (
         <div className="space-y-3">
           <div className="xb-stack-2">
-            <Label>{t(`${locale}.dns_provider.label`)}</Label>
+            <Label className={serverFieldLabelCls}>{t(`${locale}.dns_provider.label`)}</Label>
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={value.dns_provider}
               onChange={(e) => patch({ dns_provider: e.target.value })}
               placeholder="cloudflare / alidns / dnspod"
@@ -549,7 +549,7 @@ function ShadowsocksCertFields({
             </a>
           </div>
           <div className="xb-stack-2">
-            <Label>{t(`${locale}.dns_env.label`)}</Label>
+            <Label className={serverFieldLabelCls}>{t(`${locale}.dns_env.label`)}</Label>
             <textarea
               className={cn(textareaCls, 'min-h-[100px] font-mono text-xs')}
               value={value.dns_env_text}
@@ -567,7 +567,7 @@ function ShadowsocksCertFields({
       {mode === 'content' ? (
         <div className="space-y-3">
           <div className="xb-stack-2">
-            <Label>{t(`${locale}.cert_content.label`)}</Label>
+            <Label className={serverFieldLabelCls}>{t(`${locale}.cert_content.label`)}</Label>
             <textarea
               className={cn(textareaCls, 'min-h-[100px] font-mono text-xs')}
               value={value.cert_content}
@@ -577,7 +577,7 @@ function ShadowsocksCertFields({
             />
           </div>
           <div className="xb-stack-2">
-            <Label>{t(`${locale}.key_content.label`)}</Label>
+            <Label className={serverFieldLabelCls}>{t(`${locale}.key_content.label`)}</Label>
             <textarea
               className={cn(textareaCls, 'min-h-[100px] font-mono text-xs')}
               value={value.key_content}
@@ -636,7 +636,7 @@ function ShadowsocksProtocolFields({
       />
 
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.shadowsocks.plugin.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.plugin.label')}</Label>
         <FormSelect
           value={value.plugin || 'none'}
           onChange={(plugin) => onChange({ ...value, plugin })}
@@ -649,7 +649,7 @@ function ShadowsocksProtocolFields({
 
       {showPluginOpts ? (
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.shadowsocks.plugin_opts.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.plugin_opts.label')}</Label>
           <p className="text-xs text-muted-foreground">
             {t('server.dynamic_form.shadowsocks.plugin_opts.description')}
           </p>
@@ -678,7 +678,7 @@ function ShadowsocksProtocolFields({
 
       {value.plugin === 'shadow-tls' || value.plugin === 'restls' ? (
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.shadowsocks.client_fingerprint')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.client_fingerprint')}</Label>
           <FormSelect
             value={value.client_fingerprint || 'chrome'}
             onChange={(client_fingerprint) => onChange({ ...value, client_fingerprint })}
@@ -693,7 +693,7 @@ function ShadowsocksProtocolFields({
       ) : null}
 
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.shadowsocks.obfs.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.obfs.label')}</Label>
         <FormSelect
           value={value.obfs || 'none'}
           onChange={(obfs) => onChange({ ...value, obfs: obfs === 'none' ? '' : obfs })}
@@ -709,9 +709,9 @@ function ShadowsocksProtocolFields({
       {value.obfs === 'http' ? (
         <div className="grid grid-cols-2 gap-4">
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.shadowsocks.obfs_settings.path')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.obfs_settings.path')}</Label>
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={value.obfs_settings.path}
               onChange={(e) =>
                 onChange({
@@ -722,9 +722,9 @@ function ShadowsocksProtocolFields({
             />
           </div>
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.shadowsocks.obfs_settings.host')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.obfs_settings.host')}</Label>
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={value.obfs_settings.host}
               onChange={(e) =>
                 onChange({
@@ -795,9 +795,9 @@ function TransportNetworkSubFields({
   if (network === 'grpc') {
     return (
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.serviceName`)}</Label>
+        <Label className={serverFieldLabelCls}>{t(`${locale}.serviceName`)}</Label>
         <input
-          className={cn(inputCls, 'font-mono text-xs')}
+          className={cn(inputCls, dialogInputCls)}
           value={value.serviceName}
           onChange={(e) => onChange({ ...value, serviceName: e.target.value })}
           placeholder={t(`${locale}.serviceName_placeholder`)}
@@ -810,16 +810,16 @@ function TransportNetworkSubFields({
     return (
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
-          <Label>{t(`${locale}.seed`)}</Label>
+          <Label className={serverFieldLabelCls}>{t(`${locale}.seed`)}</Label>
           <input
-            className={cn(inputCls, 'font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls)}
             value={value.seed}
             onChange={(e) => onChange({ ...value, seed: e.target.value })}
             placeholder={t(`${locale}.seed_placeholder`)}
           />
         </div>
         <div className="xb-stack-2">
-          <Label>{t(`${locale}.header_type`)}</Label>
+          <Label className={serverFieldLabelCls}>{t(`${locale}.header_type`)}</Label>
           <FormSelect
             value={value.headerType || 'none'}
             onChange={(headerType) => onChange({ ...value, headerType })}
@@ -836,18 +836,18 @@ function TransportNetworkSubFields({
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.path`)}</Label>
+        <Label className={serverFieldLabelCls}>{t(`${locale}.path`)}</Label>
         <input
-          className={cn(inputCls, 'font-mono text-xs')}
+          className={cn(inputCls, dialogInputCls)}
           value={value.path}
           onChange={(e) => onChange({ ...value, path: e.target.value })}
           placeholder={t(`${locale}.path_placeholder`)}
         />
       </div>
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.host`)}</Label>
+        <Label className={serverFieldLabelCls}>{t(`${locale}.host`)}</Label>
         <input
-          className={cn(inputCls, 'font-mono text-xs')}
+          className={cn(inputCls, dialogInputCls)}
           value={value.host}
           onChange={(e) => onChange({ ...value, host: e.target.value })}
           placeholder={t(`${locale}.host_placeholder`)}
@@ -869,7 +869,7 @@ function VmessFields({
   return (
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.vmess.tls.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vmess.tls.label')}</Label>
         <FormSelect
           value={String(value.tls)}
           onChange={(v) => onChange({ ...value, tls: Number(v) })}
@@ -885,9 +885,9 @@ function VmessFields({
       {value.tls === 1 ? (
         <div className="grid grid-cols-[1fr_auto] items-end gap-4">
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.vmess.tls_settings.server_name.label')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vmess.tls_settings.server_name.label')}</Label>
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={value.tls_settings.server_name}
               onChange={(e) =>
                 onChange({
@@ -899,7 +899,7 @@ function VmessFields({
             />
           </div>
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.vmess.tls_settings.allow_insecure')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vmess.tls_settings.allow_insecure')}</Label>
             <div className="flex h-10 items-center justify-center">
               <Switch
                 checked={value.tls_settings.allow_insecure}
@@ -916,7 +916,7 @@ function VmessFields({
       ) : null}
 
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.vmess.network.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vmess.network.label')}</Label>
         <FormSelect
           value={value.network}
           onChange={(network) => onChange({ ...value, network })}
@@ -970,25 +970,25 @@ function RealityFields({
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="xb-stack-2 col-span-2 sm:col-span-1">
-          <Label>{t(`${locale}.server_name.label`)}</Label>
+          <Label className={serverFieldLabelCls}>{t(`${locale}.server_name.label`)}</Label>
           <input
-            className={cn(inputCls, 'font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls)}
             value={reality.server_name}
             onChange={(e) => patchReality({ server_name: e.target.value })}
             placeholder={t(`${locale}.server_name.placeholder`)}
           />
         </div>
         <div className="xb-stack-2">
-          <Label>{t(`${locale}.server_port.label`)}</Label>
+          <Label className={serverFieldLabelCls}>{t(`${locale}.server_port.label`)}</Label>
           <input
-            className={cn(inputCls, 'font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls)}
             value={reality.server_port}
             onChange={(e) => patchReality({ server_port: e.target.value })}
             placeholder={t(`${locale}.server_port.placeholder`)}
           />
         </div>
         <div className="xb-stack-2 flex flex-col justify-end">
-          <Label>{t(`${locale}.allow_insecure`)}</Label>
+          <Label className={serverFieldLabelCls}>{t(`${locale}.allow_insecure`)}</Label>
           <div className="flex h-10 items-center">
             <Switch
               checked={reality.allow_insecure}
@@ -999,10 +999,10 @@ function RealityFields({
       </div>
 
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.private_key.label`)}</Label>
+        <Label className={serverFieldLabelCls}>{t(`${locale}.private_key.label`)}</Label>
         <div className="relative">
           <input
-            className={cn(inputCls, 'pr-10 font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls, 'pr-10')}
             value={reality.private_key}
             onChange={(e) => patchReality({ private_key: e.target.value })}
           />
@@ -1020,19 +1020,19 @@ function RealityFields({
       </div>
 
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.public_key.label`)}</Label>
+        <Label className={serverFieldLabelCls}>{t(`${locale}.public_key.label`)}</Label>
         <input
-          className={cn(inputCls, 'font-mono text-xs')}
+          className={cn(inputCls, dialogInputCls)}
           value={reality.public_key}
           onChange={(e) => patchReality({ public_key: e.target.value })}
         />
       </div>
 
       <div className="xb-stack-2">
-        <Label>{t(`${locale}.short_id.label`)}</Label>
+        <Label className={serverFieldLabelCls}>{t(`${locale}.short_id.label`)}</Label>
         <div className="relative">
           <input
-            className={cn(inputCls, 'pr-10 font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls, 'pr-10')}
             value={reality.short_id}
             onChange={(e) => patchReality({ short_id: e.target.value })}
             placeholder={t(`${locale}.short_id.placeholder`)}
@@ -1066,7 +1066,7 @@ function TrojanFields({
   return (
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.vless.tls.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.tls.label')}</Label>
         <FormSelect
           value={String(value.tls)}
           onChange={(v) => onChange({ ...value, tls: Number(v) })}
@@ -1082,9 +1082,9 @@ function TrojanFields({
       {value.tls === 1 ? (
         <div className="grid grid-cols-[1fr_auto] items-end gap-4">
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.trojan.server_name.label')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.trojan.server_name.label')}</Label>
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={value.tls_settings.server_name}
               onChange={(e) =>
                 onChange({
@@ -1096,7 +1096,7 @@ function TrojanFields({
             />
           </div>
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.trojan.allow_insecure')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.trojan.allow_insecure')}</Label>
             <div className="flex h-10 items-center justify-center">
               <Switch
                 checked={value.tls_settings.allow_insecure}
@@ -1115,7 +1115,7 @@ function TrojanFields({
       {value.tls === 2 ? <RealityFields settings={value} onChange={onChange} /> : null}
 
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.trojan.network.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.trojan.network.label')}</Label>
         <FormSelect
           value={value.network}
           onChange={(network) => onChange({ ...value, network })}
@@ -1147,7 +1147,7 @@ function VlessFields({
   return (
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.vless.tls.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.tls.label')}</Label>
         <FormSelect
           value={String(value.tls)}
           onChange={(v) => onChange({ ...value, tls: Number(v) })}
@@ -1164,9 +1164,9 @@ function VlessFields({
       {value.tls === 1 ? (
         <div className="grid grid-cols-[1fr_auto] items-end gap-4">
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.vless.tls_settings.server_name.label')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.tls_settings.server_name.label')}</Label>
             <input
-              className={cn(inputCls, 'font-mono text-xs')}
+              className={cn(inputCls, dialogInputCls)}
               value={value.tls_settings.server_name}
               onChange={(e) =>
                 onChange({
@@ -1178,7 +1178,7 @@ function VlessFields({
             />
           </div>
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.vless.tls_settings.allow_insecure')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.tls_settings.allow_insecure')}</Label>
             <div className="flex h-10 items-center justify-center">
               <Switch
                 checked={value.tls_settings.allow_insecure}
@@ -1198,7 +1198,7 @@ function VlessFields({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.vless.network.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.network.label')}</Label>
           <FormSelect
             value={value.network}
             onChange={(network) => onChange({ ...value, network })}
@@ -1208,7 +1208,7 @@ function VlessFields({
           />
         </div>
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.vless.flow.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.flow.label')}</Label>
           <FormSelect
             value={value.flow || 'none'}
             onChange={(flow) => onChange({ ...value, flow: flow === 'none' ? '' : flow })}
@@ -1229,7 +1229,7 @@ function VlessFields({
       <div className="space-y-3 rounded-lg border bg-muted/10 p-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <Label>{t('server.dynamic_form.vless.encryption.label')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.encryption.label')}</Label>
             <p className="text-xs text-muted-foreground">
               {t('server.dynamic_form.vless.encryption.description')}
             </p>
@@ -1244,9 +1244,9 @@ function VlessFields({
         {value.encryption.enabled ? (
           <div className="space-y-3 border-t border-dashed pt-3">
             <div className="xb-stack-2">
-              <Label>{t('server.dynamic_form.vless.encryption.server_label')}</Label>
+              <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.encryption.server_label')}</Label>
               <input
-                className={cn(inputCls, 'font-mono text-xs')}
+                className={cn(inputCls, dialogInputCls)}
                 value={value.encryption.decryption}
                 onChange={(e) =>
                   onChange({
@@ -1258,9 +1258,9 @@ function VlessFields({
               />
             </div>
             <div className="xb-stack-2">
-              <Label>{t('server.dynamic_form.vless.encryption.client_label')}</Label>
+              <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.encryption.client_label')}</Label>
               <input
-                className={cn(inputCls, 'font-mono text-xs')}
+                className={cn(inputCls, dialogInputCls)}
                 value={value.encryption.encryption}
                 onChange={(e) =>
                   onChange({
@@ -1327,7 +1327,7 @@ function HysteriaFields({
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.hysteria.version.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.version.label')}</Label>
           <FormSelect
             value={String(value.version)}
             onChange={(v) => patch({ version: Number(v) })}
@@ -1337,7 +1337,7 @@ function HysteriaFields({
         </div>
         {value.version === 1 ? (
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.hysteria.alpn.label')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.alpn.label')}</Label>
             <FormSelect
               value={value.alpn}
               onChange={(v) => patch({ alpn: v })}
@@ -1350,12 +1350,12 @@ function HysteriaFields({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
-          <Label>{t('server.dynamic_form.hysteria.obfs.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.obfs.label')}</Label>
           <Switch checked={value.obfs.open} onCheckedChange={(open) => patchObfs({ open })} />
         </div>
         {value.obfs.open && value.version === 2 ? (
           <div className="xb-stack-2">
-            <Label>{t('server.dynamic_form.hysteria.obfs.type.label')}</Label>
+            <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.obfs.type.label')}</Label>
             <FormSelect
               value={value.obfs.type}
               onChange={(v) => patchObfs({ type: v })}
@@ -1373,7 +1373,7 @@ function HysteriaFields({
 
       {value.obfs.open ? (
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.hysteria.obfs.password.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.obfs.password.label')}</Label>
           <div className="relative">
             <input
               className={cn(inputCls, 'font-mono text-xs', showObfsPasswordGenerate && 'pr-10')}
@@ -1399,16 +1399,16 @@ function HysteriaFields({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.hysteria.tls.server_name.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.tls.server_name.label')}</Label>
           <input
-            className={cn(inputCls, 'font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls)}
             value={value.tls.server_name}
             onChange={(e) => patchTls({ server_name: e.target.value })}
             placeholder={t('server.dynamic_form.hysteria.tls.server_name.placeholder')}
           />
         </div>
         <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
-          <Label>{t('server.dynamic_form.hysteria.tls.allow_insecure')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.tls.allow_insecure')}</Label>
           <Switch
             checked={value.tls.allow_insecure}
             onCheckedChange={(allow_insecure) => patchTls({ allow_insecure })}
@@ -1418,7 +1418,7 @@ function HysteriaFields({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.hysteria.bandwidth.up.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.bandwidth.up.label')}</Label>
           <SuffixInput
             type="number"
             suffix={t('server.dynamic_form.hysteria.bandwidth.up.suffix')}
@@ -1429,7 +1429,7 @@ function HysteriaFields({
           />
         </div>
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.hysteria.bandwidth.down.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.bandwidth.down.label')}</Label>
           <SuffixInput
             type="number"
             suffix={t('server.dynamic_form.hysteria.bandwidth.down.suffix')}
@@ -1464,7 +1464,7 @@ function TuicFields({
   return (
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.tuic.version.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.version.label')}</Label>
         <FormSelect
           value={String(value.version)}
           onChange={(v) => patch({ version: Number(v) })}
@@ -1474,7 +1474,7 @@ function TuicFields({
       </div>
 
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.tuic.congestion_control.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.congestion_control.label')}</Label>
         <FormSelect
           value={value.congestion_control}
           onChange={(v) => patch({ congestion_control: v })}
@@ -1488,16 +1488,16 @@ function TuicFields({
 
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.tuic.tls.server_name.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.tls.server_name.label')}</Label>
           <input
-            className={cn(inputCls, 'font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls)}
             value={value.tls.server_name}
             onChange={(e) => patchTls({ server_name: e.target.value })}
             placeholder={t('server.dynamic_form.tuic.tls.server_name.placeholder')}
           />
         </div>
         <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
-          <Label>{t('server.dynamic_form.tuic.tls.allow_insecure')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.tls.allow_insecure')}</Label>
           <Switch
             checked={value.tls.allow_insecure}
             onCheckedChange={(allow_insecure) => patchTls({ allow_insecure })}
@@ -1506,7 +1506,7 @@ function TuicFields({
       </div>
 
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.tuic.tls.alpn.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.tls.alpn.label')}</Label>
         <FormMultiSelect
           value={value.alpn}
           onChange={(alpn) => patch({ alpn })}
@@ -1521,7 +1521,7 @@ function TuicFields({
       </div>
 
       <div className="xb-stack-2">
-        <Label>{t('server.dynamic_form.tuic.udp_relay_mode.label')}</Label>
+        <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.udp_relay_mode.label')}</Label>
         <FormSelect
           value={value.udp_relay_mode}
           onChange={(v) => patch({ udp_relay_mode: v })}
@@ -1553,16 +1553,16 @@ function AnyTlsFields({
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
-          <Label>{t('server.dynamic_form.anytls.tls.server_name.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.anytls.tls.server_name.label')}</Label>
           <input
-            className={cn(inputCls, 'font-mono text-xs')}
+            className={cn(inputCls, dialogInputCls)}
             value={value.tls.server_name}
             onChange={(e) => patchTls({ server_name: e.target.value })}
             placeholder={t('server.dynamic_form.anytls.tls.server_name.placeholder')}
           />
         </div>
         <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-1.5">
-          <Label>{t('server.dynamic_form.anytls.tls.allow_insecure')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.anytls.tls.allow_insecure')}</Label>
           <Switch
             checked={value.tls.allow_insecure}
             onCheckedChange={(allow_insecure) => patchTls({ allow_insecure })}
@@ -1572,7 +1572,7 @@ function AnyTlsFields({
 
       <div className="xb-stack-2">
         <div className="flex items-center justify-between gap-2">
-          <Label>{t('server.dynamic_form.anytls.padding_scheme.label')}</Label>
+          <Label className={serverFieldLabelCls}>{t('server.dynamic_form.anytls.padding_scheme.label')}</Label>
           <Button
             type="button"
             variant="outline"

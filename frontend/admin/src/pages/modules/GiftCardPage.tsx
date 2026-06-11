@@ -912,6 +912,7 @@ export default function GiftCardPage() {
               type="button"
               variant="ghost"
               size="sm"
+              className="h-8 whitespace-nowrap px-2 text-xs"
               data-testid="gift-template-edit"
               onClick={() => openEdit(row.original)}
             >
@@ -1378,7 +1379,7 @@ export default function GiftCardPage() {
 
                       type="number"
 
-                      className={inputCls}
+                      className={`${inputCls} ${dialogInputCls}`}
 
                       placeholder={t('giftCard.template.form.sort.placeholder')}
 
@@ -1696,9 +1697,9 @@ export default function GiftCardPage() {
 
 
 
-              <div className="xb-stack-4 rounded-md border p-3">
+              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
 
-                <div className="flex items-center gap-2">
+                <div className="mb-2 flex items-center gap-2">
 
                   <Target className="h-4 w-4 text-primary" />
 
@@ -1706,11 +1707,13 @@ export default function GiftCardPage() {
 
                 </div>
 
-                <div className="xb-stack-2">
+                <div className="space-y-1.5">
 
-                  <Label>{t('giftCard.template.form.conditions.new_user_max_days.label')}</Label>
+                  <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.conditions.new_user_max_days.label')}</Label>
 
                   <SuffixInput
+
+                    className={dialogInputCls}
 
                     suffix={t('common.days')}
 

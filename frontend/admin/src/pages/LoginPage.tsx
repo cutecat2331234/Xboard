@@ -116,8 +116,7 @@ export default function LoginPage() {
             </h1>
             <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
           </div>
-          <div className="grid gap-6">
-            <form className="space-y-4" onSubmit={onSubmit}>
+          <form className="mt-6 space-y-4" onSubmit={onSubmit}>
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
               <div className="space-y-2">
                 <Label
@@ -171,8 +170,7 @@ export default function LoginPage() {
               >
                 {loading ? t('common.saving') : t('auth.signIn.submit')}
               </button>
-            </form>
-          </div>
+          </form>
         </div>
       </div>
 
