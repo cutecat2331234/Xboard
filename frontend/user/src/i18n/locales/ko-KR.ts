@@ -94,6 +94,8 @@ export default {
     periodReset: "데이터 리셋 패키지",
     empty: "No plans available",
     loadFailed: "플랜을 불러오지 못했습니다",
+    periodPricesHint: "Period prices",
+    capacityRemaining: "{count} slots remaining",
     tryOutBadge: "Trial plan",
     tryOutHint: "This is the registration trial plan. New users receive a trial automatically; you can also purchase it here."
   },
