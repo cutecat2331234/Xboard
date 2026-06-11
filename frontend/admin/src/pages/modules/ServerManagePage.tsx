@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ColumnDef } from '@tanstack/react-table'
 
+import * as Tooltip from '@radix-ui/react-tooltip'
+
 import { IconDots } from '@tabler/icons-react'
-import { Loader2, Plus, Sparkles, Users, X } from 'lucide-react'
+import { HardDrive, Loader2, Plus, Sparkles, Users, X } from 'lucide-react'
 
 import { Link, useSearchParams } from 'react-router-dom'
 
@@ -12,6 +14,8 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { fetchJsonList, generateEchKey, postJson } from '@/lib/api'
+
+import { cn } from '@/lib/utils'
 
 import { inputCls, textareaCls } from '@/lib/form-styles'
 
@@ -69,6 +73,14 @@ type GroupRow = { id?: number; name?: string }
 type MachineRow = { id?: number; name?: string }
 type RouteRow = { id?: number; name?: string }
 
+type LoadStatus = {
+  cpu?: number
+  mem?: { total?: number; used?: number }
+  swap?: { total?: number; used?: number }
+  disk?: { total?: number; used?: number }
+  updated_at?: number
+}
+
 type NodeRow = Record<string, unknown> & {
 
   id?: number
@@ -91,6 +103,18 @@ type NodeRow = Record<string, unknown> & {
 
   online?: number
 
+  u?: number
+
+  d?: number
+
+  transfer_enable?: number
+
+  banned?: boolean
+
+  load_status?: LoadStatus | null
+
+  metrics?: Record<string, unknown>
+
   group_ids?: number[]
 
   sort?: number
@@ -99,6 +123,49 @@ type NodeRow = Record<string, unknown> & {
 
   protocol_settings?: Record<string, unknown>
 
+}
+
+function formatBytes(n?: number | null) {
+  if (n == null || n <= 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let i = Math.floor(Math.log(n) / Math.log(1024))
+  if (i < 0) i = 0
+  if (i >= units.length) i = units.length - 1
+  return `${parseFloat((n / 1024 ** i).toFixed(2))} ${units[i]}`
+}
+
+function usedPercent(used: number, total: number) {
+  return total > 0 ? (used / total) * 100 : 0
+}
+
+function loadPercents(loadStatus?: LoadStatus | null) {
+  if (!loadStatus) return { cpu: 0, mem: 0, disk: 0 }
+  return {
+    cpu: loadStatus.cpu ?? 0,
+    mem: usedPercent(loadStatus.mem?.used ?? 0, loadStatus.mem?.total ?? 0),
+    disk: usedPercent(loadStatus.disk?.used ?? 0, loadStatus.disk?.total ?? 0),
+  }
+}
+
+function loadBarTone(pct: number) {
+  if (pct >= 90) return 'bg-destructive'
+  if (pct >= 70) return 'bg-amber-500'
+  return 'bg-primary'
+}
+
+function LoadBar({ label, value }: { label: string; value: number }) {
+  const pct = Math.min(100, value)
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>
+        <span className="font-mono text-[10px] font-medium">{pct.toFixed(0)}%</span>
+      </div>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div className={cn('h-full transition-all', loadBarTone(pct))} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  )
 }
 
 
