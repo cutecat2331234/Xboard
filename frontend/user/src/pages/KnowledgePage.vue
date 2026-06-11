@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { NButton, NCard, NCollapse, NCollapseItem, NInput, NTabs, NTabPane } from 'naive-ui'
+import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NTabs, NTabPane } from 'naive-ui'
 import { fetchKnowledge, fetchKnowledgeCategories, type KnowledgeItem } from '@/api/knowledge'
 import { useI18n } from '@/i18n'
 
@@ -37,7 +37,7 @@ onMounted(async () => {
   <h2 class="page-title">{{ t('nav.knowledge') }}</h2>
   <n-card>
     <div class="knowledge-search">
-      <n-input v-model:value="keyword" :placeholder="t('nav.knowledge')" @keyup.enter="search" />
+      <n-input v-model:value="keyword" :placeholder="t('knowledge.searchPh')" @keyup.enter="search" />
       <n-button @click="search">{{ t('common.search') }}</n-button>
     </div>
     <n-tabs v-if="categories.length > 1" v-model:value="activeCategory" type="line" class="cat-tabs">
@@ -48,7 +48,7 @@ onMounted(async () => {
         <div v-html="k.body" />
       </n-collapse-item>
     </n-collapse>
-    <p v-else style="color:#888;margin:0">—</p>
+    <n-empty v-else :description="t('knowledge.empty')" />
   </n-card>
 </template>
 
