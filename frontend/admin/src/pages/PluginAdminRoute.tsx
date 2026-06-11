@@ -11,6 +11,7 @@ import {
 } from '@/lib/plugin-menus'
 import type { PluginConfigField, PluginRow } from '@/lib/plugin-types'
 import { usePluginList } from '@/lib/use-plugin-list'
+import { PluginCrudPanel } from '@/components/plugin/PluginCrudPanel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -115,7 +116,7 @@ export default function PluginAdminRoute() {
       </div>
 
       {adminCrud ? (
-        <PluginCrudPlaceholder plugin={plugin} subpath={subpath} schema={adminCrud} />
+        <PluginCrudPanel plugin={plugin} subpath={subpath} schema={adminCrud} />
       ) : null}
 
       {adminMenu ? (
@@ -271,45 +272,6 @@ function PluginMenuPlaceholder({
               <span className="font-medium text-foreground">Path:</span>{' '}
               <code>{plugin.code ? buildPluginRoute(plugin.code, path) : path}</code>
             </div>
-          </div>
-        </div>
-        <Button variant="outline" asChild>
-          <Link to={buildPluginRoute(plugin.code ?? '')}>
-            {t('plugin.runtime.backToOverview')}
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
-  )
-}
-
-function PluginCrudPlaceholder({
-  plugin,
-  subpath,
-  schema,
-}: {
-  plugin: PluginRow
-  subpath: string
-  schema: { title?: string; description?: string }
-}) {
-  const { t } = useTranslation()
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{schema.title ?? subpath}</CardTitle>
-        <CardDescription>
-          {schema.description ||
-            t('plugin.runtime.crudPageDescription')}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
-          <div>
-            <span className="font-medium text-foreground">Plugin:</span> {plugin.name}
-          </div>
-          <div>
-            <span className="font-medium text-foreground">CRUD key:</span> <code>{subpath}</code>
           </div>
         </div>
         <Button variant="outline" asChild>
