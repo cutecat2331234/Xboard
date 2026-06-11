@@ -25,6 +25,7 @@ class CommController extends Controller
             'commission_distribution_l2' => admin_setting('commission_distribution_l2'),
             'commission_distribution_l3' => admin_setting('commission_distribution_l3'),
             'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
+            'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
         ];
         return $this->success($data);
     }
