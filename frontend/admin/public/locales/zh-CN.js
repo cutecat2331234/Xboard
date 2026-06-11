@@ -190,7 +190,17 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "machineIdNone": "独立部署",
       "enabled": "在服务器上激活",
       "enabledDescription": "节点是否在所选服务器上启用运行"
+    },
+    "status": {
+      "active": "启用",
+      "inactive": "停用"
     }
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "description": "您访问的页面不存在或已被移除。",
+    "goBack": "返回上一页",
+    "backToHome": "返回首页"
   },
   "common": {
     "loading": "加载中...",
@@ -280,7 +290,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "type": {
       "placeholder": "选择插件类型",
-      "all": "全部类型"
+      "all": "全部类型",
+      "feature": "功能",
+      "payment": "支付方式"
     },
     "tabs": {
       "all": "所有插件",

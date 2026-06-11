@@ -51,13 +51,8 @@ type PluginRow = {
 
 const TYPE_ORDER = ['feature', 'payment'] as const
 
-const TYPE_LABELS: Record<string, string> = {
-  feature: '功能',
-  payment: '支付方式',
-}
-
-function typeLabel(type: string) {
-  return TYPE_LABELS[type] ?? type
+function typeLabel(type: string, t: (key: string, options?: { defaultValue?: string }) => string) {
+  return t(`plugin.type.${type}`, { defaultValue: type })
 }
 
 function orderedTypes(plugins: PluginRow[]) {
@@ -238,7 +233,7 @@ export default function PluginPage() {
             {types.map((type) => (
               <TabsTrigger key={type} value={type}>
                 <div className="flex items-center gap-2">
-                  <span>{typeLabel(type)}</span>
+                  <span>{typeLabel(type, t)}</span>
                 </div>
               </TabsTrigger>
             ))}
@@ -398,7 +393,7 @@ function PluginGrid({
                 <h3 className="truncate text-base font-semibold">{plugin.name}</h3>
                 {plugin.type ? (
                   <div className="inline-flex items-center rounded-md border border-primary/20 bg-primary/5 px-1.5 py-0.5 text-xs font-semibold text-primary">
-                    {typeLabel(plugin.type)}
+                    {typeLabel(plugin.type, t)}
                   </div>
                 ) : null}
                 {plugin.is_enabled ? (
