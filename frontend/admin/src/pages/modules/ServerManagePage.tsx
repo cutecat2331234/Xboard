@@ -17,11 +17,12 @@ import { fetchJsonList, generateEchKey, postJson } from '@/lib/api'
 
 import { cn } from '@/lib/utils'
 
-import { inputCls, textareaCls } from '@/lib/form-styles'
+import { formSubLabelCls, inputCls, textareaCls } from '@/lib/form-styles'
 
 import { moveListItem, reorderList } from '@/lib/list-sort'
 
 import { DataTable } from '@/components/shared/DataTable'
+import { FormMultiSelect } from '@/components/shared/FormMultiSelect'
 import { FormSelect } from '@/components/shared/FormSelect'
 import { SuffixInput } from '@/components/shared/SuffixInput'
 import { TagInput } from '@/components/shared/TagInput'
@@ -235,7 +236,7 @@ type ServerForm = {
   code: string
   tags: string[]
   parent_id: string
-  route_id: string
+  route_ids: number[]
   machine_id: string
   rate_time_enable: boolean
 }
@@ -270,7 +271,7 @@ function defaultCreatePayload(form: ServerForm) {
 
     parent_id: form.parent_id ? Number(form.parent_id) : null,
 
-    route_ids: form.route_id ? [Number(form.route_id)] : [],
+    route_ids: form.route_ids,
 
     machine_id: form.machine_id ? Number(form.machine_id) : null,
 
@@ -327,7 +328,7 @@ export default function ServerManagePage() {
     code: '',
     tags: [],
     parent_id: '',
-    route_id: '',
+    route_ids: [],
     machine_id: '',
     rate_time_enable: false,
   })
@@ -451,7 +452,7 @@ export default function ServerManagePage() {
 
       parent_id: row.parent_id != null ? String(row.parent_id) : '',
 
-      route_id: routeIds[0] != null ? String(routeIds[0]) : '',
+      route_ids: routeIds,
 
       machine_id: row.machine_id != null ? String(row.machine_id) : '',
 
@@ -648,15 +649,6 @@ export default function ServerManagePage() {
   }
 
 
-
-  function toggleGroupId(groupId: number) {
-    setForm((f) => {
-      const group_ids = f.group_ids.includes(groupId)
-        ? f.group_ids.filter((id) => id !== groupId)
-        : [...f.group_ids, groupId]
-      return { ...f, group_ids }
-    })
-  }
 
   function toggleSelect(id: number) {
 
@@ -1517,7 +1509,7 @@ export default function ServerManagePage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 
-        <DialogContent className="!flex max-h-[837px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+        <DialogContent className="!flex max-h-[800px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
           <div className="flex shrink-0 items-start justify-between gap-4 border-b px-6 py-4">
 
@@ -1545,9 +1537,9 @@ export default function ServerManagePage() {
 
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="xb-stack-3 px-6 py-3">
+          <div className="flex h-[75vh] min-h-[500px] flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+          <div className="xb-stack-2">
 
             <div className="grid grid-cols-2 gap-4">
 
@@ -1674,7 +1666,11 @@ export default function ServerManagePage() {
 
                 <Label>{t('server.form.groups.label')}</Label>
 
-                <Link to="/server/group" className="text-xs text-primary hover:underline" onClick={() => setDialogOpen(false)}>
+                <Link
+                  to="/server/group"
+                  className="text-[11px] text-primary hover:underline"
+                  onClick={() => setDialogOpen(false)}
+                >
 
                   {t('server.form.groups.add')}
 
@@ -1682,24 +1678,17 @@ export default function ServerManagePage() {
 
               </div>
 
-              <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto rounded-md border border-input p-2">
-                {groups.length ? (
-                  groups.map((g) => (
-                    <label key={g.id} className="flex items-center gap-1 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={g.id != null && form.group_ids.includes(g.id)}
-                        onChange={() => g.id != null && toggleGroupId(g.id)}
-                      />
-                      {g.name}
-                    </label>
-                  ))
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    {t('server.form.groups.placeholder')}
-                  </span>
-                )}
-              </div>
+              <FormMultiSelect
+                value={form.group_ids}
+                onChange={(group_ids) => setForm((f) => ({ ...f, group_ids }))}
+                options={groups
+                  .filter((g): g is GroupRow & { id: number } => g.id != null)
+                  .map((g) => ({ value: g.id, label: String(g.name) }))}
+                placeholder={t('server.form.groups.placeholder')}
+                emptyText={t('server.form.groups.empty')}
+              />
+
+              <p className={formSubLabelCls} aria-hidden="true" />
 
             </div>
 
@@ -1784,14 +1773,17 @@ export default function ServerManagePage() {
 
                 <Label>{t('server.form.route.label')}</Label>
 
-                <FormSelect
-                  value={form.route_id}
-                  onChange={(v) => setForm((f) => ({ ...f, route_id: v }))}
-                  options={[
-                    { value: '', label: t('server.form.route.placeholder') },
-                    ...routes.map((r) => ({ value: String(r.id), label: String(r.name) })),
-                  ]}
+                <FormMultiSelect
+                  value={form.route_ids}
+                  onChange={(route_ids) => setForm((f) => ({ ...f, route_ids }))}
+                  options={routes
+                    .filter((r): r is RouteRow & { id: number } => r.id != null)
+                    .map((r) => ({ value: r.id, label: String(r.name) }))}
+                  placeholder={t('server.form.route.placeholder')}
+                  emptyText={t('server.form.route.empty')}
                 />
+
+                <p className={formSubLabelCls} aria-hidden="true" />
 
               </div>
 
