@@ -134,10 +134,8 @@ export default function PaymentPage() {
   async function deleteRow(row: PaymentRow) {
     if (
       !(await confirm(
-        t('payment.table.actions.delete.title', { defaultValue: '删除确认' }),
-        t('payment.table.actions.delete.description', {
-          defaultValue: '确定要删除该支付方式吗？此操作无法撤销。',
-        }),
+        t('payment.table.actions.delete.title'),
+        t('payment.table.actions.delete.description'),
       ))
     )
       return
@@ -211,7 +209,7 @@ export default function PaymentPage() {
         ? [
             {
               id: 'actions',
-              header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+              header: () => t('common.table.columns.actions'),
               cell: ({ row }: { row: { original: PaymentRow } }) => (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -221,10 +219,10 @@ export default function PaymentPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => openEdit(row.original)}>
-                      {t('common.edit', { defaultValue: '编辑' })}
+                      {t('common.edit')}
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-destructive" onClick={() => deleteRow(row.original)}>
-                      {t('common.delete', { defaultValue: '删除' })}
+                      {t('common.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -254,15 +252,15 @@ export default function PaymentPage() {
                 onClick={openCreate}
               >
                 <Plus className="h-4 w-4" />
-                <span>{t('payment.form.add', { defaultValue: '添加支付' })}</span>
+                <span>{t('payment.form.add')}</span>
               </Button>
             ) : null}
             <SortToolbar
               sortMode={sort.sortMode}
               saving={sort.sortSaving}
-              editLabel={t('payment.table.toolbar.sort.edit', { defaultValue: '编辑排序' })}
-              saveLabel={t('payment.table.toolbar.sort.save', { defaultValue: '保存排序' })}
-              hint={sort.sortMode ? t('payment.table.toolbar.sort.hint', { defaultValue: '拖拽支付方式进行排序，完成后点击保存' }) : undefined}
+              editLabel={t('payment.table.toolbar.sort.edit')}
+              saveLabel={t('payment.table.toolbar.sort.save')}
+              hint={sort.sortMode ? t('payment.table.toolbar.sort.hint') : undefined}
               onEdit={sort.enterSort}
               onSave={handleSaveSort}
               onCancel={sort.cancelSort}
@@ -284,8 +282,8 @@ export default function PaymentPage() {
           <DialogHeader>
             <DialogTitle>
               {editing
-                ? t('payment.form.edit.title', { defaultValue: '编辑支付' })
-                : t('payment.form.add.title', { defaultValue: '添加支付' })}
+                ? t('payment.form.edit.title')
+                : t('payment.form.add.title')}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
@@ -308,7 +306,7 @@ export default function PaymentPage() {
                   if (payment) loadPaymentForm(payment, editing?.id)
                 }}
               >
-                <option value="">{t('common.select', { defaultValue: '请选择' })}</option>
+                <option value="">{t('common.select')}</option>
                 {methods.map((m) => (
                   <option key={m} value={m}>
                     {m}
@@ -366,10 +364,10 @@ export default function PaymentPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={savePayment} disabled={saving}>
-              {t('common.save', { defaultValue: '保存' })}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
