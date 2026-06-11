@@ -1509,7 +1509,7 @@ export default function ServerManagePage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 
-        <DialogContent className="!flex max-h-[800px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+        <DialogContent className="!flex h-[800px] max-h-[800px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]">
 
           <div className="flex shrink-0 items-start justify-between gap-4 border-b px-6 py-4">
 
@@ -1537,7 +1537,6 @@ export default function ServerManagePage() {
 
           </div>
 
-          <div className="flex h-[75vh] min-h-[500px] flex-col overflow-hidden">
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
           <div className="xb-stack-2">
 
@@ -1862,7 +1861,6 @@ export default function ServerManagePage() {
               </div>
             ) : null}
 
-          </div>
           </div>
           </div>
 
