@@ -147,7 +147,7 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
                     setSearch(e.target.value)
                     setPage(1)
                   }}
-                  placeholder={t('plugin.runtime.searchPlaceholder', { defaultValue: 'Search...' })}
+                  placeholder={t('plugin.runtime.searchPlaceholder')}
                   className={`h-8 max-w-sm ${inputCls}`}
                 />
               ) : (
@@ -156,7 +156,7 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
               {schema.actions?.create && savePath ? (
                 <Button size="sm" onClick={beginCreate}>
                   <Plus className="mr-1 h-4 w-4" />
-                  {t('plugin.runtime.create', { defaultValue: 'Create' })}
+                  {t('plugin.runtime.create')}
                 </Button>
               ) : null}
             </div>
@@ -180,8 +180,8 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
           <CardHeader>
             <CardTitle>
               {editing
-                ? t('plugin.runtime.edit', { defaultValue: 'Edit record' })
-                : t('plugin.runtime.schemaEditor', { defaultValue: 'Record editor' })}
+                ? t('plugin.runtime.edit')
+                : t('plugin.runtime.schemaEditor')}
             </CardTitle>
             <CardDescription>
               {savePath ? (
@@ -211,7 +211,7 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
                     setDraft(defaultPluginCrudFormValues(schema))
                   }}
                 >
-                  {t('common.cancel', { defaultValue: 'Cancel' })}
+                  {t('common.cancel')}
                 </Button>
               ) : null}
             </div>

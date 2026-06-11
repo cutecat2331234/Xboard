@@ -1205,14 +1205,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "network": {
           "label": "传输协议",
           "placeholder": "选择传输协议"
-        },
-        "network_settings": {
-          "path": "路径",
-          "path_placeholder": "/",
-          "host": "Host",
-          "host_placeholder": "v2ray.com",
-          "serviceName": "服务名称",
-          "serviceName_placeholder": "GunService"
         }
       },
       "trojan": {
@@ -1346,14 +1338,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "network": {
           "label": "传输协议",
           "placeholder": "选择传输协议"
-        },
-        "network_settings": {
-          "path": "路径",
-          "path_placeholder": "/",
-          "host": "Host",
-          "host_placeholder": "v2ray.com",
-          "serviceName": "服务名称",
-          "serviceName_placeholder": "GunService"
         },
         "flow": {
           "label": "流控",
