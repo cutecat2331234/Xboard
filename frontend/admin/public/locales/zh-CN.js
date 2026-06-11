@@ -190,6 +190,14 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "machineIdNone": "独立部署",
       "enabled": "在服务器上激活",
       "enabledDescription": "节点是否在所选服务器上启用运行"
+    },
+    "actions": {
+      "viewToken": "查看 Token",
+      "installCommand": "安装命令",
+      "viewNodes": "关联节点",
+      "manageNodes": "管理节点",
+      "loadHistory": "负载历史",
+      "resetToken": "重置 Token"
     }
   },
   "common": {
@@ -741,6 +749,33 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "empty": "队列中暂无作业",
       "loading": "正在加载队列状态...",
       "error": "加载队列状态失败"
+    },
+    "systemStatus": {
+      "title": "系统状态",
+      "schedule": "定时任务",
+      "scheduleLastRun": "上次运行：{{time}}",
+      "horizon": "Horizon 队列",
+      "horizonHint": "队列 Worker 运行状态"
+    },
+    "queueWorkload": {
+      "title": "队列负载",
+      "description": "各队列当前积压与等待情况",
+      "summary": "等待 {{wait}} 秒 · {{processes}} 进程",
+      "empty": "暂无队列负载数据"
+    },
+    "auditLog": {
+      "title": "审计日志",
+      "description": "管理员操作记录",
+      "keywordPlaceholder": "搜索 URI 或请求数据",
+      "columns": {
+        "id": "ID",
+        "admin": "管理员",
+        "action": "操作",
+        "method": "方法",
+        "uri": "URI",
+        "ip": "IP",
+        "time": "时间"
+      }
     },
     "common": {
       "refresh": "刷新",
