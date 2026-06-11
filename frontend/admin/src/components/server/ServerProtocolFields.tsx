@@ -642,9 +642,9 @@ function ShadowsocksProtocolFields({
           onChange={(plugin) => onChange({ ...value, plugin })}
           options={pluginOptions}
           placeholder={t('server.dynamic_form.shadowsocks.plugin.placeholder')}
-          className="font-mono text-xs"
+          className={dialogInputCls}
         />
-        {hintKey ? <p className="text-xs text-muted-foreground">{t(hintKey)}</p> : null}
+        {hintKey ? <p className="m-0 text-[11px] leading-tight text-muted-foreground">{t(hintKey)}</p> : null}
       </div>
 
       {showPluginOpts ? (
@@ -754,9 +754,9 @@ function ShadowsocksFields({
   const { t } = useTranslation()
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-4">
       <Tabs value={tab} onValueChange={onTabChange}>
-        <TabsList className="grid h-9 w-full grid-cols-2">
+        <TabsList className="grid h-8 w-full grid-cols-2">
           <TabsTrigger value="protocol" className="text-xs">
             {t('server.dynamic_form.shadowsocks.plugin.label')}
           </TabsTrigger>
