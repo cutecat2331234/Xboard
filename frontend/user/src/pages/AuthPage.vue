@@ -219,7 +219,7 @@ function submit() {
 
 <template>
   <div class="auth-page" :style="authPageStyle">
-    <n-card class="auth-card" :bordered="true">
+    <n-card class="auth-card" :class="{ 'auth-card--login': !isRegister }" :bordered="true">
       <div class="auth-card__body">
         <h1 class="auth-card__title-main">{{ settings.title || 'Xboard' }}</h1>
         <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard is best' }}</h5>
@@ -259,40 +259,40 @@ function submit() {
             />
           </div>
 
-          <div v-if="isRegister" class="auth-field">
-            <n-input
-              v-model:value="confirmPassword"
-              type="password"
-              :placeholder="t('confirmPassword')"
-              show-password-on="click"
-            />
-          </div>
+          <template v-if="isRegister">
+            <div class="auth-field">
+              <n-input
+                v-model:value="confirmPassword"
+                type="password"
+                :placeholder="t('confirmPassword')"
+                show-password-on="click"
+              />
+            </div>
 
-          <div v-if="isRegister" class="auth-field">
-            <n-input
-              v-model:value="inviteCode"
-              :placeholder="inviteRequired ? t('inviteCodeRequiredPh') : t('inviteCode')"
-              :disabled="lockInvite"
-            />
-          </div>
+            <div class="auth-field">
+              <n-input
+                v-model:value="inviteCode"
+                :placeholder="inviteRequired ? t('inviteCodeRequiredPh') : t('inviteCode')"
+                :disabled="lockInvite"
+              />
+            </div>
 
-          <div v-if="isRegister" class="auth-field">
-            <CaptchaWidget ref="captchaRef" :config="config" />
-          </div>
+            <div v-if="config?.is_captcha" class="auth-field">
+              <CaptchaWidget ref="captchaRef" :config="config" />
+            </div>
+
+            <div v-if="showTerms" class="auth-field auth-terms">
+              <n-checkbox v-model:checked="agreed">
+                {{ t('termsPrefix') }}
+                <a :href="config?.tos_url" target="_blank" rel="noopener" class="auth-terms-link">
+                  {{ t('termsLink') }}
+                </a>
+              </n-checkbox>
+            </div>
+          </template>
+
           <div v-else-if="showCaptcha && !mailLinkMode" class="auth-field">
             <CaptchaWidget ref="captchaRef" :config="config" />
-          </div>
-
-          <div v-if="isRegister && showTerms" class="auth-field auth-terms">
-            <n-checkbox v-model:checked="agreed">
-              {{ t('termsPrefix') }}
-              <a :href="config?.tos_url" target="_blank" rel="noopener" class="auth-terms-link">
-                {{ t('termsLink') }}
-              </a>
-            </n-checkbox>
-          </div>
-          <div v-else-if="isRegister" class="auth-field auth-terms" style="display: none">
-            <n-checkbox v-model:checked="agreed" />
           </div>
 
           <p v-if="errorText" class="auth-error">{{ errorText }}</p>
@@ -378,16 +378,39 @@ function submit() {
   line-height: 20px;
   color: #6c757d;
 }
+.auth-card--login {
+  min-height: 0;
+}
+.auth-card--login .auth-card__body {
+  min-height: 0;
+  padding: 20px 24px 24px;
+}
+.auth-card--login .auth-card__title-main {
+  margin: 20px 0;
+}
+.auth-card--login .auth-card__subtitle {
+  margin: 16px 0 0;
+}
 .auth-tabs {
   margin-top: 20px;
 }
+.auth-card--login .auth-tabs {
+  margin-top: 0;
+}
 .auth-tabs :deep(.n-tabs-nav) {
   justify-content: center;
+  min-height: 0;
 }
 .auth-tabs :deep(.n-tabs-tab) {
   font-size: 14px;
   color: #6c757d;
   padding: 12px 16px;
+}
+.auth-card--login .auth-tabs :deep(.n-tabs-tab) {
+  padding: 8px 16px;
+}
+.auth-card--login .auth-field {
+  margin-top: 16px;
 }
 .auth-tabs :deep(.n-tabs-tab--active) {
   color: #343a40;
@@ -438,7 +461,8 @@ function submit() {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: rgb(250, 250, 252);
+  background-color: var(--n-color-embedded, rgb(250, 250, 252));
+  border-radius: 0 0 6px 6px;
   color: #6b7280;
 }
 .auth-footer-left {
