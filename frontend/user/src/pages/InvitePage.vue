@@ -100,7 +100,7 @@ const commissionRateLabel = computed(() => {
 })
 
 function inviteLink(code: string) {
-  return `${window.location.origin}${window.location.pathname}#/register?code=${code}`
+  return `${window.location.origin}${window.location.pathname}#/login?tab=register&code=${code}`
 }
 
 async function load() {
