@@ -156,7 +156,10 @@ export default {
     incomeRecord: "Hồ sơ hoa hồng",
     incomeTime: "Thời gian thanh toán hoa hồng",
     incomeAmount: "Tiền hoa hồng",
-    transferAmount: "Transfer amount (cents)"
+    transferAmount: "Số tiền chuyển (cent)",
+    transferAmountRequired: "Vui lòng nhập số tiền chuyển",
+    transferAmountInvalid: "Số tiền chuyển phải là số nguyên dương (cent)",
+    withdrawSuccess: "Yêu cầu rút tiền đã được gửi. Vui lòng xem vé hỗ trợ để cập nhật."
   },
   traffic: {
     hint: "Traffic logs are kept for the last month only.",

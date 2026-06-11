@@ -156,7 +156,10 @@ export default {
     incomeRecord: "佣金發放記錄",
     incomeTime: "发放时间",
     incomeAmount: "佣金",
-    transferAmount: "Transfer amount (cents)"
+    transferAmount: "劃轉金額（分）",
+    transferAmountRequired: "請輸入劃轉金額",
+    transferAmountInvalid: "劃轉金額必須為正整數（分）",
+    withdrawSuccess: "提現申請已提交，請前往工單查看進度。"
   },
   traffic: {
     hint: "Traffic logs are kept for the last month only.",

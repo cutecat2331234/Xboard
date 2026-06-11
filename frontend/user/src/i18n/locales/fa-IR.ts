@@ -156,7 +156,10 @@ export default {
     incomeRecord: "سابقه پرداخت کمیسیون",
     incomeTime: "زمان پرداخت",
     incomeAmount: "کمیسیون",
-    transferAmount: "Transfer amount (cents)"
+    transferAmount: "مبلغ انتقال (سنت)",
+    transferAmountRequired: "لطفاً مبلغ انتقال را وارد کنید",
+    transferAmountInvalid: "مبلغ انتقال باید یک عدد صحیح مثبت (سنت) باشد",
+    withdrawSuccess: "درخواست برداشت ارسال شد. برای پیگیری به تیکت‌ها بروید."
   },
   traffic: {
     hint: "Traffic logs are kept for the last month only.",
