@@ -273,7 +273,7 @@ function submit() {
   <div class="auth-page" :style="authPageStyle">
     <n-card
       class="auth-card"
-      :class="{ 'auth-card--login': !isRegister && !isForget }"
+      :class="{ 'auth-card--login': !isRegister }"
       :bordered="true"
     >
       <div class="auth-card__body">
@@ -530,8 +530,11 @@ function submit() {
   font-size: 14px;
 }
 .auth-terms-link {
-  color: #316c72;
+  color: var(--xb-primary);
   text-decoration: none;
+}
+.auth-terms-link:hover {
+  text-decoration: underline;
 }
 .auth-error {
   margin: 20px 0 0;
@@ -568,10 +571,13 @@ function submit() {
   height: 16px;
 }
 .auth-footer-link {
-  color: #6b7280;
+  color: var(--xb-text-secondary);
   font-size: 14px;
   text-decoration: none;
   cursor: pointer;
+}
+.auth-footer-link:hover {
+  color: var(--xb-text);
 }
 .auth-lang-btn {
   height: 30px;

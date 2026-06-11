@@ -466,6 +466,7 @@ export default function ConfigPage() {
                             type="number"
                             subFieldLabel
                             label={t('settings.invite.commission_distribution.l1')}
+                            description={t('settings.invite.commission_distribution.l1_description')}
                             value={String(invite.commission_distribution_l1 ?? '')}
                             placeholder={t('settings.invite.commission_distribution.placeholder')}
                             onChange={(v) => update('invite', 'commission_distribution_l1', v)}
@@ -474,6 +475,7 @@ export default function ConfigPage() {
                             type="number"
                             subFieldLabel
                             label={t('settings.invite.commission_distribution.l2')}
+                            description={t('settings.invite.commission_distribution.l2_description')}
                             value={String(invite.commission_distribution_l2 ?? '')}
                             placeholder={t('settings.invite.commission_distribution.placeholder')}
                             onChange={(v) => update('invite', 'commission_distribution_l2', v)}
@@ -482,6 +484,7 @@ export default function ConfigPage() {
                             type="number"
                             subFieldLabel
                             label={t('settings.invite.commission_distribution.l3')}
+                            description={t('settings.invite.commission_distribution.l3_description')}
                             value={String(invite.commission_distribution_l3 ?? '')}
                             placeholder={t('settings.invite.commission_distribution.placeholder')}
                             onChange={(v) => update('invite', 'commission_distribution_l3', v)}
