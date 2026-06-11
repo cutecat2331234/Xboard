@@ -4,7 +4,7 @@ import { IconBuilding, IconRefresh } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
-import { configFieldLabelCls, inputCls } from '@/lib/form-styles'
+import { configFieldLabelCls, configSubFieldLabelCls, inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { Switch } from '@/components/ui/switch'
 import { ConfigFormSelect } from '@/components/shared/ConfigFormSelect'
@@ -463,18 +463,24 @@ export default function ConfigPage() {
                       {invite.commission_distribution_enable ? (
                         <>
                           <FormField
+                            type="number"
+                            subFieldLabel
                             label={t('settings.invite.commission_distribution.l1')}
                             value={String(invite.commission_distribution_l1 ?? '')}
                             placeholder={t('settings.invite.commission_distribution.placeholder')}
                             onChange={(v) => update('invite', 'commission_distribution_l1', v)}
                           />
                           <FormField
+                            type="number"
+                            subFieldLabel
                             label={t('settings.invite.commission_distribution.l2')}
                             value={String(invite.commission_distribution_l2 ?? '')}
                             placeholder={t('settings.invite.commission_distribution.placeholder')}
                             onChange={(v) => update('invite', 'commission_distribution_l2', v)}
                           />
                           <FormField
+                            type="number"
+                            subFieldLabel
                             label={t('settings.invite.commission_distribution.l3')}
                             value={String(invite.commission_distribution_l3 ?? '')}
                             placeholder={t('settings.invite.commission_distribution.placeholder')}
@@ -557,15 +563,13 @@ export default function ConfigPage() {
                           value={String(subscribe.subscribe_path ?? '')}
                           onChange={(e) => update('subscribe', 'subscribe_path', e.target.value)}
                         />
-                        <p className="text-[0.8rem] text-muted-foreground">
+                        <div className="text-sm text-muted-foreground">
                           {t('settings.subscribe.subscribe_path.description')}
                           <br />
-                          {t('settings.subscribe.subscribe_path.current_format', {
-                            path: String(subscribe.subscribe_path || 's'),
-                          })}
+                          {t('settings.subscribe.subscribe_path.current_format')}
                           <br />
                           {t('settings.subscribe.subscribe_path.restart_tip')}
-                        </p>
+                        </div>
                       </div>
                       <SwitchField
                         label={t('settings.subscribe.show_info_to_server.title')}
@@ -677,6 +681,7 @@ function FormField({
   onChange,
   type = 'text',
   compactLabel,
+  subFieldLabel,
 }: {
   label: string
   description?: string
@@ -685,16 +690,17 @@ function FormField({
   onChange: (v: string) => void
   type?: string
   compactLabel?: boolean
+  /** 7001 invite distribution l1–l3: text-sm FormLabel, no description */
+  subFieldLabel?: boolean
 }) {
+  const labelCls = subFieldLabel
+    ? configSubFieldLabelCls
+    : compactLabel
+      ? configFieldLabelCls
+      : 'font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base'
   return (
     <div className="xb-stack-2">
-      <label
-        className={
-          compactLabel
-            ? configFieldLabelCls
-            : 'font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base'
-        }
-      >
+      <label className={labelCls}>
         {label}
       </label>
       <input
@@ -704,7 +710,7 @@ function FormField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
       />
-      {description ? <p className="text-[0.8rem] text-muted-foreground">{description}</p> : null}
+      {description ? <p className="m-0 text-[0.8rem] text-muted-foreground">{description}</p> : null}
     </div>
   )
 }
@@ -832,7 +838,7 @@ function SwitchField({
     return (
       <div className="xb-stack-2">
         <label className={labelCls}>{label}</label>
-        {description ? <p className="text-[0.8rem] text-muted-foreground">{description}</p> : null}
+        {description ? <p className="m-0 text-[0.8rem] text-muted-foreground">{description}</p> : null}
         <Switch checked={checked} onCheckedChange={onChange} />
       </div>
     )
@@ -841,7 +847,7 @@ function SwitchField({
     <div className="xb-stack-2">
       <div className="xb-stack-05">
         <label className={labelCls}>{label}</label>
-        {description ? <p className="text-[0.8rem] text-muted-foreground">{description}</p> : null}
+        {description ? <p className="m-0 text-[0.8rem] text-muted-foreground">{description}</p> : null}
       </div>
       <Switch checked={checked} onCheckedChange={onChange} />
     </div>
