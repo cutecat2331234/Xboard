@@ -6,7 +6,8 @@ export function formatBytes(bytes: number): string {
   return `${val.toFixed(i > 0 ? 2 : 0)} ${units[i]}`
 }
 
-export function formatExpire(ts: number | null | undefined): string {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleDateString('zh-CN')
+import { formatLocaleDate } from './format-date'
+
+export function formatExpire(ts: number | null | undefined, locale: string): string {
+  return formatLocaleDate(ts, locale)
 }
