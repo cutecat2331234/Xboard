@@ -229,7 +229,7 @@ onMounted(async () => {
     </n-space>
   </n-card>
 
-  <n-card class="mt-4 rounded-md" :bordered="true">
+  <n-card class="mt-5 rounded-md" :bordered="true">
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.registered') }}</div>
       <div>{{ stat[0] ?? 0 }} {{ t('invite.people') }}</div>
@@ -248,7 +248,7 @@ onMounted(async () => {
     </div>
   </n-card>
 
-  <n-card :title="t('invite.codeMgmt')" class="mt-4 rounded-md">
+  <n-card :title="t('invite.codeMgmt')" class="mt-5 rounded-md">
     <template #header-extra>
       <button
         class="n-button n-button--primary-type n-button--small-type"
@@ -269,7 +269,7 @@ onMounted(async () => {
     />
   </n-card>
 
-  <n-card :title="t('invite.incomeRecord')" class="mt-4 rounded-md">
+  <n-card :title="t('invite.incomeRecord')" class="mt-5 rounded-md">
     <n-data-table
       :columns="detailColumns"
       :data="details"
