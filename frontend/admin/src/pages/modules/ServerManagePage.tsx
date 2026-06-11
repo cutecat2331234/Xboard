@@ -1725,9 +1725,7 @@ export default function ServerManagePage() {
                 emptyText={t('server.form.groups.empty')}
               />
 
-              <p className={`${formSubLabelCls} min-h-5 leading-5`} aria-hidden="true">
-                {'\u00a0'}
-              </p>
+              <p className={formSubLabelCls} aria-hidden="true" />
 
             </div>
 
@@ -1893,9 +1891,7 @@ export default function ServerManagePage() {
                   emptyText={t('server.form.route.empty')}
                 />
 
-                <p className={`${formSubLabelCls} min-h-5 leading-5`} aria-hidden="true">
-                  {'\u00a0'}
-                </p>
+                <p className={formSubLabelCls} aria-hidden="true" />
 
               </div>
 

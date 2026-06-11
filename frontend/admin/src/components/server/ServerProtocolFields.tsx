@@ -754,9 +754,9 @@ function ShadowsocksFields({
   const { t } = useTranslation()
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-4">
+    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
       <Tabs value={tab} onValueChange={onTabChange}>
-        <TabsList className="grid h-8 w-full grid-cols-2">
+        <TabsList className="grid h-9 w-full grid-cols-2">
           <TabsTrigger value="protocol" className="text-xs">
             {t('server.dynamic_form.shadowsocks.plugin.label')}
           </TabsTrigger>
