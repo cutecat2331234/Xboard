@@ -352,6 +352,7 @@ export default {
     quickLoginHint: '生成一次性登录链接，可在其他设备快速登录当前账号。',
     generateQuickLogin: '生成快捷登录链接',
     quickLoginCopied: '快捷登录链接已复制到剪贴板',
+    copied: '已复制到剪贴板',
     telegram: 'Telegram',
     telegramHint: '在 Telegram 搜索机器人并发送 /bind 绑定账号：',
     telegramBound: '已绑定 Telegram',

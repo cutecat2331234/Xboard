@@ -94,6 +94,15 @@ function confirmKickSession(session: ActiveSession) {
   })
 }
 
+async function copyAccountField(value: string) {
+  try {
+    await navigator.clipboard.writeText(value)
+    msg.success(t('profile.copied'))
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
+  }
+}
+
 async function generateQuickLogin() {
   quickLoginLoading.value = true
   try {
@@ -212,15 +221,45 @@ onMounted(async () => {
   <n-card :title="t('profile.accountInfo')" class="rounded-md">
     <div class="info-row">
       <span class="info-label">{{ t('profile.email') }}</span>
-      <span>{{ auth.user?.email ?? '—' }}</span>
+      <div class="info-value">
+        <span>{{ auth.user?.email ?? '—' }}</span>
+        <n-button
+          v-if="auth.user?.email"
+          size="small"
+          tertiary
+          @click="copyAccountField(auth.user.email)"
+        >
+          {{ t('common.copy') }}
+        </n-button>
+      </div>
     </div>
     <div class="info-row">
       <span class="info-label">{{ t('profile.uuid') }}</span>
-      <span class="mono">{{ auth.user?.uuid ?? '—' }}</span>
+      <div class="info-value">
+        <span class="mono">{{ auth.user?.uuid ?? '—' }}</span>
+        <n-button
+          v-if="auth.user?.uuid"
+          size="small"
+          tertiary
+          @click="copyAccountField(auth.user.uuid)"
+        >
+          {{ t('common.copy') }}
+        </n-button>
+      </div>
     </div>
     <div class="info-row">
       <span class="info-label">{{ t('profile.subscribeToken') }}</span>
-      <span class="mono">{{ subscribeToken || '—' }}</span>
+      <div class="info-value">
+        <span class="mono">{{ subscribeToken || '—' }}</span>
+        <n-button
+          v-if="subscribeToken"
+          size="small"
+          tertiary
+          @click="copyAccountField(subscribeToken)"
+        >
+          {{ t('common.copy') }}
+        </n-button>
+      </div>
     </div>
   </n-card>
 
@@ -327,6 +366,13 @@ onMounted(async () => {
 .info-label {
   flex-shrink: 0;
   color: var(--xb-text-muted);
+}
+.info-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
 }
 .mono {
   font-family: monospace;
