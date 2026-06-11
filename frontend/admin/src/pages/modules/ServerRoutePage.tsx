@@ -100,7 +100,16 @@ export default function ServerRoutePage() {
   }
 
   async function deleteRow(row: RouteRow) {
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('route.messages.deleteConfirm', { defaultValue: '确认删除' }),
+        t('route.messages.deleteDescription', {
+          defaultValue: '此操作将永久删除该路由组，删除后无法恢复。确定要继续吗？',
+        }),
+        { confirmLabel: t('route.messages.deleteButton', { defaultValue: '删除' }) },
+      ))
+    )
+      return
     try {
       await postJson('/server/route/drop', { id: row.id })
       toast.success(t('common.success'))
