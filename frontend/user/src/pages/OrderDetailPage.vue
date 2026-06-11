@@ -33,6 +33,7 @@ import { PERIOD_OPTIONS } from '@/api/plan'
 import { orderStatusLabel } from '@/lib/order-status'
 
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 import { useCurrency } from '@/composables/useCurrency'
 
@@ -238,7 +239,7 @@ async function load() {
 
   } catch (e: unknown) {
 
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
 
     router.push('/order')
 
@@ -366,7 +367,7 @@ async function pay() {
 
     } catch (e: unknown) {
 
-      msg.error(e instanceof Error ? e.message : t('common.error'))
+      msg.error(resolveApiError(e, t))
 
     } finally {
 
@@ -412,7 +413,7 @@ async function pay() {
 
   } catch (e: unknown) {
 
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
 
   } finally {
 

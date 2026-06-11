@@ -25,6 +25,7 @@ import TelegramLoginWidget from '@/components/TelegramLoginWidget.vue'
 import { loginWithMailLink, token2Login } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const LoginIcon = {
   render() {
@@ -96,7 +97,7 @@ async function tryTokenLogin() {
     await auth.loadUser()
     router.replace(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     tokenLoading.value = false
   }
@@ -128,7 +129,7 @@ async function sendCode() {
     msg.success(t('common.success'))
     captchaRef.value?.reset()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
     captchaRef.value?.reset()
   } finally {
     sending.value = false
@@ -144,7 +145,7 @@ async function submitMailLink() {
     await loginWithMailLink(addr)
     msg.success(t('mailLinkSent'))
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : t('common.error')
+    const message = resolveApiError(e, t)
     errorText.value = message
     msg.error(message)
   } finally {
@@ -160,7 +161,7 @@ async function submitLogin() {
     msg.success(t('login'))
     router.push(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : t('auth.loginFailed')
+    const message = resolveApiError(e, t, t('auth.loginFailed'))
     errorText.value = message
     msg.error(message)
     captchaRef.value?.reset()
@@ -193,7 +194,7 @@ async function submitRegister() {
     msg.success(t('register'))
     router.push('/dashboard')
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : t('auth.registerFailed')
+    const message = resolveApiError(e, t, t('auth.registerFailed'))
     errorText.value = message
     msg.error(message)
     captchaRef.value?.reset()
