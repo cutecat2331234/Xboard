@@ -527,6 +527,15 @@ export default function ServerManagePage() {
 
 
 
+  function toggleGroupId(groupId: number) {
+    setForm((f) => {
+      const group_ids = f.group_ids.includes(groupId)
+        ? f.group_ids.filter((id) => id !== groupId)
+        : [...f.group_ids, groupId]
+      return { ...f, group_ids }
+    })
+  }
+
   function toggleSelect(id: number) {
 
     setSelectedIds((prev) => {
@@ -1371,19 +1380,24 @@ export default function ServerManagePage() {
 
               </div>
 
-              <FormSelect
-                value={form.group_ids[0] != null ? String(form.group_ids[0]) : ''}
-                onChange={(v) =>
-                  setForm((f) => ({
-                    ...f,
-                    group_ids: v ? [Number(v)] : [],
-                  }))
-                }
-                options={[
-                  { value: '', label: t('server.form.groups.placeholder') },
-                  ...groups.map((g) => ({ value: String(g.id), label: String(g.name) })),
-                ]}
-              />
+              <div className="flex max-h-32 flex-wrap gap-2 overflow-y-auto rounded-md border border-input p-2">
+                {groups.length ? (
+                  groups.map((g) => (
+                    <label key={g.id} className="flex items-center gap-1 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={g.id != null && form.group_ids.includes(g.id)}
+                        onChange={() => g.id != null && toggleGroupId(g.id)}
+                      />
+                      {g.name}
+                    </label>
+                  ))
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    {t('server.form.groups.placeholder')}
+                  </span>
+                )}
+              </div>
 
             </div>
 
