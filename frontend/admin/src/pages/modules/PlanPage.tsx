@@ -80,6 +80,24 @@ const PRICE_BADGE_PERIODS = [
   { key: 'reset_traffic', unitKey: 'times' },
 ] as const
 
+const PRICE_PERIOD_UNIT_KEYS: Record<string, string> = {
+  monthly: 'month',
+  quarterly: 'quarter',
+  half_yearly: 'half_year',
+  yearly: 'year',
+  two_yearly: 'two_year',
+  three_yearly: 'three_year',
+  reset_traffic: 'times',
+}
+
+function pricePeriodSuffix(period: string, t: (key: string) => string) {
+  const unitKey = PRICE_PERIOD_UNIT_KEYS[period]
+  if (unitKey) {
+    return t(`subscribe.plan.columns.price_period.unit.${unitKey}`)
+  }
+  return '元'
+}
+
 function PlanStatsCell({ row }: { row: PlanRow }) {
   const usersCount = row.users_count ?? 0
   const activeCount = row.active_users_count ?? 0
@@ -448,8 +466,8 @@ export default function PlanPage() {
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="xb-stack-4 px-6 py-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.name.label')}</Label>
                 <input
                   className={inputCls}
@@ -458,7 +476,7 @@ export default function PlanPage() {
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.tags.label')}</Label>
                 <TagInput
                   value={form.tags ?? []}
@@ -466,7 +484,7 @@ export default function PlanPage() {
                   placeholder={t('subscribe.plan.form.tags.placeholder')}
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="xb-stack-2">
                 <div className="flex items-center justify-between gap-2">
                   <Label>{t('subscribe.plan.form.group.label')}</Label>
                   <Link
@@ -491,7 +509,7 @@ export default function PlanPage() {
                   ]}
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.transfer.label')}</Label>
                 <SuffixInput
                   suffix={t('subscribe.plan.form.transfer.unit')}
@@ -503,7 +521,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.speed.label')}</Label>
                 <SuffixInput
                   suffix={t('subscribe.plan.form.speed.unit')}
@@ -518,7 +536,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.device.label')}</Label>
                 <SuffixInput
                   suffix={t('subscribe.plan.form.device.unit')}
@@ -533,7 +551,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.capacity.label')}</Label>
                 <SuffixInput
                   suffix={t('subscribe.plan.form.capacity.unit')}
@@ -548,7 +566,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="xb-stack-2">
                 <Label>{t('subscribe.plan.form.reset_method.label')}</Label>
                 <FormSelect
                   value={form.reset_traffic_method == null ? '' : String(form.reset_traffic_method)}
@@ -565,14 +583,14 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="rounded-lg border border-dashed p-3">
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="xb-stack-4 rounded-lg border border-dashed p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</span>
                 <div className="flex items-center gap-2">
                   <SuffixInput
                     prefix="¥"
                     type="number"
-                    className="w-40"
+                    className="h-8 w-24 text-xs"
                     placeholder={t('subscribe.plan.form.price.base_price')}
                     value={form.prices?.monthly ?? ''}
                     onChange={(e) => setBasePrice(e.target.value)}
@@ -581,38 +599,40 @@ export default function PlanPage() {
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9 shrink-0"
+                    className="h-8 w-8 shrink-0"
                     title={t('subscribe.plan.form.price.clear.tooltip')}
                     onClick={clearAllPrices}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              <div className="grid grid-cols-4 gap-2">
                 {MAIN_PRICE_PERIODS.map((period) => (
                   <div key={period} className="xb-stack-2">
                     <Label className="text-xs font-normal text-muted-foreground">
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
-                    <input
+                    <SuffixInput
+                      suffix={pricePeriodSuffix(period, t)}
                       type="number"
-                      className={inputCls}
+                      className="text-xs"
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
                   </div>
                 ))}
               </div>
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {EXTRA_PRICE_PERIODS.map((period) => (
                   <div key={period} className="xb-stack-2">
                     <Label className="text-xs font-normal text-muted-foreground">
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
-                    <input
+                    <SuffixInput
+                      suffix={pricePeriodSuffix(period, t)}
                       type="number"
-                      className={inputCls}
+                      className="text-xs"
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
