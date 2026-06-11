@@ -423,12 +423,12 @@ export default function UserPage() {
         { method: 'POST', jsonBody: buildBulkBody() },
         'users.csv',
       )
-      toast.success(t('user.messages.export.success', { defaultValue: '导出成功' }))
+      toast.success(t('user.messages.export.success'))
     } catch (e) {
       toast.error(
         e instanceof Error
           ? e.message
-          : t('user.messages.export.failed', { defaultValue: '导出失败' }),
+          : t('user.messages.export.failed'),
       )
     } finally {
       setExporting(false)
@@ -438,7 +438,7 @@ export default function UserPage() {
   async function sendMail() {
     if (!mailSubject.trim() || !mailContent.trim()) {
       toast.error(
-        t('user.messages.send_mail.required_fields', { defaultValue: '请填写所有必填字段' }),
+        t('user.messages.send_mail.required_fields'),
       )
       return
     }
@@ -449,7 +449,7 @@ export default function UserPage() {
         subject: mailSubject.trim(),
         content: mailContent.trim(),
       })
-      toast.success(t('user.messages.send_mail.success', { defaultValue: '邮件发送成功' }))
+      toast.success(t('user.messages.send_mail.success'))
       setMailOpen(false)
       setMailSubject('')
       setMailContent('')
@@ -457,7 +457,7 @@ export default function UserPage() {
       toast.error(
         e instanceof Error
           ? e.message
-          : t('user.messages.send_mail.failed', { defaultValue: '邮件发送失败' }),
+          : t('user.messages.send_mail.failed'),
       )
     } finally {
       setMailSending(false)
@@ -468,7 +468,7 @@ export default function UserPage() {
     setBanning(true)
     try {
       await postJson('/user/ban', buildBulkBody())
-      toast.success(t('user.messages.batch_ban.success', { defaultValue: '批量封禁成功' }))
+      toast.success(t('user.messages.batch_ban.success'))
       setBanOpen(false)
       setSelectedIds(new Set())
       load()
@@ -476,7 +476,7 @@ export default function UserPage() {
       toast.error(
         e instanceof Error
           ? e.message
-          : t('user.messages.batch_ban.failed', { defaultValue: '批量封禁失败' }),
+          : t('user.messages.batch_ban.failed'),
       )
     } finally {
       setBanning(false)
@@ -543,7 +543,7 @@ export default function UserPage() {
         user_id: trafficResetUser.id,
         reason: trafficResetReason.trim() || undefined,
       })
-      toast.success(t('user.traffic_reset.reset_success', { defaultValue: '流量重置成功' }))
+      toast.success(t('user.traffic_reset.reset_success'))
       if (trafficResetUser.id) {
         await loadTrafficResetHistory(trafficResetUser.id)
       }
@@ -553,7 +553,7 @@ export default function UserPage() {
       toast.error(
         e instanceof Error
           ? e.message
-          : t('user.traffic_reset.reset_failed', { defaultValue: '流量重置失败' }),
+          : t('user.traffic_reset.reset_failed'),
       )
     } finally {
       setTrafficResetting(false)
@@ -611,11 +611,8 @@ export default function UserPage() {
   async function deleteUser(row: UserRow) {
     if (
       !(await confirm(
-        t('user.columns.actions_menu.delete_confirm_title', { defaultValue: '确认删除用户' }),
-        t('user.columns.actions_menu.delete_confirm_description', {
-          email: row.email,
-          defaultValue: `此操作将永久删除用户 ${row.email} 及其所有相关数据，删除后无法恢复，是否继续？`,
-        }),
+        t('user.columns.actions_menu.delete_confirm_title'),
+        t('user.columns.actions_menu.delete_confirm_description', { email: row.email }),
       ))
     )
       return
@@ -730,8 +727,8 @@ export default function UserPage() {
         header: () => sortHeader('banned', t('user.columns.status')),
         cell: ({ row }) =>
           row.original.banned
-            ? t('user.columns.status_text.banned', { defaultValue: '封禁' })
-            : t('user.columns.status_text.normal', { defaultValue: '正常' }),
+            ? t('user.columns.status_text.banned')
+            : t('user.columns.status_text.normal'),
       },
       {
         accessorKey: 'plan_id',
@@ -788,7 +785,7 @@ export default function UserPage() {
       {
         id: 'actions',
         enableHiding: false,
-        header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+        header: () => t('common.table.columns.actions'),
         cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -798,10 +795,10 @@ export default function UserPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openEdit(row.original)}>
-                {t('user.columns.actions_menu.view_details', { defaultValue: '查看详情' })}
+                {t('user.columns.actions_menu.view_details')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => openEdit(row.original)}>
-                {t('user.columns.actions_menu.edit', { defaultValue: '编辑' })}
+                {t('user.columns.actions_menu.edit')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -809,31 +806,31 @@ export default function UserPage() {
                   setAssignForm({ plan_id: String(row.original.plan_id ?? ''), period: 'month_price', total_amount: '' })
                 }}
               >
-                {t('user.columns.actions_menu.assign_order', { defaultValue: '分配订单' })}
+                {t('user.columns.actions_menu.assign_order')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => copySubscribeUrl(row.original)}>
-                {t('user.columns.actions_menu.copy_url', { defaultValue: '复制订阅URL' })}
+                {t('user.columns.actions_menu.copy_url')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => resetSecret(row.original)}>
-                {t('user.columns.actions_menu.reset_secret', { defaultValue: '重置UUID及订阅URL' })}
+                {t('user.columns.actions_menu.reset_secret')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => openTrafficReset(row.original, 'reset')}>
-                {t('user.columns.actions_menu.reset_traffic', { defaultValue: '重置流量' })}
+                {t('user.columns.actions_menu.reset_traffic')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => openTrafficReset(row.original, 'history')}>
-                {t('user.traffic_reset.tabs.history', { defaultValue: '重置历史' })}
+                {t('user.traffic_reset.tabs.history')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate(`/finance/order?user_id=${row.original.id ?? ''}`)}>
-                {t('user.columns.actions_menu.orders', { defaultValue: 'TA的订单' })}
+                {t('user.columns.actions_menu.orders')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setInvitesUser(row.original)}>
-                {t('user.columns.actions_menu.invites', { defaultValue: 'TA的邀请' })}
+                {t('user.columns.actions_menu.invites')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTrafficRecordsUser(row.original)}>
-                {t('user.columns.actions_menu.traffic_records', { defaultValue: 'TA的流量记录' })}
+                {t('user.columns.actions_menu.traffic_records')}
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive" onClick={() => deleteUser(row.original)}>
-                {t('user.columns.actions_menu.delete', { defaultValue: '删除' })}
+                {t('user.columns.actions_menu.delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -848,25 +845,25 @@ export default function UserPage() {
       {
         accessorKey: 'reset_time',
         header: () =>
-          t('user.traffic_reset.history.reset_time', { defaultValue: '重置时间' }),
+          t('user.traffic_reset.history.reset_time'),
         cell: ({ row }) => formatDateTime(row.original.reset_time),
       },
       {
         accessorKey: 'reset_type_name',
         header: () =>
-          t('user.traffic_reset_logs.columns.reset_type', { defaultValue: '重置类型' }),
+          t('user.traffic_reset_logs.columns.reset_type'),
         cell: ({ row }) => row.original.reset_type_name ?? row.original.reset_type ?? '—',
       },
       {
         accessorKey: 'trigger_source_name',
         header: () =>
-          t('user.traffic_reset_logs.columns.trigger_source', { defaultValue: '触发源' }),
+          t('user.traffic_reset_logs.columns.trigger_source'),
         cell: ({ row }) => row.original.trigger_source_name ?? row.original.trigger_source ?? '—',
       },
       {
         id: 'cleared_traffic',
         header: () =>
-          t('user.traffic_reset.history.traffic_cleared', { defaultValue: '清除流量' }),
+          t('user.traffic_reset.history.traffic_cleared'),
         cell: ({ row }) => row.original.old_traffic?.formatted ?? '—',
       },
     ],
@@ -899,26 +896,26 @@ export default function UserPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8 px-3 text-xs">
-                  {t('user.actions.title', { defaultValue: '操作' })}
+                  {t('user.actions.title')}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 <DropdownMenuItem onClick={() => setMailOpen(true)}>
                   <Mail className="mr-2 h-4 w-4" />
-                  {t('user.actions.send_email', { defaultValue: '发送邮件' })}
+                  {t('user.actions.send_email')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={exportCsv} disabled={exporting}>
-                  {t('user.actions.export_csv', { defaultValue: '导出 CSV' })}
+                  {t('user.actions.export_csv')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setBanOpen(true)}>
                   <ShieldBan className="mr-2 h-4 w-4" />
-                  {t('user.actions.batch_ban', { defaultValue: '批量封禁' })}
+                  {t('user.actions.batch_ban')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="outline" size="sm" className="h-8 gap-1 px-3 text-xs" onClick={openAdvanced}>
               <Filter className="h-4 w-4" />
-              {t('user.filter.advanced', { defaultValue: '高级筛选' })}
+              {t('user.filter.advanced')}
               {advancedConditions.length > 0 ? ` (${advancedConditions.length})` : ''}
             </Button>
             <Input
@@ -986,7 +983,7 @@ export default function UserPage() {
       <Dialog open={advancedOpen} onOpenChange={setAdvancedOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{t('user.filter.sheet.title', { defaultValue: '高级筛选' })}</DialogTitle>
+            <DialogTitle>{t('user.filter.sheet.title')}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-2">
             {draftConditions.map((cond, idx) => (
@@ -1002,7 +999,7 @@ export default function UserPage() {
                 >
                   {FILTER_FIELDS.map((f) => (
                     <option key={f} value={f}>
-                      {t(`user.filter.fields.${f}`, { defaultValue: f })}
+                      {t(`user.filter.fields.${f}`)}
                     </option>
                   ))}
                 </select>
@@ -1019,11 +1016,11 @@ export default function UserPage() {
                   }}
                 >
                   <option value="contains">
-                    {t('user.filter.operators.contains', { defaultValue: '包含' })}
+                    {t('user.filter.operators.contains')}
                   </option>
-                  <option value="eq">{t('user.filter.operators.eq', { defaultValue: '等于' })}</option>
-                  <option value="gt">{t('user.filter.operators.gt', { defaultValue: '大于' })}</option>
-                  <option value="lt">{t('user.filter.operators.lt', { defaultValue: '小于' })}</option>
+                  <option value="eq">{t('user.filter.operators.eq')}</option>
+                  <option value="gt">{t('user.filter.operators.gt')}</option>
+                  <option value="lt">{t('user.filter.operators.lt')}</option>
                 </select>
                 <Input
                   value={cond.value}
@@ -1032,7 +1029,7 @@ export default function UserPage() {
                     next[idx] = { ...cond, value: e.target.value }
                     setDraftConditions(next)
                   }}
-                  placeholder={t('user.filter.sheet.value', { defaultValue: '输入值' })}
+                  placeholder={t('user.filter.sheet.value')}
                   className={inputCls}
                 />
               </div>
@@ -1052,18 +1049,18 @@ export default function UserPage() {
                 ])
               }
             >
-              {t('user.filter.sheet.add', { defaultValue: '添加条件' })}
+              {t('user.filter.sheet.add')}
             </Button>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={clearAdvanced}>
-              {t('user.filter.reset', { defaultValue: '重置筛选' })}
+              {t('user.filter.reset')}
             </Button>
             <Button variant="outline" onClick={() => setAdvancedOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={applyAdvanced}>
-              {t('user.filter.sheet.apply', { defaultValue: '应用筛选' })}
+              {t('user.filter.sheet.apply')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1072,22 +1069,20 @@ export default function UserPage() {
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{t('user.send_mail.title', { defaultValue: '发送邮件' })}</DialogTitle>
+            <DialogTitle>{t('user.send_mail.title')}</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            {t('user.send_mail.description', { defaultValue: '向所选或已筛选的用户发送邮件' })}
-          </p>
-          <div className="flex flex-col gap-4 py-2">
-                  <div className="space-y-2">
-              <Label>{t('user.send_mail.subject', { defaultValue: '主题' })}</Label>
+          <p className="text-sm text-muted-foreground">{t('user.send_mail.description')}</p>
+          <div className="xb-stack-3 py-3.5">
+            <div className="xb-stack-2">
+              <Label>{t('user.send_mail.subject')}</Label>
               <Input
                 value={mailSubject}
                 onChange={(e) => setMailSubject(e.target.value)}
                 className={inputCls}
               />
             </div>
-                  <div className="space-y-2">
-              <Label>{t('user.send_mail.content', { defaultValue: '内容' })}</Label>
+            <div className="xb-stack-2">
+              <Label>{t('user.send_mail.content')}</Label>
               <textarea
                 className={textareaCls}
                 value={mailContent}
@@ -1097,12 +1092,10 @@ export default function UserPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMailOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={sendMail} disabled={mailSending}>
-              {mailSending
-                ? t('user.send_mail.sending', { defaultValue: '发送中...' })
-                : t('user.send_mail.send', { defaultValue: '发送' })}
+              {mailSending ? t('user.send_mail.sending') : t('user.send_mail.send')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1112,31 +1105,24 @@ export default function UserPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {t('user.actions.confirm_ban.title', { defaultValue: '确认批量封禁' })}
+              {t('user.actions.confirm_ban.title')}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             {banScope === 'selected'
-              ? t('user.filter.selected', {
-                  count: selectedIds.size,
-                  defaultValue: `此操作将封禁已选择的 ${selectedIds.size} 个用户。此操作无法撤销。`,
-                })
+              ? t('user.filter.selected', { count: selectedIds.size })
               : banScope === 'filtered'
-                ? t('user.actions.confirm_ban.filtered_description', {
-                    defaultValue: '此操作将封禁所有符合当前筛选条件的用户。此操作无法撤销。',
-                  })
-                : t('user.actions.confirm_ban.all_description', {
-                    defaultValue: '此操作将封禁系统中的所有用户。此操作无法撤销。',
-                  })}
+                ? t('user.actions.confirm_ban.filtered_description')
+                : t('user.actions.confirm_ban.all_description')}
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setBanOpen(false)}>
-              {t('user.actions.confirm_ban.cancel', { defaultValue: '取消' })}
+              {t('user.actions.confirm_ban.cancel')}
             </Button>
             <Button variant="destructive" onClick={batchBan} disabled={banning}>
               {banning
-                ? t('user.actions.confirm_ban.banning', { defaultValue: '封禁中...' })
-                : t('user.actions.confirm_ban.confirm', { defaultValue: '确认封禁' })}
+                ? t('user.actions.confirm_ban.banning')
+                : t('user.actions.confirm_ban.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1148,10 +1134,10 @@ export default function UserPage() {
       >
         <DialogContent className="sm:max-w-[576px]">
           <DialogHeader>
-            <DialogTitle>{t('user.generate.title', { defaultValue: '创建用户' })}</DialogTitle>
+            <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4 py-2">
-            <div className="space-y-2">
+          <div className="xb-stack-3 py-3.5">
+            <div className="xb-stack-2">
               <Label>{t('user.generate.form.email')}</Label>
               <div className="flex w-full items-center">
                 {!form.generate_count ? (
@@ -1179,7 +1165,7 @@ export default function UserPage() {
                 />
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="xb-stack-2">
               <Label>{t('user.generate.form.password')}</Label>
               <input
                 className={inputCls}
@@ -1190,7 +1176,7 @@ export default function UserPage() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="xb-stack-2">
                 <Label>{t('user.generate.form.expire_time')}</Label>
                 <ExpireDateInput
                   value={form.expired_at as number | null | undefined}
@@ -1198,7 +1184,7 @@ export default function UserPage() {
                   placeholder={t('user.generate.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="xb-stack-2">
                 <Label>{t('user.generate.form.subscription')}</Label>
                 <FormSelect
                   value={String(form.plan_id ?? '')}
@@ -1211,7 +1197,7 @@ export default function UserPage() {
                   options={[
                     {
                       value: '',
-                      label: t('user.generate.form.subscription_none', { defaultValue: '无' }),
+                      label: t('user.generate.form.subscription_none'),
                     },
                     ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
                   ]}
@@ -1219,7 +1205,7 @@ export default function UserPage() {
               </div>
             </div>
             {!form.email_prefix ? (
-              <div className="space-y-2">
+              <div className="xb-stack-2">
                 <Label>{t('user.generate.form.generate_count')}</Label>
                 <input
                   type="number"
@@ -1238,10 +1224,10 @@ export default function UserPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogMode(null)}>
-              {t('user.generate.form.cancel', { defaultValue: '取消' })}
+              {t('user.generate.form.cancel')}
             </Button>
             <Button onClick={saveUser} disabled={saving}>
-              {t('user.generate.form.submit', { defaultValue: '生成' })}
+              {t('user.generate.form.submit')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1250,9 +1236,10 @@ export default function UserPage() {
       <Sheet open={dialogMode === 'edit'} onOpenChange={(o) => !o && setDialogMode(null)}>
         <SheetContent side="right" className="flex w-full flex-col gap-4 overflow-y-scroll p-6 sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>{t('user.manage.title', { defaultValue: '用户管理' })}</SheetTitle>
+            <SheetTitle>{t('user.edit.title')}</SheetTitle>
           </SheetHeader>
-                <div className="space-y-2">
+          <div className="xb-stack-3 py-3.5">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.email')}</Label>
                   <input
                     className={inputCls}
@@ -1260,7 +1247,7 @@ export default function UserPage() {
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.inviter_email')}</Label>
                   <input
                     className={inputCls}
@@ -1269,27 +1256,27 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.inviter_email_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.password')}</Label>
                   <input
                     className={inputCls}
                     type="password"
-                    placeholder={t('user.edit.form.password_placeholder', { defaultValue: '如需修改密码请输入' })}
+                    placeholder={t('user.edit.form.password_placeholder')}
                     onChange={(e) => setForm((f) => ({ ...f, password: e.target.value || undefined }))}
                   />
                 </div>
                 <div className="grid gap-2 md:grid-cols-2">
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.balance')}</Label>
                     <SuffixInput
                       suffix="¥"
                       type="number"
                       value={Number(form.balance ?? 0)}
                       onChange={(e) => setForm((f) => ({ ...f, balance: Number(e.target.value) }))}
-                      placeholder={t('user.edit.form.balance_placeholder', { defaultValue: '请输入余额' })}
+                      placeholder={t('user.edit.form.balance_placeholder')}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.commission_balance')}</Label>
                     <SuffixInput
                       suffix="¥"
@@ -1298,12 +1285,10 @@ export default function UserPage() {
                       onChange={(e) =>
                         setForm((f) => ({ ...f, commission_balance: Number(e.target.value) }))
                       }
-                      placeholder={t('user.edit.form.commission_balance_placeholder', {
-                        defaultValue: '请输入佣金余额',
-                      })}
+                      placeholder={t('user.edit.form.commission_balance_placeholder')}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.upload')}</Label>
                     <SuffixInput
                       suffix="GB"
@@ -1313,7 +1298,7 @@ export default function UserPage() {
                       placeholder={t('user.edit.form.upload_placeholder')}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.download')}</Label>
                     <SuffixInput
                       suffix="GB"
@@ -1324,7 +1309,7 @@ export default function UserPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.total_traffic')}</Label>
                   <SuffixInput
                     suffix="GB"
@@ -1336,7 +1321,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.total_traffic_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.expire_time')}</Label>
                   <ExpireDateInput
                     value={form.expired_at as number | null | undefined}
@@ -1344,7 +1329,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.expire_time_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.subscription')}</Label>
                   <FormSelect
                     value={String(form.plan_id ?? '')}
@@ -1355,24 +1340,24 @@ export default function UserPage() {
                       }))
                     }
                     options={[
-                      { value: '', label: t('user.edit.form.subscription_none', { defaultValue: '无' }) },
+                      { value: '', label: t('user.edit.form.subscription_none') },
                       ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
                     ]}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.account_status')}</Label>
                   <FormSelect
                     value={form.banned ? 'banned' : 'normal'}
                     onChange={(v) => setForm((f) => ({ ...f, banned: v === 'banned' }))}
                     options={[
-                      { value: 'normal', label: t('user.columns.status_text.normal', { defaultValue: '正常' }) },
-                      { value: 'banned', label: t('user.columns.status_text.banned', { defaultValue: '封禁' }) },
+                      { value: 'normal', label: t('user.columns.status_text.normal') },
+                      { value: 'banned', label: t('user.columns.status_text.banned') },
                     ]}
                   />
                 </div>
                 <div className="grid gap-2 md:grid-cols-2">
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.commission_type')}</Label>
                     <FormSelect
                       value={String(form.commission_type ?? 0)}
@@ -1384,7 +1369,7 @@ export default function UserPage() {
                       ]}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.commission_rate')}</Label>
                     <input
                       type="number"
@@ -1401,7 +1386,7 @@ export default function UserPage() {
                   </div>
                 </div>
                 <div className="grid gap-2 md:grid-cols-2">
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.discount')}</Label>
                     <input
                       type="number"
@@ -1416,7 +1401,7 @@ export default function UserPage() {
                       placeholder={t('user.edit.form.discount_placeholder')}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="xb-stack-2">
                     <Label>{t('user.edit.form.speed_limit')}</Label>
                     <input
                       type="number"
@@ -1432,7 +1417,7 @@ export default function UserPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.device_limit')}</Label>
                   <input
                     type="number"
@@ -1447,7 +1432,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.device_limit_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="xb-stack-2">
                   <Label>{t('user.edit.form.remarks')}</Label>
                   <textarea
                     className={`${textareaCls} min-h-[96px]`}
@@ -1472,12 +1457,13 @@ export default function UserPage() {
                     <Label>{t('user.edit.form.is_staff')}</Label>
                   </div>
                 </div>
+          </div>
           <SheetFooter className="mt-0 flex-row justify-end gap-2 border-0 p-0 pt-0">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
-              {t('user.edit.form.cancel', { defaultValue: '取消' })}
+              {t('user.edit.form.cancel')}
             </Button>
             <Button onClick={saveUser} disabled={saving}>
-              {t('user.edit.form.submit', { defaultValue: '提交' })}
+              {t('user.edit.form.submit')}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -1486,13 +1472,10 @@ export default function UserPage() {
       <Dialog open={trafficResetUser !== null} onOpenChange={(o) => !o && closeTrafficReset()}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t('user.traffic_reset.title', { defaultValue: '流量重置' })}</DialogTitle>
+            <DialogTitle>{t('user.traffic_reset.title')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            {t('user.traffic_reset.description', {
-              email: trafficResetUser?.email ?? '',
-              defaultValue: `为用户 ${trafficResetUser?.email ?? ''} 重置流量使用量`,
-            })}
+            {t('user.traffic_reset.description', { email: trafficResetUser?.email ?? '' })}
           </p>
           <Tabs
             value={trafficResetTab}
@@ -1500,10 +1483,10 @@ export default function UserPage() {
           >
             <TabsList className="grid h-9 w-full grid-cols-2">
               <TabsTrigger value="reset">
-                {t('user.traffic_reset.tabs.reset', { defaultValue: '重置流量' })}
+                {t('user.traffic_reset.tabs.reset')}
               </TabsTrigger>
               <TabsTrigger value="history">
-                {t('user.traffic_reset.tabs.history', { defaultValue: '重置历史' })}
+                {t('user.traffic_reset.tabs.history')}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="reset" className="mt-4 space-y-4">
@@ -1511,18 +1494,16 @@ export default function UserPage() {
                 className={textareaCls}
                 value={trafficResetReason}
                 onChange={(e) => setTrafficResetReason(e.target.value)}
-                placeholder={t('user.traffic_reset.reason.placeholder', {
-                  defaultValue: '请输入重置流量的原因（可选）',
-                })}
+                placeholder={t('user.traffic_reset.reason.placeholder')}
               />
               <DialogFooter className="gap-2 sm:justify-end">
                 <Button variant="outline" onClick={closeTrafficReset}>
-                  {t('common.cancel', { defaultValue: '取消' })}
+                  {t('common.cancel')}
                 </Button>
                 <Button onClick={resetTrafficForUser} disabled={trafficResetting}>
                   {trafficResetting
-                    ? t('user.traffic_reset.resetting', { defaultValue: '重置中...' })
-                    : t('user.traffic_reset.confirm_reset', { defaultValue: '确认重置' })}
+                    ? t('user.traffic_reset.resetting')
+                    : t('user.traffic_reset.confirm_reset')}
                 </Button>
               </DialogFooter>
             </TabsContent>
@@ -1530,7 +1511,7 @@ export default function UserPage() {
               <div className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3">
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t('user.traffic_reset.history.reset_count', { defaultValue: '重置次数' })}
+                    {t('user.traffic_reset.history.reset_count')}
                   </p>
                   <p className="text-sm font-medium">
                     {trafficResetHistory?.user?.reset_count ?? 0}
@@ -1538,35 +1519,33 @@ export default function UserPage() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t('user.traffic_reset.history.last_reset', { defaultValue: '最后重置' })}
+                    {t('user.traffic_reset.history.last_reset')}
                   </p>
                   <p className="text-sm font-medium">
                     {trafficResetHistory?.user?.last_reset_at
                       ? formatTs(trafficResetHistory.user.last_reset_at)
-                      : t('user.traffic_reset.history.never', { defaultValue: '从未重置' })}
+                      : t('user.traffic_reset.history.never')}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">
-                    {t('user.traffic_reset.history.next_reset', { defaultValue: '下次重置' })}
+                    {t('user.traffic_reset.history.next_reset')}
                   </p>
                   <p className="text-sm font-medium">
                     {trafficResetHistory?.user?.next_reset_at
                       ? formatTs(trafficResetHistory.user.next_reset_at)
-                      : t('user.traffic_reset.history.no_schedule', { defaultValue: '无定时重置' })}
+                      : t('user.traffic_reset.history.no_schedule')}
                   </p>
                 </div>
               </div>
               <div>
                 <p className="mb-2 text-sm font-medium">
-                  {t('user.traffic_reset.history.recent_records', {
-                    defaultValue: '最近10次重置记录',
-                  })}
+                  {t('user.traffic_reset.history.recent_records')}
                 </p>
                 {!trafficResetHistoryLoading &&
                 (trafficResetHistory?.history?.length ?? 0) === 0 ? (
                   <p className="py-6 text-center text-sm text-muted-foreground">
-                    {t('user.traffic_reset.history.no_records', { defaultValue: '暂无重置记录' })}
+                    {t('user.traffic_reset.history.no_records')}
                   </p>
                 ) : (
                   <DataTable
@@ -1578,7 +1557,7 @@ export default function UserPage() {
               </div>
               <DialogFooter className="gap-2 sm:justify-end">
                 <Button variant="outline" onClick={closeTrafficReset}>
-                  {t('common.close', { defaultValue: '关闭' })}
+                  {t('common.close')}
                 </Button>
               </DialogFooter>
             </TabsContent>
@@ -1604,7 +1583,7 @@ export default function UserPage() {
       <Dialog open={assignUser !== null} onOpenChange={(o) => !o && setAssignUser(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('user.columns.actions_menu.assign_order', { defaultValue: '分配订单' })}</DialogTitle>
+            <DialogTitle>{t('user.columns.actions_menu.assign_order')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">{assignUser?.email}</p>
           <div className="flex flex-col gap-4 py-2">
@@ -1615,7 +1594,7 @@ export default function UserPage() {
                 value={assignForm.plan_id}
                 onChange={(e) => setAssignForm((f) => ({ ...f, plan_id: e.target.value }))}
               >
-                <option value="">{t('common.none', { defaultValue: '无' })}</option>
+                <option value="">{t('common.none')}</option>
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -1624,7 +1603,7 @@ export default function UserPage() {
               </select>
             </div>
                   <div className="space-y-2">
-              <Label>{t('order.form.period', { defaultValue: '周期' })}</Label>
+              <Label>{t('order.form.period')}</Label>
               <select
                 className={inputCls}
                 value={assignForm.period}
@@ -1638,7 +1617,7 @@ export default function UserPage() {
               </select>
             </div>
                   <div className="space-y-2">
-              <Label>{t('order.form.total_amount', { defaultValue: '金额（元）' })}</Label>
+              <Label>{t('order.form.total_amount')}</Label>
               <input
                 type="number"
                 className={inputCls}
@@ -1649,10 +1628,10 @@ export default function UserPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAssignUser(null)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={assignOrder} disabled={assigning}>
-              {t('common.confirm', { defaultValue: '确定' })}
+              {t('common.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -82,12 +82,12 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
     () => [
       {
         accessorKey: 'record_at',
-        header: () => t('traffic.trafficRecord.time', { defaultValue: '时间' }),
+        header: () => t('traffic.trafficRecord.time'),
         cell: ({ row }) => formatTs(row.original.record_at),
       },
       {
         accessorKey: 'u',
-        header: () => t('traffic.trafficRecord.upload', { defaultValue: '上传' }),
+        header: () => t('traffic.trafficRecord.upload'),
         cell: ({ row }) => {
           const rate = Number(row.original.server_rate) || 1
           return formatBytes((row.original.u ?? 0) / rate)
@@ -95,7 +95,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
       },
       {
         accessorKey: 'd',
-        header: () => t('traffic.trafficRecord.download', { defaultValue: '下载' }),
+        header: () => t('traffic.trafficRecord.download'),
         cell: ({ row }) => {
           const rate = Number(row.original.server_rate) || 1
           return formatBytes((row.original.d ?? 0) / rate)
@@ -103,16 +103,13 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
       },
       {
         accessorKey: 'server_rate',
-        header: () => t('traffic.trafficRecord.rate', { defaultValue: '倍率' }),
+        header: () => t('traffic.trafficRecord.rate'),
         cell: ({ row }) =>
-          t('traffic.trafficRecord.multiplier', {
-            value: row.original.server_rate ?? 1,
-            defaultValue: `${row.original.server_rate ?? 1}x`,
-          }),
+          t('traffic.trafficRecord.multiplier', { value: row.original.server_rate ?? 1 }),
       },
       {
         id: 'total',
-        header: () => t('traffic.trafficRecord.total', { defaultValue: '总计' }),
+        header: () => t('traffic.trafficRecord.total'),
         cell: ({ row }) => formatBytes((row.original.u ?? 0) + (row.original.d ?? 0)),
       },
     ],
@@ -125,12 +122,12 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{t('traffic.trafficRecord.title', { defaultValue: '流量使用记录' })}</DialogTitle>
+          <DialogTitle>{t('traffic.trafficRecord.title')}</DialogTitle>
         </DialogHeader>
         {email ? <p className="text-sm text-muted-foreground">{email}</p> : null}
         {!loading && data.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            {t('traffic.trafficRecord.noRecords', { defaultValue: '暂无记录' })}
+            {t('traffic.trafficRecord.noRecords')}
           </p>
         ) : (
           <DataTable
@@ -147,7 +144,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
         )}
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t('common.close', { defaultValue: '关闭' })}
+            {t('common.close')}
           </Button>
         </DialogFooter>
       </DialogContent>
