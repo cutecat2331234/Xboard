@@ -46,13 +46,26 @@ export default {
     "problem": "문제 발생",
     "problemDesc": "문제가 발생하면 서포트 티켓을 통해 문의하세요",
     "copyLink": "Copy Subscribe Link",
-    "unpaidOrders": "You have {count} unpaid order(s)",
-    "openTickets": "You have {count} open ticket(s)",
-    "trafficWarning": "Traffic usage is {percent}%, consider renewing",
+    "unpaidOrders": "미결제 주문이 {count}건 있습니다",
+    "payNow": "지금 결제",
+    "openTickets": "처리 중인 티켓이 {count}건 있습니다",
+    "goView": "보기",
+    "trafficWarning": "트래픽 사용량이 {percent}%입니다. 갱신을 고려해 보세요",
+    "learnAndBuy": "알아보고 구매하기",
     "expireAt": "Expires",
     "resetDay": "Traffic resets in {day} day(s)",
     "clientImportTitle": "빠른 구독",
-    "clientImportHint": "Import subscription into your client app"
+    "clientImportHint": "Import subscription into your client app",
+    "protocolTypes": {
+      "auto": "자동",
+      "anytls": "Anytls",
+      "vless": "Vless",
+      "hysteria": "Hy1",
+      "hysteria2": "Hy2",
+      "shadowsocks": "Shadowsocks",
+      "vmess": "Vmess",
+      "trojan": "Trojan"
+    }
   },
   "plan": {
     "name": "Plan",
@@ -82,6 +95,7 @@ export default {
   },
   "node": {
     "alert": "No access points are available. If you have not subscribed or the subscription has expired, please",
+    "empty": "No access points are available. If you have not subscribed or the subscription has expired, please subscribe.",
     "subscribe": "구독 구매 내역",
     "name": "환불 금액",
     "type": "Type",
@@ -89,6 +103,10 @@ export default {
     "status": "설정",
     "online": "Online",
     "offline": "Offline"
+  },
+  "knowledge": {
+    "searchPh": "사용 설명서 검색…",
+    "empty": "검색 결과가 없습니다"
   },
   "common": {
     "loading": "Loading...",
@@ -127,6 +145,7 @@ export default {
   },
   "traffic": {
     "hint": "Traffic logs are kept for the last month only.",
+    "empty": "No traffic records",
     "recordAt": "기록 시간",
     "upload": "실제 업로드",
     "download": "실제 다운로드",
@@ -138,6 +157,12 @@ export default {
     "period": "유형/기간",
     "amount": "주문량",
     "status": "주문 상태",
+    "statusPending": "결제 대기",
+    "statusProcessing": "개통 중",
+    "statusCanceled": "취소됨",
+    "statusCompleted": "완료",
+    "statusOffset": "상계됨",
+    "empty": "주문이 없습니다",
     "createdAt": "생성 시간",
     "pay": "Pay",
     "view": "보기",

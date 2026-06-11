@@ -3,7 +3,8 @@ import { CLIENT_ICONS } from '@/assets/client-icons'
 export type ClientPlatform = 'windows' | 'mac' | 'ios' | 'android' | 'unknown'
 
 export type ImportClient = {
-  name: string
+  name?: string
+  nameKey?: string
   platforms: ClientPlatform[]
   action: 'copy' | 'open'
   url?: string
@@ -39,7 +40,7 @@ export function appendSubscribeTypes(url: string, types: string[]): string {
 }
 
 function withIcon(client: Omit<ImportClient, 'icon' | 'iconClass'>): ImportClient {
-  const icon = CLIENT_ICONS[client.name]
+  const icon = client.name ? CLIENT_ICONS[client.name] : undefined
   return {
     ...client,
     icon,
@@ -55,7 +56,7 @@ export function buildImportClients(subscribeUrl: string, siteTitle = 'Xboard'): 
 
   return [
     withIcon({
-      name: '复制订阅链接',
+      nameKey: 'dashboard.copyLink',
       platforms: ['windows', 'mac', 'ios', 'android', 'unknown'],
       action: 'copy',
     }),
@@ -129,12 +130,12 @@ export function filterClientsByPlatform(clients: ImportClient[], platform: Clien
 }
 
 export const PROTOCOL_TYPES = [
-  { label: '自动', value: 'auto' },
-  { label: 'Anytls', value: 'anytls' },
-  { label: 'Vless', value: 'vless' },
-  { label: 'Hy1', value: 'hysteria' },
-  { label: 'Hy2', value: 'hysteria2' },
-  { label: 'Shadowsocks', value: 'shadowsocks' },
-  { label: 'Vmess', value: 'vmess' },
-  { label: 'Trojan', value: 'trojan' },
+  { labelKey: 'dashboard.protocolTypes.auto', value: 'auto' },
+  { labelKey: 'dashboard.protocolTypes.anytls', value: 'anytls' },
+  { labelKey: 'dashboard.protocolTypes.vless', value: 'vless' },
+  { labelKey: 'dashboard.protocolTypes.hysteria', value: 'hysteria' },
+  { labelKey: 'dashboard.protocolTypes.hysteria2', value: 'hysteria2' },
+  { labelKey: 'dashboard.protocolTypes.shadowsocks', value: 'shadowsocks' },
+  { labelKey: 'dashboard.protocolTypes.vmess', value: 'vmess' },
+  { labelKey: 'dashboard.protocolTypes.trojan', value: 'trojan' },
 ]
