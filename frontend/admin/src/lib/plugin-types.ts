@@ -5,6 +5,12 @@ export type PluginAdminMenu = {
   path?: string
   icon?: string
   description?: string
+  /** External URL to embed in an iframe. */
+  url?: string
+  /** Plugin asset path (under `/plugins/{code}/`) to embed in an iframe. */
+  embed?: string
+  /** Backend route segment served under `/plugin/{code}/`. */
+  component?: string
 }
 
 export type PluginConfigField = {
