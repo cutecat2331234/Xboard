@@ -1068,30 +1068,37 @@ export default function UserPage() {
       </Dialog>
 
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t('user.send_mail.title')}</DialogTitle>
-            <DialogDescription>{t('user.send_mail.description')}</DialogDescription>
+        <DialogContent className="!flex max-h-[90vh] min-h-[560px] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
+          <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 pb-4 pt-6 text-left">
+            <DialogTitle className="text-lg tracking-tight">
+              {t('user.send_mail.title')}
+            </DialogTitle>
+            <DialogDescription className="min-h-[1rem] text-xs leading-relaxed opacity-70">
+              {t('user.send_mail.description')}
+            </DialogDescription>
           </DialogHeader>
-          <div className="xb-stack-3">
-            <div className="xb-stack-2">
-              <Label>{t('user.send_mail.subject')}</Label>
-              <Input
-                value={mailSubject}
-                onChange={(e) => setMailSubject(e.target.value)}
-                className={inputCls}
-              />
-            </div>
-            <div className="xb-stack-2">
-              <Label>{t('user.send_mail.content')}</Label>
-              <textarea
-                className={`${textareaCls} min-h-[220px]`}
-                value={mailContent}
-                onChange={(e) => setMailContent(e.target.value)}
-              />
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="min-h-[400px] space-y-4 px-6 py-4 text-sm">
+              <div className="space-y-2">
+                <Label>{t('user.send_mail.subject')}</Label>
+                <Input
+                  value={mailSubject}
+                  onChange={(e) => setMailSubject(e.target.value)}
+                  className={inputCls}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t('user.send_mail.content')}</Label>
+                <textarea
+                  rows={12}
+                  className={`${textareaCls} min-h-[280px]`}
+                  value={mailContent}
+                  onChange={(e) => setMailContent(e.target.value)}
+                />
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="shrink-0 border-t px-6 py-4 sm:justify-end">
             <Button variant="outline" onClick={() => setMailOpen(false)}>
               {t('common.cancel')}
             </Button>
