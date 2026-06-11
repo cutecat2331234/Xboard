@@ -39,7 +39,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <h2 class="page-title">{{ t('nav.knowledge') }}</h2>
   <n-card>
     <div class="knowledge-search">
       <n-input v-model:value="keyword" :placeholder="t('knowledge.searchPh')" @keyup.enter="search" />
