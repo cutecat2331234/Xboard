@@ -23,7 +23,7 @@ import AuthEmailInput from '@/components/AuthEmailInput.vue'
 import CaptchaWidget from '@/components/CaptchaWidget.vue'
 import TelegramLoginWidget from '@/components/TelegramLoginWidget.vue'
 import { loginWithMailLink, token2Login } from '@/api/auth'
-import { useAuthStore } from '@/stores/auth'
+import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 
 const LoginIcon = {
@@ -94,8 +94,7 @@ async function tryTokenLogin() {
   try {
     await token2Login(verify)
     await auth.loadUser()
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
-    router.replace(redirect.startsWith('/') ? redirect : `/${redirect}`)
+    router.replace(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
   } finally {
@@ -159,7 +158,7 @@ async function submitLogin() {
     const captcha = await captchaRef.value?.getPayload()
     await auth.login({ email: resolvedEmail(), password: password.value, ...captcha })
     msg.success(t('login'))
-    router.push('/dashboard')
+    router.push(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : t('auth.loginFailed')
     errorText.value = message
