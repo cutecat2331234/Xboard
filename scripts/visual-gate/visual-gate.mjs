@@ -252,24 +252,28 @@ async function ensureAdminGiftTemplateFixture(base) {
       : []
   if (items.length > 0) return
 
-  const createRes = await fetch(`${adminPrefix}/gift-card/create-template`, {
-    method: 'POST',
-    headers: adminHdr,
-    body: JSON.stringify({
-      name: 'Gate Gift Template',
-      description: 'visual gate seed',
-      type: 1,
-      status: true,
-      rewards: { balance: 1000 },
-      conditions: {},
-      limits: {},
-      theme_color: '#2d6565',
-      sort: 0,
-    }),
-  })
-  if (!createRes.ok) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const createRes = await fetch(`${adminPrefix}/gift-card/create-template`, {
+      method: 'POST',
+      headers: adminHdr,
+      body: JSON.stringify({
+        name: 'Gate Gift Template',
+        description: 'visual gate seed',
+        type: 1,
+        status: 1,
+        rewards: { balance: 1000 },
+        conditions: {},
+        limits: {},
+        theme_color: '#2d6565',
+        sort: 0,
+      }),
+    })
+    if (createRes.ok) break
     const body = await createRes.text().catch(() => '')
-    console.warn(`gift-template seed failed on ${base}: ${createRes.status} ${body.slice(0, 200)}`)
+    console.warn(
+      `gift-template seed attempt ${attempt + 1} failed on ${base}: ${createRes.status} ${body.slice(0, 200)}`,
+    )
+    await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)))
   }
 }
 
@@ -431,22 +435,28 @@ async function openAdminDialog(page, route) {
       .first()
       .click({ timeout: 12000 })
       .catch(() => {})
+    await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => {})
     await page
       .waitForFunction(
-        () =>
-          document.querySelector('[data-testid="gift-template-edit"]') ||
-          document.querySelector('tbody tr'),
-        { timeout: 60000 },
+        () => {
+          const edit = document.querySelector('[data-testid="gift-template-edit"]')
+          if (edit && edit.offsetParent !== null) return true
+          const row = document.querySelector('tbody tr')
+          return Boolean(row && row.textContent && !/loading|加载/i.test(row.textContent))
+        },
+        { timeout: 90000 },
       )
       .catch(() => {})
     await clickVisible(
       page,
       [
-        '[data-testid="gift-template-edit"]',
+        '[data-testid="gift-template-edit"]:visible',
+        'tbody [data-testid="gift-template-edit"]',
         'tbody button:has-text("编辑")',
         'tbody button:has-text("Edit")',
+        'table button:has-text("编辑")',
       ],
-      60000,
+      90000,
     )
   } else if (route === 'plan-add') {
     await clickVisible(page, [

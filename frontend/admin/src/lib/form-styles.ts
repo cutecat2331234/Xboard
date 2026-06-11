@@ -28,3 +28,7 @@ export const configSubFieldLabelCls =
 
 /** 7001 shadcn FormDescription slot (empty on server multiselect rows). */
 export const formSubLabelCls = 'm-0 text-[0.8rem] text-muted-foreground'
+
+/** 7001 server protocol subsection: mono labels + compact inputs inside bordered block */
+export const serverProtocolFieldsCls =
+  'space-y-6 rounded-lg border p-4 [&_label]:font-mono [&_label]:text-[12px] [&_label]:text-foreground/80 [&_input:not([type=checkbox])]:h-9 [&_input]:font-mono [&_input]:text-xs [&_textarea]:font-mono [&_textarea]:text-xs'

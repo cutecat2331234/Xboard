@@ -5,7 +5,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import * as Tooltip from '@radix-ui/react-tooltip'
 
 import { IconDots } from '@tabler/icons-react'
-import { ArrowRight, HardDrive, Info, Loader2, Plus, Sparkles, Users, X } from 'lucide-react'
+import { ArrowRight, HardDrive, Info, Loader2, Lock, Plus, Sparkles, Users, X } from 'lucide-react'
 
 import { Link, useSearchParams } from 'react-router-dom'
 
@@ -22,6 +22,7 @@ import {
   formSubLabelCls,
   inputCls,
   serverFieldLabelCls,
+  serverProtocolFieldsCls,
   textareaCls,
 } from '@/lib/form-styles'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
@@ -1547,7 +1548,7 @@ export default function ServerManagePage() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
-          <div className="space-y-8">
+          <div className="space-y-6">
 
             <div className="flex gap-4">
 
@@ -1571,17 +1572,41 @@ export default function ServerManagePage() {
 
               <div className="min-w-0 flex-1 space-y-1.5">
 
-                <Label className={serverFieldLabelCls}>{t('server.form.rate.label')}</Label>
+                <Label className={`${serverFieldLabelCls} flex items-center gap-1.5`}>
+                  {t('server.form.rate.label')}
+                  {form.parent_id ? (
+                    <Tooltip.Provider delayDuration={100}>
+                      <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                          <span className="inline-flex opacity-70">
+                            <Lock className="size-3.5" />
+                          </span>
+                        </Tooltip.Trigger>
+                        <Tooltip.Portal>
+                          <Tooltip.Content
+                            side="top"
+                            className="z-50 max-w-72 rounded-md border bg-popover px-3 py-1.5 font-mono text-[11px] text-popover-foreground shadow-md"
+                          >
+                            {t('server.form.rate.child_node_tooltip')}
+                            <Tooltip.Arrow className="fill-border" />
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
+                  ) : null}
+                </Label>
 
                 <SuffixInput
 
-                  className={dialogInputCls}
+                  className={cn(dialogInputCls, form.parent_id && 'bg-muted/50')}
 
                   suffix="x"
 
                   type="number"
 
                   value={form.rate}
+
+                  disabled={Boolean(form.parent_id)}
 
                   onChange={(e) => setForm((f) => ({ ...f, rate: e.target.value }))}
 
@@ -1623,7 +1648,7 @@ export default function ServerManagePage() {
 
                 <input
                   type="number"
-                  className={inputCls}
+                  className={`${inputCls} ${dialogInputCls}`}
                   placeholder={t('server.form.traffic_limit.placeholder')}
                   value={form.traffic_limit}
                   onChange={(e) => setForm((f) => ({ ...f, traffic_limit: e.target.value }))}
@@ -1640,7 +1665,7 @@ export default function ServerManagePage() {
 
                 <input
 
-                  className={inputCls}
+                  className={`${inputCls} ${dialogInputCls}`}
 
                   placeholder={t('server.form.code.placeholder')}
 
@@ -1708,7 +1733,7 @@ export default function ServerManagePage() {
 
               <input
 
-                className={inputCls}
+                className={`${inputCls} ${dialogInputCls}`}
 
                 placeholder={t('server.form.host.placeholder')}
 
@@ -1829,8 +1854,16 @@ export default function ServerManagePage() {
                 <Label className={serverFieldLabelCls}>{t('server.form.parent.label')}</Label>
 
                 <FormSelect
+                  className={dialogInputCls}
                   value={form.parent_id}
-                  onChange={(v) => setForm((f) => ({ ...f, parent_id: v }))}
+                  onChange={(v) => {
+                    const parent = v ? data.find((n) => String(n.id) === v) : null
+                    setForm((f) => ({
+                      ...f,
+                      parent_id: v,
+                      rate: parent ? String(parent.rate ?? 1) : f.rate,
+                    }))
+                  }}
                   options={[
                     { value: '', label: t('server.form.parent.none') },
                     ...data
@@ -1877,11 +1910,13 @@ export default function ServerManagePage() {
             </div>
 
             {protocolSettings ? (
-              <ServerProtocolFields
-                type={form.type}
-                value={protocolSettings}
-                onChange={setProtocolSettings}
-              />
+              <div className={serverProtocolFieldsCls}>
+                <ServerProtocolFields
+                  type={form.type}
+                  value={protocolSettings}
+                  onChange={setProtocolSettings}
+                />
+              </div>
             ) : null}
 
             {shouldShowEchFields(form.type, protocolSettings) ? (
