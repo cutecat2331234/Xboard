@@ -86,7 +86,7 @@ async function submit() {
 
 <template>
   <div class="auth-page" :style="authPageStyle">
-    <n-card class="auth-card" :bordered="true">
+    <n-card class="auth-card auth-card--login" :bordered="true">
       <div class="auth-card__body">
         <h1 class="auth-card__title-main">{{ t('forgotPassword') }}</h1>
         <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard' }}</h5>
@@ -128,7 +128,9 @@ async function submit() {
       </div>
 
       <div class="auth-card__footer-bar">
-        <router-link to="/login" class="auth-footer-link">{{ t('backToLogin') }}</router-link>
+        <div class="auth-footer-left">
+          <router-link to="/login" class="auth-footer-link">{{ t('backToLogin') }}</router-link>
+        </div>
         <n-dropdown :options="langOptions" trigger="click" @select="(k: string) => setLocale(k)">
           <n-button class="auth-lang-btn" quaternary>
             <template #icon>
@@ -143,8 +145,12 @@ async function submit() {
 </template>
 
 <style scoped>
-.auth-card__body { padding: 24px; }
-.auth-card__body form { margin: 0; }
+.auth-card__body {
+  padding: 24px;
+}
+.auth-card__body form {
+  margin: 0;
+}
 .auth-card__title-main {
   margin: 24.12px 0;
   text-align: center;
@@ -161,18 +167,57 @@ async function submit() {
   line-height: 20px;
   color: #6c757d;
 }
-.auth-field { margin-top: 20px; width: 100%; }
-.auth-field--row { display: flex; gap: 8px; }
-.auth-field--row .n-input { flex: 1; }
-.auth-error { margin: 20px 0 0; color: #d03050; font-size: 13px; }
-.auth-submit { height: 36px; }
+.auth-card--login {
+  min-height: 0;
+}
+.auth-card--login .auth-card__body {
+  min-height: 0;
+  padding: 20px 24px 24px;
+}
+.auth-card--login .auth-card__title-main {
+  margin: 20px 0;
+}
+.auth-card--login .auth-card__subtitle {
+  margin: 16px 0 0;
+}
+.auth-card--login .auth-field {
+  margin-top: 16px;
+}
+.auth-field {
+  margin-top: 20px;
+  width: 100%;
+}
+.auth-field--row {
+  display: flex;
+  gap: 8px;
+}
+.auth-field--row .n-input {
+  flex: 1;
+}
+.auth-error {
+  margin: 20px 0 0;
+  color: #d03050;
+  font-size: 13px;
+}
+.auth-submit {
+  height: 36px;
+}
+.auth-submit :deep(.n-button__content) {
+  font-size: 14px;
+}
 .auth-card__footer-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: rgb(250, 250, 252);
+  background-color: var(--n-color-embedded, rgb(250, 250, 252));
+  border-radius: 0 0 6px 6px;
   color: #6b7280;
+}
+.auth-footer-left {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 .auth-footer-link {
   color: #6b7280;
