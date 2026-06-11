@@ -138,16 +138,12 @@ export default {
     success: "Thành công",
     error: "Lỗi",
     reset: "Đặt lại",
-<<<<<<< HEAD
     search: "Tìm kiếm",
     pagination: {
       summary: "Trang {current}/{total}, tổng {count} mục",
       previous: "Trang trước",
       next: "Trang sau"
     }
-=======
-    search: "Tìm kiếm"
->>>>>>> 187910a (refactor(admin): misc modules remove defaultValue)
   },
   invite: {
     title: "Lời Mời Của Tôi",
@@ -318,6 +314,7 @@ export default {
     quickLoginHint: "Generate a one-time login link to sign in on another device.",
     generateQuickLogin: "Generate quick login link",
     quickLoginCopied: "Quick login link copied to clipboard",
+    copied: "Đã sao chép vào clipboard",
     telegram: "Telegram",
     telegramHint: "Search this bot on Telegram and send /bind:",
     telegramBound: "Telegram linked",
