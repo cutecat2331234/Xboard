@@ -35,6 +35,14 @@
   --xb-invite-copy-btn-color-pressed: #2b4c59;
   --xb-invite-copy-btn-bg-hover: rgba(46, 51, 56, 0.09);
   --xb-invite-copy-btn-bg-pressed: rgba(46, 51, 56, 0.13);
+  --xb-invite-primary-btn-height: 28px;
+  --xb-invite-primary-btn-padding: 0 10px;
+  --xb-invite-primary-btn-font-size: 14px;
+  --xb-invite-primary-btn-radius: 3px;
+  --xb-invite-primary-btn-bg: #316c72;
+  --xb-invite-primary-btn-bg-hover: #316c72e3;
+  --xb-invite-primary-btn-bg-pressed: #2b4c59;
+  --xb-invite-table-cell-padding: 12px;
 }
 
 html.dark {
@@ -167,6 +175,41 @@ html, body, #app {
   --n-icon-size: 18px;
   --n-icon-margin: 6px;
   --n-border-radius: var(--xb-invite-copy-btn-radius);
+}
+.shell-main .invite-primary-btn.n-button {
+  font-weight: 400;
+  --n-bezier: cubic-bezier(0.4, 0, 0.2, 1);
+  --n-bezier-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --n-ripple-duration: 0.6s;
+  --n-opacity-disabled: 0.5;
+  --n-wave-opacity: 0.6;
+  --n-color: var(--xb-invite-primary-btn-bg);
+  --n-color-hover: var(--xb-invite-primary-btn-bg-hover);
+  --n-color-pressed: var(--xb-invite-primary-btn-bg-pressed);
+  --n-color-focus: var(--xb-invite-primary-btn-bg-hover);
+  --n-color-disabled: var(--xb-invite-primary-btn-bg);
+  --n-ripple-color: var(--xb-invite-primary-btn-bg);
+  --n-text-color: #fff;
+  --n-text-color-hover: #fff;
+  --n-text-color-pressed: #fff;
+  --n-text-color-focus: #fff;
+  --n-text-color-disabled: #fff;
+  --n-border: 1px solid var(--xb-invite-primary-btn-bg);
+  --n-border-hover: 1px solid var(--xb-invite-primary-btn-bg-hover);
+  --n-border-pressed: 1px solid var(--xb-invite-primary-btn-bg-pressed);
+  --n-border-focus: 1px solid var(--xb-invite-primary-btn-bg-hover);
+  --n-border-disabled: 1px solid var(--xb-invite-primary-btn-bg);
+  --n-width: initial;
+  --n-height: var(--xb-invite-primary-btn-height);
+  --n-font-size: var(--xb-invite-primary-btn-font-size);
+  --n-padding: var(--xb-invite-primary-btn-padding);
+  --n-icon-size: 18px;
+  --n-icon-margin: 6px;
+  --n-border-radius: var(--xb-invite-primary-btn-radius);
+}
+.shell-main .invite-data-table.n-data-table {
+  --n-td-padding: var(--xb-invite-table-cell-padding);
+  --n-th-padding: var(--xb-invite-table-cell-padding);
 }
 .font-normal { font-weight: 400; }
 .ml-2\.5 { margin-left: 10px; }
