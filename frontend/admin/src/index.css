@@ -95,6 +95,11 @@ body {
   margin-top: 1rem;
 }
 
+/** 1.25rem — matches Tailwind v3 space-y-5 (form row rhythm). */
+.xb-stack-gap > * + * {
+  margin-top: 1.25rem;
+}
+
 @keyframes accordion-down {
   from {
     height: 0;
