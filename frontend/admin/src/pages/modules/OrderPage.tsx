@@ -231,15 +231,26 @@ function DetailRow({
   label,
   value,
   mono,
+  valueClassName,
 }: {
   label: string
-  value?: string | null
+  value?: ReactNode
   mono?: boolean
+  valueClassName?: string
 }) {
   return (
-    <div className="flex justify-between gap-4">
-      <span className="text-muted-foreground">{label}</span>
-      <span className={mono ? 'font-mono' : undefined}>{value || '—'}</span>
+    <div className="flex items-center py-1.5">
+      <div className="w-28 shrink-0 text-sm text-muted-foreground">{label}</div>
+      <div className={cn('text-sm', mono && 'font-mono text-xs', valueClassName)}>{value || '—'}</div>
+    </div>
+  )
+}
+
+function DetailSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-lg border p-4">
+      <div className="mb-2 text-sm font-medium">{title}</div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">{children}</div>
     </div>
   )
 }
@@ -746,127 +757,136 @@ export default function OrderPage() {
       </div>
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{t('order.dialog.title')}</DialogTitle>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-lg font-medium">{t('order.dialog.title')}</DialogTitle>
+            {detail ? (
+              <div className="flex items-center text-sm">
+                <div className="text-muted-foreground">
+                  {t('order.table.columns.tradeNo')}：{detail.trade_no}
+                </div>
+                {detail.status != null ? (
+                  <div className="ml-6 flex items-center gap-1.5">
+                    <StatusDot status={detail.status} />
+                    <span>
+                      {STATUS_I18N[detail.status]
+                        ? t(STATUS_I18N[detail.status])
+                        : String(detail.status)}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </DialogHeader>
           {detailLoading ? (
             <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
           ) : detail ? (
-            <div className="grid gap-4 text-sm">
-              <div>
-                <h4 className="mb-2 font-medium">{t('order.dialog.basicInfo')}</h4>
-                <div className="grid gap-2">
-                  <DetailRow label={t('order.table.columns.tradeNo')} value={detail.trade_no} mono />
-                  <DetailRow
-                    label={t('order.table.columns.type')}
-                    value={
-                      TYPE_I18N[detail.type ?? 0]
-                        ? t(TYPE_I18N[detail.type ?? 0])
-                        : String(detail.type ?? '—')
-                    }
-                  />
-                  <DetailRow label={t('order.table.columns.plan')} value={detail.plan?.name ?? '—'} />
-                  <DetailRow
-                    label={t('order.table.columns.period')}
-                    value={
-                      detail.period
-                        ? t(`order.period.${detail.period}`)
-                        : '—'
-                    }
-                  />
-                  <DetailRow
-                    label={t('order.table.columns.status')}
-                    value={
-                      STATUS_I18N[detail.status ?? -1]
-                        ? t(STATUS_I18N[detail.status ?? -1])
-                        : String(detail.status ?? '—')
-                    }
-                  />
-                  {detail.user?.email ? (
-                    <DetailRow label={t('order.dialog.fields.userEmail')} value={detail.user.email} />
-                  ) : null}
-                </div>
-              </div>
-              <div>
-                <h4 className="mb-2 font-medium">{t('order.dialog.amountInfo')}</h4>
-                <div className="grid gap-2">
-                  <DetailRow
-                    label={t('order.dialog.fields.paymentAmount')}
-                    value={formatMoney(detail.total_amount)}
-                  />
-                  <DetailRow
-                    label={t('order.dialog.fields.balancePayment')}
-                    value={formatMoney(detail.balance_amount)}
-                  />
-                  <DetailRow
-                    label={t('order.dialog.fields.discountAmount')}
-                    value={formatMoney(detail.discount_amount)}
-                  />
-                  <DetailRow
-                    label={t('order.dialog.fields.deductionAmount')}
-                    value={formatMoney(detail.surplus_amount)}
-                  />
-                  <DetailRow
-                    label={t('order.dialog.fields.refundAmount')}
-                    value={formatMoney(detail.surplus_credit)}
-                  />
-                  <DetailRow label={t('order.dialog.fields.callbackNo')} value={detail.callback_no || '—'} />
-                </div>
-              </div>
-              <div>
-                <h4 className="mb-2 font-medium">{t('order.dialog.timeInfo')}</h4>
-                <div className="grid gap-2">
-                  <DetailRow label={t('order.dialog.fields.createdAt')} value={formatTs(detail.created_at)} />
-                  <DetailRow label={t('order.dialog.fields.updatedAt')} value={formatTs(detail.updated_at)} />
-                </div>
-              </div>
+            <div className="space-y-4 text-sm">
+              <DetailSection title={t('order.dialog.basicInfo')}>
+                <DetailRow
+                  label={t('order.table.columns.type')}
+                  value={
+                    TYPE_I18N[detail.type ?? 0]
+                      ? t(TYPE_I18N[detail.type ?? 0])
+                      : String(detail.type ?? '—')
+                  }
+                />
+                <DetailRow label={t('order.table.columns.plan')} value={detail.plan?.name ?? '—'} />
+                <DetailRow
+                  label={t('order.table.columns.period')}
+                  value={detail.period ? t(`order.period.${detail.period}`) : '—'}
+                />
+                {detail.user?.email ? (
+                  <DetailRow label={t('order.dialog.fields.userEmail')} value={detail.user.email} />
+                ) : null}
+                <DetailRow
+                  label={t('order.dialog.fields.callbackNo')}
+                  value={detail.callback_no || '—'}
+                  mono
+                />
+              </DetailSection>
+              <DetailSection title={t('order.dialog.amountInfo')}>
+                <DetailRow
+                  label={t('order.dialog.fields.paymentAmount')}
+                  value={formatMoney(detail.total_amount)}
+                  valueClassName="font-medium text-primary"
+                />
+                <DetailRow
+                  label={t('order.dialog.fields.balancePayment')}
+                  value={formatMoney(detail.balance_amount)}
+                />
+                <DetailRow
+                  label={t('order.dialog.fields.discountAmount')}
+                  value={formatMoney(detail.discount_amount)}
+                  valueClassName="text-green-600"
+                />
+                <DetailRow
+                  label={t('order.dialog.fields.deductionAmount')}
+                  value={formatMoney(detail.surplus_amount)}
+                />
+                <DetailRow
+                  label={t('order.dialog.fields.refundAmount')}
+                  value={formatMoney(detail.surplus_credit)}
+                  valueClassName="text-red-600"
+                />
+              </DetailSection>
+              <DetailSection title={t('order.dialog.timeInfo')}>
+                <DetailRow
+                  label={t('order.dialog.fields.createdAt')}
+                  value={formatTs(detail.created_at)}
+                  mono
+                />
+                <DetailRow
+                  label={t('order.dialog.fields.updatedAt')}
+                  value={formatTs(detail.updated_at)}
+                  mono
+                />
+              </DetailSection>
               {(detail.commission_balance ?? 0) > 0 || detail.invite_user_id ? (
-                <div>
-                  <h4 className="mb-2 font-medium">{t('order.dialog.commissionInfo')}</h4>
-                  <div className="grid gap-2">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-muted-foreground">{t('order.dialog.fields.commissionStatus')}</span>
-                      {(detail.commission_balance ?? 0) > 0 ? (
-                        <select
-                          className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
-                          value={String(detail.commission_status ?? 0)}
-                          onChange={(e) =>
-                            updateCommissionStatus(detail.trade_no, Number(e.target.value))
-                          }
-                        >
-                          {COMMISSION_KEYS.map((v) => (
-                            <option key={v} value={v}>
-                              {t(COMMISSION_I18N[v])}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span>
-                          {COMMISSION_I18N[detail.commission_status ?? -1]
-                            ? t(COMMISSION_I18N[detail.commission_status ?? -1])
-                            : '—'}
-                        </span>
-                      )}
+                <DetailSection title={t('order.dialog.commissionInfo')}>
+                  <div className="flex items-center py-1.5">
+                    <div className="w-28 shrink-0 text-sm text-muted-foreground">
+                      {t('order.dialog.fields.commissionStatus')}
                     </div>
-                    <DetailRow
-                      label={t('order.dialog.fields.commissionAmount')}
-                      value={formatMoney(detail.commission_balance)}
-                    />
-                    <DetailRow
-                      label={t('order.dialog.fields.actualCommissionAmount')}
-                      value={formatMoney(detail.actual_commission_balance)}
-                    />
-                    <DetailRow
-                      label={t('order.dialog.fields.inviteUser')}
-                      value={detail.invite_user?.email ?? '—'}
-                    />
-                    <DetailRow
-                      label={t('order.dialog.fields.inviteUserId')}
-                      value={detail.invite_user_id != null ? String(detail.invite_user_id) : '—'}
-                    />
+                    {(detail.commission_balance ?? 0) > 0 ? (
+                      <select
+                        className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
+                        value={String(detail.commission_status ?? 0)}
+                        onChange={(e) =>
+                          updateCommissionStatus(detail.trade_no, Number(e.target.value))
+                        }
+                      >
+                        {COMMISSION_KEYS.map((v) => (
+                          <option key={v} value={v}>
+                            {t(COMMISSION_I18N[v])}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-sm">
+                        {COMMISSION_I18N[detail.commission_status ?? -1]
+                          ? t(COMMISSION_I18N[detail.commission_status ?? -1])
+                          : '—'}
+                      </span>
+                    )}
                   </div>
-                </div>
+                  <DetailRow
+                    label={t('order.dialog.fields.commissionAmount')}
+                    value={formatMoney(detail.commission_balance)}
+                  />
+                  <DetailRow
+                    label={t('order.dialog.fields.actualCommissionAmount')}
+                    value={formatMoney(detail.actual_commission_balance)}
+                  />
+                  <DetailRow
+                    label={t('order.dialog.fields.inviteUser')}
+                    value={detail.invite_user?.email ?? '—'}
+                  />
+                  <DetailRow
+                    label={t('order.dialog.fields.inviteUserId')}
+                    value={detail.invite_user_id != null ? String(detail.invite_user_id) : '—'}
+                  />
+                </DetailSection>
               ) : null}
             </div>
           ) : null}
