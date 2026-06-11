@@ -60,7 +60,11 @@ async function mountWidget() {
 
   if (type === 'recaptcha-v3' && props.config.recaptcha_v3_site_key) {
     await loadScript(`https://www.google.com/recaptcha/api.js?render=${props.config.recaptcha_v3_site_key}`, 'google-recaptcha-v3')
-    ready.value = true
+    const grecaptcha = (window as unknown as { grecaptcha?: { ready: (cb: () => void) => void } }).grecaptcha
+    if (grecaptcha) {
+      await new Promise<void>((resolve) => grecaptcha.ready(() => resolve()))
+      ready.value = true
+    }
   }
 }
 
@@ -83,9 +87,15 @@ async function getPayload(): Promise<CaptchaPayload> {
     const grecaptcha = (window as unknown as {
       grecaptcha?: { execute: (key: string, opts: { action: string }) => Promise<string> }
     }).grecaptcha
-    if (grecaptcha) {
+    if (!ready.value || !grecaptcha) {
+      return { skip_recaptcha_v3: true }
+    }
+    try {
       const token = await grecaptcha.execute(props.config.recaptcha_v3_site_key, { action: 'submit' })
+      if (!token) return { skip_recaptcha_v3: true }
       return { recaptcha_v3_token: token }
+    } catch {
+      return { skip_recaptcha_v3_error: true }
     }
   }
 
