@@ -515,6 +515,9 @@ async function waitUserRouteReady(page, route) {
   if (route === 'plan') {
     await page.waitForSelector('.plan-list-title, .n-grid', { timeout: 15000 }).catch(() => {})
   }
+  if (route === 'order') {
+    await page.waitForSelector('.order-list-card .n-data-table, .n-empty', { timeout: 15000 }).catch(() => {})
+  }
   if (route === 'invite') {
     await page
       .waitForSelector('.n-data-table-tbody .n-data-table-tr', { timeout: 45000 })

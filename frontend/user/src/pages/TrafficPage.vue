@@ -37,7 +37,7 @@ onMounted(async () => {
   <n-card class="traffic-card">
     <p class="traffic-hint">{{ t('traffic.hint') }}</p>
     <n-empty v-if="rows.length === 0" :description="t('traffic.empty')" />
-    <n-data-table v-else :columns="columns" :data="rows" :bordered="false" />
+    <n-data-table v-else :columns="columns" :data="rows" :bordered="true" />
   </n-card>
 </template>
 

@@ -275,7 +275,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
             <div class="text-sm text-gray-500">{{ t(item.descKey) }}</div>
           </div>
           <div>
-            <component :is="item.icon" class="inline-block text-3xl text-gray-500-500" />
+            <component :is="item.icon" class="inline-block text-3xl text-gray-500" />
           </div>
         </div>
       </n-list-item>
@@ -357,7 +357,6 @@ function onShortcut(item: { to?: string; action?: () => void }) {
   color: var(--xb-text-secondary);
 }
 .text-3xl { font-size: 30px; line-height: 36px; }
-.text-gray-500-500 { color: var(--xb-text); }
 .inline-block { display: inline-block; }
 :deep(.n-list .n-list-item) {
   height: 68px;
