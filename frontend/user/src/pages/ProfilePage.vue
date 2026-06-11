@@ -1,9 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { NAlert, NCard, NInput, NButton, NSwitch, useMessage } from 'naive-ui'
+import { computed, h, onMounted, ref } from 'vue'
+import {
+  NAlert,
+  NButton,
+  NCard,
+  NDataTable,
+  NInput,
+  NSwitch,
+  useDialog,
+  useMessage,
+  type DataTableColumns,
+} from 'naive-ui'
 import { renderCarbonIcon } from '@/utils/carbon-icon'
 import { useAuthStore } from '@/stores/auth'
-import { changePassword, resetSecurity, updateUser } from '@/api/profile'
+import {
+  changePassword,
+  getActiveSessions,
+  getQuickLoginUrl,
+  removeActiveSession,
+  resetSecurity,
+  updateUser,
+  type ActiveSession,
+} from '@/api/profile'
+import { fetchSubscribe } from '@/api/subscribe'
 import { fetchTelegramBotInfo } from '@/api/telegram'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
@@ -20,7 +39,12 @@ const newPassword = ref('')
 const confirmPassword = ref('')
 const remindExpire = ref(true)
 const remindTraffic = ref(true)
+const subscribeToken = ref('')
+const sessions = ref<ActiveSession[]>([])
+const sessionsLoading = ref(false)
+const quickLoginLoading = ref(false)
 const msg = useMessage()
+const dialog = useDialog()
 const { t } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 const botUsername = ref('')
@@ -31,6 +55,92 @@ const switchStyle = {
   '--n-rail-border-radius': '3px',
   '--n-rail-color-active': '#316C72FF',
 } as const
+
+function formatSessionTime(value: string | null) {
+  if (!value) return '—'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return '—'
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
+async function loadSessions() {
+  sessionsLoading.value = true
+  try {
+    sessions.value = await getActiveSessions()
+  } catch {
+    sessions.value = []
+  } finally {
+    sessionsLoading.value = false
+  }
+}
+
+function confirmKickSession(session: ActiveSession) {
+  const device = session.name || String(session.id)
+  dialog.warning({
+    title: t('profile.kickSession'),
+    content: t('profile.kickSessionConfirm', { device }),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        await removeActiveSession(String(session.id))
+        msg.success(t('common.success'))
+        await loadSessions()
+      } catch (e: unknown) {
+        msg.error(e instanceof Error ? e.message : t('common.error'))
+      }
+    },
+  })
+}
+
+async function generateQuickLogin() {
+  quickLoginLoading.value = true
+  try {
+    const url = await getQuickLoginUrl()
+    await navigator.clipboard.writeText(url)
+    msg.success(t('profile.quickLoginCopied'))
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
+  } finally {
+    quickLoginLoading.value = false
+  }
+}
+
+const sessionColumns = computed<DataTableColumns<ActiveSession>>(() => [
+  {
+    title: t('profile.sessionDevice'),
+    key: 'name',
+    ellipsis: { tooltip: true },
+    render: (row) => row.name || '—',
+  },
+  {
+    title: t('profile.sessionCreated'),
+    key: 'created_at',
+    render: (row) => formatSessionTime(row.created_at),
+  },
+  {
+    title: t('profile.sessionLastUsed'),
+    key: 'last_used_at',
+    render: (row) => formatSessionTime(row.last_used_at),
+  },
+  {
+    title: t('common.actions'),
+    key: 'actions',
+    width: 100,
+    render: (row) =>
+      h(
+        NButton,
+        {
+          size: 'small',
+          type: 'error',
+          tertiary: true,
+          onClick: () => confirmKickSession(row),
+        },
+        () => t('profile.kickSession'),
+      ),
+  },
+])
 
 async function submitPassword() {
   if (newPassword.value !== confirmPassword.value) {
@@ -52,6 +162,12 @@ async function reset() {
   try {
     await resetSecurity()
     msg.success(t('common.success'))
+    try {
+      const sub = await fetchSubscribe()
+      subscribeToken.value = sub.token ?? ''
+    } catch {
+      subscribeToken.value = ''
+    }
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
   }
@@ -82,11 +198,33 @@ onMounted(async () => {
       botUsername.value = ''
     }
   }
+  try {
+    const sub = await fetchSubscribe()
+    subscribeToken.value = sub.token ?? ''
+  } catch {
+    subscribeToken.value = ''
+  }
+  await loadSessions()
 })
 </script>
 
 <template>
-  <n-card :title="t('profile.wallet')" class="rounded-md">
+  <n-card :title="t('profile.accountInfo')" class="rounded-md">
+    <div class="info-row">
+      <span class="info-label">{{ t('profile.email') }}</span>
+      <span>{{ auth.user?.email ?? '—' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">{{ t('profile.uuid') }}</span>
+      <span class="mono">{{ auth.user?.uuid ?? '—' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">{{ t('profile.subscribeToken') }}</span>
+      <span class="mono">{{ subscribeToken || '—' }}</span>
+    </div>
+  </n-card>
+
+  <n-card :title="t('profile.wallet')" class="mt-5 rounded-md">
     <template #header-extra>
       <WalletIcon class="text-4xl text-gray-500" />
     </template>
@@ -95,6 +233,29 @@ onMounted(async () => {
       <span class="ml-2.5 text-xl text-gray-500 md:ml-5">{{ currency }}</span>
     </div>
     <div class="text-gray-500">{{ t('profile.balanceHint') }}</div>
+  </n-card>
+
+  <n-card :title="t('profile.activeSessions')" class="mt-5 rounded-md">
+    <n-data-table
+      :columns="sessionColumns"
+      :data="sessions"
+      :loading="sessionsLoading"
+      :bordered="false"
+      size="small"
+    />
+    <p v-if="!sessionsLoading && sessions.length === 0" class="session-empty">{{ t('profile.noSessions') }}</p>
+  </n-card>
+
+  <n-card :title="t('profile.quickLogin')" class="mt-5 rounded-md">
+    <p class="text-gray-500">{{ t('profile.quickLoginHint') }}</p>
+    <n-button
+      type="primary"
+      class="mt-2.5"
+      :loading="quickLoginLoading"
+      @click="generateQuickLogin"
+    >
+      {{ t('profile.generateQuickLogin') }}
+    </n-button>
   </n-card>
 
   <n-card :title="t('profile.changePassword')" class="mt-5 rounded-md">
@@ -150,11 +311,44 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
-.mono { font-family: monospace; font-size: 12px; word-break: break-all; }
-.tg-link { color: #2080f0; text-decoration: none; }
-.tg-link:hover { text-decoration: underline; }
-.mt-2 { margin-top: 8px; }
-.block { display: block; }
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.info-row:last-child {
+  border-bottom: none;
+}
+.info-label {
+  flex-shrink: 0;
+  color: #666;
+}
+.mono {
+  font-family: monospace;
+  font-size: 12px;
+  word-break: break-all;
+  text-align: right;
+}
+.session-empty {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: #999;
+  text-align: center;
+}
+.tg-link {
+  color: #2080f0;
+  text-decoration: none;
+}
+.tg-link:hover {
+  text-decoration: underline;
+}
+.mt-2 {
+  margin-top: 8px;
+}
+.block {
+  display: block;
+}
 </style>
-
