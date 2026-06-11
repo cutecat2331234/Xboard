@@ -9,6 +9,7 @@ import {
   adminApi,
   downloadAdminFile,
   fetchJsonList,
+  fetchJsonObject,
   postJson,
   type PaginatedResult,
 } from '@/lib/api'
@@ -35,6 +36,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
 type UserRow = {
   id?: number
   email?: string
@@ -60,6 +63,28 @@ type UserRow = {
 }
 
 type PlanRow = { id?: number; name?: string }
+
+type TrafficResetHistoryRow = {
+  id?: number
+  reset_type?: string
+  reset_type_name?: string
+  reset_time?: string | number
+  old_traffic?: { upload?: number; download?: number; total?: number; formatted?: string }
+  trigger_source?: string
+  trigger_source_name?: string
+  metadata?: Record<string, unknown>
+}
+
+type TrafficResetHistoryData = {
+  user?: {
+    id?: number
+    email?: string
+    reset_count?: number
+    last_reset_at?: number | null
+    next_reset_at?: number | null
+  }
+  history?: TrafficResetHistoryRow[]
+}
 
 type FilterCondition = {
   id: string
@@ -102,6 +127,13 @@ const ORDER_PERIODS = [
 function formatTs(ts?: number | null) {
   if (!ts) return '—'
   return new Date(ts * 1000).toLocaleString()
+}
+
+function formatDateTime(value?: string | number | null) {
+  if (!value) return '—'
+  if (typeof value === 'number') return formatTs(value)
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
 }
 
 function filterValueForApi(cond: FilterCondition): string | number {
@@ -160,8 +192,13 @@ export default function UserPage() {
   const [exporting, setExporting] = useState(false)
 
   const [trafficResetUser, setTrafficResetUser] = useState<UserRow | null>(null)
+  const [trafficResetTab, setTrafficResetTab] = useState<'reset' | 'history'>('reset')
   const [trafficResetReason, setTrafficResetReason] = useState('')
   const [trafficResetting, setTrafficResetting] = useState(false)
+  const [trafficResetHistory, setTrafficResetHistory] = useState<TrafficResetHistoryData | null>(
+    null,
+  )
+  const [trafficResetHistoryLoading, setTrafficResetHistoryLoading] = useState(false)
 
   const [assignUser, setAssignUser] = useState<UserRow | null>(null)
   const [assignForm, setAssignForm] = useState({
@@ -216,6 +253,46 @@ export default function UserPage() {
   useEffect(() => {
     load()
   }, [load])
+
+  const loadTrafficResetHistory = useCallback(
+    async (userId: number) => {
+      setTrafficResetHistoryLoading(true)
+      try {
+        const data = await fetchJsonObject<TrafficResetHistoryData>(
+          `/traffic-reset/user/${userId}/history`,
+          { method: 'GET' },
+        )
+        setTrafficResetHistory(data)
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : t('common.error'))
+        setTrafficResetHistory(null)
+      } finally {
+        setTrafficResetHistoryLoading(false)
+      }
+    },
+    [t],
+  )
+
+  useEffect(() => {
+    if (trafficResetTab !== 'history' || !trafficResetUser?.id) return
+    void loadTrafficResetHistory(trafficResetUser.id)
+  }, [trafficResetTab, trafficResetUser?.id, loadTrafficResetHistory])
+
+  function openTrafficReset(user: UserRow, tab: 'reset' | 'history' = 'reset') {
+    setTrafficResetUser(user)
+    setTrafficResetTab(tab)
+    setTrafficResetReason('')
+    if (tab !== 'history') {
+      setTrafficResetHistory(null)
+    }
+  }
+
+  function closeTrafficReset() {
+    setTrafficResetUser(null)
+    setTrafficResetTab('reset')
+    setTrafficResetReason('')
+    setTrafficResetHistory(null)
+  }
 
   function toggleSort(columnId: string) {
     setSorts((prev) => {
@@ -392,7 +469,9 @@ export default function UserPage() {
         reason: trafficResetReason.trim() || undefined,
       })
       toast.success(t('user.traffic_reset.reset_success', { defaultValue: '流量重置成功' }))
-      setTrafficResetUser(null)
+      if (trafficResetUser.id) {
+        await loadTrafficResetHistory(trafficResetUser.id)
+      }
       setTrafficResetReason('')
       load()
     } catch (e) {
@@ -575,8 +654,11 @@ export default function UserPage() {
               <DropdownMenuItem onClick={() => resetSecret(row.original)}>
                 {t('user.columns.actions_menu.reset_secret', { defaultValue: '重置UUID及订阅URL' })}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTrafficResetUser(row.original)}>
+              <DropdownMenuItem onClick={() => openTrafficReset(row.original, 'reset')}>
                 {t('user.columns.actions_menu.reset_traffic', { defaultValue: '重置流量' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openTrafficReset(row.original, 'history')}>
+                {t('user.traffic_reset.tabs.history', { defaultValue: '重置历史' })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate(`/finance/order?user_id=${row.original.id ?? ''}`)}>
                 {t('user.columns.actions_menu.orders', { defaultValue: 'TA的订单' })}
@@ -590,6 +672,36 @@ export default function UserPage() {
       },
     ],
     [t, plans, selectedIds, allPageSelected, sorts],
+  )
+
+  const trafficResetHistoryColumns = useMemo<ColumnDef<TrafficResetHistoryRow, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'reset_time',
+        header: () =>
+          t('user.traffic_reset.history.reset_time', { defaultValue: '重置时间' }),
+        cell: ({ row }) => formatDateTime(row.original.reset_time),
+      },
+      {
+        accessorKey: 'reset_type_name',
+        header: () =>
+          t('user.traffic_reset_logs.columns.reset_type', { defaultValue: '重置类型' }),
+        cell: ({ row }) => row.original.reset_type_name ?? row.original.reset_type ?? '—',
+      },
+      {
+        accessorKey: 'trigger_source_name',
+        header: () =>
+          t('user.traffic_reset_logs.columns.trigger_source', { defaultValue: '触发源' }),
+        cell: ({ row }) => row.original.trigger_source_name ?? row.original.trigger_source ?? '—',
+      },
+      {
+        id: 'cleared_traffic',
+        header: () =>
+          t('user.traffic_reset.history.traffic_cleared', { defaultValue: '清除流量' }),
+        cell: ({ row }) => row.original.old_traffic?.formatted ?? '—',
+      },
+    ],
+    [t],
   )
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
@@ -1138,8 +1250,8 @@ export default function UserPage() {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={trafficResetUser !== null} onOpenChange={(o) => !o && setTrafficResetUser(null)}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={trafficResetUser !== null} onOpenChange={(o) => !o && closeTrafficReset()}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{t('user.traffic_reset.title', { defaultValue: '流量重置' })}</DialogTitle>
           </DialogHeader>
@@ -1149,24 +1261,95 @@ export default function UserPage() {
               defaultValue: `为用户 ${trafficResetUser?.email ?? ''} 重置流量使用量`,
             })}
           </p>
-          <textarea
-            className={textareaCls}
-            value={trafficResetReason}
-            onChange={(e) => setTrafficResetReason(e.target.value)}
-            placeholder={t('user.traffic_reset.reason.placeholder', {
-              defaultValue: '请输入重置流量的原因（可选）',
-            })}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setTrafficResetUser(null)}>
-              {t('common.cancel', { defaultValue: '取消' })}
-            </Button>
-            <Button onClick={resetTrafficForUser} disabled={trafficResetting}>
-              {trafficResetting
-                ? t('user.traffic_reset.resetting', { defaultValue: '重置中...' })
-                : t('user.traffic_reset.confirm_reset', { defaultValue: '确认重置' })}
-            </Button>
-          </DialogFooter>
+          <Tabs
+            value={trafficResetTab}
+            onValueChange={(v) => setTrafficResetTab(v as 'reset' | 'history')}
+          >
+            <TabsList className="grid h-9 w-full grid-cols-2">
+              <TabsTrigger value="reset">
+                {t('user.traffic_reset.tabs.reset', { defaultValue: '重置流量' })}
+              </TabsTrigger>
+              <TabsTrigger value="history">
+                {t('user.traffic_reset.tabs.history', { defaultValue: '重置历史' })}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="reset" className="mt-4 space-y-4">
+              <textarea
+                className={textareaCls}
+                value={trafficResetReason}
+                onChange={(e) => setTrafficResetReason(e.target.value)}
+                placeholder={t('user.traffic_reset.reason.placeholder', {
+                  defaultValue: '请输入重置流量的原因（可选）',
+                })}
+              />
+              <DialogFooter className="gap-2 sm:justify-end">
+                <Button variant="outline" onClick={closeTrafficReset}>
+                  {t('common.cancel', { defaultValue: '取消' })}
+                </Button>
+                <Button onClick={resetTrafficForUser} disabled={trafficResetting}>
+                  {trafficResetting
+                    ? t('user.traffic_reset.resetting', { defaultValue: '重置中...' })
+                    : t('user.traffic_reset.confirm_reset', { defaultValue: '确认重置' })}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+            <TabsContent value="history" className="mt-4 space-y-4">
+              <div className="grid gap-3 rounded-lg border p-4 sm:grid-cols-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {t('user.traffic_reset.history.reset_count', { defaultValue: '重置次数' })}
+                  </p>
+                  <p className="text-sm font-medium">
+                    {trafficResetHistory?.user?.reset_count ?? 0}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {t('user.traffic_reset.history.last_reset', { defaultValue: '最后重置' })}
+                  </p>
+                  <p className="text-sm font-medium">
+                    {trafficResetHistory?.user?.last_reset_at
+                      ? formatTs(trafficResetHistory.user.last_reset_at)
+                      : t('user.traffic_reset.history.never', { defaultValue: '从未重置' })}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">
+                    {t('user.traffic_reset.history.next_reset', { defaultValue: '下次重置' })}
+                  </p>
+                  <p className="text-sm font-medium">
+                    {trafficResetHistory?.user?.next_reset_at
+                      ? formatTs(trafficResetHistory.user.next_reset_at)
+                      : t('user.traffic_reset.history.no_schedule', { defaultValue: '无定时重置' })}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-medium">
+                  {t('user.traffic_reset.history.recent_records', {
+                    defaultValue: '最近10次重置记录',
+                  })}
+                </p>
+                {!trafficResetHistoryLoading &&
+                (trafficResetHistory?.history?.length ?? 0) === 0 ? (
+                  <p className="py-6 text-center text-sm text-muted-foreground">
+                    {t('user.traffic_reset.history.no_records', { defaultValue: '暂无重置记录' })}
+                  </p>
+                ) : (
+                  <DataTable
+                    columns={trafficResetHistoryColumns}
+                    data={trafficResetHistory?.history ?? []}
+                    loading={trafficResetHistoryLoading}
+                  />
+                )}
+              </div>
+              <DialogFooter className="gap-2 sm:justify-end">
+                <Button variant="outline" onClick={closeTrafficReset}>
+                  {t('common.close', { defaultValue: '关闭' })}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
