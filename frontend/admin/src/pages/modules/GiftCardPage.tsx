@@ -1497,45 +1497,23 @@ export default function GiftCardPage() {
 
                       <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.plan_id.label')}</Label>
 
-                      <select
-
-                        className={inputCls}
-
-                        value={form.rewards.plan_id ?? ''}
-
-                        onChange={(e) =>
-
+                      <FormSelect
+                        className={dialogInputCls}
+                        value={form.rewards.plan_id != null ? String(form.rewards.plan_id) : ''}
+                        onChange={(v) =>
                           setForm((f) => ({
-
                             ...f,
-
                             rewards: {
-
                               ...f.rewards,
-
-                              plan_id: e.target.value ? Number(e.target.value) : null,
-
+                              plan_id: v ? Number(v) : null,
                             },
-
                           }))
-
                         }
-
-                      >
-
-                        <option value="">{t('giftCard.template.form.rewards.plan_id.placeholder')}</option>
-
-                        {plans.map((p) => (
-
-                          <option key={p.id} value={p.id}>
-
-                            {p.name}
-
-                          </option>
-
-                        ))}
-
-                      </select>
+                        options={[
+                          { value: '', label: t('giftCard.template.form.rewards.plan_id.placeholder') },
+                          ...plans.map((p) => ({ value: String(p.id), label: String(p.name) })),
+                        ]}
+                      />
 
                     </div>
 
@@ -1829,7 +1807,7 @@ export default function GiftCardPage() {
 
                   />
 
-                  <Label>{t('giftCard.template.form.conditions.new_user_only.label')}</Label>
+                  <Label className="text-xs font-semibold">{t('giftCard.template.form.conditions.new_user_only.label')}</Label>
 
                 </div>
 
@@ -1853,7 +1831,7 @@ export default function GiftCardPage() {
 
                   />
 
-                  <Label>{t('giftCard.template.form.conditions.paid_user_only.label')}</Label>
+                  <Label className="text-xs font-semibold">{t('giftCard.template.form.conditions.paid_user_only.label')}</Label>
 
                 </div>
 
@@ -1877,13 +1855,13 @@ export default function GiftCardPage() {
 
                   />
 
-                  <Label>{t('giftCard.template.form.conditions.require_invite.label')}</Label>
+                  <Label className="text-xs font-semibold">{t('giftCard.template.form.conditions.require_invite.label')}</Label>
 
                 </div>
 
                 <div className="xb-stack-2">
 
-                  <Label>{t('giftCard.template.form.conditions.allowed_plans.label')}</Label>
+                  <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.conditions.allowed_plans.label')}</Label>
 
                   <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto rounded-md border p-2">
 
@@ -1913,7 +1891,7 @@ export default function GiftCardPage() {
 
                 <div className="xb-stack-2">
 
-                  <Label>{t('giftCard.template.form.conditions.disallowed_plans.label')}</Label>
+                  <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.conditions.disallowed_plans.label')}</Label>
 
                   <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto rounded-md border p-2">
 
