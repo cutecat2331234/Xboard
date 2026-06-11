@@ -1,4 +1,21 @@
 import { ref, computed } from 'vue'
+import {
+  enUS as naiveEnUS,
+  zhCN as naiveZhCN,
+  jaJP as naiveJaJP,
+  koKR as naiveKoKR,
+  viVN as naiveViVN,
+  zhTW as naiveZhTW,
+  faIR as naiveFaIR,
+  dateZhCN,
+  dateJaJP,
+  dateKoKR,
+  dateViVN,
+  dateZhTW,
+  dateFaIR,
+  type NDateLocale,
+  type NLocale,
+} from 'naive-ui'
 
 import { getSettings } from '@/utils/settings'
 
@@ -39,6 +56,25 @@ const catalogs: Record<string, Record<string, unknown>> = {
 
 
 const locale = ref('en-US')
+
+const naiveLocales: Record<string, NLocale> = {
+  'en-US': naiveEnUS,
+  'zh-CN': naiveZhCN,
+  'ja-JP': naiveJaJP,
+  'ko-KR': naiveKoKR,
+  'vi-VN': naiveViVN,
+  'zh-TW': naiveZhTW,
+  'fa-IR': naiveFaIR,
+}
+
+const naiveDateLocales: Partial<Record<string, NDateLocale>> = {
+  'zh-CN': dateZhCN,
+  'ja-JP': dateJaJP,
+  'ko-KR': dateKoKR,
+  'vi-VN': dateViVN,
+  'zh-TW': dateZhTW,
+  'fa-IR': dateFaIR,
+}
 
 
 
@@ -126,7 +162,10 @@ export function useI18n() {
 
   }
 
-  return { t, locale: computed(() => locale.value), setLocale }
+  const naiveLocale = computed(() => naiveLocales[locale.value] ?? naiveEnUS)
+  const naiveDateLocale = computed(() => naiveDateLocales[locale.value])
+
+  return { t, locale: computed(() => locale.value), setLocale, naiveLocale, naiveDateLocale }
 
 }
 
