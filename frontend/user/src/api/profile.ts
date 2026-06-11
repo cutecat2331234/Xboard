@@ -12,8 +12,18 @@ export async function resetSecurity() {
   return request<null>(api.get('/user/resetSecurity'))
 }
 
+export interface ActiveSession {
+  id: number
+  name: string
+  abilities: string[]
+  last_used_at: string | null
+  created_at: string
+  updated_at: string
+  expires_at: string | null
+}
+
 export async function getActiveSessions() {
-  return request<unknown[]>(api.get('/user/getActiveSession'))
+  return request<ActiveSession[]>(api.get('/user/getActiveSession'))
 }
 
 export async function removeActiveSession(sessionId: string) {
