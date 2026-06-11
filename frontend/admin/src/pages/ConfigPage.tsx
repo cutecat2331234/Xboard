@@ -293,7 +293,7 @@ export default function ConfigPage() {
                 <p className="text-sm text-muted-foreground">{t(active.descKey)}</p>
               </div>
               <div data-orientation="horizontal" role="none" className="h-[1px] w-full shrink-0 bg-border" />
-              <div className="space-y-4" onBlur={onBlurSave}>
+              <div className="xb-stack-4" onBlur={onBlurSave}>
                   {section === 'site' ? (
                     <>
                       <FormField
@@ -572,12 +572,14 @@ export default function ConfigPage() {
                         </div>
                       </div>
                       <SwitchField
+                        flat
                         label={t('settings.subscribe.show_info_to_server.title')}
                         description={t('settings.subscribe.show_info_to_server.description')}
                         checked={Boolean(subscribe.show_info_to_server_enable)}
                         onChange={(v) => update('subscribe', 'show_info_to_server_enable', v)}
                       />
                       <SwitchField
+                        flat
                         label={t('settings.subscribe.show_protocol_to_server.title')}
                         description={t('settings.subscribe.show_protocol_to_server.description')}
                         checked={Boolean(subscribe.show_protocol_to_server_enable)}
