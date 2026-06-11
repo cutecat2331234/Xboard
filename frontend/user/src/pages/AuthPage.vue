@@ -145,6 +145,9 @@ watch(
   () => {
     errorText.value = ''
     mailLinkMode.value = false
+    password.value = ''
+    confirmPassword.value = ''
+    emailCode.value = ''
     applyInviteFromQuery()
     if (!isRegister.value && !isForget.value) tryTokenLogin()
   },

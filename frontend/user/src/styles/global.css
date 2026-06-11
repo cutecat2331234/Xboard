@@ -250,7 +250,7 @@ html, body, #app {
   font-weight: 400;
   border: none;
   background: transparent;
-  color: #316c72;
+  color: var(--xb-primary);
   font-size: 14px;
   padding: 0;
   cursor: pointer;
