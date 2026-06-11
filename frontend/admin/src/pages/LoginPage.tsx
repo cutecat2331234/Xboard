@@ -14,6 +14,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { toast } from 'sonner'
+
+const REMEMBER_KEY = 'xboard_admin_remember_me'
+const REMEMBER_EMAIL_KEY = 'xboard_admin_remember_email'
 
 const inputCls =
   'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
@@ -27,10 +38,31 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [forgotOpen, setForgotOpen] = useState(false)
+
+  const resetCommand = t('auth.signIn.resetPassword.command')
 
   useEffect(() => {
     if (getAuthData()) navigate('/', { replace: true })
+    try {
+      const remembered = localStorage.getItem(REMEMBER_KEY) === '1'
+      const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY) ?? ''
+      setRememberMe(remembered)
+      if (remembered && savedEmail) setEmail(savedEmail)
+    } catch {
+      /* ignore */
+    }
   }, [navigate])
+
+  async function copyResetCommand() {
+    try {
+      await navigator.clipboard.writeText(resetCommand)
+      toast.success(t('common.copy.success', { defaultValue: '已复制' }))
+    } catch {
+      toast.error(t('common.copy.failed', { defaultValue: '复制失败' }))
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -42,6 +74,17 @@ export default function LoginPage() {
         clearAuthData()
         setError(t('login.notAdmin', { defaultValue: '需要管理员账号登录' }))
         return
+      }
+      try {
+        if (rememberMe) {
+          localStorage.setItem(REMEMBER_KEY, '1')
+          localStorage.setItem(REMEMBER_EMAIL_KEY, email)
+        } else {
+          localStorage.removeItem(REMEMBER_KEY)
+          localStorage.removeItem(REMEMBER_EMAIL_KEY)
+        }
+      } catch {
+        /* ignore */
       }
       navigate('/')
     } catch (err) {
@@ -141,10 +184,20 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-input"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    {t('auth.signIn.rememberMe')}
+                  </label>
                   <button
                     type="button"
                     className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-0 py-2 text-sm font-normal text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => setForgotOpen(true)}
                   >
                     {t('auth.signIn.forgotPassword')}
                   </button>
@@ -162,6 +215,23 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('auth.signIn.resetPassword.title')}</DialogTitle>
+            <DialogDescription>{t('auth.signIn.resetPassword.description')}</DialogDescription>
+          </DialogHeader>
+          <pre className="overflow-x-auto rounded-md bg-muted p-3 text-xs">{resetCommand}</pre>
+          <button
+            type="button"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            onClick={copyResetCommand}
+          >
+            {t('common.copy', { defaultValue: '复制' })}
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
