@@ -7,3 +7,7 @@ export const textareaCls =
 /** 7001 config form labels: 11px / semibold / leading-5 (lh 20px) */
 export const configFieldLabelCls =
   'text-[11px] font-semibold leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+
+/** 7001 invite distribution sub-fields: shadcn FormLabel default (text-sm) */
+export const configSubFieldLabelCls =
+  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
