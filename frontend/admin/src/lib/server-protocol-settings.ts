@@ -67,18 +67,30 @@ export const TRANSPORT_NETWORKS_WITH_SUBFIELDS = new Set([
   'ws',
   'grpc',
   'h2',
+  'kcp',
   'httpupgrade',
   'xhttp',
 ])
+
+export const KCP_HEADER_TYPE_OPTIONS = [
+  { value: 'none', label: 'None' },
+  { value: 'srtp', label: 'SRTP' },
+  { value: 'utp', label: 'UTP' },
+  { value: 'wechat-video', label: 'Wechat Video' },
+  { value: 'dtls', label: 'DTLS' },
+  { value: 'wireguard', label: 'WireGuard' },
+] as const
 
 export type TransportNetworkSettingsFields = {
   path: string
   host: string
   serviceName: string
+  seed: string
+  headerType: string
 }
 
 export function defaultTransportNetworkSettings(): TransportNetworkSettingsFields {
-  return { path: '', host: '', serviceName: '' }
+  return { path: '', host: '', serviceName: '', seed: '', headerType: 'none' }
 }
 
 function readTransportNetworkHost(raw: Record<string, unknown>): string {
@@ -131,13 +143,24 @@ export function readTransportNetworkSettings(
   if (network === 'tcp') {
     const tcp = readTcpTransportPathHost(settings)
     return {
+      ...d,
       path: tcp.path || String(settings.path ?? d.path),
       host: tcp.host || readTransportNetworkHost(settings),
       serviceName: String(settings.serviceName ?? d.serviceName),
     }
   }
 
+  if (network === 'kcp') {
+    const header = (settings.header ?? {}) as Record<string, unknown>
+    return {
+      ...d,
+      seed: String(settings.seed ?? d.seed),
+      headerType: String(header.type ?? d.headerType),
+    }
+  }
+
   return {
+    ...d,
     path: String(settings.path ?? d.path),
     host: readTransportNetworkHost(settings),
     serviceName: String(settings.serviceName ?? d.serviceName),
@@ -155,6 +178,17 @@ export function serializeTransportNetworkSettings(
   if (network === 'grpc') {
     if (settings.serviceName) payload.serviceName = settings.serviceName
     return Object.keys(payload).length ? payload : undefined
+  }
+
+  if (network === 'kcp') {
+    if (!settings.seed && (!settings.headerType || settings.headerType === 'none')) {
+      return undefined
+    }
+    const kcpPayload: Record<string, unknown> = {
+      header: { type: settings.headerType || 'none' },
+    }
+    if (settings.seed) kcpPayload.seed = settings.seed
+    return kcpPayload
   }
 
   if (network === 'tcp') {

@@ -12,6 +12,7 @@ import {
 import type { PluginConfigField, PluginRow } from '@/lib/plugin-types'
 import { usePluginList } from '@/lib/use-plugin-list'
 import { PluginCrudPanel } from '@/components/plugin/PluginCrudPanel'
+import { PluginMenuPanel } from '@/components/plugin/PluginMenuPanel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -119,9 +120,7 @@ export default function PluginAdminRoute() {
         <PluginCrudPanel plugin={plugin} subpath={subpath} schema={adminCrud} />
       ) : null}
 
-      {adminMenu ? (
-        <PluginMenuPlaceholder plugin={plugin} menu={adminMenu} />
-      ) : null}
+      {adminMenu ? <PluginMenuPanel plugin={plugin} menu={adminMenu} /> : null}
 
       {showUnknownPage ? (
         <Card>
@@ -240,47 +239,6 @@ export default function PluginAdminRoute() {
         </Tabs>
       ) : null}
     </div>
-  )
-}
-
-function PluginMenuPlaceholder({
-  plugin,
-  menu,
-}: {
-  plugin: PluginRow
-  menu: NonNullable<ReturnType<typeof findAdminMenu>>
-}) {
-  const { t } = useTranslation()
-  const path = normalizePluginPath(menu.path)
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{menu.title ?? path}</CardTitle>
-        <CardDescription>
-          {menu.description ||
-            t('plugin.runtime.pluginMenuPageDescription')}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-          <div className="space-y-1 text-muted-foreground">
-            <div>
-              <span className="font-medium text-foreground">Plugin:</span> {plugin.name}
-            </div>
-            <div>
-              <span className="font-medium text-foreground">Path:</span>{' '}
-              <code>{plugin.code ? buildPluginRoute(plugin.code, path) : path}</code>
-            </div>
-          </div>
-        </div>
-        <Button variant="outline" asChild>
-          <Link to={buildPluginRoute(plugin.code ?? '')}>
-            {t('plugin.runtime.backToOverview')}
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
   )
 }
 
