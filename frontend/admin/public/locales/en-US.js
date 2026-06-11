@@ -228,6 +228,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "submit": "Submit",
     "saving": "Saving...",
+    "days": "d",
     "table": {
       "noData": "No data available",
       "pagination": {
@@ -3135,6 +3136,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "form": {
         "add": "Add Template",
         "edit": "Edit Template",
+        "basic": {
+          "title": "Basic Configuration"
+        },
         "name": {
           "label": "Template Name",
           "placeholder": "Please enter template name",

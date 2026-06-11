@@ -228,6 +228,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "submit": "Отправить",
     "saving": "Сохранение...",
+    "days": "д",
     "table": {
       "noData": "Нет данных",
       "pagination": {
@@ -3109,6 +3110,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "form": {
         "add": "Добавить шаблон",
         "edit": "Изменить шаблон",
+        "basic": {
+          "title": "Базовая конфигурация"
+        },
         "name": {
           "label": "Название шаблона",
           "placeholder": "Введите название шаблона",
