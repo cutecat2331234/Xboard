@@ -15,6 +15,7 @@ import {
   Shield,
   ShoppingCart,
   Tag,
+  RefreshCw,
   Ticket,
   Users,
 } from 'lucide-react'
@@ -75,6 +76,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { path: '/user/manage', labelKey: 'nav.userManagement', icon: Users },
       { path: '/user/ticket', labelKey: 'nav.ticketManagement', icon: Ticket },
+      { path: '/traffic-reset', labelKey: 'nav.trafficResetLogs', icon: RefreshCw },
     ],
   },
 ]
