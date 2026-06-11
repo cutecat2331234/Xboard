@@ -369,6 +369,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "searchPlaceholder": "搜索记录...",
       "create": "新建",
       "edit": "编辑",
+      "delete": "删除",
       "schemaEditor": "Schema 编辑器",
       "crudPageDescription": "通过插件定义的 CRUD 接口管理记录。"
     },

@@ -367,6 +367,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "searchPlaceholder": "Search records...",
       "create": "Create",
       "edit": "Edit",
+      "delete": "Delete",
       "schemaEditor": "Schema Editor",
       "crudPageDescription": "Manage records through the plugin-defined CRUD interface."
     },
