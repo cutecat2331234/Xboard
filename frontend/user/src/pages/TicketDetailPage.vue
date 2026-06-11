@@ -3,11 +3,12 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { NCard, NButton, NInput, NScrollbar, NAlert, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
 const route = useRoute()
 const msg = useMessage()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const ticket = ref<TicketItem | null>(null)
 const replyText = ref('')
@@ -19,8 +20,7 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 const isClosed = computed(() => Boolean(ticket.value?.status))
 
 function formatTime(ts?: number) {
-  if (!ts) return ''
-  return new Date(ts * 1000).toLocaleString('zh-CN')
+  return formatLocaleDateTime(ts, locale.value)
 }
 
 async function load() {
