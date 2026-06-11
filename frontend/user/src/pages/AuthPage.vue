@@ -161,7 +161,7 @@ async function submitLogin() {
     msg.success(t('login'))
     router.push('/dashboard')
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : '登录失败'
+    const message = e instanceof Error ? e.message : t('auth.loginFailed')
     errorText.value = message
     msg.error(message)
     captchaRef.value?.reset()
@@ -194,7 +194,7 @@ async function submitRegister() {
     msg.success(t('register'))
     router.push('/dashboard')
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : '注册失败'
+    const message = e instanceof Error ? e.message : t('auth.registerFailed')
     errorText.value = message
     msg.error(message)
     captchaRef.value?.reset()

@@ -35,7 +35,7 @@ onMounted(async () => {
   try {
     plans.value = await fetchPlans()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : 'Failed to load plans')
+    msg.error(e instanceof Error ? e.message : t('plan.loadFailed'))
   } finally {
     loaded.value = true
   }
