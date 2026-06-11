@@ -18,6 +18,7 @@ import { CopyOutline } from '@vicons/ionicons5'
 import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { orderStatusLabel } from '@/lib/order-status'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
 
@@ -29,7 +30,7 @@ const page = ref(1)
 const loading = ref(true)
 const msg = useMessage()
 const dialog = useDialog()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 
 const showPagination = computed(() => rows.value.length > ORDER_PAGE_SIZE)
@@ -61,13 +62,6 @@ function periodLabel(period?: string) {
   if (!period) return ''
   const hit = PERIOD_OPTIONS.find((o) => o.key === period)
   return hit ? t(hit.labelKey) : period
-}
-
-function formatTime(ts?: number) {
-  if (!ts) return ''
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
 async function copyTradeNo(tradeNo: string) {
@@ -164,7 +158,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.createdAt'),
     key: 'created_at',
-    render: (row) => formatTime(row.created_at),
+    render: (row) => formatLocaleDateTime(row.created_at, locale.value),
   },
   {
     title: t('common.actions'),

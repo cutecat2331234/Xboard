@@ -56,14 +56,6 @@ const { t, locale } = useI18n()
 
 
 
-function formatTime(ts?: number) {
-
-  return formatLocaleDateTime(ts, locale.value)
-
-}
-
-
-
 function levelLabel(value: number) {
 
   const labels = [t('ticket.levelLow'), t('ticket.levelMedium'), t('ticket.levelHigh')]
@@ -167,9 +159,9 @@ const columns = computed<DataTableColumns<TicketItem>>(() => [
 
   },
 
-  { title: t('ticket.createdAt'), key: 'created_at', render: (r) => formatTime(r.created_at) },
+  { title: t('ticket.createdAt'), key: 'created_at', render: (r) => formatLocaleDateTime(r.created_at, locale.value) },
 
-  { title: t('ticket.lastReply'), key: 'updated_at', render: (r) => formatTime(r.updated_at) },
+  { title: t('ticket.lastReply'), key: 'updated_at', render: (r) => formatLocaleDateTime(r.updated_at, locale.value) },
 
   {
 
