@@ -14,6 +14,9 @@
   --xb-hover: #f3f4f6;
   --xb-icon: #666666;
   --xb-divider: rgb(224, 224, 230);
+  --xb-status-ok: #22c55e;
+  --xb-status-bad: #ef4444;
+  --xb-status-info: #3b82f6;
   --xb-order-summary-bg: #232e3c;
   --xb-order-summary-fg: #fff;
   --xb-order-summary-plan-price: #f8f9fa;
@@ -246,6 +249,9 @@ html, body, #app {
 .border-primary { border-color: #316c72; }
 .p-5 { padding: 20px; }
 
+.color-primary {
+  color: var(--xb-primary);
+}
 .order-link-btn {
   font-weight: 400;
   border: none;
@@ -267,4 +273,23 @@ html, body, #app {
   margin: 0 8px;
   background: var(--xb-divider);
   vertical-align: middle;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  margin-right: 5px;
+  flex-shrink: 0;
+}
+.status-dot--ok {
+  background: var(--xb-status-ok);
+}
+.status-dot--bad {
+  background: var(--xb-status-bad);
+}
+.status-dot--info {
+  background: var(--xb-status-info);
+}
+.items-center {
+  align-items: center;
 }

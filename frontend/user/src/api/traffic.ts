@@ -4,6 +4,8 @@ export interface TrafficLogItem {
   u: number
   d: number
   record_at: number
+  server_rate?: number | string
+  rate?: number | string
 }
 
 export async function fetchTrafficLog() {

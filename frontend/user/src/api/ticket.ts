@@ -5,6 +5,7 @@ export interface TicketItem {
   subject: string
   level: number
   status: number
+  reply_status?: number
   created_at?: number
   updated_at: number
   message?: { id: number; message: string; created_at: number; is_me: boolean }[]
