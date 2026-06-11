@@ -371,10 +371,8 @@ export default function ConfigPage() {
                       />
                       {Number(site.try_out_plan_id ?? 0) > 0 ? (
                         <FormField
-                          label={t('settings.site.form.tryOutHour.label', { defaultValue: '试用时长（小时）' })}
-                          description={t('settings.site.form.tryOutHour.description', {
-                            defaultValue: '新用户试用套餐的有效时长',
-                          })}
+                          label={t('settings.site.form.tryOutHour.label')}
+                          description={t('settings.site.form.tryOutHour.description')}
                           value={String(site.try_out_hour ?? 1)}
                           onChange={(v) => update('site', 'try_out_hour', Number(v) || 1)}
                         />
@@ -555,7 +553,7 @@ export default function ConfigPage() {
                         </label>
                         <input
                           className={inputCls}
-                          placeholder={t('settings.subscribe.subscribe_path.placeholder', { defaultValue: 'subscribe' })}
+                          placeholder={t('settings.subscribe.subscribe_path.placeholder')}
                           value={String(subscribe.subscribe_path ?? '')}
                           onChange={(e) => update('subscribe', 'subscribe_path', e.target.value)}
                         />
