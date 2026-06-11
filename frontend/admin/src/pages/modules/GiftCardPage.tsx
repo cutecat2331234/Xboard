@@ -10,9 +10,11 @@ import { toast } from 'sonner'
 
 import { downloadAdminFile, fetchJsonList, fetchJsonObject, fetchPaginatedList, postJson } from '@/lib/api'
 
-import { inputCls, textareaCls } from '@/lib/form-styles'
+import { dialogFieldLabelCls, dialogInputCls, inputCls, textareaCls } from '@/lib/form-styles'
 
 import { DataTable } from '@/components/shared/DataTable'
+import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
+import { FormSelect } from '@/components/shared/FormSelect'
 import { SuffixInput } from '@/components/shared/SuffixInput'
 
 import { Button } from '@/components/ui/button'
@@ -22,8 +24,6 @@ import {
   Dialog,
 
   DialogContent,
-
-  DialogFooter,
 
   DialogHeader,
 
@@ -1288,9 +1288,9 @@ export default function GiftCardPage() {
 
         <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
-          <DialogHeader className="shrink-0 border-b px-6 py-4">
+          <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 pb-4 pt-6 text-left">
 
-            <DialogTitle>
+            <DialogTitle className="text-lg tracking-tight">
 
               {dialogMode === 'edit' ? t('giftCard.template.form.edit') : t('giftCard.template.form.add')}
 
@@ -1298,13 +1298,13 @@ export default function GiftCardPage() {
 
           </DialogHeader>
 
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-background">
 
-            <div className="xb-stack-4 px-6 py-4">
+            <div className="space-y-6 px-6 py-4 text-sm">
 
-              <div className="xb-stack-4">
+              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
 
-                <div className="flex items-center gap-2">
+                <div className="mb-2 flex items-center gap-2">
 
                   <Globe className="h-4 w-4 text-primary" />
 
@@ -1314,13 +1314,13 @@ export default function GiftCardPage() {
 
                 <div className="grid grid-cols-2 gap-4">
 
-                  <div className="xb-stack-2">
+                  <div className="space-y-1.5">
 
-                    <Label>{t('giftCard.template.form.name.label')}</Label>
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.name.label')}</Label>
 
                     <input
 
-                      className={inputCls}
+                      className={`${inputCls} ${dialogInputCls}`}
 
                       placeholder={t('giftCard.template.form.name.placeholder')}
 
@@ -1332,39 +1332,27 @@ export default function GiftCardPage() {
 
                   </div>
 
-                  <div className="xb-stack-2">
+                  <div className="space-y-1.5">
 
-                    <Label>{t('giftCard.template.form.type.label')}</Label>
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.type.label')}</Label>
 
-                    <select
-
-                      className={inputCls}
-
-                      value={form.type}
-
-                      onChange={(e) => setForm((f) => ({ ...f, type: Number(e.target.value) }))}
-
-                    >
-
-                      {giftTypeOptions.map(({ id, label }) => (
-
-                        <option key={id} value={id}>
-
-                          {label}
-
-                        </option>
-
-                      ))}
-
-                    </select>
+                    <FormSelect
+                      className={dialogInputCls}
+                      value={String(form.type)}
+                      onChange={(v) => setForm((f) => ({ ...f, type: Number(v) }))}
+                      options={giftTypeOptions.map(({ id, label }) => ({
+                        value: String(id),
+                        label,
+                      }))}
+                    />
 
                   </div>
 
                 </div>
 
-                <div className="xb-stack-2">
+                <div className="space-y-1.5">
 
-                  <Label>{t('giftCard.template.form.description.label')}</Label>
+                  <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.description.label')}</Label>
 
                   <textarea
 
@@ -1384,7 +1372,7 @@ export default function GiftCardPage() {
 
                   <div className="xb-stack-2">
 
-                    <Label>{t('giftCard.template.form.sort.label')}</Label>
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.sort.label')}</Label>
 
                     <input
 
@@ -1432,9 +1420,9 @@ export default function GiftCardPage() {
 
 
 
-              <div className="xb-stack-4 rounded-md border p-3">
+              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
 
-                <div className="flex items-center gap-2">
+                <div className="mb-2 flex items-center gap-2">
 
                   <Gift className="h-4 w-4 text-primary" />
 
@@ -1448,7 +1436,7 @@ export default function GiftCardPage() {
 
                     <div className="xb-stack-2">
 
-                      <Label>{t('giftCard.template.form.rewards.plan_id.label')}</Label>
+                      <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.plan_id.label')}</Label>
 
                       <select
 
@@ -1494,7 +1482,7 @@ export default function GiftCardPage() {
 
                     <div className="xb-stack-2">
 
-                      <Label>{t('giftCard.template.form.rewards.plan_validity_days.label')}</Label>
+                      <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.plan_validity_days.label')}</Label>
 
                       <SuffixInput
 
@@ -1538,7 +1526,7 @@ export default function GiftCardPage() {
 
                       <div className="xb-stack-2">
 
-                        <Label>{t('giftCard.template.form.rewards.balance.label')}</Label>
+                        <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.balance.label')}</Label>
 
                         <SuffixInput
 
@@ -1568,7 +1556,7 @@ export default function GiftCardPage() {
 
                       <div className="xb-stack-2">
 
-                        <Label>{t('giftCard.template.form.rewards.transfer_enable.label')}</Label>
+                        <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.transfer_enable.label')}</Label>
 
                         <SuffixInput
 
@@ -1604,7 +1592,7 @@ export default function GiftCardPage() {
 
                       <div className="xb-stack-2">
 
-                        <Label>{t('giftCard.template.form.rewards.expire_days.label')}</Label>
+                        <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.expire_days.label')}</Label>
 
                         <SuffixInput
 
@@ -1640,7 +1628,7 @@ export default function GiftCardPage() {
 
                       <div className="xb-stack-2">
 
-                        <Label>{t('giftCard.template.form.rewards.device_limit.label')}</Label>
+                        <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.device_limit.label')}</Label>
 
                         <input
 
@@ -1892,21 +1880,13 @@ export default function GiftCardPage() {
 
           </div>
 
-          <DialogFooter className="shrink-0 border-t px-6 py-4">
-
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-
-              {t('common.cancel')}
-
-            </Button>
-
-            <Button onClick={saveTemplate} disabled={saving}>
-
-              {t('common.confirm')}
-
-            </Button>
-
-          </DialogFooter>
+          <DialogFormFooter
+            onCancel={() => setDialogOpen(false)}
+            onSubmit={saveTemplate}
+            cancelLabel={t('common.cancel')}
+            submitLabel={t('common.confirm')}
+            submitting={saving}
+          />
 
         </DialogContent>
 

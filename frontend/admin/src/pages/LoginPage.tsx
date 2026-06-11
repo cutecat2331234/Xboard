@@ -1,11 +1,11 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
 import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
 import { LocaleFlag } from '@/components/shared/LocaleFlag'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -32,7 +32,6 @@ export default function LoginPage() {
   const settings = getSettings()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [forgotOpen, setForgotOpen] = useState(false)
@@ -136,30 +135,15 @@ export default function LoginPage() {
                 >
                   {t('auth.signIn.password')}
                 </Label>
-                <div className="relative rounded-md">
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    placeholder={t('auth.signIn.passwordPlaceholder')}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={inputCls}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-1 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                    onClick={() => setShowPassword((v) => !v)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-[18px] w-[18px]" />
-                    ) : (
-                      <Eye className="h-[18px] w-[18px]" />
-                    )}
-                  </button>
-                </div>
+                <PasswordInput
+                  id="password"
+                  name="password"
+                  autoComplete="current-password"
+                  placeholder={t('auth.signIn.passwordPlaceholder')}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
               <div className="flex items-center justify-between">
                 <button
