@@ -1135,8 +1135,8 @@ export default function UserPage() {
               {t('user.send_mail.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-background px-6 py-4 text-sm">
-            <div className="space-y-4">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-background">
+            <div className="space-y-4 px-6 py-4 text-sm">
               <div className="space-y-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
@@ -1212,14 +1212,24 @@ export default function UserPage() {
               </div>
             </div>
           </div>
-          <DialogFooter className="shrink-0 border-t px-6 py-4 sm:justify-end">
-            <Button variant="outline" onClick={() => setMailOpen(false)}>
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={sendMail} disabled={mailSending} className="gap-2">
-              <Send className="h-4 w-4" />
-              {mailSending ? t('user.send_mail.sending') : t('user.send_mail.send')}
-            </Button>
+          <DialogFooter className="shrink-0 border-t px-6 py-4">
+            <div className="flex w-full items-center justify-end gap-3">
+              <Button
+                variant="ghost"
+                className="h-8 px-4 text-xs font-bold"
+                onClick={() => setMailOpen(false)}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                onClick={sendMail}
+                disabled={mailSending}
+                className="h-8 gap-2 px-8 text-xs font-bold"
+              >
+                <Send className="h-4 w-4" />
+                {mailSending ? t('user.send_mail.sending') : t('user.send_mail.send')}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1259,8 +1269,8 @@ export default function UserPage() {
           <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-3 text-sm">
-            <div className="space-y-4">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="space-y-4 px-6 py-4 text-sm">
             <div className="space-y-1.5">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
@@ -1313,6 +1323,7 @@ export default function UserPage() {
                   value={form.expired_at as number | null | undefined}
                   onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
                   placeholder={t('user.generate.form.expire_time_placeholder')}
+                  className="px-3 font-mono text-xs"
                 />
               </div>
               <div className="space-y-1.5">
@@ -1320,6 +1331,7 @@ export default function UserPage() {
                   {t('user.generate.form.subscription')}
                 </Label>
                 <FormSelect
+                  className={dialogInputCls}
                   value={String(form.plan_id ?? '')}
                   onChange={(v) =>
                     setForm((f) => ({
@@ -1358,13 +1370,23 @@ export default function UserPage() {
             ) : null}
             </div>
           </div>
-          <DialogFooter className="shrink-0 border-t px-6 py-3">
-            <Button variant="outline" onClick={() => setDialogMode(null)}>
-              {t('user.generate.form.cancel')}
-            </Button>
-            <Button onClick={saveUser} disabled={saving}>
-              {t('user.generate.form.submit')}
-            </Button>
+          <DialogFooter className="shrink-0 border-t px-6 py-4">
+            <div className="flex w-full items-center justify-end gap-3">
+              <Button
+                variant="ghost"
+                className="h-8 px-4 text-xs font-bold"
+                onClick={() => setDialogMode(null)}
+              >
+                {t('user.generate.form.cancel')}
+              </Button>
+              <Button
+                onClick={saveUser}
+                disabled={saving}
+                className="h-8 px-8 text-xs font-bold"
+              >
+                {t('user.generate.form.submit')}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
