@@ -62,6 +62,16 @@ function formatTime(ts?: number) {
 
 
 
+function levelLabel(value: number) {
+
+  const labels = [t('ticket.levelLow'), t('ticket.levelMedium'), t('ticket.levelHigh')]
+
+  return labels[value] ?? String(value)
+
+}
+
+
+
 async function load() {
 
   rows.value = await fetchTickets()
@@ -85,6 +95,10 @@ async function create() {
     msg.success(t('common.success'))
 
     await load()
+
+    const created = rows.value[0]
+
+    if (created?.id) router.push(`/ticket/${created.id}`)
 
   } catch (e: unknown) {
 
@@ -120,7 +134,7 @@ const columns = computed<DataTableColumns<TicketItem>>(() => [
 
   { title: t('ticket.subject'), key: 'subject' },
 
-  { title: t('ticket.level'), key: 'level' },
+  { title: t('ticket.level'), key: 'level', render: (r) => levelLabel(r.level) },
 
   {
 
