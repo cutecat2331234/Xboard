@@ -21,6 +21,16 @@ function buildResources() {
 
 const LOCALE_KEY = 'xboard_admin_locale'
 
+export const ADMIN_LOCALES = [
+  { code: 'en-US', label: 'EN' },
+  { code: 'zh-CN', label: 'CN' },
+  { code: 'ru-RU', label: 'RU' },
+] as const
+
+export function localeLabel(code: string) {
+  return ADMIN_LOCALES.find((l) => l.code === code)?.label ?? 'EN'
+}
+
 export function initI18n() {
   const saved =
     localStorage.getItem(LOCALE_KEY) || localStorage.getItem('i18nextLng') || 'en-US'

@@ -3,7 +3,7 @@ import { IconMoon, IconSun } from '@tabler/icons-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData } from '@/lib/api'
-import { setLocale } from '@/lib/i18n'
+import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
 import { titleForPath, titleKeyForPath } from '@/lib/page-title'
 import { pluginTitleForPath } from '@/lib/plugin-menus'
 import { usePluginList } from '@/lib/use-plugin-list'
@@ -21,12 +21,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-
-const LOCALES = [
-  { code: 'en-US', label: 'EN' },
-  { code: 'zh-CN', label: '中文' },
-  { code: 'ru-RU', label: 'RU' },
-]
 
 const ADMIN_AVATAR =
   'https://cdn.v2ex.com/gravatar/1fbc608854d0b079585d221dbfc5d6f3?s=64&d=identicon'
@@ -88,12 +82,12 @@ export function PageToolbar() {
             >
               <LocaleFlag locale={i18n.language} />
               <span className="text-sm font-medium">
-                {LOCALES.find((l) => l.code === i18n.language)?.label ?? 'EN'}
+                {localeLabel(i18n.language)}
               </span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {LOCALES.map((l) => (
+            {ADMIN_LOCALES.map((l) => (
               <DropdownMenuItem key={l.code} onClick={() => setLocale(l.code)}>
                 {l.label}
               </DropdownMenuItem>

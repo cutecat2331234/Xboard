@@ -4,7 +4,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
-import { setLocale } from '@/lib/i18n'
+import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
 import { LocaleFlag } from '@/components/shared/LocaleFlag'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -51,9 +51,6 @@ export default function LoginPage() {
     }
   }
 
-  const localeLabel =
-    i18n.language === 'zh-CN' ? '中文' : i18n.language === 'ru-RU' ? 'RU' : 'EN'
-
   return (
     <div className="container relative flex min-h-svh flex-col items-center justify-center bg-primary-foreground px-4 py-8 lg:max-w-none lg:px-0">
       <div className="absolute right-4 top-4 md:right-8 md:top-8">
@@ -64,13 +61,15 @@ export default function LoginPage() {
               className="inline-flex h-8 items-center justify-center gap-1 rounded-md px-2 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
             >
               <LocaleFlag locale={i18n.language} />
-              <span className="text-sm font-medium">{localeLabel}</span>
+              <span className="text-sm font-medium">{localeLabel(i18n.language)}</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setLocale('en-US')}>EN</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setLocale('zh-CN')}>中文</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setLocale('ru-RU')}>RU</DropdownMenuItem>
+            {ADMIN_LOCALES.map((l) => (
+              <DropdownMenuItem key={l.code} onClick={() => setLocale(l.code)}>
+                {l.label}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
