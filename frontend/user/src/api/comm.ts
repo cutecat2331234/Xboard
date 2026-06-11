@@ -59,6 +59,17 @@ export type CaptchaPayload = {
   recaptcha_data?: string
   recaptcha_v3_token?: string
   turnstile_token?: string
+  skip_recaptcha_v3?: boolean
+  skip_recaptcha_v3_error?: boolean
+}
+
+function formatEmailVerifyCaptcha(captcha?: CaptchaPayload): Record<string, string | number> {
+  if (!captcha) return {}
+  if (captcha.skip_recaptcha_v3 || captcha.skip_recaptcha_v3_error) {
+    return { skip_recaptcha_v3: 1 }
+  }
+  const { skip_recaptcha_v3: _skip, skip_recaptcha_v3_error: _skipError, ...fields } = captcha
+  return fields
 }
 
 export async function fetchGuestConfig() {
@@ -70,7 +81,7 @@ export async function fetchUserCommConfig() {
 }
 
 export async function sendEmailVerify(email: string, captcha?: CaptchaPayload) {
-  return request<null>(api.post('/passport/comm/sendEmailVerify', { email, ...captcha }))
+  return request<null>(api.post('/passport/comm/sendEmailVerify', { email, ...formatEmailVerifyCaptcha(captcha) }))
 }
 
 export async function fetchStripePublicKey(paymentId: number) {
