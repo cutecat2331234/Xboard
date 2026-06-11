@@ -77,6 +77,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <h2 v-if="loaded && plans.length > 0" class="plan-list-title">{{ t('plan.chooseTitle') }}</h2>
   <n-grid v-if="!loaded" :cols="gridCols" :x-gap="12" :y-gap="12">
     <n-gi v-for="i in 2" :key="i">
       <n-card>
@@ -116,6 +117,13 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.plan-list-title {
+  margin: 0 0 16px;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+  color: var(--xb-text);
+}
 .plan-header {
   display: flex;
   align-items: center;

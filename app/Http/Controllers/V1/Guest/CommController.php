@@ -32,6 +32,7 @@ class CommController extends Controller
             'is_recaptcha' => (int) admin_setting('captcha_enable', 0) ? 1 : 0,
             'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
             'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
+            'login_with_mail_link_enable' => (int) admin_setting('login_with_mail_link_enable', 0) ? 1 : 0,
         ];
 
         $data = HookManager::filter('guest_comm_config', $data);

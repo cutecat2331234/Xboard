@@ -64,7 +64,6 @@ const menuOptions = computed<MenuOption[]>(() => [
     children: [
       { label: t('nav.order'), key: '/order', icon: renderIcon(MENU_ICON_PATHS.order) },
       { label: t('nav.invite'), key: '/invite', icon: renderIcon(MENU_ICON_PATHS.invite) },
-      { label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) },
     ],
   },
   {
