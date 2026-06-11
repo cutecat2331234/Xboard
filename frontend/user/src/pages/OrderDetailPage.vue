@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
 
-import { NCard, NButton, NModal, NIcon, useMessage, useDialog } from 'naive-ui'
+import { NCard, NButton, NModal, NIcon, NAlert, NTag, useMessage, useDialog } from 'naive-ui'
 
 import { CheckmarkCircleOutline } from '@vicons/ionicons5'
 
@@ -183,6 +183,18 @@ const payTotal = computed(() => {
   const handling = order.value?.handling_amount ?? handlingPreview.value
 
   return Math.max(0, base - surplus - discount - refund - balance + (handling || 0))
+
+})
+
+
+
+const isTryOutPlan = computed(() => {
+
+  const o = order.value
+
+  if (!o?.try_out_plan_id) return false
+
+  return o.plan_id === o.try_out_plan_id
 
 })
 
@@ -464,11 +476,27 @@ onUnmounted(stopPoll)
 
       <n-card class="mt-5 rounded-md" :title="t('order.productInfo')">
 
+        <n-alert v-if="isTryOutPlan" class="try-out-alert" type="info" :show-icon="true">
+
+          {{ t('order.tryOutHint') }}
+
+        </n-alert>
+
         <div class="info-row">
 
           <div class="info-label">{{ t('order.productName') }}：</div>
 
-          <div class="info-value">{{ order.plan?.name }}</div>
+          <div class="info-value try-out-name">
+
+            <span>{{ order.plan?.name }}</span>
+
+            <n-tag v-if="isTryOutPlan" size="small" type="info" round class="try-out-tag">
+
+              {{ t('order.tryOutBadge') }}
+
+            </n-tag>
+
+          </div>
 
         </div>
 
@@ -829,6 +857,30 @@ onUnmounted(stopPoll)
   font-size: 14px;
 
   word-break: break-all;
+
+}
+
+.try-out-alert {
+
+  margin-bottom: 12px;
+
+}
+
+.try-out-name {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  flex-wrap: wrap;
+
+}
+
+.try-out-tag {
+
+  flex-shrink: 0;
 
 }
 

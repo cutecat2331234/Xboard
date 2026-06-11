@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, useMessage, useDialog } from 'naive-ui'
+import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, NTag, useMessage, useDialog } from 'naive-ui'
 import { fetchPlanById, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
-import { saveOrder, cancelOrder, fetchOrders } from '@/api/order'
+import { saveOrder, cancelOrder, fetchOrders, resolveTryOutPlanId } from '@/api/order'
 import { checkCoupon } from '@/api/coupon'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
@@ -16,6 +16,7 @@ const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 
 const plan = ref<PlanItem | null>(null)
+const tryOutPlanId = ref(0)
 const period = ref('month_price')
 const couponCode = ref('')
 const couponDiscount = ref('')
@@ -27,6 +28,10 @@ const availablePeriods = computed(() =>
     const price = plan.value?.[p.key as keyof PlanItem]
     return typeof price === 'number' && price > 0
   }),
+)
+
+const isTryOutPlan = computed(
+  () => tryOutPlanId.value > 0 && plan.value?.id === tryOutPlanId.value,
 )
 
 async function load() {
@@ -101,12 +106,21 @@ async function buy() {
 
 onMounted(async () => {
   await loadCurrency()
-  await load()
+  await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })
 </script>
 
 <template>
-  <n-card v-if="plan" :title="plan.name" class="rounded-md">
+  <n-card v-if="plan" class="rounded-md">
+    <template #header>
+      <div class="plan-header">
+        <span>{{ plan.name }}</span>
+        <n-tag v-if="isTryOutPlan" size="small" type="info" round>{{ t('plan.tryOutBadge') }}</n-tag>
+      </div>
+    </template>
+    <n-alert v-if="isTryOutPlan" type="info" :show-icon="true" class="try-out-alert">
+      {{ t('plan.tryOutHint') }}
+    </n-alert>
     <div v-if="plan.content" class="plan-content" v-html="plan.content" />
     <n-alert v-if="availablePeriods.length === 0" type="warning" :show-icon="true">
       {{ t('plan.noPeriod') }}
@@ -137,6 +151,15 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.plan-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.try-out-alert {
+  margin-bottom: 16px;
+}
 .plan-content { margin-bottom: 16px; color: #666; font-size: 14px; }
 .section-label { margin: 16px 0 8px; font-weight: 500; }
 .period-group { display: flex; flex-direction: column; gap: 8px; }

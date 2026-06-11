@@ -76,7 +76,9 @@ export default {
     "periodThreeYear": "3年プラン",
     "periodOnetime": "一括払い",
     "periodReset": "データリセットパッケージ",
-    "empty": "No plans available"
+    "empty": "No plans available",
+    "tryOutBadge": "Trial plan",
+    "tryOutHint": "This is the registration trial plan. New users receive a trial automatically; you can also purchase it here."
   },
   "node": {
     "alert": "No access points are available. If you have not subscribed or the subscription has expired, please",
@@ -146,7 +148,9 @@ export default {
     "handlingFee": "Handling fee",
     "payAmount": "Amount due",
     "scanPay": "Scan to pay",
-    "scanHint": "Scan the QR code with your payment app"
+    "scanHint": "Scan the QR code with your payment app",
+    "tryOutBadge": "Trial plan",
+    "tryOutHint": "This order includes the registration trial plan. Trial benefits apply after payment."
   },
   "ticket": {
     "title": "お問い合わせ履歴",
@@ -168,7 +172,8 @@ export default {
     "open": "Open",
     "reply": "返信",
     "replyPh": "Enter your reply…",
-    "closedReplyPh": "Ticket closed…",
+    "closedReplyPh": "Ticket closed — replies disabled",
+    "closedHint": "This ticket is closed. You cannot send more replies.",
     "closeSuccess": "Ticket closed"
   },
   "profile": {

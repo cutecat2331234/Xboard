@@ -79,6 +79,8 @@ export default {
     periodOnetime: 'One-time',
     periodReset: 'Data reset',
     empty: 'No plans available',
+    tryOutBadge: 'Trial plan',
+    tryOutHint: 'This is the registration trial plan. New users receive a trial automatically; you can also purchase it here.',
   },
   node: {
     alert: 'No access points are available. If you have not subscribed or the subscription has expired, please',
@@ -154,6 +156,8 @@ export default {
     scanPay: 'Scan to pay',
     scanHint: 'Scan the QR code with your payment app',
     stripeRequired: 'Please enter your card details',
+    tryOutBadge: 'Trial plan',
+    tryOutHint: 'This order includes the registration trial plan. Trial benefits apply after payment.',
   },
   ticket: {
     title: 'Ticket History',
@@ -175,7 +179,8 @@ export default {
     open: 'Open',
     reply: 'Reply',
     replyPh: 'Enter your reply…',
-    closedReplyPh: 'Ticket closed…',
+    closedReplyPh: 'Ticket closed — replies disabled',
+    closedHint: 'This ticket is closed. You cannot send more replies.',
     closeSuccess: 'Ticket closed',
   },
   giftCard: {

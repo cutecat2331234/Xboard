@@ -85,6 +85,8 @@ export default {
     periodOnetime: '一次性',
     periodReset: '流量重置包',
     empty: '暂无可用套餐',
+    tryOutBadge: '试用套餐',
+    tryOutHint: '此套餐为注册试用套餐，新用户注册时将自动获得试用时长；您也可以在此正常下单购买。',
   },
   node: {
     alert: '暂无可用节点，若您未订阅或订阅已过期，请',
@@ -186,6 +188,8 @@ export default {
     scanPay: '扫码支付',
     scanHint: '请使用对应 App 扫描二维码完成支付',
     stripeRequired: '请填写信用卡信息',
+    tryOutBadge: '试用套餐',
+    tryOutHint: '此订单包含注册试用套餐，支付完成后将开通对应试用权益。',
   },
   ticket: {
     title: '工单历史',
@@ -207,7 +211,8 @@ export default {
     open: '进行中',
     reply: '回复',
     replyPh: '输入内容回复工单',
-    closedReplyPh: '工单已关闭，仍可回复…',
+    closedReplyPh: '工单已关闭，无法回复',
+    closedHint: '工单已关闭，无法继续回复。',
     closeSuccess: '工单已关闭',
   },
   giftCard: {
