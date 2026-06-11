@@ -15,9 +15,9 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
   if (prefix) {
     return (
       <div className="flex w-full">
-        <span className="inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+        <div className="z-[-1] flex shrink-0 items-center rounded-l-md rounded-r-none border border-r-0 border-input px-3 py-1 text-sm text-muted-foreground shadow-sm">
           {prefix}
-        </span>
+        </div>
         <input className={cn(inputCls, 'rounded-l-none', spinless, className)} type={type} {...props} />
       </div>
     )
@@ -30,9 +30,9 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
         type={type}
         {...props}
       />
-      <span className="inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-r-md border border-input bg-muted px-3 text-sm text-muted-foreground">
+      <div className="z-[-1] flex shrink-0 items-center rounded-r-md rounded-l-none border border-l-0 border-input px-3 py-1 text-sm text-muted-foreground shadow-sm">
         {suffix}
-      </span>
+      </div>
     </div>
   )
 }
