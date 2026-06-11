@@ -801,13 +801,13 @@ onUnmounted(stopPoll)
 .order-detail-page {
   margin-top: 0;
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .order-detail-main {
   width: 100%;
-  flex: 2 2 0%;
+  flex: none;
   min-width: 0;
 }
 
@@ -829,13 +829,24 @@ onUnmounted(stopPoll)
 
 .order-detail-aside {
   width: 100%;
-  flex: 1 1 0%;
+  flex: none;
   min-width: 0;
   padding-left: 0;
 }
 
 @media (min-width: 768px) {
+  .order-detail-page {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .order-detail-main {
+    flex: 2 2 0%;
+  }
+
   .order-detail-aside {
+    flex: 1 1 0%;
     padding-left: 20px;
   }
 }
