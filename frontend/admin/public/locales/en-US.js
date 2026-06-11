@@ -192,14 +192,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "machineIdNone": "Standalone deployment",
       "enabled": "Enabled on Server",
       "enabledDescription": "Whether the node is activated on the selected server"
-    },
-    "actions": {
-      "viewToken": "View Token",
-      "installCommand": "Install Command",
-      "viewNodes": "Associated Nodes",
-      "manageNodes": "Manage Nodes",
-      "loadHistory": "Load History",
-      "resetToken": "Reset Token"
     }
   },
   "common": {
@@ -757,33 +749,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "empty": "No jobs in queue",
       "loading": "Loading queue status...",
       "error": "Failed to load queue status"
-    },
-    "systemStatus": {
-      "title": "System Status",
-      "schedule": "Scheduled Tasks",
-      "scheduleLastRun": "Last run: {{time}}",
-      "horizon": "Horizon",
-      "horizonHint": "Queue worker status"
-    },
-    "queueWorkload": {
-      "title": "Queue Workload",
-      "description": "Pending jobs and wait time per queue",
-      "summary": "Wait {{wait}}s · {{processes}} processes",
-      "empty": "No queue workload data"
-    },
-    "auditLog": {
-      "title": "Audit Log",
-      "description": "Administrator action history",
-      "keywordPlaceholder": "Search URI or request data",
-      "columns": {
-        "id": "ID",
-        "admin": "Admin",
-        "action": "Action",
-        "method": "Method",
-        "uri": "URI",
-        "ip": "IP",
-        "time": "Time"
-      }
     },
     "common": {
       "refresh": "Refresh",
