@@ -237,6 +237,7 @@ onMounted(async () => {
 
   <n-card :title="t('profile.activeSessions')" class="mt-5 rounded-md">
     <n-data-table
+      class="session-table"
       :columns="sessionColumns"
       :data="sessions"
       :loading="sessionsLoading"
@@ -317,26 +318,38 @@ onMounted(async () => {
   gap: 16px;
   padding: 8px 0;
   font-size: 14px;
-  border-bottom: 1px solid #f0f0f0;
+  color: var(--xb-text);
+  border-bottom: 1px solid var(--xb-border);
 }
 .info-row:last-child {
   border-bottom: none;
 }
 .info-label {
   flex-shrink: 0;
-  color: #666;
+  color: var(--xb-text-muted);
 }
 .mono {
   font-family: monospace;
   font-size: 12px;
   word-break: break-all;
   text-align: right;
+  color: var(--xb-text);
 }
 .session-empty {
   margin: 12px 0 0;
   font-size: 14px;
-  color: #999;
+  color: var(--xb-text-muted);
   text-align: center;
+}
+.session-table :deep(.n-data-table-th) {
+  color: var(--xb-text-muted);
+  font-weight: 500;
+}
+.session-table :deep(.n-data-table-td) {
+  color: var(--xb-text);
+}
+.session-table :deep(.n-data-table-tr:not(:last-child) .n-data-table-td) {
+  border-bottom: 1px solid var(--xb-divider);
 }
 .tg-link {
   color: #2080f0;
@@ -344,6 +357,12 @@ onMounted(async () => {
 }
 .tg-link:hover {
   text-decoration: underline;
+}
+.text-gray-500 {
+  color: var(--xb-text-secondary);
+}
+.text-4xl {
+  color: var(--xb-text-secondary);
 }
 .mt-2 {
   margin-top: 8px;
