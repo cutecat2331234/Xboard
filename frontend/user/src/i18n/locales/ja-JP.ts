@@ -71,6 +71,7 @@ export default {
     }
   },
   plan: {
+    chooseTitle: "あなたに最適なプランを選択",
     name: "プラン",
     viewDetail: "詳細を表示",
     selectPeriod: "期間を選択",
@@ -113,7 +114,11 @@ export default {
   knowledge: {
     searchPh: "ナレッジベースを検索…",
     empty: "該当する記事がありません",
-    allCategory: "すべて"
+    allCategory: "すべて",
+    catGeneral: "一般",
+    catTutorial: "チュートリアル",
+    catFaq: "よくある質問",
+    catNotice: "お知らせ"
   },
   auth: {
     or: "または",

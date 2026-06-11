@@ -71,6 +71,7 @@ export default {
     },
   },
   plan: {
+    chooseTitle: 'Choose the right plan for you',
     name: 'Plan',
     viewDetail: 'View details',
     selectPeriod: 'Select period',
@@ -114,6 +115,10 @@ export default {
     searchPh: 'Search knowledge base…',
     empty: 'No matching articles',
     allCategory: 'All',
+    catGeneral: 'General',
+    catTutorial: 'Tutorial',
+    catFaq: 'FAQ',
+    catNotice: 'Notice',
   },
   auth: {
     or: 'or',

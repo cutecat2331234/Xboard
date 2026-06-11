@@ -71,6 +71,7 @@ export default {
     }
   },
   plan: {
+    chooseTitle: "طرحی را انتخاب کنید که مناسب شماست",
     name: "Plan",
     viewDetail: "مشاهده جزئیات",
     selectPeriod: "Select period",
@@ -113,7 +114,11 @@ export default {
   knowledge: {
     searchPh: "جستجوی مستندات…",
     empty: "موردی یافت نشد",
-    allCategory: "همه"
+    allCategory: "همه",
+    catGeneral: "عمومی",
+    catTutorial: "آموزش",
+    catFaq: "سوالات متداول",
+    catNotice: "اطلاعیه"
   },
   auth: {
     or: "یا",

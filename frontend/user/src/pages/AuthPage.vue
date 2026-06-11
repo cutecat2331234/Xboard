@@ -102,6 +102,7 @@ const mailLinkMode = ref(false)
 const mailLinkLoading = ref(false)
 const forgetLoading = ref(false)
 
+const showMailLink = computed(() => Boolean(config.value?.login_with_mail_link_enable))
 const showTelegram = computed(
   () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
 )
@@ -427,10 +428,12 @@ function submit() {
           </template>
           <template v-else>
             <a href="#" class="auth-footer-link" @click.prevent="openForgetTab">{{ t('forgotPassword') }}</a>
-            <n-divider vertical />
-            <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = true">
-              {{ t('mailLinkLogin') }}
-            </a>
+            <template v-if="showMailLink">
+              <n-divider vertical />
+              <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = true">
+                {{ t('mailLinkLogin') }}
+              </a>
+            </template>
           </template>
         </div>
         <div v-else class="auth-footer-left" />

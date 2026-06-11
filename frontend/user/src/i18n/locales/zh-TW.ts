@@ -71,6 +71,7 @@ export default {
     }
   },
   plan: {
+    chooseTitle: "選擇最適合你的計劃",
     name: "Plan",
     viewDetail: "查看詳情",
     selectPeriod: "Select period",
@@ -113,7 +114,11 @@ export default {
   knowledge: {
     searchPh: "搜尋說明文件…",
     empty: "暫無相關內容",
-    allCategory: "全部"
+    allCategory: "全部",
+    catGeneral: "通用",
+    catTutorial: "教程",
+    catFaq: "常見問題",
+    catNotice: "公告"
   },
   auth: {
     or: "或",
