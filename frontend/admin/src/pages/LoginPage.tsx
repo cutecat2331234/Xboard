@@ -110,16 +110,16 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
           <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}
             </h1>
             <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
           </div>
-          <form className="space-y-3" onSubmit={onSubmit}>
+          <form className="space-y-4" onSubmit={onSubmit}>
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label
                   htmlFor="email"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -138,7 +138,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label
                   htmlFor="password"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { dialogAddonCls, inputCls } from '@/lib/form-styles'
+import { inputCls } from '@/lib/form-styles'
 
 type SuffixInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   suffix: string
@@ -15,7 +15,7 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
   if (prefix) {
     return (
       <div className="flex w-full">
-        <span className={cn(dialogAddonCls, 'z-[-1] rounded-l-md rounded-r-none border-r-0')}>
+        <span className="z-[-1] inline-flex h-9 shrink-0 items-center rounded-l-md rounded-r-none border border-r-0 border-input px-3 text-sm text-muted-foreground shadow-sm">
           {prefix}
         </span>
         <input className={cn(inputCls, 'rounded-l-none', spinless, className)} type={type} {...props} />
@@ -30,7 +30,7 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
         type={type}
         {...props}
       />
-      <span className={cn(dialogAddonCls, 'z-[-1] rounded-r-md rounded-l-none border-l-0')}>
+      <span className="z-[-1] inline-flex h-9 shrink-0 items-center rounded-r-md rounded-l-none border border-l-0 border-input px-3 text-sm text-muted-foreground shadow-sm">
         {suffix}
       </span>
     </div>

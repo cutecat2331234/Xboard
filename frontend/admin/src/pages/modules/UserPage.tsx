@@ -1137,8 +1137,8 @@ export default function UserPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-background">
-            <div className="space-y-4 px-6 py-3 text-sm">
-              <div className="space-y-1.5">
+            <div className="space-y-4 px-6 py-4 text-sm">
+              <div className="space-y-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
                   value={mailScope}
@@ -1158,7 +1158,7 @@ export default function UserPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <label htmlFor="mail-subject" className={dialogFieldLabelCls}>
                   {t('user.send_mail.subject')}
                 </label>
@@ -1174,7 +1174,7 @@ export default function UserPage() {
                   {t('user.send_mail.subject_placeholder_hint')}
                 </p>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <label htmlFor="mail-content" className={dialogFieldLabelCls}>
                     {t('user.send_mail.content')}
@@ -1260,7 +1260,7 @@ export default function UserPage() {
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="space-y-4 px-6 py-3 text-sm">
+            <div className="space-y-4 px-6 py-4 text-sm">
             <div className="space-y-1.5">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
