@@ -160,7 +160,7 @@ export function ConfigSectionFields({
             <FormField
               label={t('settings.safe.form.captcha.recaptcha_v3.scoreThreshold.label')}
               description={t('settings.safe.form.captcha.recaptcha_v3.scoreThreshold.description')}
-              value={String(safe.recaptcha_v3_score_threshold ?? '0.5')}
+              value={String(safe.recaptcha_v3_score_threshold ?? '')}
               placeholder={t('settings.safe.form.captcha.recaptcha_v3.scoreThreshold.placeholder')}
               onChange={(v) => update('safe', 'recaptcha_v3_score_threshold', v)}
             />

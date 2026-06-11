@@ -112,7 +112,8 @@ export default {
   },
   knowledge: {
     searchPh: "搜尋說明文件…",
-    empty: "暫無相關內容"
+    empty: "暫無相關內容",
+    allCategory: "全部"
   },
   auth: {
     or: "或",

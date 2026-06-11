@@ -162,7 +162,7 @@ onMounted(async () => {
 
 <style scoped>
 .tg-link {
-  color: #2080f0;
+  color: var(--xb-link);
   text-decoration: none;
 }
 .tg-link:hover {
