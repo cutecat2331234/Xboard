@@ -74,3 +74,23 @@ API（`OrderResource`）现返回 `surplus_credit`。**修复**：replica
 - **suffix（¥/GB）**：legacy 用 `<span>`（plan-add 计 2 个），replica 计 0（用 `<div>`）。
 
 下一轮按上表逐弹窗对齐（宽度、字段数、行高、两列布局、按钮文案、suffix 标签）。
+
+## Round 35 后续进展（本次会话）
+
+已对齐：
+- **plan-add**：宽 550→576;价格网格 3 列→响应式至 4 列(月/季/半年/年 + 两年/三年);
+  suffix `<div>`→`<span>`(共享 `SuffixInput`,同时惠及 server-add/user-edit)。布局已与
+  legacy 基本一致(见 cmp 截图),残差为字体/逐行垂直节奏级(~4.3%)。
+- **server-add**：宽 550→576。
+
+精确规格(probe-round34-deep + diag DOM,供逐弹窗继续):
+- **user-create**：legacy 是**居中 Dialog 576×468**,5 个 label(`邮箱*`/`密码`/`到期时间`/
+  `订阅计划`/`生成数量`),邮箱是 `[帐号]@[域名]` 同行内联,到期时间+订阅计划**两列**,按钮
+  `确认`。replica 目前用**右侧 Sheet 448**(复用 user-edit 的 Sheet),label 6 个
+  (`域`/`帐号(批量生成请留空)`...),按钮 `生成`。**需把 create 从 Sheet 拆成独立 Dialog**。
+- **server-add**：legacy 15 label(含 2 个空 label,来自权限组/路由组多选的子 label),
+  scrollH 1074 vs replica 798(legacy 逐行更高)。
+- **user-edit**：Sheet 宽度已对(448);逐行高度仍偏矮(label 字号已修),需核对每行 space-y。
+- 残差主因:**逐行垂直节奏 + 字体渲染**,需逐行对齐 `space-y`/label 行高/控件高度。
+
+待续(像素 <2% 仍未达成,属多轮迭代工程)。功能存在性见 `FEATURE-SURVEY.md`。
