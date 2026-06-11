@@ -9,6 +9,7 @@ import {
   dialogFieldLabelCls,
   dialogInputCls,
   dialogSubFieldLabelCls,
+  formSubLabelCls,
   inputCls,
   textareaCls,
 } from '@/lib/form-styles'
@@ -452,7 +453,7 @@ export default function PlanPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="shrink-0 space-y-1 border-b px-6 pb-4 pt-6 text-left">
+          <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg tracking-tight">
               {editing
                 ? t('subscribe.plan.form.edit_title')
@@ -460,9 +461,9 @@ export default function PlanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto bg-background">
-          <div className="space-y-4 px-6 py-4 text-sm">
+          <div className="space-y-6 px-6 py-4 text-sm">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
                 <input
                   className={`${inputCls} ${dialogInputCls}`}
@@ -471,7 +472,7 @@ export default function PlanPage() {
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.tags.label')}</Label>
                 <TagInput
                   className={dialogInputCls}
@@ -482,7 +483,7 @@ export default function PlanPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.group.label')}</Label>
                   <Link
@@ -508,7 +509,7 @@ export default function PlanPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.transfer.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -523,7 +524,7 @@ export default function PlanPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.speed.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -539,7 +540,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.device.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -557,7 +558,7 @@ export default function PlanPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.capacity.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -573,7 +574,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <Label className={dialogSubFieldLabelCls}>
                   {t('subscribe.plan.form.reset_method.label')}
                 </Label>
@@ -593,7 +594,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="space-y-4 rounded-lg border border-dashed p-4">
+            <div className="space-y-3 rounded-lg border border-dashed p-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</h3>
                 <div className="flex items-center gap-2">
@@ -623,7 +624,7 @@ export default function PlanPage() {
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                 {MAIN_PRICE_PERIODS.map((period) => (
-                  <div key={period} className="space-y-1">
+                  <div key={period} className="space-y-1.5">
                     <Label className={dialogFieldLabelCls}>
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
@@ -640,7 +641,7 @@ export default function PlanPage() {
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {EXTRA_PRICE_PERIODS.map((period) => (
-                  <div key={period} className="space-y-1">
+                  <div key={period} className="space-y-1.5">
                     <Label className={dialogFieldLabelCls}>
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
@@ -652,7 +653,7 @@ export default function PlanPage() {
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
-                    <p className="m-0 text-[10px] leading-none text-muted-foreground">
+                    <p className={formSubLabelCls}>
                       {t(
                         period === 'onetime'
                           ? 'subscribe.plan.form.price.onetime_desc'
