@@ -62,6 +62,64 @@ export const TRANSPORT_NETWORK_OPTIONS = [
   { value: 'xhttp', label: 'XHTTP' },
 ] as const
 
+export const TRANSPORT_NETWORKS_WITH_SUBFIELDS = new Set(['ws', 'grpc', 'h2'])
+
+export type TransportNetworkSettingsFields = {
+  path: string
+  host: string
+  serviceName: string
+}
+
+export function defaultTransportNetworkSettings(): TransportNetworkSettingsFields {
+  return { path: '', host: '', serviceName: '' }
+}
+
+function readTransportNetworkHost(raw: Record<string, unknown>): string {
+  const headers = (raw.headers ?? {}) as Record<string, unknown>
+  if (headers.Host != null && headers.Host !== '') {
+    return String(headers.Host)
+  }
+  if (raw.host != null && raw.host !== '') {
+    return String(raw.host)
+  }
+  return ''
+}
+
+export function readTransportNetworkSettings(raw?: unknown): TransportNetworkSettingsFields {
+  const d = defaultTransportNetworkSettings()
+  if (!raw || typeof raw !== 'object') return d
+  const settings = raw as Record<string, unknown>
+  return {
+    path: String(settings.path ?? d.path),
+    host: readTransportNetworkHost(settings),
+    serviceName: String(settings.serviceName ?? d.serviceName),
+  }
+}
+
+export function serializeTransportNetworkSettings(
+  network: string,
+  settings: TransportNetworkSettingsFields,
+): Record<string, unknown> | undefined {
+  if (!TRANSPORT_NETWORKS_WITH_SUBFIELDS.has(network)) return undefined
+
+  const payload: Record<string, unknown> = {}
+
+  if (network === 'grpc') {
+    if (settings.serviceName) payload.serviceName = settings.serviceName
+    return Object.keys(payload).length ? payload : undefined
+  }
+
+  if (settings.path) payload.path = settings.path
+
+  if (network === 'ws') {
+    if (settings.host) payload.headers = { Host: settings.host }
+  } else if (network === 'h2' && settings.host) {
+    payload.host = settings.host
+  }
+
+  return Object.keys(payload).length ? payload : undefined
+}
+
 export const VLESS_FLOW_OPTIONS = [
   'none',
   'xtls-rprx-direct',
@@ -103,6 +161,7 @@ export type VlessProtocolSettings = {
   tls_settings: TlsSettingsFields
   reality_settings: RealitySettingsFields
   encryption: VlessEncryptionFields
+  network_settings: TransportNetworkSettingsFields
 }
 
 function readTlsObject(raw: unknown, fallback: TlsObjectSettings): TlsObjectSettings {
@@ -314,6 +373,7 @@ export function defaultVlessSettings(): VlessProtocolSettings {
       short_id: '',
     },
     encryption: { enabled: false, encryption: '', decryption: '' },
+    network_settings: defaultTransportNetworkSettings(),
   }
 }
 
@@ -332,6 +392,7 @@ export function normalizeVlessSettings(raw?: Record<string, unknown>): VlessProt
       encryption: String(encryption.encryption ?? d.encryption.encryption),
       decryption: String(encryption.decryption ?? d.encryption.decryption),
     },
+    network_settings: readTransportNetworkSettings(raw.network_settings),
   }
 }
 
@@ -359,6 +420,7 @@ export function serializeVlessSettings(s: VlessProtocolSettings): Record<string,
           decryption: s.encryption.decryption || undefined,
         }
       : undefined,
+    network_settings: serializeTransportNetworkSettings(s.network, s.network_settings),
   }
 }
 
