@@ -125,18 +125,6 @@ type TemplateForm = {
 
 
 
-const GIFT_TYPES: Record<number, string> = {
-
-  1: '通用礼品卡',
-
-  2: '套餐礼品卡',
-
-  3: '盲盒礼品卡',
-
-}
-
-
-
 const emptyForm = (): TemplateForm => ({
 
   name: '',
@@ -261,6 +249,10 @@ export default function GiftCardPage() {
 
   const [plans, setPlans] = useState<PlanRow[]>([])
 
+  const [giftTypeIds, setGiftTypeIds] = useState<number[]>([])
+
+  const [typesLoading, setTypesLoading] = useState(true)
+
   const [loading, setLoading] = useState(true)
 
   const [search, setSearch] = useState('')
@@ -309,21 +301,33 @@ export default function GiftCardPage() {
 
     fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
 
-    fetchJsonObject<Record<number, string>>('/gift-card/types')
+    fetchJsonObject<Record<string, string>>('/gift-card/types')
 
       .then((types) => {
 
         if (types && typeof types === 'object') {
 
-          Object.assign(GIFT_TYPES, types)
+          setGiftTypeIds(
+
+            Object.keys(types)
+
+              .map((key) => Number(key))
+
+              .filter((id) => !Number.isNaN(id))
+
+              .sort((a, b) => a - b),
+
+          )
 
         }
 
       })
 
-      .catch(() => undefined)
+      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
 
-  }, [])
+      .finally(() => setTypesLoading(false))
+
+  }, [t])
 
 
 
@@ -1033,6 +1037,16 @@ export default function GiftCardPage() {
 
 
 
+  const giftTypeOptions = useMemo(
+
+    () => giftTypeIds.map((id) => ({ id, label: t(`giftCard.types.${id}`) })),
+
+    [giftTypeIds, t],
+
+  )
+
+
+
   const filteredTemplates = useMemo(() => {
 
     if (!search.trim()) return templates
@@ -1068,6 +1082,12 @@ export default function GiftCardPage() {
       </div>
 
 
+
+      {typesLoading ? (
+
+        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+
+      ) : (
 
       <Tabs value={tab} onValueChange={setTab} className="flex-1">
 
@@ -1245,6 +1265,8 @@ export default function GiftCardPage() {
 
       </Tabs>
 
+      )}
+
 
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -1297,9 +1319,9 @@ export default function GiftCardPage() {
 
               >
 
-                {Object.entries(GIFT_TYPES).map(([value, label]) => (
+                {giftTypeOptions.map(({ id, label }) => (
 
-                  <option key={value} value={value}>
+                  <option key={id} value={id}>
 
                     {label}
 
