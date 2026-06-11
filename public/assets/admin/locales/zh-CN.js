@@ -226,7 +226,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "submit": "提交",
     "saving": "保存中...",
+    "none": "无",
+    "days": "天",
     "table": {
+      "columns": {
+        "actions": "操作"
+      },
       "noData": "暂无数据",
       "pagination": {
         "selected": "已选择 {{selected}} 项，共 {{total}} 项",
@@ -558,6 +563,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "PROCESSING": "发放中",
       "VALID": "有效",
       "INVALID": "无效"
+    },
+    "form": {
+      "period": "周期",
+      "total_amount": "金额（元）"
     },
     "actions": {
       "markAsPaid": "标记为已支付",
@@ -3150,6 +3159,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "form": {
         "add": "添加模板",
         "edit": "编辑模板",
+        "basic": {
+          "title": "基础配置"
+        },
         "name": {
           "label": "模板名称",
           "placeholder": "请输入模板名称",
