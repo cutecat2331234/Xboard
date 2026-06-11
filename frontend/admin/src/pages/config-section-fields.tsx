@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { TFunction } from 'i18next'
 import { toast } from 'sonner'
 import { postJson } from '@/lib/api'
@@ -50,6 +51,7 @@ export function ConfigSectionFields({
   FormTextarea,
   SwitchField,
 }: FieldProps & { section: string }) {
+  const [emailTab, setEmailTab] = useState('settings')
   const safe = config.safe ?? {}
   const email = config.email ?? {}
   const telegram = config.telegram ?? {}
@@ -236,7 +238,7 @@ export function ConfigSectionFields({
 
   if (section === 'email') {
     return (
-      <Tabs defaultValue="settings">
+      <Tabs value={emailTab} onValueChange={setEmailTab}>
         <TabsList>
           <TabsTrigger value="settings">{t('settings.email.tab_settings')}</TabsTrigger>
           <TabsTrigger value="templates">{t('settings.email.tab_templates')}</TabsTrigger>
