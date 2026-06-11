@@ -12,7 +12,10 @@ const routes = [
 
   { path: '/login', component: AuthPage },
 
-  { path: '/register', component: AuthPage },
+  {
+    path: '/register',
+    redirect: (to) => ({ path: '/login', query: { ...to.query, tab: 'register' } }),
+  },
 
   { path: '/forgetpassword', component: ForgetPasswordPage },
 
