@@ -47,13 +47,16 @@ npm run build
 
 ## 页面结构
 
-- 认证：`/login`、`/register`
-- 已登录壳层：顶栏 + 侧栏
-  - 仪表盘 `/dashboard`
-  - 订阅 `/subscribe`
-  - 文档 `/knowledge`
-  - 工单 `/ticket`
-  - 个人中心 `/profile`
+Hash 路由（`createWebHashHistory`），路径不含 `#` 前缀。
+
+- 认证（无壳层）：`/login`、`/register`、`/forgetpassword`
+- 已登录壳层（`AppLayout`：Naive UI 侧栏 + 顶栏）
+  - `/dashboard` — 仪表盘
+  - `/knowledge` — 文档
+  - 账单：`/order`、`/order/:trade_no`（订单详情）
+  - `/invite` — 邀请返利
+  - 订阅：`/plan`、`/plan/:id`（套餐详情）、`/node`（节点）
+  - 账户：`/profile`（个人中心）、`/ticket`、`/ticket/:id`（工单详情）、`/traffic`（流量明细）
 
 ## 样式约定
 
