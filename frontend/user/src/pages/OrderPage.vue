@@ -5,14 +5,14 @@ import { NButton, NDataTable, NDivider, NTag, useMessage, useDialog, type DataTa
 import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { orderStatusLabel } from '@/lib/order-status'
-import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
 const msg = useMessage()
 const dialog = useDialog()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 function formatOrderAmount(cents: number) {
   const value = typeof cents === 'string' ? parseFloat(cents) : cents
   if (!Number.isFinite(value)) return '0.00'
@@ -82,7 +82,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.createdAt'),
     key: 'created_at',
-    render: (row) => formatLocaleDateTime(row.created_at, locale.value),
+    render: (row) => formatFixedDateTime(row.created_at),
   },
   {
     title: t('common.actions'),

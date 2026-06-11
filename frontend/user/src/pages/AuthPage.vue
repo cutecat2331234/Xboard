@@ -9,8 +9,6 @@ import {
   NDivider,
   NCheckbox,
   NDropdown,
-  NTabs,
-  NTab,
   useMessage,
 } from 'naive-ui'
 import type { DropdownOption } from 'naive-ui'
@@ -58,29 +56,14 @@ const isForget = computed(() => route.query.tab === 'forget')
 const isRegister = computed(
   () => route.query.tab === 'register' || route.meta?.authTab === 'register',
 )
-const activeTab = computed(() => (isRegister.value ? 'register' : 'login'))
-
-function switchAuthTab(name: string) {
-  if (isForget.value) return
-  const query = { ...route.query }
-  if (name === 'register') {
-    query.tab = 'register'
-  } else {
-    delete query.tab
-  }
-  const currentTab = route.query.tab === 'register' ? 'register' : 'login'
-  if (route.path === '/login' && currentTab === name) return
-  router.replace({ path: '/login', query })
-}
+const isLogin = computed(() => !isRegister.value && !isForget.value)
 
 function openForgetTab() {
-  router.replace({ path: '/login', query: { ...route.query, tab: 'forget' } })
+  router.push({ path: '/forgetpassword', query: route.query })
 }
 
 function backToLoginTab() {
-  const query = { ...route.query }
-  delete query.tab
-  router.replace({ path: '/login', query })
+  router.push({ path: '/login', query: route.query })
 }
 
 const langOptions = computed<DropdownOption[]>(() => {
@@ -277,7 +260,7 @@ function submit() {
   <div class="auth-page" :style="authPageStyle">
     <n-card
       class="auth-card"
-      :class="{ 'auth-card--login': !isRegister }"
+      :class="{ 'auth-card--login': isLogin }"
       :bordered="true"
     >
       <div class="auth-card__body">
@@ -285,17 +268,6 @@ function submit() {
           {{ isForget ? t('forgotPassword') : settings.title || 'Xboard' }}
         </h1>
         <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard is best' }}</h5>
-
-        <n-tabs
-          v-if="!isForget"
-          :value="activeTab"
-          type="line"
-          class="auth-tabs"
-          @update:value="switchAuthTab"
-        >
-          <n-tab name="login">{{ t('login') }}</n-tab>
-          <n-tab name="register">{{ t('register') }}</n-tab>
-        </n-tabs>
 
         <form v-if="!tokenLoading" @submit.prevent="submit">
           <div class="auth-field">
@@ -420,17 +392,19 @@ function submit() {
       </div>
 
       <div v-if="!tokenLoading" class="auth-card__footer-bar">
-        <div v-if="isForget" class="auth-footer-left">
-          <a href="#" class="auth-footer-link" @click.prevent="backToLoginTab">{{ t('backToLogin') }}</a>
+        <div v-if="isForget || isRegister" class="auth-footer-left">
+          <router-link class="auth-footer-link" to="/login">{{ t('backToLogin') }}</router-link>
         </div>
-        <div v-else-if="!isRegister" class="auth-footer-left">
+        <div v-else class="auth-footer-left">
           <template v-if="mailLinkMode">
             <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = false">
               {{ t('backToPasswordLogin') }}
             </a>
           </template>
           <template v-else>
-            <a href="#" class="auth-footer-link" @click.prevent="openForgetTab">{{ t('forgotPassword') }}</a>
+            <router-link class="auth-footer-link text-gray-500" to="/register">{{ t('register') }}</router-link>
+            <n-divider vertical />
+            <router-link class="auth-footer-link text-gray-500" to="/forgetpassword">{{ t('forgotPassword') }}</router-link>
             <template v-if="showMailLink">
               <n-divider vertical />
               <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = true">
@@ -439,7 +413,6 @@ function submit() {
             </template>
           </template>
         </div>
-        <div v-else class="auth-footer-left" />
 
         <n-dropdown :options="langOptions" trigger="click" @select="(k: string) => setLocale(k)">
           <n-button class="auth-lang-btn" quaternary>
@@ -490,33 +463,11 @@ function submit() {
 .auth-card--login .auth-card__subtitle {
   margin: 14px 0 0;
 }
-.auth-tabs {
-  margin-top: 20px;
-}
-.auth-card--login .auth-tabs {
-  margin-top: 0;
-}
-.auth-tabs :deep(.n-tabs-nav) {
-  justify-content: center;
-  min-height: 0;
-}
-.auth-tabs :deep(.n-tabs-tab) {
-  font-size: 14px;
-  color: #6c757d;
-  padding: 12px 16px;
-}
-.auth-card--login .auth-tabs :deep(.n-tabs-tab) {
-  padding: 8px 16px;
+.auth-footer-link.text-gray-500 {
+  color: var(--xb-text-secondary);
 }
 .auth-card--login .auth-field {
   margin-top: 16px;
-}
-.auth-tabs :deep(.n-tabs-tab--active) {
-  color: #343a40;
-  font-weight: 500;
-}
-.auth-tabs :deep(.n-tabs-bar) {
-  background-color: #316c72;
 }
 .auth-field {
   margin-top: 20px;

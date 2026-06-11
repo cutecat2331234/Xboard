@@ -4,7 +4,7 @@ import { NAlert, NCard, NDataTable, NEmpty, NIcon, NPopover, NTag } from 'naive-
 import { HelpCircleOutline } from '@vicons/ionicons5'
 import { fetchTrafficLog } from '@/api/traffic'
 import { formatBytes } from '@/lib/format-traffic'
-import { formatLocaleDate } from '@/lib/format-date'
+import { formatFixedDate } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
 interface TrafficRow {
@@ -16,7 +16,7 @@ interface TrafficRow {
 }
 
 const rows = ref<TrafficRow[]>([])
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 function serverRate(row: TrafficRow): number {
   const raw = row.server_rate ?? row.rate ?? 1
@@ -28,7 +28,7 @@ const columns = computed(() => [
   {
     title: t('traffic.recordAt'),
     key: 'record_at',
-    render: (r: TrafficRow) => formatLocaleDate(r.record_at, locale.value),
+    render: (r: TrafficRow) => formatFixedDate(r.record_at),
   },
   {
     title: t('traffic.upload'),

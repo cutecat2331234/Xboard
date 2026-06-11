@@ -211,6 +211,7 @@ export default {
     copyLink: '复制链接',
     registered: '已注册用户数',
     people: '人',
+    peopleCount: '{number} 人',
     commissionRate: '佣金比例',
     pendingCommission: '确认中的佣金',
     totalCommission: '累计获得佣金',

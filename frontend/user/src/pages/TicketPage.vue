@@ -14,7 +14,7 @@ import {
   type DataTableColumns,
 } from 'naive-ui'
 import { fetchTickets, saveTicket, closeTicket, type TicketItem } from '@/api/ticket'
-import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 
 const router = useRouter()
@@ -24,7 +24,7 @@ const subject = ref('')
 const message = ref('')
 const level = ref(0)
 const msg = useMessage()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const levelOptions = computed(() => [
   { label: t('ticket.levelLow'), value: 0 },
@@ -109,12 +109,12 @@ const columns = computed<DataTableColumns<TicketItem>>(() => [
   {
     title: t('ticket.createdAt'),
     key: 'created_at',
-    render: (r) => formatLocaleDateTime(r.created_at, locale.value),
+    render: (r) => formatFixedDateTime(r.created_at),
   },
   {
     title: t('ticket.lastReply'),
     key: 'updated_at',
-    render: (r) => formatLocaleDateTime(r.updated_at, locale.value),
+    render: (r) => formatFixedDateTime(r.updated_at),
   },
   {
     title: t('common.actions'),
