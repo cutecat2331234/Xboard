@@ -1175,7 +1175,7 @@ function FailedJobsDialog({
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                {t('common.pagination.previous', { defaultValue: '上一页' })}
+                {t('common.pagination.previous')}
               </Button>
 
               <Button
@@ -1185,7 +1185,7 @@ function FailedJobsDialog({
                 disabled={page >= pageCount}
                 onClick={() => setPage((p) => p + 1)}
               >
-                {t('common.pagination.next', { defaultValue: '下一页' })}
+                {t('common.pagination.next')}
               </Button>
 
             </div>
@@ -1206,7 +1206,7 @@ function FailedJobsDialog({
 
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
 
-            {t('common.close', { defaultValue: '关闭' })}
+            {t('common.close')}
 
           </Button>
 
@@ -1328,7 +1328,7 @@ function FailedJobDetailDialog({
 
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
 
-            {t('common.close', { defaultValue: '关闭' })}
+            {t('common.close')}
 
           </Button>
 

@@ -98,11 +98,11 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
   return (
     <div className={embedded ? 'flex flex-col gap-4' : 'mt-6 rounded-md border p-4'}>
       {!embedded ? (
-        <h4 className="mb-4 text-base font-medium">{t('settings.email.templates.title', { defaultValue: '邮件模板' })}</h4>
+        <h4 className="mb-4 text-base font-medium">{t('settings.email.templates.title')}</h4>
       ) : null}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <Label>{t('settings.email.templates.select', { defaultValue: '模板' })}</Label>
+          <Label>{t('settings.email.templates.select')}</Label>
           <select className={inputCls} value={selected} onChange={(e) => setSelected(e.target.value)}>
             {list.map((item) => (
               <option key={item.name} value={item.name}>
@@ -117,7 +117,7 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
         ) : (
           <>
             <div className="flex flex-col gap-2">
-              <Label>{t('settings.email.templates.subject', { defaultValue: '主题' })}</Label>
+              <Label>{t('settings.email.templates.subject')}</Label>
               <input
                 className={inputCls}
                 value={detail.subject ?? ''}
@@ -125,7 +125,7 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('settings.email.templates.content', { defaultValue: '内容' })}</Label>
+              <Label>{t('settings.email.templates.content')}</Label>
               <textarea
                 className={`${textareaCls} min-h-[160px] font-mono text-xs`}
                 value={detail.content ?? ''}
@@ -134,29 +134,27 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
               <div className="flex flex-1 flex-col gap-2">
-                <Label>{t('settings.email.templates.testEmail', { defaultValue: '测试收件邮箱' })}</Label>
+                <Label>{t('settings.email.templates.testEmail')}</Label>
                 <input
                   className={inputCls}
                   type="email"
                   value={testEmail}
-                  placeholder={t('settings.email.templates.testEmailPlaceholder', {
-                    defaultValue: '留空则发送至当前管理员邮箱',
-                  })}
+                  placeholder={t('settings.email.templates.testEmailPlaceholder')}
                   onChange={(e) => setTestEmail(e.target.value)}
                 />
               </div>
               <Button type="button" size="sm" variant="outline" disabled={testing} onClick={sendTestMail}>
                 {testing
-                  ? t('settings.email.test.sending', { defaultValue: '发送中...' })
-                  : t('settings.email.templates.test', { defaultValue: '发送测试' })}
+                  ? t('settings.email.test.sending')
+                  : t('settings.email.templates.test')}
               </Button>
             </div>
             <div className="flex gap-2">
               <Button type="button" size="sm" onClick={saveTemplate}>
-                {t('common.save', { defaultValue: '保存' })}
+                {t('common.save')}
               </Button>
               <Button type="button" size="sm" variant="outline" onClick={resetTemplate}>
-                {t('settings.email.templates.reset', { defaultValue: '重置' })}
+                {t('settings.email.templates.reset')}
               </Button>
             </div>
           </>
