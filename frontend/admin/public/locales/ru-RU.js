@@ -192,14 +192,6 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "machineIdNone": "Автономное развёртывание",
       "enabled": "Активен на сервере",
       "enabledDescription": "Запускать ли узел на привязанном сервере"
-    },
-    "actions": {
-      "viewToken": "Просмотр Token",
-      "installCommand": "Команда установки",
-      "viewNodes": "Связанные узлы",
-      "manageNodes": "Управление узлами",
-      "loadHistory": "История нагрузки",
-      "resetToken": "Сбросить Token"
     }
   },
   "common": {
@@ -758,33 +750,6 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "empty": "Задач не найдено",
       "loading": "Загрузка статуса очередей...",
       "error": "Ошибка загрузки статуса"
-    },
-    "systemStatus": {
-      "title": "Состояние системы",
-      "schedule": "Планировщик",
-      "scheduleLastRun": "Последний запуск: {{time}}",
-      "horizon": "Horizon",
-      "horizonHint": "Статус воркеров очереди"
-    },
-    "queueWorkload": {
-      "title": "Нагрузка очередей",
-      "description": "Очередь задач и время ожидания",
-      "summary": "Ожидание {{wait}} с · процессов: {{processes}}",
-      "empty": "Нет данных о нагрузке"
-    },
-    "auditLog": {
-      "title": "Журнал аудита",
-      "description": "История действий администраторов",
-      "keywordPlaceholder": "Поиск по URI или данным запроса",
-      "columns": {
-        "id": "ID",
-        "admin": "Админ",
-        "action": "Действие",
-        "method": "Метод",
-        "uri": "URI",
-        "ip": "IP",
-        "time": "Время"
-      }
     },
     "common": {
       "refresh": "Обновить",
