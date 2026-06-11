@@ -19,6 +19,18 @@
   --xb-order-summary-grand-lh: 40px;
   --xb-info-row-padding: 5px 0;
   --xb-info-row-lh: 16px;
+  --xb-invite-code-card-min-height: auto;
+  --xb-invite-code-card-header-padding: 19px 24px 20px;
+  --xb-invite-code-card-header-font-weight: 400;
+  --xb-invite-copy-btn-height: 28px;
+  --xb-invite-copy-btn-padding: 0 10px;
+  --xb-invite-copy-btn-font-size: 14px;
+  --xb-invite-copy-btn-radius: 3px;
+  --xb-invite-copy-btn-color: #316c72;
+  --xb-invite-copy-btn-color-hover: #316c72e3;
+  --xb-invite-copy-btn-color-pressed: #2b4c59;
+  --xb-invite-copy-btn-bg-hover: rgba(46, 51, 56, 0.09);
+  --xb-invite-copy-btn-bg-pressed: rgba(46, 51, 56, 0.13);
 }
 
 html.dark {
@@ -111,6 +123,45 @@ html, body, #app {
 }
 .invite-balance-card {
   min-height: 208px;
+}
+.invite-code-card {
+  min-height: var(--xb-invite-code-card-min-height);
+}
+.shell-main .invite-code-card .n-card-header,
+.shell-main .invite-code-card .n-card__header {
+  padding: var(--xb-invite-code-card-header-padding);
+  font-weight: var(--xb-invite-code-card-header-font-weight);
+}
+.shell-main .invite-copy-link-btn.n-button {
+  font-weight: 400;
+  --n-bezier: cubic-bezier(0.4, 0, 0.2, 1);
+  --n-bezier-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --n-ripple-duration: 0.6s;
+  --n-opacity-disabled: 0.5;
+  --n-wave-opacity: 0.6;
+  --n-color: #0000;
+  --n-color-hover: var(--xb-invite-copy-btn-bg-hover);
+  --n-color-pressed: var(--xb-invite-copy-btn-bg-pressed);
+  --n-color-focus: var(--xb-invite-copy-btn-bg-hover);
+  --n-color-disabled: #0000;
+  --n-ripple-color: #0000;
+  --n-text-color: var(--xb-invite-copy-btn-color);
+  --n-text-color-hover: var(--xb-invite-copy-btn-color);
+  --n-text-color-pressed: var(--xb-invite-copy-btn-color);
+  --n-text-color-focus: var(--xb-invite-copy-btn-color);
+  --n-text-color-disabled: var(--xb-invite-copy-btn-color);
+  --n-border: 1px solid var(--xb-invite-copy-btn-color);
+  --n-border-hover: 1px solid var(--xb-invite-copy-btn-color-hover);
+  --n-border-pressed: 1px solid var(--xb-invite-copy-btn-color-pressed);
+  --n-border-focus: 1px solid var(--xb-invite-copy-btn-color-hover);
+  --n-border-disabled: 1px solid var(--xb-invite-copy-btn-color);
+  --n-width: initial;
+  --n-height: var(--xb-invite-copy-btn-height);
+  --n-font-size: var(--xb-invite-copy-btn-font-size);
+  --n-padding: var(--xb-invite-copy-btn-padding);
+  --n-icon-size: 18px;
+  --n-icon-margin: 6px;
+  --n-border-radius: var(--xb-invite-copy-btn-radius);
 }
 .font-normal { font-weight: 400; }
 .ml-2\.5 { margin-left: 10px; }
