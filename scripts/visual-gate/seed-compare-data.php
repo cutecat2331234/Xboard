@@ -170,9 +170,14 @@ if (Ticket::query()->count() < 2) {
 if (GiftCardTemplate::query()->count() < 1) {
     GiftCardTemplate::create([
         'name' => 'Compare Gift Template',
-        'type' => 1,
-        'status' => 1,
+        'description' => 'visual gate seed',
+        'type' => GiftCardTemplate::TYPE_GENERAL,
+        'status' => true,
         'rewards' => ['balance' => 1000],
+        'conditions' => [],
+        'limits' => [],
+        'theme_color' => '#2d6565',
+        'sort' => 0,
         'admin_id' => User::query()->where('is_admin', 1)->value('id') ?: 1,
         'created_at' => $now,
         'updated_at' => $now,
