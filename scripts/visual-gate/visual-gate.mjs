@@ -437,27 +437,21 @@ async function openAdminDialog(page, route) {
       .catch(() => {})
     await page.waitForLoadState('networkidle', { timeout: 60000 }).catch(() => {})
     await page
-      .waitForFunction(
-        () => {
-          const edit = document.querySelector('[data-testid="gift-template-edit"]')
-          if (edit && edit.offsetParent !== null) return true
-          const row = document.querySelector('tbody tr')
-          return Boolean(row && row.textContent && !/loading|加载/i.test(row.textContent))
-        },
-        { timeout: 90000 },
-      )
+      .waitForSelector('tbody tr', { state: 'attached', timeout: 90000 })
       .catch(() => {})
-    await clickVisible(
-      page,
-      [
-        '[data-testid="gift-template-edit"]:visible',
-        'tbody [data-testid="gift-template-edit"]',
-        'tbody button:has-text("编辑")',
-        'tbody button:has-text("Edit")',
-        'table button:has-text("编辑")',
-      ],
-      90000,
-    )
+    await page.evaluate(() => {
+      const scrollers = document.querySelectorAll('.overflow-auto, [class*="overflow-auto"]')
+      scrollers.forEach((el) => {
+        if (el.scrollWidth > el.clientWidth) el.scrollLeft = el.scrollWidth
+      })
+    })
+    const editLoc = page
+      .locator(
+        '[data-testid="gift-template-edit"], tbody button:has-text("编辑"), tbody button:has-text("Edit")',
+      )
+      .first()
+    await editLoc.scrollIntoViewIfNeeded({ timeout: 90000 }).catch(() => {})
+    await editLoc.click({ timeout: 30000, force: true })
   } else if (route === 'plan-add') {
     await clickVisible(page, [
       'button:has-text("添加套餐")',
