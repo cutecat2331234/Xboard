@@ -31,9 +31,12 @@ import { SortRowControls, SortToolbar } from '@/components/shared/SortToolbar'
 import {
   defaultProtocolSettings,
   readProtocolSettings,
+  readShadowsocksCertConfig,
   ServerProtocolFields,
   toProtocolSettingsPayload,
+  toShadowsocksCertConfigPayload,
   type ProtocolFormSettings,
+  type ShadowsocksProtocolForm,
   type VmessProtocolForm,
 } from '@/components/server/ServerProtocolFields'
 
@@ -133,6 +136,8 @@ type NodeRow = Record<string, unknown> & {
   machine_id?: number | null
 
   protocol_settings?: Record<string, unknown>
+
+  cert_config?: Record<string, unknown> | null
 
 }
 
@@ -484,7 +489,18 @@ export default function ServerManagePage() {
 
     setEchForm(readEchSettings(row.protocol_settings))
 
-    setProtocolSettings(readProtocolSettings(String(row.type ?? ''), row.protocol_settings))
+    const type = String(row.type ?? 'shadowsocks')
+    let settings = readProtocolSettings(type, row.protocol_settings)
+    if (type === 'shadowsocks' && settings) {
+      const certRaw = row.cert_config
+      settings = {
+        ...settings,
+        cert_config: readShadowsocksCertConfig(
+          certRaw && typeof certRaw === 'object' && !Array.isArray(certRaw) ? certRaw : undefined,
+        ),
+      }
+    }
+    setProtocolSettings(settings)
 
     setDialogOpen(true)
 
@@ -537,7 +553,7 @@ export default function ServerManagePage() {
         protocol_settings = mergeEchSettings(protocol_settings, echForm)
       }
 
-      const payload = editing
+      const payload: Record<string, unknown> = editing
 
         ? {
 
@@ -552,6 +568,12 @@ export default function ServerManagePage() {
           }
 
         : { ...defaultCreatePayload(form), protocol_settings }
+
+      if (form.type === 'shadowsocks' && protocolSettings) {
+        payload.cert_config =
+          toShadowsocksCertConfigPayload((protocolSettings as ShadowsocksProtocolForm).cert_config) ??
+          null
+      }
 
       await postJson('/server/manage/save', payload)
 
