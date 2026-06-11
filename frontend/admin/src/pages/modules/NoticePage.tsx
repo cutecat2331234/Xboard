@@ -107,7 +107,13 @@ export default function NoticePage() {
   }
 
   async function deleteNotice(row: NoticeRow) {
-    if (!(await confirm(t('notice.table.actions.delete.description')))) return
+    if (
+      !(await confirm(
+        t('notice.table.actions.delete.title'),
+        t('notice.table.actions.delete.description'),
+      ))
+    )
+      return
     try {
       await postJson('/notice/drop', { id: row.id })
       toast.success(t('notice.table.actions.delete.success'))
@@ -220,8 +226,8 @@ export default function NoticePage() {
               <SortToolbar
                 sortMode={sort.sortMode}
                 saving={sort.sortSaving}
-                editLabel={t('notice.table.toolbar.sort.edit', { defaultValue: '编辑排序' })}
-                saveLabel={t('notice.table.toolbar.sort.save', { defaultValue: '保存排序' })}
+                editLabel={t('notice.table.toolbar.sort.edit')}
+                saveLabel={t('notice.table.toolbar.sort.save')}
                 onEdit={sort.enterSort}
                 onSave={handleSaveSort}
                 onCancel={sort.cancelSort}
