@@ -221,6 +221,7 @@ export type TrojanProtocolSettings = {
   network: string
   tls_settings: TlsSettingsFields
   reality_settings: RealitySettingsFields
+  network_settings: TransportNetworkSettingsFields
 }
 
 export type VlessProtocolSettings = {
@@ -394,6 +395,7 @@ export function defaultTrojanSettings(): TrojanProtocolSettings {
       public_key: '',
       short_id: '',
     },
+    network_settings: defaultTransportNetworkSettings(),
   }
 }
 
@@ -405,6 +407,7 @@ export function normalizeTrojanSettings(raw?: Record<string, unknown>): TrojanPr
     network: String(raw.network ?? d.network),
     tls_settings: readTlsSettings(raw.tls_settings, d.tls_settings),
     reality_settings: readRealitySettings(raw.reality_settings, d.reality_settings),
+    network_settings: readTransportNetworkSettings(raw.network_settings, String(raw.network ?? d.network)),
   }
 }
 
@@ -424,6 +427,7 @@ export function serializeTrojanSettings(s: TrojanProtocolSettings): Record<strin
       public_key: s.reality_settings.public_key || undefined,
       short_id: s.reality_settings.short_id || undefined,
     },
+    network_settings: serializeTransportNetworkSettings(s.network, s.network_settings),
   }
 }
 
