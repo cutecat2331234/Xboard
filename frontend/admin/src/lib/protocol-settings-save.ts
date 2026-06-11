@@ -8,6 +8,7 @@ import {
   TLS_OBJECT_NODE_TYPES,
   TRANSPORT_NETWORKS_WITH_SUBFIELDS,
   type HysteriaProtocolSettings,
+  type TrojanProtocolSettings,
   type VlessProtocolSettings,
 } from '@/lib/server-protocol-settings'
 
@@ -20,7 +21,7 @@ export type EchFormState = {
 const MANAGED_TOP_LEVEL_KEYS: Record<string, readonly string[]> = {
   shadowsocks: ['cipher', 'plugin', 'plugin_opts', 'client_fingerprint', 'obfs', 'obfs_settings'],
   vmess: ['tls', 'network', 'tls_settings', 'network_settings'],
-  trojan: ['tls', 'network', 'tls_settings', 'reality_settings'],
+  trojan: ['tls', 'network', 'tls_settings', 'reality_settings', 'network_settings'],
   vless: ['tls', 'network', 'flow', 'tls_settings', 'reality_settings', 'encryption', 'network_settings'],
   hysteria: ['version', 'alpn', 'obfs', 'tls', 'bandwidth'],
   tuic: ['version', 'congestion_control', 'alpn', 'udp_relay_mode', 'tls'],
@@ -144,6 +145,13 @@ function applyProtocolSpecificCleanup(
     const vless = formSettings as VlessProtocolSettings
     if (!vless.encryption.enabled) delete result.encryption
     if (!TRANSPORT_NETWORKS_WITH_SUBFIELDS.has(vless.network)) {
+      delete result.network_settings
+    }
+  }
+
+  if (type === 'trojan') {
+    const trojan = formSettings as TrojanProtocolSettings
+    if (!TRANSPORT_NETWORKS_WITH_SUBFIELDS.has(trojan.network)) {
       delete result.network_settings
     }
   }

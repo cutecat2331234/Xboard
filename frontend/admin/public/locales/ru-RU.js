@@ -367,6 +367,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "searchPlaceholder": "Поиск записей...",
       "create": "Создать",
       "edit": "Редактировать",
+      "delete": "Удалить",
       "schemaEditor": "Редактор схемы",
       "crudPageDescription": "Управление записями через CRUD-интерфейс, определённый плагином."
     },
