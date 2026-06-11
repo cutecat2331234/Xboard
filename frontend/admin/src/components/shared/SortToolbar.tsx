@@ -29,7 +29,7 @@ export function SortToolbar({
   if (!sortMode) {
     return (
       <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={onEdit}>
-        {editLabel ?? t('server.toolbar.sort.edit', { defaultValue: '编辑排序' })}
+        {editLabel ?? t('server.toolbar.sort.edit')}
       </Button>
     )
   }
@@ -39,11 +39,11 @@ export function SortToolbar({
       {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
       {onCancel ? (
         <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={onCancel} disabled={saving}>
-          {t('common.cancel', { defaultValue: '取消' })}
+          {t('common.cancel')}
         </Button>
       ) : null}
       <Button size="sm" className="h-8 px-3 text-xs" onClick={onSave} disabled={saving}>
-        {saveLabel ?? t('server.toolbar.sort.save', { defaultValue: '保存排序' })}
+        {saveLabel ?? t('server.toolbar.sort.save')}
       </Button>
     </div>
   )

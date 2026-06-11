@@ -3478,11 +3478,15 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   "knowledge": {
     "title": "知识库管理",
     "description": "在这里可以配置知识库，包括添加、删除、编辑等操作。",
+    "editSort": "编辑排序",
+    "saveSort": "保存排序",
+    "sortModeHint": "拖拽知识条目进行排序，完成后点击保存",
     "columns": {
       "id": "ID",
       "status": "状态",
       "title": "标题",
       "category": "分类",
+      "show": "显示",
       "actions": "操作"
     },
     "form": {
