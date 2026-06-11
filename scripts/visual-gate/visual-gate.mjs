@@ -245,10 +245,14 @@ async function ensureAdminGiftTemplateFixture(base) {
   const tplJson = await fetch(`${adminPrefix}/gift-card/templates?per_page=1`, { headers: adminHdr }).then(
     (r) => r.json(),
   )
-  const items = Array.isArray(tplJson?.data) ? tplJson.data : []
+  const items = Array.isArray(tplJson?.data)
+    ? tplJson.data
+    : Array.isArray(tplJson?.data?.data)
+      ? tplJson.data.data
+      : []
   if (items.length > 0) return
 
-  await fetch(`${adminPrefix}/gift-card/create-template`, {
+  const createRes = await fetch(`${adminPrefix}/gift-card/create-template`, {
     method: 'POST',
     headers: adminHdr,
     body: JSON.stringify({
@@ -263,6 +267,10 @@ async function ensureAdminGiftTemplateFixture(base) {
       sort: 0,
     }),
   })
+  if (!createRes.ok) {
+    const body = await createRes.text().catch(() => '')
+    console.warn(`gift-template seed failed on ${base}: ${createRes.status} ${body.slice(0, 200)}`)
+  }
 }
 
 function routeToPath(route, { rewrite = false } = {}) {
