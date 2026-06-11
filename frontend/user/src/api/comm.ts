@@ -19,6 +19,7 @@ export interface GuestConfig {
   telegram_login_domain?: string
   try_out_plan_id?: number
   traffic_warn_rate?: number
+  login_with_mail_link_enable?: number
 }
 
 export interface UserCommConfig {

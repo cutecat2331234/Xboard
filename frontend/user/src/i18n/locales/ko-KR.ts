@@ -71,6 +71,7 @@ export default {
     }
   },
   plan: {
+    chooseTitle: "나에게 맞는 플랜 선택",
     name: "플랜",
     viewDetail: "세부사항 보기",
     selectPeriod: "기간 선택",
@@ -113,7 +114,11 @@ export default {
   knowledge: {
     searchPh: "사용 설명서 검색…",
     empty: "검색 결과가 없습니다",
-    allCategory: "전체"
+    allCategory: "전체",
+    catGeneral: "일반",
+    catTutorial: "튜토리얼",
+    catFaq: "자주 묻는 질문",
+    catNotice: "공지"
   },
   auth: {
     or: "또는",

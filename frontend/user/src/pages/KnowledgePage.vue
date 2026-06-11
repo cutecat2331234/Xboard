@@ -7,6 +7,16 @@ import { useI18n } from '@/i18n'
 
 const ALL_CATEGORY = '__all__'
 
+/** Common admin knowledge category labels → i18n keys (fallback to API string). */
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  通用: 'knowledge.catGeneral',
+  教程: 'knowledge.catTutorial',
+  使用教程: 'knowledge.catTutorial',
+  常见问题: 'knowledge.catFaq',
+  FAQ: 'knowledge.catFaq',
+  公告: 'knowledge.catNotice',
+}
+
 function sanitizeHtml(html: string | undefined | null): string {
   return DOMPurify.sanitize(html ?? '')
 }
@@ -32,7 +42,8 @@ const filtered = computed(() => {
 
 function categoryTabLabel(name: string) {
   if (name === ALL_CATEGORY) return t('knowledge.allCategory')
-  return name
+  const key = CATEGORY_LABEL_KEYS[name]
+  return key ? t(key) : name
 }
 
 function search() {

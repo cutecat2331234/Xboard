@@ -71,6 +71,7 @@ export default {
     }
   },
   plan: {
+    chooseTitle: "Chọn gói phù hợp với bạn",
     name: "Plan",
     viewDetail: "Xem chi tiết",
     selectPeriod: "Select period",
@@ -113,7 +114,11 @@ export default {
   knowledge: {
     searchPh: "Tìm kiếm tài liệu…",
     empty: "Không có kết quả phù hợp",
-    allCategory: "Tất cả"
+    allCategory: "Tất cả",
+    catGeneral: "Chung",
+    catTutorial: "Hướng dẫn",
+    catFaq: "Câu hỏi thường gặp",
+    catNotice: "Thông báo"
   },
   auth: {
     or: "hoặc",

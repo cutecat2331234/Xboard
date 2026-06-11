@@ -512,6 +512,9 @@ async function waitUserRouteReady(page, route) {
       )
       .catch(() => {})
   }
+  if (route === 'plan') {
+    await page.waitForSelector('.plan-list-title, .n-grid', { timeout: 15000 }).catch(() => {})
+  }
   if (route === 'invite') {
     await page
       .waitForSelector('.n-data-table-tbody .n-data-table-tr', { timeout: 45000 })

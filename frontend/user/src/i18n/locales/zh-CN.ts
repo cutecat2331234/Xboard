@@ -71,6 +71,7 @@ export default {
     },
   },
   plan: {
+    chooseTitle: '选择最适合你的计划',
     name: '套餐',
     viewDetail: '查看详情',
     selectPeriod: '选择周期',
@@ -114,6 +115,10 @@ export default {
     searchPh: '搜索文档…',
     empty: '暂无相关内容',
     allCategory: '全部',
+    catGeneral: '通用',
+    catTutorial: '教程',
+    catFaq: '常见问题',
+    catNotice: '公告',
   },
   auth: {
     or: '或',
