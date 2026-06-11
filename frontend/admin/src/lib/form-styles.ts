@@ -3,3 +3,7 @@ export const inputCls =
 
 export const textareaCls =
   'flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
+
+/** 7001 config form labels: 11px / semibold / leading-5 (lh 20px) */
+export const configFieldLabelCls =
+  'text-[11px] font-semibold leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
