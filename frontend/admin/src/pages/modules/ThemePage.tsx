@@ -100,10 +100,16 @@ export default function ThemePage() {
 
   async function deleteTheme(name: string) {
     if (active === name) {
-      toast.error(t('theme.card.delete.error.active', { defaultValue: '不能删除当前使用的主题' }))
+      toast.error(t('theme.card.delete.error.active'))
       return
     }
-    if (!(await confirm(t('theme.card.delete.description')))) return
+    if (
+      !(await confirm(
+        t('theme.card.delete.title'),
+        t('theme.card.delete.description'),
+      ))
+    )
+      return
     try {
       await postJson('/theme/delete', { name })
       toast.success(t('common.success'))
@@ -191,7 +197,7 @@ export default function ThemePage() {
                       disabled={isActive}
                       onClick={() => switchTheme(name)}
                     >
-                      {isActive ? t('theme.card.currentTheme') : t('theme.card.switchTheme', { defaultValue: '切换主题' })}
+                      {isActive ? t('theme.card.currentTheme') : t('theme.card.switchTheme')}
                     </Button>
                   </CardContent>
                 </div>
@@ -204,10 +210,10 @@ export default function ThemePage() {
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{t('theme.config.title', { defaultValue: '主题配置' })} — {configTheme}</DialogTitle>
+            <DialogTitle>{t('theme.config.title')} — {configTheme}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-2 py-2">
-            <Label>{t('theme.config.json', { defaultValue: '配置 JSON' })}</Label>
+            <Label>{t('theme.config.json')}</Label>
             <textarea
               className={`${textareaCls} min-h-[240px] font-mono text-xs`}
               value={configJson}
@@ -216,10 +222,10 @@ export default function ThemePage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfigOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={saveThemeConfig} disabled={saving}>
-              {t('common.save', { defaultValue: '保存' })}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
