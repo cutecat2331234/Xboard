@@ -46,13 +46,26 @@ export default {
     "problem": "Chúng tôi có một vấn đề",
     "problemDesc": "Nếu bạn gặp sự cố, bạn có thể liên lạc với chúng tôi thông qua ",
     "copyLink": "Copy Subscribe Link",
-    "unpaidOrders": "You have {count} unpaid order(s)",
-    "openTickets": "You have {count} open ticket(s)",
-    "trafficWarning": "Traffic usage is {percent}%, consider renewing",
+    "unpaidOrders": "Bạn có {count} đơn hàng chưa thanh toán",
+    "payNow": "Thanh toán ngay",
+    "openTickets": "Bạn có {count} phiếu hỗ trợ đang mở",
+    "goView": "Xem",
+    "trafficWarning": "Đã sử dụng {percent}% lưu lượng, hãy cân nhắc gia hạn",
+    "learnAndBuy": "Tìm hiểu và mua",
     "expireAt": "Expires",
     "resetDay": "Traffic resets in {day} day(s)",
     "clientImportTitle": "Nhấp chuột để đồng bộ máy chủ",
-    "clientImportHint": "Import subscription into your client app"
+    "clientImportHint": "Import subscription into your client app",
+    "protocolTypes": {
+      "auto": "Tự động",
+      "anytls": "Anytls",
+      "vless": "Vless",
+      "hysteria": "Hy1",
+      "hysteria2": "Hy2",
+      "shadowsocks": "Shadowsocks",
+      "vmess": "Vmess",
+      "trojan": "Trojan"
+    }
   },
   "plan": {
     "name": "Plan",
@@ -82,6 +95,7 @@ export default {
   },
   "node": {
     "alert": "No access points are available. If you have not subscribed or the subscription has expired, please",
+    "empty": "No access points are available. If you have not subscribed or the subscription has expired, please subscribe.",
     "subscribe": "Mua Gói Dịch Vụ",
     "name": "Tên node",
     "type": "Type",
@@ -89,6 +103,10 @@ export default {
     "status": "Trạng thái",
     "online": "Online",
     "offline": "Offline"
+  },
+  "knowledge": {
+    "searchPh": "Tìm kiếm tài liệu…",
+    "empty": "Không có kết quả phù hợp"
   },
   "common": {
     "loading": "Loading...",
@@ -127,6 +145,7 @@ export default {
   },
   "traffic": {
     "hint": "Traffic logs are kept for the last month only.",
+    "empty": "No traffic records",
     "recordAt": "Thời gian ghi",
     "upload": "Upload thực tế",
     "download": "Download thực tế",
@@ -138,6 +157,12 @@ export default {
     "period": "Chu Kỳ",
     "amount": "Tiền đơn hàng",
     "status": "Trạng thái đơn",
+    "statusPending": "Chờ thanh toán",
+    "statusProcessing": "Đang kích hoạt",
+    "statusCanceled": "Đã hủy",
+    "statusCompleted": "Hoàn tất",
+    "statusOffset": "Đã khấu trừ",
+    "empty": "Chưa có đơn hàng",
     "createdAt": "Thời gian tạo",
     "pay": "Pay",
     "view": "Xem",

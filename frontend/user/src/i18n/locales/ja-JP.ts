@@ -46,13 +46,26 @@ export default {
     "problem": "何かお困りですか？",
     "problemDesc": "何かお困りでしたら、お問い合わせからご連絡ください。",
     "copyLink": "Copy Subscribe Link",
-    "unpaidOrders": "You have {count} unpaid order(s)",
-    "openTickets": "You have {count} open ticket(s)",
-    "trafficWarning": "Traffic usage is {percent}%, consider renewing",
+    "unpaidOrders": "未払いの注文が {count} 件あります",
+    "payNow": "今すぐ支払う",
+    "openTickets": "未対応のチケットが {count} 件あります",
+    "goView": "確認する",
+    "trafficWarning": "トラフィック使用率が {percent}% です。更新をご検討ください",
+    "learnAndBuy": "詳細を見て購入",
     "expireAt": "Expires",
     "resetDay": "Traffic resets in {day} day(s)",
     "clientImportTitle": "ワンクリックインポート",
-    "clientImportHint": "Import subscription into your client app"
+    "clientImportHint": "Import subscription into your client app",
+    "protocolTypes": {
+      "auto": "自動",
+      "anytls": "Anytls",
+      "vless": "Vless",
+      "hysteria": "Hy1",
+      "hysteria2": "Hy2",
+      "shadowsocks": "Shadowsocks",
+      "vmess": "Vmess",
+      "trojan": "Trojan"
+    }
   },
   "plan": {
     "name": "Plan",
@@ -82,6 +95,7 @@ export default {
   },
   "node": {
     "alert": "No access points are available. If you have not subscribed or the subscription has expired, please",
+    "empty": "No access points are available. If you have not subscribed or the subscription has expired, please subscribe.",
     "subscribe": "プランの購入",
     "name": "サーバー名",
     "type": "Type",
@@ -89,6 +103,10 @@ export default {
     "status": "ステータス",
     "online": "Online",
     "offline": "Offline"
+  },
+  "knowledge": {
+    "searchPh": "ナレッジベースを検索…",
+    "empty": "該当する記事がありません"
   },
   "common": {
     "loading": "Loading...",
@@ -127,6 +145,7 @@ export default {
   },
   "traffic": {
     "hint": "Traffic logs are kept for the last month only.",
+    "empty": "No traffic records",
     "recordAt": "記録日時",
     "upload": "アップロード",
     "download": "ダウンロード",
@@ -138,6 +157,12 @@ export default {
     "period": "サイクル",
     "amount": "ご注文金額",
     "status": "ご注文状況",
+    "statusPending": "支払い待ち",
+    "statusProcessing": "開通中",
+    "statusCanceled": "キャンセル済み",
+    "statusCompleted": "完了",
+    "statusOffset": "相殺済み",
+    "empty": "注文がありません",
     "createdAt": "作成日時",
     "pay": "Pay",
     "view": "閲覧",

@@ -46,13 +46,26 @@ export default {
     "problem": "遇到問題",
     "problemDesc": "遇到問題您可以通過工單與我們溝通",
     "copyLink": "Copy Subscribe Link",
-    "unpaidOrders": "You have {count} unpaid order(s)",
-    "openTickets": "You have {count} open ticket(s)",
-    "trafficWarning": "Traffic usage is {percent}%, consider renewing",
+    "unpaidOrders": "您有 {count} 筆待支付訂單",
+    "payNow": "立即支付",
+    "openTickets": "您有 {count} 個待處理工單",
+    "goView": "前往查看",
+    "trafficWarning": "流量已使用 {percent}%，建議續費",
+    "learnAndBuy": "了解並購買",
     "expireAt": "Expires",
     "resetDay": "Traffic resets in {day} day(s)",
     "clientImportTitle": "一鍵訂閲",
-    "clientImportHint": "Import subscription into your client app"
+    "clientImportHint": "Import subscription into your client app",
+    "protocolTypes": {
+      "auto": "自動",
+      "anytls": "Anytls",
+      "vless": "Vless",
+      "hysteria": "Hy1",
+      "hysteria2": "Hy2",
+      "shadowsocks": "Shadowsocks",
+      "vmess": "Vmess",
+      "trojan": "Trojan"
+    }
   },
   "plan": {
     "name": "Plan",
@@ -82,6 +95,7 @@ export default {
   },
   "node": {
     "alert": "No access points are available. If you have not subscribed or the subscription has expired, please",
+    "empty": "暫無可用節點，若您未訂閱或訂閱已過期，請訂閱",
     "subscribe": "購買訂閱",
     "name": "節點名稱",
     "type": "Type",
@@ -89,6 +103,10 @@ export default {
     "status": "狀態",
     "online": "Online",
     "offline": "Offline"
+  },
+  "knowledge": {
+    "searchPh": "搜尋說明文件…",
+    "empty": "暫無相關內容"
   },
   "common": {
     "loading": "Loading...",
@@ -127,6 +145,7 @@ export default {
   },
   "traffic": {
     "hint": "Traffic logs are kept for the last month only.",
+    "empty": "暫無流量記錄",
     "recordAt": "記錄時間",
     "upload": "實際上行",
     "download": "實際下行",
@@ -138,6 +157,12 @@ export default {
     "period": "週期",
     "amount": "訂單金額",
     "status": "訂單狀態",
+    "statusPending": "待支付",
+    "statusProcessing": "開通中",
+    "statusCanceled": "已取消",
+    "statusCompleted": "已完成",
+    "statusOffset": "已折抵",
+    "empty": "暫無訂單",
     "createdAt": "創建時間",
     "pay": "Pay",
     "view": "檢視",
