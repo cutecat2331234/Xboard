@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 
@@ -46,6 +47,7 @@ type PaymentRow = {
 
 export default function PaymentPage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<PaymentRow[]>([])
   const [methods, setMethods] = useState<string[]>([])
   const [dynamicFields, setDynamicFields] = useState<PaymentFormField[]>([])
@@ -130,7 +132,7 @@ export default function PaymentPage() {
   }
 
   async function deleteRow(row: PaymentRow) {
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
     try {
       await postJson('/payment/drop', { id: row.id })
       toast.success(t('common.success'))
@@ -364,6 +366,7 @@ export default function PaymentPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

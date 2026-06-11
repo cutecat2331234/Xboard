@@ -37,6 +37,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 
 
@@ -237,6 +238,8 @@ function parseConditions(raw: unknown): GiftCardConditions {
 export default function GiftCardPage() {
 
   const { t } = useTranslation()
+
+  const { confirm, ConfirmDialog } = useConfirmDialog()
 
   const [tab, setTab] = useState('templates')
 
@@ -696,7 +699,7 @@ export default function GiftCardPage() {
 
   async function deleteTemplate(row: TemplateRow) {
 
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
 
     try {
 
@@ -746,7 +749,7 @@ export default function GiftCardPage() {
 
   async function deleteCode(row: CodeRow) {
 
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
 
     try {
 
@@ -2097,6 +2100,8 @@ export default function GiftCardPage() {
         </DialogContent>
 
       </Dialog>
+
+      <ConfirmDialog />
 
     </div>
 

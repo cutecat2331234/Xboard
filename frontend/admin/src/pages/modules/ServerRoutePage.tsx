@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 type RouteRow = {
   id?: number
@@ -36,6 +37,7 @@ const ACTIONS = ['block', 'direct', 'dns', 'proxy'] as const
 
 export default function ServerRoutePage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<RouteRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -98,7 +100,7 @@ export default function ServerRoutePage() {
   }
 
   async function deleteRow(row: RouteRow) {
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
     try {
       await postJson('/server/route/drop', { id: row.id })
       toast.success(t('common.success'))
@@ -210,6 +212,7 @@ export default function ServerRoutePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

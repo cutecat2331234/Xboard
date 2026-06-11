@@ -60,6 +60,8 @@ import { Label } from '@/components/ui/label'
 
 import { Switch } from '@/components/ui/switch'
 
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+
 
 
 type GroupRow = { id?: number; name?: string }
@@ -216,6 +218,8 @@ function defaultCreatePayload(form: ServerForm) {
 export default function ServerManagePage() {
 
   const { t } = useTranslation()
+
+  const { confirm, ConfirmDialog } = useConfirmDialog()
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -483,7 +487,7 @@ export default function ServerManagePage() {
 
   async function deleteNode(row: NodeRow) {
 
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
 
     try {
 
@@ -559,7 +563,7 @@ export default function ServerManagePage() {
 
     if (
 
-      !window.confirm(
+      !(await confirm(
 
         t('server.toolbar.batch_delete.description', {
 
@@ -569,7 +573,7 @@ export default function ServerManagePage() {
 
         }),
 
-      )
+      ))
 
     ) {
 
@@ -659,9 +663,9 @@ export default function ServerManagePage() {
 
     if (
 
-      !window.confirm(
+      !(await confirm({
 
-        t('server.toolbar.batch_reset_traffic.description', {
+        description: t('server.toolbar.batch_reset_traffic.description', {
 
           count: ids.length,
 
@@ -669,7 +673,9 @@ export default function ServerManagePage() {
 
         }),
 
-      )
+        destructive: false,
+
+      }))
 
     ) {
 
@@ -1569,6 +1575,8 @@ export default function ServerManagePage() {
         </DialogContent>
 
       </Dialog>
+
+      <ConfirmDialog />
 
     </div>
 

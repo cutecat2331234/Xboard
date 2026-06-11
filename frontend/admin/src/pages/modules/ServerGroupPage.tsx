@@ -23,11 +23,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 type GroupRow = { id?: number; name?: string; users_count?: number; server_count?: number }
 
 export default function ServerGroupPage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<GroupRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -75,7 +77,7 @@ export default function ServerGroupPage() {
   }
 
   async function deleteRow(row: GroupRow) {
-    if (!window.confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
     try {
       await postJson('/server/group/drop', { id: row.id })
       toast.success(t('common.success'))
@@ -173,6 +175,7 @@ export default function ServerGroupPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

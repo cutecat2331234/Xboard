@@ -26,6 +26,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 type KnowledgeRow = {
   id?: number
@@ -40,6 +41,7 @@ const LANGUAGES = ['zh-CN', 'en-US', 'ja-JP', 'vi-VN', 'ko-KR'] as const
 
 export default function KnowledgePage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<KnowledgeRow[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
@@ -111,7 +113,7 @@ export default function KnowledgePage() {
   }
 
   async function deleteRow(row: KnowledgeRow) {
-    if (!window.confirm(t('knowledge.form.deleteConfirm', { defaultValue: '确认删除？' }))) return
+    if (!(await confirm(t('knowledge.form.deleteConfirm', { defaultValue: '确认删除？' })))) return
     try {
       await postJson('/knowledge/drop', { id: row.id })
       toast.success(t('common.success'))
@@ -319,6 +321,7 @@ export default function KnowledgePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

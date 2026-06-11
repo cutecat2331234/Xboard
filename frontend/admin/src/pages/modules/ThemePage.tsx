@@ -20,9 +20,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 export default function ThemePage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [themes, setThemes] = useState<ThemeItem[]>([])
   const [active, setActive] = useState('Xboard')
   const [loading, setLoading] = useState(true)
@@ -101,7 +103,7 @@ export default function ThemePage() {
       toast.error(t('theme.card.delete.error.active', { defaultValue: '不能删除当前使用的主题' }))
       return
     }
-    if (!window.confirm(t('theme.card.delete.description'))) return
+    if (!(await confirm(t('theme.card.delete.description')))) return
     try {
       await postJson('/theme/delete', { name })
       toast.success(t('common.success'))
@@ -222,6 +224,7 @@ export default function ThemePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }
