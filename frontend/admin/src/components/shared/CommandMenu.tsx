@@ -1,15 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Command } from 'cmdk'
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { COMMAND_ITEMS } from '@/lib/nav-groups'
+import { buildPluginNavGroups } from '@/lib/plugin-menus'
+import { usePluginList } from '@/lib/use-plugin-list'
+import { PluginMenuIcon } from '@/components/plugin/PluginMenuIcon'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 export function CommandMenu() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { plugins } = usePluginList()
+  const pluginGroups = useMemo(() => buildPluginNavGroups(plugins), [plugins])
+  const pluginItems = useMemo(
+    () =>
+      pluginGroups.flatMap((group) =>
+        group.items.map((item) => ({
+          ...item,
+          groupTitle: group.title,
+          pluginType: group.pluginType,
+        })),
+      ),
+    [pluginGroups],
+  )
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -63,6 +79,21 @@ export function CommandMenu() {
                   </Command.Item>
                 )
               })}
+              {pluginItems.map((item) => (
+                <Command.Item
+                  key={item.id}
+                  value={`${item.title} ${item.groupTitle} ${item.path} ${item.pluginCode}`}
+                  onSelect={() => {
+                    navigate(item.path)
+                    setOpen(false)
+                  }}
+                  className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-2 text-sm aria-selected:bg-accent"
+                >
+                  <PluginMenuIcon icon={item.icon} pluginType={item.pluginType} className="h-4 w-4" />
+                  <span className="truncate">{item.title}</span>
+                  <span className="ml-auto truncate text-xs text-muted-foreground">{item.groupTitle}</span>
+                </Command.Item>
+              ))}
             </Command.List>
           </Command>
         </DialogContent>
