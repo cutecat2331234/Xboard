@@ -22,6 +22,8 @@ import {
 
   NSelect,
 
+  NTag,
+
   useMessage,
 
   type DataTableColumns,
@@ -67,6 +69,16 @@ function levelLabel(value: number) {
   const labels = [t('ticket.levelLow'), t('ticket.levelMedium'), t('ticket.levelHigh')]
 
   return labels[value] ?? String(value)
+
+}
+
+
+
+function levelTagType(value: number): 'info' | 'warning' | 'error' | 'default' {
+
+  const types: Array<'info' | 'warning' | 'error'> = ['info', 'warning', 'error']
+
+  return types[value] ?? 'default'
 
 }
 
@@ -134,7 +146,16 @@ const columns = computed<DataTableColumns<TicketItem>>(() => [
 
   { title: t('ticket.subject'), key: 'subject' },
 
-  { title: t('ticket.level'), key: 'level', render: (r) => levelLabel(r.level) },
+  {
+    title: t('ticket.level'),
+    key: 'level',
+    render: (r) =>
+      h(
+        NTag,
+        { type: levelTagType(r.level), size: 'small', bordered: false },
+        { default: () => levelLabel(r.level) },
+      ),
+  },
 
   {
 
