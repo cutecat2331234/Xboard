@@ -7,6 +7,11 @@ import type { AuthFormPayload, LoginForm, RegisterForm } from '@/api/auth'
 import type { UserInfo } from '@/api/user'
 import { fetchUserInfo } from '@/api/user'
 
+export function resolveLoginRedirect(redirect: unknown): string {
+  const path = typeof redirect === 'string' && redirect ? redirect : '/dashboard'
+  return path.startsWith('/') ? path : `/${path}`
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(Boolean(getAuthData()))
   const user = ref<UserInfo | null>(null)
