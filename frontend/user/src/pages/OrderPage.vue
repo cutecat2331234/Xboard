@@ -5,11 +5,14 @@ import {
   NCard,
   NDataTable,
   NEmpty,
+  NIcon,
+  NPopover,
   NTag,
   useMessage,
   useDialog,
   type DataTableColumns,
 } from 'naive-ui'
+import { CopyOutline } from '@vicons/ionicons5'
 import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { orderStatusLabel } from '@/lib/order-status'
@@ -37,6 +40,52 @@ function formatTime(ts?: number) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
+async function copyTradeNo(tradeNo: string) {
+  try {
+    await navigator.clipboard.writeText(tradeNo)
+    msg.success(t('order.tradeNoCopied'))
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
+  }
+}
+
+function renderTradeNoCell(row: OrderItem) {
+  const tradeNo = row.trade_no
+  return h('div', { class: 'order-trade-no-cell' }, [
+    h(
+      NPopover,
+      { trigger: 'hover', placement: 'top', showArrow: false },
+      {
+        trigger: () =>
+          h(
+            'button',
+            {
+              type: 'button',
+              class: 'order-link-btn order-trade-no-text',
+              onClick: () => router.push(`/order/${tradeNo}`),
+            },
+            tradeNo,
+          ),
+        default: () => h('span', { class: 'order-trade-no-popover' }, tradeNo),
+      },
+    ),
+    h(
+      'button',
+      {
+        type: 'button',
+        class: 'order-trade-no-copy',
+        title: t('order.copyTradeNo'),
+        'aria-label': t('order.copyTradeNo'),
+        onClick: (e: MouseEvent) => {
+          e.stopPropagation()
+          void copyTradeNo(tradeNo)
+        },
+      },
+      [h(NIcon, { size: 14 }, { default: () => h(CopyOutline) })],
+    ),
+  ])
+}
+
 function confirmCancel(tradeNo: string) {
   dialog.warning({
     title: t('order.notice'),
@@ -55,16 +104,8 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.listTradeNo'),
     key: 'trade_no',
-    render: (row) =>
-      h(
-        'button',
-        {
-          type: 'button',
-          class: 'order-link-btn',
-          onClick: () => router.push(`/order/${row.trade_no}`),
-        },
-        row.trade_no,
-      ),
+    width: 200,
+    render: (row) => renderTradeNoCell(row),
   },
   {
     title: t('order.period'),
@@ -186,5 +227,46 @@ onMounted(async () => {
 }
 .items-center {
   align-items: center;
+}
+.order-trade-no-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  min-width: 0;
+}
+.order-trade-no-text {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
+  min-width: 0;
+  display: inline-block;
+  vertical-align: bottom;
+}
+.order-trade-no-copy {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: #316c72;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 3px;
+}
+.order-trade-no-copy:hover {
+  background: var(--xb-hover);
+}
+.order-trade-no-popover {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 12px;
+  word-break: break-all;
+  max-width: 320px;
 }
 </style>

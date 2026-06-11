@@ -217,6 +217,8 @@ export default {
   order: {
     listTradeNo: '# Order No.',
     tradeNo: 'Trade No.',
+    copyTradeNo: 'Copy order no.',
+    tradeNoCopied: 'Order no. copied',
     period: 'Period',
     amount: 'Amount',
     status: 'Status',

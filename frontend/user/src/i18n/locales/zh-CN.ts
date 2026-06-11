@@ -216,6 +216,8 @@ export default {
   order: {
     listTradeNo: '# 订单号',
     tradeNo: '订单号',
+    copyTradeNo: '复制订单号',
+    tradeNoCopied: '订单号已复制',
     period: '周期',
     amount: '订单金额',
     status: '订单状态',
