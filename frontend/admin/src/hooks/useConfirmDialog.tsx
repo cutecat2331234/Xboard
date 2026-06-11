@@ -81,10 +81,10 @@ export function useConfirmDialog() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => finish(false)}>
-              {options.cancelLabel ?? t('common.cancel', { defaultValue: '取消' })}
+              {options.cancelLabel ?? t('common.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction destructive={options.destructive !== false} onClick={() => finish(true)}>
-              {options.confirmLabel ?? t('common.confirm', { defaultValue: '确定' })}
+              {options.confirmLabel ?? t('common.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

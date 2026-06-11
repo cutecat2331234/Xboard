@@ -115,11 +115,9 @@ export default function KnowledgePage() {
   async function deleteRow(row: KnowledgeRow) {
     if (
       !(await confirm(
-        t('knowledge.messages.deleteConfirm', { defaultValue: '确认删除' }),
-        t('knowledge.messages.deleteDescription', {
-          defaultValue: '此操作将永久删除该知识库记录，删除后无法恢复。确定要继续吗？',
-        }),
-        { confirmLabel: t('knowledge.messages.deleteButton', { defaultValue: '删除' }) },
+        t('knowledge.messages.deleteConfirm'),
+        t('knowledge.messages.deleteDescription'),
+        { confirmLabel: t('knowledge.messages.deleteButton') },
       ))
     )
       return
@@ -188,7 +186,7 @@ export default function KnowledgePage() {
         ? [
             {
               id: 'actions',
-              header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+              header: () => t('common.table.columns.actions'),
               cell: ({ row }: { row: { original: KnowledgeRow } }) => (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -198,10 +196,10 @@ export default function KnowledgePage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => openEdit(row.original)}>
-                      {t('common.edit', { defaultValue: '编辑' })}
+                      {t('common.edit')}
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-destructive" onClick={() => deleteRow(row.original)}>
-                      {t('common.delete', { defaultValue: '删除' })}
+                      {t('common.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -240,9 +238,9 @@ export default function KnowledgePage() {
               <SortToolbar
                 sortMode={sort.sortMode}
                 saving={sort.sortSaving}
-                editLabel={t('knowledge.editSort', { defaultValue: '编辑排序' })}
-                saveLabel={t('knowledge.saveSort', { defaultValue: '保存排序' })}
-                hint={sort.sortMode ? t('knowledge.sortModeHint', { defaultValue: '拖拽知识条目进行排序，完成后点击保存' }) : undefined}
+                editLabel={t('knowledge.editSort')}
+                saveLabel={t('knowledge.saveSort')}
+                hint={sort.sortMode ? t('knowledge.sortModeHint') : undefined}
                 onEdit={sort.enterSort}
                 onSave={handleSaveSort}
                 onCancel={sort.cancelSort}
@@ -264,7 +262,7 @@ export default function KnowledgePage() {
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editing ? t('knowledge.form.edit', { defaultValue: '编辑知识' }) : t('knowledge.form.add')}
+              {editing ? t('knowledge.form.edit') : t('knowledge.form.add')}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
@@ -299,7 +297,7 @@ export default function KnowledgePage() {
               >
                 {LANGUAGES.map((lang) => (
                   <option key={lang} value={lang}>
-                    {t(`knowledge.languages.${lang}`, { defaultValue: lang })}
+                    {t(`knowledge.languages.${lang}`)}
                   </option>
                 ))}
               </select>
@@ -322,10 +320,10 @@ export default function KnowledgePage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              {t('common.cancel', { defaultValue: '取消' })}
+              {t('common.cancel')}
             </Button>
             <Button onClick={saveKnowledge} disabled={saving}>
-              {t('common.save', { defaultValue: '保存' })}
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>

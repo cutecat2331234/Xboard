@@ -58,9 +58,9 @@ export default function LoginPage() {
   async function copyResetCommand() {
     try {
       await navigator.clipboard.writeText(resetCommand)
-      toast.success(t('common.copy.success', { defaultValue: '已复制' }))
+      toast.success(t('common.copy.success'))
     } catch {
-      toast.error(t('common.copy.failed', { defaultValue: '复制失败' }))
+      toast.error(t('common.copy.failed'))
     }
   }
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
       const auth = await login({ email, password })
       if (!auth.is_admin) {
         clearAuthData()
-        setError(t('login.notAdmin', { defaultValue: '需要管理员账号登录' }))
+        setError(t('login.notAdmin'))
         return
       }
       try {
@@ -228,7 +228,7 @@ export default function LoginPage() {
             className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             onClick={copyResetCommand}
           >
-            {t('common.copy', { defaultValue: '复制' })}
+            {t('common.copy')}
           </button>
         </DialogContent>
       </Dialog>

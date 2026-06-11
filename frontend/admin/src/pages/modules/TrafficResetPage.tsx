@@ -225,16 +225,12 @@ export default function TrafficResetPage() {
 
   const resetTypeLabel = (type?: string, fallback?: string) => {
     if (!type) return fallback ?? '—'
-    return t(`user.traffic_reset_logs.filters.reset_types.${type}`, {
-      defaultValue: fallback ?? type,
-    })
+    return t(`user.traffic_reset_logs.filters.reset_types.${type}`)
   }
 
   const triggerSourceLabel = (source?: string, fallback?: string) => {
     if (!source) return fallback ?? '—'
-    return t(`user.traffic_reset_logs.filters.trigger_sources.${source}`, {
-      defaultValue: fallback ?? source,
-    })
+    return t(`user.traffic_reset_logs.filters.trigger_sources.${source}`)
   }
 
   const columns = useMemo<ColumnDef<TrafficLogRow, unknown>[]>(
