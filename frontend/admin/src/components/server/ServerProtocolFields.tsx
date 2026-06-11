@@ -73,15 +73,25 @@ const SS_CIPHERS = [
   '2022-blake3-chacha20-poly1305',
 ] as const
 
-const SS_PLUGINS = [
-  { value: 'none', label: 'None' },
-  { value: 'obfs', label: 'Simple Obfs' },
-  { value: 'v2ray-plugin', label: 'V2Ray Plugin' },
-  { value: 'gost-plugin', label: 'Gost Plugin' },
-  { value: 'shadow-tls', label: 'Shadow TLS' },
-  { value: 'restls', label: 'ResTLS' },
-  { value: 'kcptun', label: 'KCPTun' },
+const SS_PLUGIN_VALUES = [
+  'none',
+  'obfs',
+  'v2ray-plugin',
+  'gost-plugin',
+  'shadow-tls',
+  'restls',
+  'kcptun',
 ] as const
+
+const SS_PLUGIN_FALLBACKS: Record<(typeof SS_PLUGIN_VALUES)[number], string> = {
+  none: 'None',
+  obfs: 'Simple Obfs',
+  'v2ray-plugin': 'V2Ray Plugin',
+  'gost-plugin': 'Gost Plugin',
+  'shadow-tls': 'Shadow TLS',
+  restls: 'ResTLS',
+  kcptun: 'KCPTun',
+}
 
 const SS_FINGERPRINTS = [
   { value: 'chrome', label: 'Chrome' },
@@ -249,6 +259,28 @@ export function toProtocolSettingsPayload(
   return {}
 }
 
+function ssPluginLocaleKey(value: string): string {
+  const suffix: Record<string, string> = {
+    'v2ray-plugin': 'v2ray',
+    'gost-plugin': 'gost',
+    'shadow-tls': 'shadow_tls',
+  }
+  return `server.dynamic_form.shadowsocks.plugin.${suffix[value] ?? value}`
+}
+
+function ssCipherLocaleKey(cipher: string): string {
+  return `server.dynamic_form.shadowsocks.cipher.${cipher}`
+}
+
+function resolveLocaleLabel(
+  i18n: { exists: (key: string) => boolean },
+  t: (key: string) => string,
+  key: string,
+  fallback: string,
+): string {
+  return i18n.exists(key) ? t(key) : fallback
+}
+
 function pluginHintKey(plugin: string): string | null {
   switch (plugin) {
     case 'obfs':
@@ -275,9 +307,12 @@ function CipherSelect({
   value: string
   onChange: (value: string) => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+
+  const cipherLabel = (cipher: string) =>
+    resolveLocaleLabel(i18n, t, ssCipherLocaleKey(cipher), cipher)
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -299,7 +334,7 @@ function CipherSelect({
             aria-expanded={open}
             className={cn('w-full justify-between font-mono text-xs', !value && 'text-muted-foreground')}
           >
-            {value || t('server.dynamic_form.shadowsocks.cipher.placeholder')}
+            {value ? cipherLabel(value) : t('server.dynamic_form.shadowsocks.cipher.placeholder')}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -359,7 +394,7 @@ function CipherSelect({
                 }}
               >
                 <Check className={cn('mr-2 h-4 w-4', value === cipher ? 'opacity-100' : 'opacity-0')} />
-                {cipher}
+                {cipherLabel(cipher)}
               </button>
             ))}
           </div>
@@ -377,8 +412,22 @@ function ShadowsocksFields({
   value: ShadowsocksProtocolForm
   onChange: (next: ShadowsocksProtocolForm) => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const hintKey = pluginHintKey(value.plugin)
+
+  const pluginOptions = useMemo(
+    () =>
+      SS_PLUGIN_VALUES.map((plugin) => ({
+        value: plugin,
+        label: resolveLocaleLabel(
+          i18n,
+          t,
+          ssPluginLocaleKey(plugin),
+          SS_PLUGIN_FALLBACKS[plugin],
+        ),
+      })),
+    [i18n, t],
+  )
 
   return (
     <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
@@ -392,7 +441,7 @@ function ShadowsocksFields({
         <FormSelect
           value={value.plugin || 'none'}
           onChange={(plugin) => onChange({ ...value, plugin })}
-          options={SS_PLUGINS.map((p) => ({ value: p.value, label: p.label }))}
+          options={pluginOptions}
           placeholder={t('server.dynamic_form.shadowsocks.plugin.placeholder')}
           className="font-mono text-xs"
         />
