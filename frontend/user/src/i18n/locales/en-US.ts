@@ -58,6 +58,7 @@ export default {
     resetDay: 'Traffic resets in {day} day(s)',
     clientImportTitle: 'Quick subscribe',
     clientImportHint: 'Import subscription into your client app',
+    popupNoticeTags: 'popup,modal',
     protocolTypes: {
       auto: 'Auto',
       anytls: 'Anytls',

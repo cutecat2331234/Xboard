@@ -58,6 +58,7 @@ export default {
     resetDay: '流量将在 {day} 天后重置',
     clientImportTitle: '一键订阅',
     clientImportHint: '选择客户端导入订阅，可按协议类型筛选',
+    popupNoticeTags: '弹窗',
     protocolTypes: {
       auto: '自动',
       anytls: 'Anytls',
