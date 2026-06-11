@@ -1221,14 +1221,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "network": {
           "label": "Transport Protocol",
           "placeholder": "Select transport protocol"
-        },
-        "network_settings": {
-          "path": "Path",
-          "path_placeholder": "/",
-          "host": "Host",
-          "host_placeholder": "v2ray.com",
-          "serviceName": "Service Name",
-          "serviceName_placeholder": "GunService"
         }
       },
       "trojan": {
@@ -1362,14 +1354,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "network": {
           "label": "Transport Protocol",
           "placeholder": "Select transport protocol"
-        },
-        "network_settings": {
-          "path": "Path",
-          "path_placeholder": "/",
-          "host": "Host",
-          "host_placeholder": "v2ray.com",
-          "serviceName": "Service Name",
-          "serviceName_placeholder": "GunService"
         },
         "flow": {
           "label": "Flow Control",
