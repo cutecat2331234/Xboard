@@ -19,20 +19,43 @@ export type ConfirmDialogOptions = {
   destructive?: boolean
 }
 
+type ConfirmDialogExtraOptions = Omit<ConfirmDialogOptions, 'title' | 'description'>
+
+function normalizeConfirmOptions(
+  optsOrTitle: ConfirmDialogOptions | string,
+  description?: string,
+  extra?: ConfirmDialogExtraOptions,
+): ConfirmDialogOptions {
+  if (typeof optsOrTitle === 'string') {
+    if (description !== undefined) {
+      return { title: optsOrTitle, description, ...extra }
+    }
+    return { description: optsOrTitle, ...extra }
+  }
+  return optsOrTitle
+}
+
 export function useConfirmDialog() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [options, setOptions] = useState<ConfirmDialogOptions>({ description: '' })
   const resolveRef = useRef<((value: boolean) => void) | null>(null)
 
-  const confirm = useCallback((opts: ConfirmDialogOptions | string) => {
-    const normalized = typeof opts === 'string' ? { description: opts } : opts
-    return new Promise<boolean>((resolve) => {
-      resolveRef.current = resolve
-      setOptions(normalized)
-      setOpen(true)
-    })
-  }, [])
+  const confirm = useCallback(
+    (
+      optsOrTitle: ConfirmDialogOptions | string,
+      description?: string,
+      extra?: ConfirmDialogExtraOptions,
+    ) => {
+      const normalized = normalizeConfirmOptions(optsOrTitle, description, extra)
+      return new Promise<boolean>((resolve) => {
+        resolveRef.current = resolve
+        setOptions(normalized)
+        setOpen(true)
+      })
+    },
+    [],
+  )
 
   const finish = useCallback((value: boolean) => {
     resolveRef.current?.(value)

@@ -113,7 +113,16 @@ export default function KnowledgePage() {
   }
 
   async function deleteRow(row: KnowledgeRow) {
-    if (!(await confirm(t('knowledge.form.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('knowledge.messages.deleteConfirm', { defaultValue: '确认删除' }),
+        t('knowledge.messages.deleteDescription', {
+          defaultValue: '此操作将永久删除该知识库记录，删除后无法恢复。确定要继续吗？',
+        }),
+        { confirmLabel: t('knowledge.messages.deleteButton', { defaultValue: '删除' }) },
+      ))
+    )
+      return
     try {
       await postJson('/knowledge/drop', { id: row.id })
       toast.success(t('common.success'))

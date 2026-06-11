@@ -77,7 +77,16 @@ export default function ServerGroupPage() {
   }
 
   async function deleteRow(row: GroupRow) {
-    if (!(await confirm(t('common.deleteConfirm', { defaultValue: '确认删除？' })))) return
+    if (
+      !(await confirm(
+        t('group.messages.deleteConfirm', { defaultValue: '确认删除' }),
+        t('group.messages.deleteDescription', {
+          defaultValue: '此操作将永久删除该权限组，删除后无法恢复。确定要继续吗？',
+        }),
+        { confirmLabel: t('group.messages.deleteButton', { defaultValue: '删除' }) },
+      ))
+    )
+      return
     try {
       await postJson('/server/group/drop', { id: row.id })
       toast.success(t('common.success'))

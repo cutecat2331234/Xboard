@@ -147,7 +147,14 @@ export default function PluginPage() {
   }
 
   async function deletePlugin(code: string) {
-    if (!(await confirm(t('plugin.delete.description')))) return
+    if (
+      !(await confirm(
+        t('plugin.delete.title', { defaultValue: '删除插件' }),
+        t('plugin.delete.description', { defaultValue: '确定要删除此插件吗？此操作无法撤销。' }),
+        { confirmLabel: t('plugin.delete.button', { defaultValue: '删除' }) },
+      ))
+    )
+      return
     try {
       await postJson('/plugin/delete', { code })
       toast.success(t('plugin.messages.deleteSuccess'))
