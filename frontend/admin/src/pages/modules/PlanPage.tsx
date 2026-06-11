@@ -428,7 +428,7 @@ export default function PlanPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="!flex max-h-[774px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]">
+        <DialogContent className="!flex max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
           <DialogHeader className="shrink-0 border-b px-6 py-4">
             <DialogTitle>
               {editing
@@ -579,7 +579,7 @@ export default function PlanPage() {
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                 {MAIN_PRICE_PERIODS.map((period) => (
                   <div key={period} className="xb-stack-2">
                     <Label className="text-xs font-normal text-muted-foreground">

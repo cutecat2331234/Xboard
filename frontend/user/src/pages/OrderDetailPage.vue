@@ -90,7 +90,7 @@ const order = ref<
 
     surplus_amount?: number
 
-    refund_amount?: number
+    surplus_credit?: number
 
     plan?: PlanPrices
 
@@ -176,7 +176,7 @@ const payTotal = computed(() => {
 
   const discount = order.value?.discount_amount ?? 0
 
-  const refund = order.value?.refund_amount ?? 0
+  const refund = order.value?.surplus_credit ?? 0
 
   const balance = order.value?.balance_amount ?? 0
 
@@ -530,11 +530,11 @@ onUnmounted(stopPoll)
 
           </div>
 
-          <div v-if="order.refund_amount && order.refund_amount > 0" class="info-row">
+          <div v-if="order.surplus_credit && order.surplus_credit > 0" class="info-row">
 
             <div class="info-label">{{ t('order.refund') }}</div>
 
-            <div class="info-value">{{ formatPrice(order.refund_amount) }}</div>
+            <div class="info-value">{{ formatPrice(order.surplus_credit) }}</div>
 
           </div>
 
@@ -670,11 +670,11 @@ onUnmounted(stopPoll)
 
         </div>
 
-        <div v-if="order.refund_amount && order.refund_amount > 0" class="summary-panel__row">
+        <div v-if="order.surplus_credit && order.surplus_credit > 0" class="summary-panel__row">
 
           <span class="summary-panel__muted">{{ t('order.refund') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.refund_amount / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ symbol }}{{ (order.surplus_credit / 100).toFixed(2) }}</span>
 
         </div>
 
