@@ -617,12 +617,10 @@ export default function ServerManagePage() {
 
     if (
       !(await confirm(
-        t('server.columns.actions_dropdown.delete.title', { defaultValue: '确认删除' }),
-        t('server.columns.actions_dropdown.delete.description', {
-          defaultValue: '此操作将永久删除该节点，删除后无法恢复。确定要继续吗？',
-        }),
+        t('server.columns.actions_dropdown.delete.title'),
+        t('server.columns.actions_dropdown.delete.description'),
         {
-          confirmLabel: t('server.columns.actions_dropdown.delete.confirm', { defaultValue: '删除' }),
+          confirmLabel: t('server.columns.actions_dropdown.delete.confirm'),
         },
       ))
     )
@@ -713,13 +711,7 @@ export default function ServerManagePage() {
 
       !(await confirm(
 
-        t('server.toolbar.batch_delete.description', {
-
-          count: ids.length,
-
-          defaultValue: `确定要删除选中的 ${ids.length} 个节点吗？`,
-
-        }),
+        t('server.toolbar.batch_delete.description', { count: ids.length }),
 
       ))
 
@@ -735,13 +727,7 @@ export default function ServerManagePage() {
 
       toast.success(
 
-        t('server.toolbar.batch_delete_success', {
-
-          count: ids.length,
-
-          defaultValue: `成功删除 ${ids.length} 个节点`,
-
-        }),
+        t('server.toolbar.batch_delete_success', { count: ids.length }),
 
       )
 
@@ -751,7 +737,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('server.toolbar.batch_delete_error', { defaultValue: '批量删除失败' }))
+      toast.error(e instanceof Error ? e.message : t('server.toolbar.batch_delete_error'))
 
     }
 
@@ -769,11 +755,11 @@ export default function ServerManagePage() {
     if (!ids.length) return
     try {
       await postJson('/server/manage/batchUpdate', { ids, [field]: value })
-      toast.success(t(successKey, { count: ids.length, defaultValue: `已更新 ${ids.length} 个节点` }))
+      toast.success(t(successKey, { count: ids.length }))
       setSelectedIds(new Set())
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t(errorKey, { defaultValue: '批量更新失败' }))
+      toast.error(e instanceof Error ? e.message : t(errorKey))
     }
   }
 
@@ -813,13 +799,7 @@ export default function ServerManagePage() {
 
       !(await confirm({
 
-        description: t('server.toolbar.batch_reset_traffic.description', {
-
-          count: ids.length,
-
-          defaultValue: `确定要重置选中的 ${ids.length} 个节点的流量吗？`,
-
-        }),
+        description: t('server.toolbar.batch_reset_traffic.description', { count: ids.length }),
 
         destructive: false,
 
@@ -837,13 +817,7 @@ export default function ServerManagePage() {
 
       toast.success(
 
-        t('server.toolbar.batch_reset_traffic_success', {
-
-          count: ids.length,
-
-          defaultValue: `成功重置 ${ids.length} 个节点的流量`,
-
-        }),
+        t('server.toolbar.batch_reset_traffic_success', { count: ids.length }),
 
       )
 
@@ -855,7 +829,7 @@ export default function ServerManagePage() {
 
       toast.error(
 
-        e instanceof Error ? e.message : t('server.toolbar.batch_reset_traffic_error', { defaultValue: '批量重置流量失败' }),
+        e instanceof Error ? e.message : t('server.toolbar.batch_reset_traffic_error'),
 
       )
 
@@ -899,7 +873,7 @@ export default function ServerManagePage() {
 
       await postJson('/server/manage/sort', payload)
 
-      toast.success(t('server.toolbar.sort.success', { defaultValue: '排序保存成功' }))
+      toast.success(t('server.toolbar.sort.success'))
 
       setSortMode(false)
 
@@ -1041,7 +1015,7 @@ export default function ServerManagePage() {
 
       { accessorKey: 'name', header: () => t('server.columns.node') },
 
-      { accessorKey: 'type', header: () => t('server.columns.type', { defaultValue: '类型' }) },
+      { accessorKey: 'type', header: () => t('server.columns.type') },
 
       {
 
@@ -1299,7 +1273,7 @@ export default function ServerManagePage() {
 
         id: 'groups',
 
-        header: () => t('server.form.groups.label', { defaultValue: '权限组' }),
+        header: () => t('server.form.groups.label'),
 
         cell: ({ row }) => {
 
@@ -1329,7 +1303,7 @@ export default function ServerManagePage() {
 
           sortMode ? (
 
-            row.original.show ? t('common.enabled', { defaultValue: '启用' }) : t('common.disabled', { defaultValue: '禁用' })
+            row.original.show ? t('common.enabled') : t('common.disabled')
 
           ) : (
 
@@ -1347,7 +1321,7 @@ export default function ServerManagePage() {
 
               id: 'actions',
 
-              header: () => t('common.table.columns.actions', { defaultValue: '操作' }),
+              header: () => t('common.table.columns.actions'),
 
               cell: ({ row }: { row: { original: NodeRow } }) => (
 
@@ -1367,25 +1341,25 @@ export default function ServerManagePage() {
 
                     <DropdownMenuItem onClick={() => openEdit(row.original)}>
 
-                      {t('common.edit', { defaultValue: '编辑' })}
+                      {t('common.edit')}
 
                     </DropdownMenuItem>
 
                     <DropdownMenuItem onClick={() => copyNode(row.original)}>
 
-                      {t('server.actions.copy', { defaultValue: '复制' })}
+                      {t('server.actions.copy')}
 
                     </DropdownMenuItem>
 
                     <DropdownMenuItem onClick={() => resetNodeTraffic(row.original)}>
 
-                      {t('server.toolbar.batch_reset_traffic.menu', { defaultValue: '重置流量' })}
+                      {t('server.toolbar.batch_reset_traffic.menu')}
 
                     </DropdownMenuItem>
 
                     <DropdownMenuItem className="text-destructive" onClick={() => deleteNode(row.original)}>
 
-                      {t('common.delete', { defaultValue: '删除' })}
+                      {t('common.delete')}
 
                     </DropdownMenuItem>
 
@@ -1433,7 +1407,7 @@ export default function ServerManagePage() {
 
                 <Plus className="mr-2 h-4 w-4" />
 
-                {t('server.form.add', { defaultValue: '添加节点' })}
+                {t('server.form.add')}
 
               </Button>
 
@@ -1445,7 +1419,7 @@ export default function ServerManagePage() {
 
               saving={sortSaving}
 
-              hint={sortMode ? t('server.toolbar.sort.tip', { defaultValue: '拖拽节点进行排序，完成后点击保存' }) : undefined}
+              hint={sortMode ? t('server.toolbar.sort.tip') : undefined}
 
               onEdit={enterSortMode}
 
@@ -1463,7 +1437,7 @@ export default function ServerManagePage() {
 
                   <Button variant="outline" size="sm" className="h-8">
 
-                    {t('server.toolbar.actions', { defaultValue: '操作' })} ({selectedIds.size})
+                    {t('server.toolbar.actions')} ({selectedIds.size})
 
                   </Button>
 
@@ -1473,25 +1447,25 @@ export default function ServerManagePage() {
 
                   <DropdownMenuItem onClick={() => batchUpdateField('show', 1, 'server.toolbar.batch_show_success', 'server.toolbar.batch_show_error')}>
 
-                    {t('server.toolbar.batch_show.menu', { defaultValue: '显示节点' })}
+                    {t('server.toolbar.batch_show.menu')}
 
                   </DropdownMenuItem>
 
                   <DropdownMenuItem onClick={() => batchUpdateField('show', 0, 'server.toolbar.batch_hide_success', 'server.toolbar.batch_hide_error')}>
 
-                    {t('server.toolbar.batch_hide.menu', { defaultValue: '隐藏节点' })}
+                    {t('server.toolbar.batch_hide.menu')}
 
                   </DropdownMenuItem>
 
                   <DropdownMenuItem onClick={() => batchUpdateField('enabled', true, 'server.toolbar.batch_enable_success', 'server.toolbar.batch_enable_error')}>
 
-                    {t('server.toolbar.batch_enable.menu', { defaultValue: '启用节点' })}
+                    {t('server.toolbar.batch_enable.menu')}
 
                   </DropdownMenuItem>
 
                   <DropdownMenuItem onClick={() => batchUpdateField('enabled', false, 'server.toolbar.batch_disable_success', 'server.toolbar.batch_disable_error')}>
 
-                    {t('server.toolbar.batch_disable.menu', { defaultValue: '禁用节点' })}
+                    {t('server.toolbar.batch_disable.menu')}
 
                   </DropdownMenuItem>
 
@@ -1499,7 +1473,7 @@ export default function ServerManagePage() {
 
                   <DropdownMenuItem onClick={batchResetTraffic}>
 
-                    {t('server.toolbar.batch_reset_traffic.menu', { defaultValue: '重置流量' })}
+                    {t('server.toolbar.batch_reset_traffic.menu')}
 
                   </DropdownMenuItem>
 
@@ -1507,7 +1481,7 @@ export default function ServerManagePage() {
 
                   <DropdownMenuItem className="text-destructive" onClick={batchDelete}>
 
-                    {t('server.toolbar.batch_delete.menu', { defaultValue: '删除节点' })}
+                    {t('server.toolbar.batch_delete.menu')}
 
                   </DropdownMenuItem>
 
@@ -1519,13 +1493,13 @@ export default function ServerManagePage() {
 
             {machineIdFilter ? (
               <div className="inline-flex h-8 items-center gap-1 rounded-md border border-input bg-muted/40 px-2 text-xs">
-                <span className="text-muted-foreground">{t('server.toolbar.server', { defaultValue: '服务器' })}:</span>
+                <span className="text-muted-foreground">{t('server.toolbar.server')}:</span>
                 <span className="font-medium">{activeMachine?.name ?? `#${machineIdFilter}`}</span>
                 <button
                   type="button"
                   className="rounded p-0.5 hover:bg-muted"
                   onClick={clearMachineFilter}
-                  aria-label={t('server.toolbar.reset', { defaultValue: '重置' })}
+                  aria-label={t('server.toolbar.reset')}
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -1864,7 +1838,7 @@ export default function ServerManagePage() {
             {shouldShowEchFields(form.type, protocolSettings) ? (
               <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <Label>{t('server.dynamic_form.ech.generate', { defaultValue: 'ECH' })}</Label>
+                  <Label>{t('server.dynamic_form.ech.generate')}</Label>
                   <Button
                     type="button"
                     variant="outline"
@@ -1878,40 +1852,34 @@ export default function ServerManagePage() {
                     ) : (
                       <Sparkles className="mr-2 h-3.5 w-3.5" />
                     )}
-                    {t('server.dynamic_form.ech.generate', { defaultValue: '自动生成 ECH 密钥对' })}
+                    {t('server.dynamic_form.ech.generate')}
                   </Button>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>{t('server.dynamic_form.ech.query_server_name.label', { defaultValue: 'ECH 查询域名' })}</Label>
+                  <Label>{t('server.dynamic_form.ech.query_server_name.label')}</Label>
                   <input
                     className={inputCls}
                     value={echForm.query_server_name}
                     onChange={(e) => setEchForm((f) => ({ ...f, query_server_name: e.target.value }))}
-                    placeholder={t('server.dynamic_form.ech.query_server_name.placeholder', {
-                      defaultValue: '可选，用于覆盖 HTTPS 记录查询域名',
-                    })}
+                    placeholder={t('server.dynamic_form.ech.query_server_name.placeholder')}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>{t('server.dynamic_form.ech.config.label', { defaultValue: 'ECH 配置 (PEM)' })}</Label>
+                  <Label>{t('server.dynamic_form.ech.config.label')}</Label>
                   <textarea
                     className={textareaCls}
                     value={echForm.config}
                     onChange={(e) => setEchForm((f) => ({ ...f, config: e.target.value }))}
-                    placeholder={t('server.dynamic_form.ech.config.placeholder', {
-                      defaultValue: '粘贴 PEM 格式的 ECH 配置',
-                    })}
+                    placeholder={t('server.dynamic_form.ech.config.placeholder')}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>{t('server.dynamic_form.ech.key.label', { defaultValue: 'ECH Key' })}</Label>
+                  <Label>{t('server.dynamic_form.ech.key.label')}</Label>
                   <textarea
                     className={textareaCls}
                     value={echForm.key}
                     onChange={(e) => setEchForm((f) => ({ ...f, key: e.target.value }))}
-                    placeholder={t('server.dynamic_form.ech.key.placeholder', {
-                      defaultValue: '当后端需要时粘贴 ECH key 内容',
-                    })}
+                    placeholder={t('server.dynamic_form.ech.key.placeholder')}
                   />
                 </div>
               </div>
