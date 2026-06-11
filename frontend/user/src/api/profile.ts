@@ -16,6 +16,10 @@ export async function getActiveSessions() {
   return request<unknown[]>(api.get('/user/getActiveSession'))
 }
 
-export async function removeActiveSession(id: number) {
-  return request<null>(api.post('/user/removeActiveSession', { id }))
+export async function removeActiveSession(sessionId: string) {
+  return request<null>(api.post('/user/removeActiveSession', { session_id: sessionId }))
+}
+
+export async function getQuickLoginUrl() {
+  return request<string>(api.post('/user/getQuickLoginUrl'))
 }

@@ -4,6 +4,8 @@ export interface NoticeItem {
   id: number
   title: string
   content: string
+  img_url?: string | null
+  tags?: string[]
   created_at: number
 }
 

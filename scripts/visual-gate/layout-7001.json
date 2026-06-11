@@ -1,0 +1,33 @@
+{
+  "scroll": {
+    "className": "cus-scroll-y wh-full flex-col bg-[#f5f6fb] p-1 dark:bg-hex-121212 md:p-4",
+    "x": 220,
+    "y": 60,
+    "w": 1060,
+    "h": 840,
+    "bg": "rgb(245, 246, 251)",
+    "padding": "16px",
+    "margin": "0px",
+    "fontSize": "16px",
+    "fontWeight": "400"
+  },
+  "productCard": null,
+  "orderCard": null,
+  "payCard": null,
+  "summary": null,
+  "checkoutBtn": null,
+  "closeBtn": null,
+  "infoRows": [],
+  "mainBg": {
+    "className": "cus-scroll-y wh-full flex-col bg-[#f5f6fb] p-1 dark:bg-hex-121212 md:p-4",
+    "x": 220,
+    "y": 60,
+    "w": 1060,
+    "h": 840,
+    "bg": "rgb(245, 246, 251)",
+    "padding": "16px",
+    "margin": "0px",
+    "fontSize": "16px",
+    "fontWeight": "400"
+  }
+}

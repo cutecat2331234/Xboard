@@ -1,0 +1,21 @@
+{
+  "headers": [
+    "Order No.",
+    "Type",
+    "Subscription Plan",
+    "Period",
+    "Payment Amount",
+    "Order Status",
+    "Commission Amount",
+    "Commission Status",
+    "Created At"
+  ],
+  "rowCount": 10,
+  "rows": [
+    "e33...4dcNew PurchaseGate Test PlanMonthly¥100.00PendingOpen Menu--2026/06/10 18:54:28",
+    "b7c...cecNew PurchaseGate Test PlanMonthly¥100.00Cancelled--2026/06/10 18:17:43",
+    "e8c...178New PurchaseGate Test PlanMonthly¥100.00Cancelled--2026/06/10 13:00:27",
+    "01a...9b2New PurchaseGate Test PlanMonthly¥100.00Cancelled--2026/06/10 12:47:55",
+    "ff9...6beNew PurchaseGate Test PlanMonthly¥100.00Cancelled--2026/06/10 12:26:24"
+  ]
+}

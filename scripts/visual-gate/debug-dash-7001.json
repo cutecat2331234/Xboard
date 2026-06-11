@@ -1,0 +1,12 @@
+[
+  {
+    "cls": "mb-1 n-alert n-alert--closable n-alert--right-adjust",
+    "text": "还有没支付的订单 立即支付",
+    "h": 48.390625
+  },
+  {
+    "cls": "n-carousel n-carousel--bottom n-carousel--horizontal n-carousel--slide",
+    "text": "",
+    "h": 0
+  }
+]

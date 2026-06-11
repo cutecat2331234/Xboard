@@ -1,0 +1,218 @@
+﻿
+### user-edit
+7001 {
+  "w": 448,
+  "h": 900,
+  "padding": "24px 24px 24px 24px",
+  "gap": "16px",
+  "labelCount": 19,
+  "labels": [
+    "閭",
+    "閭€璇蜂汉閭",
+    "瀵嗙爜",
+    "浣欓",
+    "浣ｉ噾浣欓",
+    "宸茬敤涓婅",
+    "宸茬敤涓嬭",
+    "娴侀噺",
+    "鍒版湡鏃堕棿",
+    "璁㈤槄璁″垝",
+    "璐︽埛鐘舵€?,
+    "浣ｉ噾绫诲瀷",
+    "鎺ㄨ崘杩斿埄姣斾緥",
+    "涓撲韩鎶樻墸姣斾緥",
+    "闄愰€?
+  ],
+  "title": "鐢ㄦ埛绠＄悊",
+  "buttons": [
+    "璇烽€夋嫨鐢ㄦ埛鍒版湡鏃ユ湡锛岀暀绌轰负闀挎湡鏈夋晥",
+    "鏃?,
+    "姝ｅ父",
+    "璺熼殢绯荤粺璁剧疆",
+    "鍙栨秷",
+    "鎻愪氦"
+  ],
+  "inputHeight": "36px",
+  "footerTop": 1570,
+  "className": "fixed overflow-y-scroll z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 d"
+}
+7002 {
+  "w": 448,
+  "h": 900,
+  "padding": "24px 24px 24px 24px",
+  "gap": "16px",
+  "labelCount": 19,
+  "labels": [
+    "閭",
+    "閭€璇蜂汉閭",
+    "瀵嗙爜",
+    "浣欓",
+    "浣ｉ噾浣欓",
+    "宸茬敤涓婅",
+    "宸茬敤涓嬭",
+    "娴侀噺",
+    "鍒版湡鏃堕棿",
+    "璁㈤槄璁″垝",
+    "璐︽埛鐘舵€?,
+    "浣ｉ噾绫诲瀷",
+    "鎺ㄨ崘杩斿埄姣斾緥",
+    "涓撲韩鎶樻墸姣斾緥",
+    "闄愰€?
+  ],
+  "title": "鐢ㄦ埛绠＄悊",
+  "buttons": [
+    "鏃?,
+    "姝ｅ父",
+    "璺熼殢绯荤粺璁剧疆",
+    "鍙栨秷",
+    "鎻愪氦",
+    "Close"
+  ],
+  "inputHeight": "36px",
+  "footerTop": 1316,
+  "className": "fixed z-50 flex flex-col bg-background shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=ope"
+}
+
+### plan-add
+7001 {
+  "w": 550,
+  "h": 774,
+  "padding": "0px 0px 0px 0px",
+  "gap": "0px",
+  "labelCount": 17,
+  "labels": [
+    "濂楅鍚嶇О",
+    "鏍囩",
+    "鏈嶅姟鍣ㄥ垎缁勬坊鍔犲垎缁?,
+    "娴侀噺",
+    "閫熷害闄愬埗",
+    "璁惧闄愬埗",
+    "瀹归噺闄愬埗",
+    "娴侀噺閲嶇疆鏂瑰紡",
+    "鏈堜粯",
+    "瀛ｄ粯",
+    "鍗婂勾浠?,
+    "骞翠粯",
+    "涓ゅ勾浠?,
+    "涓夊勾浠?,
+    "娴侀噺鍖?
+  ],
+  "title": "娣诲姞濂楅",
+  "buttons": [
+    "璺熼殢绯荤粺璁剧疆",
+    "浣跨敤妯℃澘",
+    "鏄剧ず棰勮",
+    "鍙栨秷",
+    "鎻愪氦",
+    "Close"
+  ],
+  "inputHeight": "36px",
+  "footerTop": 788,
+  "className": "fixed left-[50%] top-[50%] z-50 w-full translate-x-[-50%] translate-y-[-50%] border bg-background duration-200 data-[sta"
+}
+7002 {
+  "w": 550,
+  "h": 855,
+  "padding": "0px 0px 0px 0px",
+  "gap": "0px",
+  "labelCount": 17,
+  "labels": [
+    "濂楅鍚嶇О",
+    "鏍囩",
+    "鏈嶅姟鍣ㄥ垎缁?,
+    "娴侀噺",
+    "閫熷害闄愬埗",
+    "璁惧闄愬埗",
+    "瀹归噺闄愬埗",
+    "娴侀噺閲嶇疆鏂瑰紡",
+    "鏈堜粯",
+    "瀛ｄ粯",
+    "鍗婂勾浠?,
+    "骞翠粯",
+    "涓ゅ勾浠?,
+    "涓夊勾浠?,
+    "娴侀噺鍖?
+  ],
+  "title": "娣诲姞濂楅",
+  "buttons": [
+    "璇烽€夋嫨鏈嶅姟鍣ㄥ垎缁?,
+    "璺熼殢绯荤粺璁剧疆",
+    "浣跨敤妯℃澘",
+    "鏄剧ず棰勮",
+    "鍙栨秷",
+    "鎻愪氦"
+  ],
+  "inputHeight": "36px",
+  "footerTop": 893,
+  "className": "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[550px] -translate-x-1/2 -translate-y-1/2 border bg-background shadow-lg d"
+}
+
+### server-add
+7001 {
+  "w": 550,
+  "h": 800,
+  "padding": "0px 0px 0px 0px",
+  "gap": "0px",
+  "labelCount": 13,
+  "labels": [
+    "鑺傜偣鍚嶇О",
+    "鍩虹鍊嶇巼",
+    "鍚敤鍔ㄦ€佸€嶇巼",
+    "娴侀噺闄愬埗(GB)",
+    "鑷畾涔夎妭鐐笽D((閫夊～))",
+    "鑺傜偣鏍囩",
+    "鏉冮檺缁勬坊鍔犳潈闄愮粍",
+    "鑺傜偣鍦板潃",
+    "杩炴帴绔彛",
+    "鏈嶅姟绔彛",
+    "鐖剁骇鑺傜偣",
+    "璺敱缁?,
+    "缁戝畾鏈嶅姟鍣?
+  ],
+  "title": "鏂板缓鑺傜偣",
+  "buttons": [
+    "娣诲姞鏉冮檺缁?,
+    "鏃?,
+    "鐙珛閮ㄧ讲",
+    "鍙栨秷",
+    "鎻愪氦",
+    "Close"
+  ],
+  "inputHeight": "36px",
+  "footerTop": 802,
+  "className": "max-h-[95%] fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] border bg-background shado"
+}
+7002 {
+  "w": 550,
+  "h": 855,
+  "padding": "0px 0px 0px 0px",
+  "gap": "0px",
+  "labelCount": 13,
+  "labels": [
+    "鑺傜偣鍚嶇О",
+    "鍩虹鍊嶇巼",
+    "鍚敤鍔ㄦ€佸€嶇巼",
+    "娴侀噺闄愬埗(GB)",
+    "鑷畾涔夎妭鐐笽D((閫夊～))",
+    "鑺傜偣鏍囩",
+    "鏉冮檺缁?,
+    "鑺傜偣鍦板潃",
+    "杩炴帴绔彛",
+    "鏈嶅姟绔彛",
+    "鐖剁骇鑺傜偣",
+    "璺敱缁?,
+    "缁戝畾鏈嶅姟鍣?
+  ],
+  "title": "鏂板缓鑺傜偣",
+  "buttons": [
+    "璇烽€夋嫨鏉冮檺缁?,
+    "鏃?,
+    "閫夋嫨璺敱缁?,
+    "鐙珛閮ㄧ讲",
+    "鍙栨秷",
+    "鎻愪氦"
+  ],
+  "inputHeight": "36px",
+  "footerTop": 859,
+  "className": "fixed left-1/2 top-1/2 z-50 grid w-full max-w-[550px] -translate-x-1/2 -translate-y-1/2 border bg-background shadow-lg d"
+}
