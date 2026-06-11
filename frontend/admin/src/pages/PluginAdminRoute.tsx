@@ -47,15 +47,13 @@ export default function PluginAdminRoute() {
     adminMenu?.title ||
     plugin?.name ||
     pluginCode ||
-    t('plugin.title', { defaultValue: 'Plugin' })
+    t('plugin.title')
 
   const pageDescription =
     adminCrud?.description ||
     adminMenu?.description ||
     plugin?.description ||
-    t('plugin.runtime.pageDescription', {
-      defaultValue: 'Inspect plugin metadata, documentation, and configuration.',
-    })
+    t('plugin.runtime.pageDescription')
 
   if (loading) {
     return <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
@@ -65,16 +63,14 @@ export default function PluginAdminRoute() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{t('plugin.runtime.notFoundTitle', { defaultValue: 'Plugin not found' })}</CardTitle>
+          <CardTitle>{t('plugin.runtime.notFoundTitle')}</CardTitle>
           <CardDescription>
-            {t('plugin.runtime.notFoundDescription', {
-              defaultValue: 'No plugin matches this route.',
-            })}
+            {t('plugin.runtime.notFoundDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button variant="outline" asChild>
-            <Link to="/config/plugin">{t('plugin.runtime.backToPluginList', { defaultValue: 'Back to plugin list' })}</Link>
+            <Link to="/config/plugin">{t('plugin.runtime.backToPluginList')}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -87,14 +83,12 @@ export default function PluginAdminRoute() {
         <CardHeader>
           <CardTitle>{plugin.name ?? pluginCode}</CardTitle>
           <CardDescription>
-            {t('plugin.runtime.disabledDescription', {
-              defaultValue: 'This plugin is installed but not enabled.',
-            })}
+            {t('plugin.runtime.disabledDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Button variant="outline" asChild>
-            <Link to="/config/plugin">{t('plugin.runtime.backToPluginList', { defaultValue: 'Back to plugin list' })}</Link>
+            <Link to="/config/plugin">{t('plugin.runtime.backToPluginList')}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -131,16 +125,14 @@ export default function PluginAdminRoute() {
       {showUnknownPage ? (
         <Card>
           <CardHeader>
-            <CardTitle>{t('plugin.runtime.pageNotFoundTitle', { defaultValue: 'Plugin page not found' })}</CardTitle>
+            <CardTitle>{t('plugin.runtime.pageNotFoundTitle')}</CardTitle>
             <CardDescription>
-              {t('plugin.runtime.pageNotFoundDescription', {
-                defaultValue: 'This plugin page is not available in the current runtime fallback mode.',
-              })}
+              {t('plugin.runtime.pageNotFoundDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" onClick={() => navigate(buildPluginRoute(pluginCode))}>
-              {t('plugin.runtime.backToOverview', { defaultValue: 'Back to overview' })}
+              {t('plugin.runtime.backToOverview')}
             </Button>
           </CardContent>
         </Card>
@@ -160,11 +152,11 @@ export default function PluginAdminRoute() {
         >
           <TabsList>
             <TabsTrigger value="overview">
-              {t('plugin.runtime.overview', { defaultValue: 'Overview' })}
+              {t('plugin.runtime.overview')}
             </TabsTrigger>
             {hasConfig ? (
               <TabsTrigger value="settings">
-                {t('plugin.runtime.settings', { defaultValue: 'Settings' })}
+                {t('plugin.runtime.settings')}
               </TabsTrigger>
             ) : null}
           </TabsList>
@@ -172,11 +164,11 @@ export default function PluginAdminRoute() {
           <TabsContent value="overview" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>{t('plugin.runtime.metadataTitle', { defaultValue: 'Plugin metadata' })}</CardTitle>
+                <CardTitle>{t('plugin.runtime.metadataTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3 text-sm md:grid-cols-2">
                 <div>
-                  <span className="font-medium">{t('plugin.author', { defaultValue: 'Author' })}: </span>
+                  <span className="font-medium">{t('plugin.author')}: </span>
                   {plugin.author ?? '—'}
                 </div>
                 <div>
@@ -184,14 +176,14 @@ export default function PluginAdminRoute() {
                   <code className="rounded bg-muted px-1 py-0.5 text-xs">{plugin.code}</code>
                 </div>
                 <div>
-                  <span className="font-medium">{t('plugin.runtime.version', { defaultValue: 'Version' })}: </span>
+                  <span className="font-medium">{t('plugin.runtime.version')}: </span>
                   {plugin.version ?? '—'}
                 </div>
                 <div>
-                  <span className="font-medium">{t('plugin.runtime.status', { defaultValue: 'Status' })}: </span>
+                  <span className="font-medium">{t('plugin.runtime.status')}: </span>
                   {plugin.is_enabled
-                    ? t('plugin.status.enabled', { defaultValue: 'Enabled' })
-                    : t('plugin.status.disabled', { defaultValue: 'Disabled' })}
+                    ? t('plugin.status.enabled')
+                    : t('plugin.status.disabled')}
                 </div>
               </CardContent>
             </Card>
@@ -200,7 +192,7 @@ export default function PluginAdminRoute() {
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    {t('plugin.runtime.menuDeclarationTitle', { defaultValue: 'Declared plugin menus' })}
+                    {t('plugin.runtime.menuDeclarationTitle')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -216,7 +208,7 @@ export default function PluginAdminRoute() {
                         <div className="mt-2">
                           <Button variant="outline" size="sm" asChild>
                             <Link to={buildPluginRoute(plugin.code, path)}>
-                              {t('plugin.runtime.openMenuPage', { defaultValue: 'Open page' })}
+                              {t('plugin.runtime.openMenuPage')}
                             </Link>
                           </Button>
                         </div>
@@ -230,7 +222,7 @@ export default function PluginAdminRoute() {
             {plugin.readme ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('plugin.button.readme', { defaultValue: 'README' })}</CardTitle>
+                  <CardTitle>{t('plugin.button.readme')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <pre className="whitespace-pre-wrap text-sm text-muted-foreground">{plugin.readme}</pre>
@@ -266,10 +258,7 @@ function PluginMenuPlaceholder({
         <CardTitle>{menu.title ?? path}</CardTitle>
         <CardDescription>
           {menu.description ||
-            t('plugin.runtime.pluginMenuPageDescription', {
-              defaultValue:
-                'This page is contributed by the plugin. Custom rendering will be available in a future version.',
-            })}
+            t('plugin.runtime.pluginMenuPageDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -286,7 +275,7 @@ function PluginMenuPlaceholder({
         </div>
         <Button variant="outline" asChild>
           <Link to={buildPluginRoute(plugin.code ?? '')}>
-            {t('plugin.runtime.backToOverview', { defaultValue: 'Back to overview' })}
+            {t('plugin.runtime.backToOverview')}
           </Link>
         </Button>
       </CardContent>
@@ -311,9 +300,7 @@ function PluginCrudPlaceholder({
         <CardTitle>{schema.title ?? subpath}</CardTitle>
         <CardDescription>
           {schema.description ||
-            t('plugin.runtime.crudPageDescription', {
-              defaultValue: 'Plugin CRUD UI is not yet integrated in this admin build.',
-            })}
+            t('plugin.runtime.crudPageDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -327,7 +314,7 @@ function PluginCrudPlaceholder({
         </div>
         <Button variant="outline" asChild>
           <Link to={buildPluginRoute(plugin.code ?? '')}>
-            {t('plugin.runtime.backToOverview', { defaultValue: 'Back to overview' })}
+            {t('plugin.runtime.backToOverview')}
           </Link>
         </Button>
       </CardContent>
@@ -387,7 +374,7 @@ function PluginSettingsPanel({ plugin }: { plugin: PluginRow }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('plugin.button.config', { defaultValue: 'Configuration' })}</CardTitle>
+        <CardTitle>{t('plugin.button.config')}</CardTitle>
         <CardDescription>{plugin.name}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -419,11 +406,11 @@ function PluginSettingsPanel({ plugin }: { plugin: PluginRow }) {
         ))}
         {Object.keys(fields).length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {t('plugin.config.empty', { defaultValue: 'No configurable fields' })}
+            {t('plugin.config.empty')}
           </p>
         ) : (
           <Button onClick={saveConfig} disabled={saving}>
-            {t('common.save', { defaultValue: 'Save' })}
+            {t('common.save')}
           </Button>
         )}
       </CardContent>
