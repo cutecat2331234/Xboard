@@ -125,17 +125,13 @@ function copyLink(code: string) {
 const PRIMARY_SMALL_BTN_STYLE =
   'font-weight: 400; --n-bezier: cubic-bezier(.4, 0, .2, 1); --n-bezier-ease-out: cubic-bezier(0, 0, .2, 1); --n-ripple-duration: .6s; --n-opacity-disabled: 0.5; --n-wave-opacity: 0.6; --n-color: #316C72FF; --n-color-hover: #316C72E3; --n-color-pressed: #2B4C59FF; --n-color-focus: #316C72E3; --n-color-disabled: #316C72FF; --n-ripple-color: #316C72FF; --n-text-color: #FFF; --n-text-color-hover: #FFF; --n-text-color-pressed: #FFF; --n-text-color-focus: #FFF; --n-text-color-disabled: #FFF; --n-border: 1px solid #316C72FF; --n-border-hover: 1px solid #316C72E3; --n-border-pressed: 1px solid #2B4C59FF; --n-border-focus: 1px solid #316C72E3; --n-border-disabled: 1px solid #316C72FF; --n-width: initial; --n-height: 28px; --n-font-size: 14px; --n-padding: 0 10px; --n-icon-size: 18px; --n-icon-margin: 6px; --n-border-radius: 3px;'
 
-const COPY_LINK_BTN_STYLE =
-  'font-weight: 400; --n-bezier: cubic-bezier(.4, 0, .2, 1); --n-bezier-ease-out: cubic-bezier(0, 0, .2, 1); --n-ripple-duration: .6s; --n-opacity-disabled: 0.5; --n-wave-opacity: 0.6; --n-color: #0000; --n-color-hover: rgba(46, 51, 56, .09); --n-color-pressed: rgba(46, 51, 56, .13); --n-color-focus: rgba(46, 51, 56, .09); --n-color-disabled: #0000; --n-ripple-color: #0000; --n-text-color: #316C72FF; --n-text-color-hover: #316C72FF; --n-text-color-pressed: #316C72FF; --n-text-color-focus: #316C72FF; --n-text-color-disabled: #316C72FF; --n-border: 1px solid #316C72FF; --n-border-hover: 1px solid #316C72E3; --n-border-pressed: 1px solid #2B4C59FF; --n-border-focus: 1px solid #316C72E3; --n-border-disabled: 1px solid #316C72FF; --n-width: initial; --n-height: 28px; --n-font-size: 14px; --n-padding: 0 10px; --n-icon-size: 18px; --n-icon-margin: 6px; --n-border-radius: 3px;'
-
 function renderCopyLinkButton(code: string) {
   return h(
     'button',
     {
-      class: 'n-button n-button--info-type n-button--small-type',
+      class: 'n-button n-button--info-type n-button--small-type invite-copy-link-btn',
       type: 'button',
       tabindex: 0,
-      style: COPY_LINK_BTN_STYLE,
       onClick: (e: MouseEvent) => {
         e.stopPropagation()
         copyLink(code)
@@ -248,7 +244,7 @@ onMounted(async () => {
     </div>
   </n-card>
 
-  <n-card :title="t('invite.codeMgmt')" class="mt-5 rounded-md">
+  <n-card :title="t('invite.codeMgmt')" class="invite-code-card mt-4 rounded-md">
     <template #header-extra>
       <button
         class="n-button n-button--primary-type n-button--small-type"
