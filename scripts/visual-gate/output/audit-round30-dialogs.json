@@ -2,48 +2,48 @@
   {
     "id": "user-edit",
     "refOpened": true,
-    "cmpOpened": true,
+    "cmpOpened": false,
     "diffPct": 4.313,
     "pass": false,
-    "error": null
+    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody tr').first().locator('button').last()\n"
   },
   {
     "id": "user-create",
     "refOpened": true,
-    "cmpOpened": true,
-    "diffPct": 3.78,
+    "cmpOpened": false,
+    "diffPct": 3.511,
     "pass": false,
-    "error": null
+    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('button:has-text(\"创建用户\")').first()\n"
   },
   {
     "id": "user-mail",
     "refOpened": true,
-    "cmpOpened": true,
+    "cmpOpened": false,
     "diffPct": 3.732,
     "pass": false,
-    "error": null
+    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('button:has-text(\"操作\")').first()\n"
   },
   {
     "id": "gift-template-edit",
     "refOpened": true,
-    "cmpOpened": true,
+    "cmpOpened": false,
     "diffPct": 3.547,
     "pass": false,
-    "error": null
+    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody button:has-text(\"编辑\")').first()\n"
   },
   {
     "id": "gift-generate",
     "refOpened": false,
-    "cmpOpened": true,
+    "cmpOpened": false,
     "diffPct": null,
     "pass": false,
-    "error": "ref: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog]') to be visible\n"
+    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody tr').first().locator('td').last().locator('button').nth(1)\n"
   },
   {
     "id": "plan-add",
     "refOpened": true,
     "cmpOpened": true,
-    "diffPct": 4.902,
+    "diffPct": 4.86,
     "pass": false,
     "error": null
   },
@@ -51,7 +51,7 @@
     "id": "server-add",
     "refOpened": true,
     "cmpOpened": true,
-    "diffPct": 4.621,
+    "diffPct": 4.767,
     "pass": false,
     "error": null
   }
