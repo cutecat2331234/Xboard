@@ -63,6 +63,11 @@ import {
 
 } from '@/lib/api'
 
+import {
+  AuditLogPanel,
+  QueueWorkloadPanel,
+  SystemStatusPanel,
+} from '@/components/dashboard/SystemMonitorPanels'
 import { StatCard } from '@/components/shared/StatCard'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -652,6 +657,12 @@ export default function DashboardPage() {
         <QueueDetailsCard stats={queueStats} onViewFailedJobs={() => setFailedJobsOpen(true)} />
 
       </div>
+
+      <SystemStatusPanel />
+
+      <QueueWorkloadPanel />
+
+      <AuditLogPanel />
 
       <FailedJobsDialog
         open={failedJobsOpen}

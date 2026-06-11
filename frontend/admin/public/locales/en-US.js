@@ -192,17 +192,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "machineIdNone": "Standalone deployment",
       "enabled": "Enabled on Server",
       "enabledDescription": "Whether the node is activated on the selected server"
-    },
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive"
     }
-  },
-  "notFound": {
-    "title": "Oops! Page Not Found!",
-    "description": "It seems like the page you're looking for does not exist or might have been removed.",
-    "goBack": "Go Back",
-    "backToHome": "Back to Home"
   },
   "common": {
     "loading": "Loading...",
@@ -292,9 +282,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "type": {
       "placeholder": "Select Plugin Type",
-      "all": "All Types",
-      "feature": "Feature",
-      "payment": "Payment Method"
+      "all": "All Types"
     },
     "tabs": {
       "all": "All Plugins",

@@ -1,4 +1,5 @@
 import { ALL_NAV_ITEMS } from '@/lib/nav-groups'
+import { isPluginAdminPath } from '@/lib/plugin-menus'
 
 export function titleKeyForPath(pathname: string): string {
   const path = pathname.replace(/\/$/, '') || '/'
@@ -9,4 +10,8 @@ export function titleKeyForPath(pathname: string): string {
   })
   if (hit) return hit.labelKey
   return 'nav.dashboard'
+}
+
+export function titleForPath(pathname: string): boolean {
+  return isPluginAdminPath(pathname)
 }

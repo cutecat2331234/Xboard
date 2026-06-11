@@ -358,6 +358,59 @@ export async function fetchHorizonFailedJobs(
   })
 }
 
+export interface SystemStatus {
+  schedule?: boolean
+  horizon?: boolean
+  schedule_last_runtime?: number | null
+}
+
+export async function fetchSystemStatus(): Promise<SystemStatus> {
+  return fetchJsonObject<SystemStatus>('/system/getSystemStatus')
+}
+
+export interface QueueWorkloadItem {
+  name?: string
+  length?: number
+  wait?: number
+  processes?: number
+  split_failed?: boolean
+}
+
+export async function fetchQueueWorkload(): Promise<QueueWorkloadItem[]> {
+  const data = await fetchJsonObject<QueueWorkloadItem[]>('/system/getQueueWorkload')
+  return Array.isArray(data) ? data : []
+}
+
+export interface AuditLogRow {
+  id?: number
+  admin_id?: number
+  action?: string
+  method?: string
+  uri?: string
+  request_data?: string
+  ip?: string
+  created_at?: number
+  admin?: { id?: number; email?: string }
+}
+
+export async function fetchAuditLog(
+  params?: Record<string, string | number | boolean | undefined | null>,
+): Promise<PaginatedResult<AuditLogRow>> {
+  return fetchPaginatedList<AuditLogRow>('/system/getAuditLog', params)
+}
+
+export interface TelegramWebhookResult {
+  success?: boolean
+  webhook_url?: string
+  webhook_base_url?: string
+}
+
+export async function setTelegramWebhook(telegramBotToken?: string): Promise<TelegramWebhookResult> {
+  return postJson<TelegramWebhookResult>('/config/setTelegramWebhook', {
+    telegram_bot_token: telegramBotToken,
+  })
+}
+
 export interface EchKeyPair {
   key?: string
   config?: string

@@ -5,5 +5,6 @@ export function toolbarModeForPath(pathname: string): ToolbarMode {
   const path = pathname.replace(/\/$/, '') || '/'
   if (path === '/') return 'dashboard'
   if (path === '/config/plugin') return 'icon-title'
+  if (path.startsWith('/plugins/')) return 'icon-title'
   return 'search-only'
 }
