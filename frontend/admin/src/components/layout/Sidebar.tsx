@@ -7,6 +7,7 @@ import { getSettings } from '@/lib/settings'
 import { NAV_GROUPS } from '@/lib/nav-groups'
 import { GroupIcon, NavIcon } from '@/lib/tabler-nav-icons'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 
 const groupKeys = ['system', 'node', 'subscription', 'user']
 
@@ -16,10 +17,108 @@ const navLinkCls =
 const subLinkCls =
   'inline-flex items-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-xs justify-start text-wrap rounded-none h-10 w-full border-l border-l-slate-500 px-2'
 
-export function Sidebar() {
+type SidebarNavProps = {
+  openGroups: Record<string, boolean>
+  setOpenGroups: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+  onNavigate?: () => void
+}
+
+function SidebarNav({ openGroups, setOpenGroups, onNavigate }: SidebarNavProps) {
   const { t } = useTranslation()
-  const { title, logo, version } = getSettings()
   const location = useLocation()
+
+  return (
+    <nav className="grid flex-1 gap-1 overflow-auto overscroll-contain py-2">
+      {NAV_GROUPS.map((group, gi) => {
+        const groupKey = groupKeys[gi - 1]
+        const isDashboardOnly = !group.labelKey
+
+        if (isDashboardOnly) {
+          return group.items.map((item) => {
+            const active = item.end
+              ? location.pathname === '/' || location.pathname === ''
+              : location.pathname.startsWith(item.path)
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.end}
+                onClick={onNavigate}
+                className={cn(
+                  navLinkCls,
+                  active
+                    ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
+                    : 'hover:bg-accent hover:text-accent-foreground',
+                )}
+              >
+                <div className="mr-2">
+                  <NavIcon path={item.path} className="h-[18px] w-[18px]" />
+                </div>
+                {t(item.labelKey)}
+              </NavLink>
+            )
+          })
+        }
+
+        const open = openGroups[groupKey] ?? true
+        return (
+          <Collapsible
+            key={group.labelKey}
+            open={open}
+            onOpenChange={(v) => setOpenGroups((s) => ({ ...s, [groupKey]: v }))}
+          >
+            <CollapsibleTrigger
+              className={cn(
+                navLinkCls,
+                'group justify-start hover:bg-accent hover:text-accent-foreground',
+              )}
+            >
+              <div className="mr-2">
+                <GroupIcon labelKey={group.labelKey!} className="h-[18px] w-[18px]" />
+              </div>
+              {t(group.labelKey!)}
+              <IconChevronDown
+                className={cn('tabler-icon tabler-icon-chevron-down ml-auto h-4 w-4 transition-transform', open && '-rotate-180')}
+                stroke={2}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <ul>
+                {group.items.map((item) => {
+                  return (
+                    <li key={item.path} className="my-1 ml-8">
+                      <NavLink
+                        to={item.path}
+                        onClick={onNavigate}
+                        className={({ isActive }) =>
+                          cn(
+                            subLinkCls,
+                            isActive
+                              ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
+                              : 'hover:bg-accent hover:text-accent-foreground',
+                          )
+                        }
+                      >
+                        <div className="mr-2">
+                          <NavIcon path={item.path} className="h-[18px] w-[18px]" />
+                        </div>
+                        {t(item.labelKey)}
+                      </NavLink>
+                    </li>
+                  )
+                })}
+              </ul>
+            </CollapsibleContent>
+          </Collapsible>
+        )
+      })}
+    </nav>
+  )
+}
+
+export function Sidebar() {
+  const { title, logo, version } = getSettings()
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     system: true,
     node: true,
@@ -31,7 +130,15 @@ export function Sidebar() {
     <aside className="fixed left-0 right-0 top-0 z-50 flex h-auto flex-col border-r-2 border-r-muted transition-[width] md:bottom-0 md:right-auto md:h-svh md:w-64">
       <div className="relative flex h-full w-full flex-col">
         <div className="sticky top-0 flex h-[var(--header-height)] flex-none items-center justify-between gap-4 bg-background px-4 py-3 shadow">
-          <IconMenu2 className="tabler-icon tabler-icon-menu-2 h-5 w-5 shrink-0" stroke={2} aria-hidden="true" />
+          <button
+            type="button"
+            className="shrink-0 rounded-sm p-1 hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:hidden"
+            onClick={() => setMobileOpen(true)}
+            aria-expanded={mobileOpen}
+            aria-label="Open navigation menu"
+          >
+            <IconMenu2 className="tabler-icon tabler-icon-menu-2 h-5 w-5" stroke={2} aria-hidden="true" />
+          </button>
           <div className="flex items-center gap-2">
             {logo ? (
               <img src={logo} alt={title} className="h-8 w-8 rounded-md object-cover" />
@@ -49,89 +156,7 @@ export function Sidebar() {
         </div>
 
         <div className="group hidden min-h-0 flex-1 flex-col overflow-hidden border-b bg-background md:flex md:border-none">
-          <nav className="grid flex-1 gap-1 overflow-auto overscroll-contain py-2">
-            {NAV_GROUPS.map((group, gi) => {
-              const groupKey = groupKeys[gi - 1]
-              const isDashboardOnly = !group.labelKey
-
-              if (isDashboardOnly) {
-                return group.items.map((item) => {
-                  const active = item.end
-                    ? location.pathname === '/' || location.pathname === ''
-                    : location.pathname.startsWith(item.path)
-                  return (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      end={item.end}
-                      className={cn(
-                        navLinkCls,
-                        active
-                          ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
-                          : 'hover:bg-accent hover:text-accent-foreground',
-                      )}
-                    >
-                      <div className="mr-2">
-                        <NavIcon path={item.path} className="h-[18px] w-[18px]" />
-                      </div>
-                      {t(item.labelKey)}
-                    </NavLink>
-                  )
-                })
-              }
-
-              const open = openGroups[groupKey] ?? true
-              return (
-                <Collapsible
-                  key={group.labelKey}
-                  open={open}
-                  onOpenChange={(v) => setOpenGroups((s) => ({ ...s, [groupKey]: v }))}
-                >
-                  <CollapsibleTrigger
-                    className={cn(
-                      navLinkCls,
-                      'group justify-start hover:bg-accent hover:text-accent-foreground',
-                    )}
-                  >
-                    <div className="mr-2">
-                      <GroupIcon labelKey={group.labelKey!} className="h-[18px] w-[18px]" />
-                    </div>
-                    {t(group.labelKey!)}
-                    <IconChevronDown
-                      className={cn('tabler-icon tabler-icon-chevron-down ml-auto h-4 w-4 transition-transform', open && '-rotate-180')}
-                      stroke={2}
-                    />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <ul>
-                      {group.items.map((item) => {
-                        return (
-                          <li key={item.path} className="my-1 ml-8">
-                            <NavLink
-                              to={item.path}
-                              className={({ isActive }) =>
-                                cn(
-                                  subLinkCls,
-                                  isActive
-                                    ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
-                                    : 'hover:bg-accent hover:text-accent-foreground',
-                                )
-                              }
-                            >
-                              <div className="mr-2">
-                                <NavIcon path={item.path} className="h-[18px] w-[18px]" />
-                              </div>
-                              {t(item.labelKey)}
-                            </NavLink>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  </CollapsibleContent>
-                </Collapsible>
-              )
-            })}
-          </nav>
+          <SidebarNav openGroups={openGroups} setOpenGroups={setOpenGroups} />
         </div>
         {version ? (
           <div className="border-t border-border/50 bg-background px-4 py-2.5 text-xs text-muted-foreground hidden md:block text-left">
@@ -144,6 +169,19 @@ export function Sidebar() {
           </div>
         ) : null}
       </div>
+
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="flex w-64 flex-col gap-0 p-0 sm:max-w-xs">
+          <SheetTitle className="sr-only">{title || 'XBoard'}</SheetTitle>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden pt-10">
+            <SidebarNav
+              openGroups={openGroups}
+              setOpenGroups={setOpenGroups}
+              onNavigate={() => setMobileOpen(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </aside>
   )
 }
