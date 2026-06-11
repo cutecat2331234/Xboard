@@ -76,10 +76,16 @@ const USER_PUBLIC_ROUTES = new Set(['login', 'register', 'forgetpassword'])
 const USER_MAIN_BOX = { x: 236, y: 60, w: 1044, h: 840 }
 
 const USER_ROUTE_PATHS = {
-  'gift-card': 'gift-card', // #/gift-card
+  'gift-card': 'gift-card', // rewrite-only; excluded from USER_ROUTES_DEFAULT unless INCLUDE_GIFT_CARD=1
   'plan-detail': (fx) => `plan/${fx.planId}`,
   'order-detail': (fx) => (fx.tradeNo ? `order/${fx.tradeNo}` : null),
   'ticket-detail': (fx) => `ticket/${fx.ticketId}`,
+}
+
+/** Rewrite (7002) uses single /login with tab query; legacy (7001) keeps separate hash routes. */
+const USER_ROUTE_PATHS_REWRITE = {
+  register: 'login?tab=register',
+  forgetpassword: 'login?tab=forget',
 }
 
 const ADMIN_ROUTE_PATHS = {
@@ -257,20 +263,25 @@ async function ensureAdminGiftTemplateFixture(base) {
   })
 }
 
-function routeToPath(route) {
+function routeToPath(route, { rewrite = false } = {}) {
   if (side === 'admin') {
     if (route === 'sign-in') return 'sign-in'
     if (route === 'dashboard') return ''
     return ADMIN_ROUTE_PATHS[route] ?? route.replace(/_/g, '/')
   }
+  if (rewrite && USER_ROUTE_PATHS_REWRITE[route]) return USER_ROUTE_PATHS_REWRITE[route]
   const mapped = USER_ROUTE_PATHS[route]
   if (typeof mapped === 'function') return mapped(userFixtures)
   if (mapped) return mapped
   return route
 }
 
+function isRewriteBase(base) {
+  return base === cmpBase || /:7002\b/.test(base)
+}
+
 function buildUrl(base, route) {
-  const pathPart = routeToPath(route)
+  const pathPart = routeToPath(route, { rewrite: isRewriteBase(base) })
   if (side === 'user' && route === 'order-detail' && !userFixtures.tradeNo) return null
   if (side === 'admin') {
     const hash = pathPart === 'sign-in' ? '#/sign-in' : pathPart ? `#/${pathPart}` : '#/'
@@ -512,7 +523,29 @@ async function waitUserRouteReady(page, route) {
       .catch(() => {})
   }
   if (route === 'plan-detail') {
-    await page.waitForSelector('.page-title, .n-radio-group', { timeout: 45000 }).catch(() => {})
+    await page.waitForSelector('.n-radio-group, .order-detail-page, .n-card', { timeout: 45000 }).catch(() => {})
+  }
+  if (route === 'register') {
+    await page
+      .waitForFunction(
+        () => {
+          const hash = window.location.hash
+          return hash.includes('register') || hash.includes('tab=register')
+        },
+        { timeout: 15000 },
+      )
+      .catch(() => {})
+  }
+  if (route === 'forgetpassword') {
+    await page
+      .waitForFunction(
+        () => {
+          const hash = window.location.hash
+          return hash.includes('forgetpassword') || hash.includes('tab=forget')
+        },
+        { timeout: 15000 },
+      )
+      .catch(() => {})
   }
   if (route === 'order-detail') {
     await page.waitForSelector('.order-detail-page', { timeout: 45000 }).catch(() => {})

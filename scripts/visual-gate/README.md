@@ -36,7 +36,7 @@ Environment overrides: `REF_BASE`, `CMP_BASE`, `SECURE_PATH`, `VIEWPORT_W`, `VIE
 
 ### User (`USER_ROUTES_DEFAULT`)
 
-`login`, `register`, `forgetpassword`, `dashboard`, `plan`, `plan-detail`, `order`, `order-detail`, `invite`, `traffic`, `knowledge`, `ticket`, `ticket-detail`, `profile`, `node`
+`login`, `register` (`#/login?tab=register`), `forgetpassword` (`#/login?tab=forget`), `dashboard`, `plan`, `plan-detail`, `order`, `order-detail`, `invite`, `traffic`, `knowledge`, `ticket`, `ticket-detail`, `profile`, `node`
 
 **`gift-card`** is excluded by default: legacy umi.js (7001) has no user gift-card page — it exists only on the rewrite (7002). Opt in with `INCLUDE_GIFT_CARD=1` or `ROUTES=...,gift-card`.
 
