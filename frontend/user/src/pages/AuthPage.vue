@@ -22,7 +22,7 @@ import { sendEmailVerify } from '@/api/comm'
 import AuthEmailInput from '@/components/AuthEmailInput.vue'
 import CaptchaWidget from '@/components/CaptchaWidget.vue'
 import TelegramLoginWidget from '@/components/TelegramLoginWidget.vue'
-import { token2Login } from '@/api/auth'
+import { loginWithMailLink, token2Login } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 
@@ -68,6 +68,8 @@ const agreed = ref(true)
 const errorText = ref('')
 const sending = ref(false)
 const tokenLoading = ref(false)
+const mailLinkMode = ref(false)
+const mailLinkLoading = ref(false)
 
 const showTelegram = computed(
   () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
@@ -111,6 +113,7 @@ watch(
   () => route.path,
   () => {
     errorText.value = ''
+    mailLinkMode.value = false
     applyInviteFromQuery()
     if (!isRegister.value) tryTokenLogin()
   },
@@ -130,6 +133,23 @@ async function sendCode() {
     captchaRef.value?.reset()
   } finally {
     sending.value = false
+  }
+}
+
+async function submitMailLink() {
+  errorText.value = ''
+  const addr = resolvedEmail()
+  if (!addr) return
+  mailLinkLoading.value = true
+  try {
+    await loginWithMailLink(addr)
+    msg.success(t('mailLinkSent'))
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : t('common.error')
+    errorText.value = message
+    msg.error(message)
+  } finally {
+    mailLinkLoading.value = false
   }
 }
 
@@ -183,6 +203,7 @@ async function submitRegister() {
 
 function submit() {
   if (isRegister.value) submitRegister()
+  else if (mailLinkMode.value) submitMailLink()
   else submitLogin()
 }
 </script>
@@ -210,7 +231,7 @@ function submit() {
             <n-button :loading="sending" @click.prevent="sendCode">{{ t('sendCode') }}</n-button>
           </div>
 
-          <div class="auth-field">
+          <div v-if="!mailLinkMode" class="auth-field">
             <n-input
               v-model:value="password"
               type="password"
@@ -239,7 +260,7 @@ function submit() {
           <div v-if="isRegister" class="auth-field">
             <CaptchaWidget ref="captchaRef" :config="config" />
           </div>
-          <div v-else-if="showCaptcha" class="auth-field">
+          <div v-else-if="showCaptcha && !mailLinkMode" class="auth-field">
             <CaptchaWidget ref="captchaRef" :config="config" />
           </div>
 
@@ -258,18 +279,26 @@ function submit() {
           <p v-if="errorText" class="auth-error">{{ errorText }}</p>
 
           <div class="auth-field">
-            <n-button type="primary" attr-type="submit" block :loading="auth.loading" class="auth-submit">
-              <template #icon>
+            <n-button
+              type="primary"
+              attr-type="submit"
+              block
+              :loading="isRegister ? auth.loading : mailLinkMode ? mailLinkLoading : auth.loading"
+              class="auth-submit"
+            >
+              <template v-if="!mailLinkMode" #icon>
                 <n-icon :size="16">
                   <component :is="isRegister ? PersonAddOutline : LoginIcon" />
                 </n-icon>
               </template>
-              {{ isRegister ? t('register') : t('login') }}
+              {{
+                isRegister ? t('register') : mailLinkMode ? t('mailLinkSend') : t('login')
+              }}
             </n-button>
           </div>
 
           <TelegramLoginWidget
-            v-if="showTelegram && config?.telegram_bot_username"
+            v-if="showTelegram && config?.telegram_bot_username && !mailLinkMode"
             :bot-username="config.telegram_bot_username"
           />
         </form>
@@ -279,9 +308,20 @@ function submit() {
 
       <div v-if="!tokenLoading" class="auth-card__footer-bar">
         <div v-if="!isRegister" class="auth-footer-left">
-          <router-link to="/register" class="auth-footer-link">{{ t('register') }}</router-link>
-          <n-divider vertical />
-          <router-link to="/forgetpassword" class="auth-footer-link">{{ t('forgotPassword') }}</router-link>
+          <template v-if="mailLinkMode">
+            <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = false">
+              {{ t('backToPasswordLogin') }}
+            </a>
+          </template>
+          <template v-else>
+            <router-link to="/register" class="auth-footer-link">{{ t('register') }}</router-link>
+            <n-divider vertical />
+            <router-link to="/forgetpassword" class="auth-footer-link">{{ t('forgotPassword') }}</router-link>
+            <n-divider vertical />
+            <a href="#" class="auth-footer-link" @click.prevent="mailLinkMode = true">
+              {{ t('mailLinkLogin') }}
+            </a>
+          </template>
         </div>
         <router-link v-else to="/login" class="auth-footer-link">{{ t('backToLogin') }}</router-link>
 
