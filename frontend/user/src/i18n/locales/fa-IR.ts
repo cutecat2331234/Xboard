@@ -138,7 +138,12 @@ export default {
     success: "Success",
     error: "Error",
     reset: "تغییر",
-    search: "Search"
+    search: "Search",
+    pagination: {
+      summary: "صفحه {current}/{total}، مجموع {count} مورد",
+      previous: "صفحه قبل",
+      next: "صفحه بعد"
+    }
   },
   invite: {
     title: "دعوتنامه های من",

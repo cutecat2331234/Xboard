@@ -138,7 +138,12 @@ export default {
     success: "Success",
     error: "Error",
     reset: "重置",
-    search: "搜尋"
+    search: "搜尋",
+    pagination: {
+      summary: "第 {current}/{total} 頁，共 {count} 條",
+      previous: "上一頁",
+      next: "下一頁"
+    }
   },
   invite: {
     title: "我的邀請",
