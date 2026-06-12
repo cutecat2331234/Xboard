@@ -8,6 +8,7 @@ import { fetchJsonList, postJson } from '@/lib/api'
 import {
   dialogFieldLabelCls,
   dialogInputCls,
+  dialogSelectCls,
   dialogSubFieldLabelCls,
   formSubLabelCls,
   inputCls,
@@ -495,7 +496,7 @@ export default function PlanPage() {
                   </Link>
                 </div>
                 <FormSelect
-                  className={dialogInputCls}
+                  className={dialogSelectCls}
                   value={form.group_id != null ? String(form.group_id) : ''}
                   onChange={(v) =>
                     setForm((f) => ({
@@ -579,7 +580,7 @@ export default function PlanPage() {
                   {t('subscribe.plan.form.reset_method.label')}
                 </Label>
                 <FormSelect
-                  className={dialogInputCls}
+                  className={dialogSelectCls}
                   value={form.reset_traffic_method == null ? '' : String(form.reset_traffic_method)}
                   onChange={(v) =>
                     setForm((f) => ({

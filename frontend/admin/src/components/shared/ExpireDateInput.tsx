@@ -1,17 +1,19 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { IconCalendar } from '@tabler/icons-react'
+import { format } from 'date-fns'
+
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
-function tsToDateValue(ts?: number | null) {
-  if (!ts) return ''
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+function tsToDate(ts?: number | null) {
+  if (!ts) return undefined
+  return new Date(ts * 1000)
 }
 
-function dateValueToTs(value: string): number | null {
-  if (!value) return null
-  return Math.floor(new Date(`${value}T23:59:59`).getTime() / 1000)
+function dateToTs(date: Date): number {
+  const end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59)
+  return Math.floor(end.getTime() / 1000)
 }
 
 type Props = {
@@ -21,38 +23,39 @@ type Props = {
   className?: string
 }
 
-/** 7001 uses a full-width outline button with placeholder + calendar icon, not a text input. */
+/** 7001: outline trigger + Popover calendar (not native date input). */
 export function ExpireDateInput({ value, onChange, placeholder, className }: Props) {
-  const pickerRef = useRef<HTMLInputElement>(null)
-  const dateValue = tsToDateValue(value)
+  const [open, setOpen] = useState(false)
+  const selected = tsToDate(value)
+  const [month, setMonth] = useState(() => selected ?? new Date())
+  const label = selected ? format(selected, 'yyyy-MM-dd') : ''
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        className={cn(
-          'inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-left font-mono text-xs font-normal shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
-          !dateValue && 'text-muted-foreground',
-          className,
-        )}
-        onClick={() => {
-          const el = pickerRef.current
-          if (el?.showPicker) el.showPicker()
-          else el?.focus()
-        }}
-      >
-        <span className="truncate">{dateValue || placeholder}</span>
-        <IconCalendar className="tabler-icon h-3.5 w-3.5 shrink-0 opacity-50" stroke={2} />
-      </button>
-      <input
-        ref={pickerRef}
-        type="date"
-        className="pointer-events-none absolute inset-0 h-full w-full opacity-0"
-        value={dateValue}
-        onChange={(e) => onChange(dateValueToTs(e.target.value))}
-        tabIndex={-1}
-        aria-hidden
-      />
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 text-left font-mono text-xs font-normal shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+            !label && 'text-muted-foreground',
+            className,
+          )}
+        >
+          <span className="truncate">{label || placeholder}</span>
+          <IconCalendar className="tabler-icon h-3 w-3 shrink-0 opacity-50" stroke={2} />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          month={month}
+          onMonthChange={setMonth}
+          selected={selected}
+          onSelect={(date) => {
+            onChange(dateToTs(date))
+            setOpen(false)
+          }}
+        />
+      </PopoverContent>
+    </Popover>
   )
 }
