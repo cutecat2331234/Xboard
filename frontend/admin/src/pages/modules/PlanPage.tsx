@@ -454,7 +454,7 @@ export default function PlanPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="flex min-h-[67px] shrink-0 flex-col justify-center px-6 pb-4 pt-6 text-left">
+          <DialogHeader className="box-border flex h-[67px] shrink-0 flex-col justify-center px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
               {editing
                 ? t('subscribe.plan.form.edit_title')
