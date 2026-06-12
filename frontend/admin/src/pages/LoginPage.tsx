@@ -106,24 +106,24 @@ export default function LoginPage() {
         </DropdownMenu>
       </div>
 
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px] md:w-[420px] lg:p-8">
-        <div className="flex flex-col space-y-2 text-center">
+      <div className="mx-auto flex w-full flex-col justify-center xb-stack-6 sm:w-[350px] md:w-[420px] lg:p-8">
+        <div className="flex flex-col xb-stack-2 text-center">
           <h1 className="text-2xl font-bold sm:text-3xl">{settings.title || 'XBoard'}</h1>
           <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
-          <div className="flex flex-col space-y-2 text-left">
+          <div className="flex flex-col xb-stack-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}
             </h1>
             <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
           </div>
           <div className="grid gap-6">
-            <form className="space-y-4" onSubmit={onSubmit}>
-              <div className="space-y-4">
+            <form className="xb-stack-4" onSubmit={onSubmit}>
+              <div className="xb-stack-4">
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
-              <div className="space-y-2">
+              <div className="xb-stack-2">
                 <Label
                   htmlFor="email"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -142,7 +142,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="xb-stack-2">
                 <Label
                   htmlFor="password"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -170,7 +170,7 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="inline-flex w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-10"
+                className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                 disabled={loading}
               >
                 {loading ? t('common.saving') : t('auth.signIn.submit')}

@@ -535,6 +535,9 @@ async function maskAdminVolatile(page, route) {
       document.querySelectorAll('.rounded-xl .text-emerald-500, .rounded-xl .text-red-500').forEach((el) => {
         if (el.closest('.rounded-xl')) el.textContent = '—'
       })
+      document.querySelectorAll('.rounded-xl svg.lucide-trending-up').forEach((el) => {
+        if (el instanceof SVGElement) el.style.opacity = '0'
+      })
     }
   }, { maskTable, maskMonaco, maskCharts })
 }
