@@ -73,11 +73,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container relative flex min-h-svh flex-col items-center justify-center bg-slate-50 px-4 py-8 lg:max-w-none lg:px-0">
+    <div className="xb-auth-bg container relative flex min-h-svh flex-col items-center justify-center px-4 py-8 lg:max-w-none lg:px-0">
       <div className="absolute right-4 top-4 md:right-8 md:top-8">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 gap-1 px-2">
+            <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs">
               <LocaleFlag locale={i18n.language} />
               <span className="text-sm font-medium">{localeLabel(i18n.language)}</span>
             </Button>
@@ -111,13 +111,13 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
-          <div className="flex flex-col gap-6">
           <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}
             </h1>
             <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
           </div>
+          <div className="grid gap-6">
           <form className="space-y-4" onSubmit={onSubmit}>
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
               <div className="space-y-2">

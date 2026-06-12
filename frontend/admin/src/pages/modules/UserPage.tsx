@@ -1144,7 +1144,7 @@ export default function UserPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-4 px-6 py-4 text-sm">
+            <div className="xb-stack-3 px-6 py-3 text-sm">
               <div className="space-y-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
@@ -1267,7 +1267,7 @@ export default function UserPage() {
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-4 px-6 py-4 text-sm">
+            <div className="xb-stack-3 px-6 py-3 text-sm">
             <div className="space-y-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
@@ -1383,7 +1383,9 @@ export default function UserPage() {
           className="w-full max-w-[90%] overflow-y-auto p-6 sm:w-[448px] sm:max-w-[448px]"
         >
           <SheetHeader className="space-y-2 p-0 text-center sm:text-left">
-            <SheetTitle>{t('user.edit.title')}</SheetTitle>
+            <SheetTitle className="text-lg font-semibold leading-9 tracking-tight">
+              {t('user.edit.title')}
+            </SheetTitle>
           </SheetHeader>
               <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
@@ -1493,7 +1495,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.total_traffic_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.expire_time')}
                 </Label>

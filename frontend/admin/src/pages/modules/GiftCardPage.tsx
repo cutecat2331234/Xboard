@@ -1365,7 +1365,7 @@ export default function GiftCardPage() {
 
           <div className="min-h-0 flex-1 overflow-y-auto">
 
-            <div className="xb-stack-4 px-6 py-4 text-sm">
+            <div className="xb-stack-3 px-6 py-3 text-sm">
 
               <div className="xb-stack-4">
 

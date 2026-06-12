@@ -138,3 +138,8 @@ body {
 .animate-fade-in {
   animation: fade-in 0.2s ease-out;
 }
+
+/** Legacy admin sign-in page shell (7001 primary-foreground = rgb(248,250,252)). */
+.xb-auth-bg {
+  background-color: rgb(248, 250, 252);
+}

@@ -65,7 +65,7 @@ const SCENARIOS = [
     id: 'server-add',
     hash: '#/server/manage',
     async open(p) {
-      await p.locator('button').filter({ hasText: /添加节点|添加/ }).first().click({ timeout: 15000 })
+      await p.locator('button').filter({ hasText: /添加服务器|添加节点|添加/ }).first().click({ timeout: 15000 })
       await p.waitForSelector('[role=dialog]', { timeout: 15000 })
     },
   },
