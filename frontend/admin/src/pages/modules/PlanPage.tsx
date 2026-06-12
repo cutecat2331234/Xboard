@@ -464,7 +464,7 @@ export default function PlanPage() {
           <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="xb-stack-3 px-6 py-3 text-sm">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
                 <input
                   className={`${inputCls} ${dialogInputCls}`}
@@ -473,7 +473,7 @@ export default function PlanPage() {
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.tags.label')}</Label>
                 <TagInput
                   className={dialogInputCls}
@@ -484,7 +484,7 @@ export default function PlanPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <div className="flex items-center justify-between gap-2">
                   <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.group.label')}</Label>
                   <Link
@@ -510,7 +510,7 @@ export default function PlanPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.transfer.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -525,7 +525,7 @@ export default function PlanPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.speed.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -541,7 +541,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.device.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -559,7 +559,7 @@ export default function PlanPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.capacity.label')}</Label>
                 <SuffixInput
                   className={dialogInputCls}
@@ -575,7 +575,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="xb-stack-15">
                 <Label className={dialogSubFieldLabelCls}>
                   {t('subscribe.plan.form.reset_method.label')}
                 </Label>
@@ -595,7 +595,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="space-y-2 rounded-lg border border-dashed p-3">
+            <div className="xb-stack-2 rounded-lg border border-dashed p-3">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</h3>
                 <div className="flex items-center gap-2">

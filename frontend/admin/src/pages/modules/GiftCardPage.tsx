@@ -1379,7 +1379,7 @@ export default function GiftCardPage() {
 
                 <div className="grid grid-cols-2 gap-4">
 
-                  <div className="space-y-1.5">
+                  <div className="xb-stack-15">
 
                     <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.name.label')}</Label>
 
@@ -1397,7 +1397,7 @@ export default function GiftCardPage() {
 
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="xb-stack-15">
 
                     <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.type.label')}</Label>
 
@@ -1415,7 +1415,7 @@ export default function GiftCardPage() {
 
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="xb-stack-15">
 
                   <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.description.label')}</Label>
 
@@ -1753,7 +1753,7 @@ export default function GiftCardPage() {
 
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="xb-stack-15">
 
                   <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.conditions.new_user_max_days.label')}</Label>
 
@@ -1939,7 +1939,7 @@ export default function GiftCardPage() {
 
                 <div className="grid grid-cols-2 gap-4">
 
-                  <div className="space-y-1.5">
+                  <div className="xb-stack-15">
 
                     <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.max_use_per_user.label')}</Label>
 
@@ -1975,7 +1975,7 @@ export default function GiftCardPage() {
 
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="xb-stack-15">
 
                     <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.cooldown_hours.label')}</Label>
 
@@ -2015,7 +2015,7 @@ export default function GiftCardPage() {
 
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="xb-stack-15">
 
                   <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.invite_reward_rate.label')}</Label>
 
