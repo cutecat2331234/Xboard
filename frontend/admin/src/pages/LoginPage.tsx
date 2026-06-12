@@ -27,7 +27,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 const emailInputCls =
-  'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
+  'xb-auth-input flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -112,7 +112,7 @@ export default function LoginPage() {
           <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
+        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
           <div className="flex flex-col xb-stack-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}

@@ -454,7 +454,7 @@ export default function PlanPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="box-border flex h-[67px] shrink-0 flex-col justify-center px-6 pb-4 pt-6 text-left">
+          <DialogHeader className="box-border flex h-[69px] shrink-0 flex-col justify-center px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
               {editing
                 ? t('subscribe.plan.form.edit_title')
@@ -462,8 +462,9 @@ export default function PlanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="xb-stack-2 px-6 py-0 text-sm">
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <div className="xb-stack-4 px-6 py-4 text-sm">
+            <div className="xb-stack-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
                 <input
@@ -473,7 +474,7 @@ export default function PlanPage() {
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 />
               </div>
-              <div className="xb-stack-15">
+              <div className="xb-stack-2">
                 <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.tags.label')}</Label>
                 <TagInput
                   className={dialogInputCls}
@@ -483,8 +484,8 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-              <div className="xb-stack-15">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="xb-stack-2">
                 <div className="flex items-center justify-between gap-2">
                   <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.group.label')}</Label>
                   <Link
@@ -524,7 +525,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.speed.label')}</Label>
                 <SuffixInput
@@ -558,7 +559,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.capacity.label')}</Label>
                 <SuffixInput
@@ -575,7 +576,7 @@ export default function PlanPage() {
                   }
                 />
               </div>
-              <div className="xb-stack-15">
+              <div className="xb-stack-2">
                 <Label className={dialogSubFieldLabelCls}>
                   {t('subscribe.plan.form.reset_method.label')}
                 </Label>
@@ -595,7 +596,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="xb-stack-2 rounded-lg border border-dashed p-2">
+            <div className="xb-stack-4 rounded-lg border border-dashed p-4">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</h3>
                 <div className="flex items-center gap-2">
@@ -623,7 +624,7 @@ export default function PlanPage() {
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                 {MAIN_PRICE_PERIODS.map((period) => (
                   <div key={period} className="xb-stack-15">
                     <Label className={dialogFieldLabelCls}>
@@ -639,7 +640,7 @@ export default function PlanPage() {
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {EXTRA_PRICE_PERIODS.map((period) => (
                   <div key={period} className="xb-stack-15">
                     <Label className={dialogFieldLabelCls}>
@@ -708,6 +709,7 @@ export default function PlanPage() {
                 ) : null}
               </div>
             )}
+            </div>
           </div>
           </div>
           <DialogFormFooter

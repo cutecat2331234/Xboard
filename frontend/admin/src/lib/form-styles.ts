@@ -13,15 +13,15 @@ export const dialogFieldLabelCls =
   'text-[11px] font-semibold uppercase tracking-wider text-muted-foreground'
 
 export const dialogInputCls =
-  'h-9 font-mono text-xs'
+  'h-9 font-mono text-xs shadow-none'
 
-/** 7001 dialog FormSelect triggers: mono xs + compact chevron. */
+/** 7001 dialog FormSelect triggers: mono xs + compact chevron, no input shadow. */
 export const dialogSelectCls =
-  'h-9 font-mono text-xs [&_svg]:h-3 [&_svg]:w-3'
+  'h-9 font-mono text-xs shadow-none [&_svg]:h-3 [&_svg]:w-3'
 
 /** 7001 dialog SuffixInput prefix/suffix addon (h-9 mono xs). */
 export const dialogSuffixAddonCls =
-  'inline-flex h-9 shrink-0 items-center border border-input bg-transparent px-3 font-mono text-xs text-muted-foreground shadow-sm'
+  'inline-flex h-9 shrink-0 items-center border border-input bg-transparent px-3 font-mono text-xs text-muted-foreground shadow-none'
 
 /** 7001 server node dialog labels: mono 12px, not uppercase */
 export const serverFieldLabelCls = 'font-mono text-[12px] text-foreground/80'

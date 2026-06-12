@@ -154,7 +154,11 @@ body {
   animation: fade-in 0.2s ease-out;
 }
 
-/** Legacy admin sign-in page shell (7001 primary-foreground = rgb(248,250,252)). */
+/** 7001 sign-in inputs: lighter shadow-sm (0.05 opacity). */
+.xb-auth-input {
+  box-shadow: var(--xb-shadow-input);
+}
+
 .xb-auth-bg {
   background-color: rgb(248, 250, 252);
 }
