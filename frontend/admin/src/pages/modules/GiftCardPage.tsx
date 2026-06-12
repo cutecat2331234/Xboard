@@ -1189,7 +1189,7 @@ export default function GiftCardPage() {
 
         <TabsContent value="templates" className="mt-6 flex-1">
 
-          <div className="space-y-4">
+          <div className="xb-stack-4">
 
             <div className="flex items-center justify-between">
 
@@ -1353,7 +1353,7 @@ export default function GiftCardPage() {
 
         <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
-          <DialogHeader className="shrink-0 space-y-1.5 px-6 pb-4 pt-6 text-left">
+          <DialogHeader className="shrink-0 xb-stack-15 px-6 pb-4 pt-6 text-left">
 
             <DialogTitle className="text-lg tracking-tight">
 
@@ -1365,7 +1365,7 @@ export default function GiftCardPage() {
 
           <div className="min-h-0 flex-1 overflow-y-auto">
 
-            <div className="xb-stack-3 px-6 py-3 text-sm">
+            <div className="xb-stack-2 px-6 py-2 text-sm">
 
               <div className="xb-stack-4">
 

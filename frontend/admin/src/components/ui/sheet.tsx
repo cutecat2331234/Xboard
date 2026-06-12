@@ -57,7 +57,7 @@ export function SheetContent({
 }
 
 export function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex flex-col space-y-2 text-center sm:text-left', className)} {...props} />
+  return <div className={cn('flex flex-col xb-stack-2 text-center sm:text-left', className)} {...props} />
 }
 
 export function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {

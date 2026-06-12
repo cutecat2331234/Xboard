@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
 import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
+import flags from '@/components/shared/flag-svgs.json'
 import { LocaleFlag } from '@/components/shared/LocaleFlag'
 import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Label } from '@/components/ui/label'
@@ -78,7 +79,11 @@ export default function LoginPage() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs">
-              <LocaleFlag locale={i18n.language} />
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: flags[i18n.language as keyof typeof flags] ?? flags['en-US'],
+                }}
+              />
               <span className="text-sm font-medium">{localeLabel(i18n.language)}</span>
             </Button>
           </DropdownMenuTrigger>
@@ -111,15 +116,15 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
-          <div className="flex flex-col xb-stack-2 text-left">
-            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-              {t('auth.signIn.title')}
-            </h1>
-            <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
-          </div>
           <div className="grid gap-6">
-          <form className="xb-stack-4" onSubmit={onSubmit}>
-            <div className="xb-stack-4">
+            <div className="flex flex-col xb-stack-2 text-left">
+              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+                {t('auth.signIn.title')}
+              </h1>
+              <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
+            </div>
+            <form className="xb-stack-4" onSubmit={onSubmit}>
+              <div className="xb-stack-4">
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
               <div className="xb-stack-2">
                 <Label
@@ -173,8 +178,8 @@ export default function LoginPage() {
               >
                 {loading ? t('common.saving') : t('auth.signIn.submit')}
               </button>
-            </div>
-          </form>
+              </div>
+            </form>
           </div>
         </div>
       </div>

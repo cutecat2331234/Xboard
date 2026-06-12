@@ -37,7 +37,7 @@ export function DialogContent({ className, children, ...props }: React.Component
 }
 
 export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />
+  return <div className={cn('flex flex-col xb-stack-15 text-center sm:text-left', className)} {...props} />
 }
 
 export function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>) {
