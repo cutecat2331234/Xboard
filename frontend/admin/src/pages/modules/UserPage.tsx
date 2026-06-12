@@ -1135,7 +1135,7 @@ export default function UserPage() {
 
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
         <DialogContent className="!flex h-[764px] max-h-[764px] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
-          <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 pb-4 pt-6 text-left">
+          <DialogHeader className="shrink-0 xb-stack-15 border-b px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg tracking-tight">
               {t('user.send_mail.title')}
             </DialogTitle>
@@ -1144,7 +1144,7 @@ export default function UserPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-3 px-6 py-3 text-sm">
+            <div className="xb-stack-2 px-6 py-2 text-sm">
               <div className="xb-stack-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
@@ -1267,7 +1267,7 @@ export default function UserPage() {
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-3 px-6 py-3 text-sm">
+            <div className="xb-stack-2 px-6 py-2 text-sm">
             <div className="xb-stack-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
@@ -1380,13 +1380,14 @@ export default function UserPage() {
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="w-full max-w-[90%] overflow-y-auto p-6 sm:w-[448px] sm:max-w-[448px]"
+          className="flex w-full max-w-[90%] flex-col gap-0 overflow-y-auto p-6 sm:w-[448px] sm:max-w-[448px]"
         >
           <SheetHeader className="xb-stack-2 p-0 text-center sm:text-left">
             <SheetTitle className="text-lg font-semibold leading-9 tracking-tight">
               {t('user.edit.title')}
             </SheetTitle>
           </SheetHeader>
+          <div className="xb-stack-4">
               <div className="xb-stack-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.email')}
@@ -1651,7 +1652,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.remarks_placeholder')}
                 />
               </div>
-          <SheetFooter className="flex-row justify-end gap-2 sm:justify-end">
+          </div>
+          <SheetFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
               {t('user.edit.form.cancel')}
             </Button>
