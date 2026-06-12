@@ -1135,7 +1135,7 @@ export default function UserPage() {
 
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
         <DialogContent className="!flex h-[764px] max-h-[764px] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
-          <DialogHeader className="shrink-0 xb-stack-15 border-b px-6 pb-3 pt-5 text-left">
+          <DialogHeader className="shrink-0 xb-stack-15 border-b px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
               {t('user.send_mail.title')}
             </DialogTitle>
@@ -1263,7 +1263,7 @@ export default function UserPage() {
         onOpenChange={(o) => !o && setDialogMode(null)}
       >
         <DialogContent className="!flex h-[468px] max-h-[468px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="shrink-0 border-b px-6 pb-3 pt-5">
+          <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
               {t('user.generate.title')}
             </DialogTitle>
