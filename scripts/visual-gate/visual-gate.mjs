@@ -524,19 +524,13 @@ async function maskAdminVolatile(page, route) {
     }
     if (mc) {
       document.querySelectorAll('.recharts-wrapper, .recharts-surface, .recharts-responsive-container').forEach((el) => {
-        const host = el.closest('.rounded-xl, .rounded-md') ?? el.parentElement
-        if (host instanceof HTMLElement) {
-          host.style.background = '#ffffff'
-        }
         if (el instanceof HTMLElement) {
           el.style.opacity = '0'
           el.style.pointerEvents = 'none'
         }
       })
-      document.querySelectorAll('canvas').forEach((el) => {
-        if (el.closest('.recharts-wrapper, [class*="recharts"]')) {
-          el.style.visibility = 'hidden'
-        }
+      document.querySelectorAll('[class*="text-2xl"][class*="font-bold"]').forEach((el) => {
+        if (el.closest('.rounded-xl')) el.textContent = '—'
       })
     }
   }, { maskTable, maskMonaco, maskCharts })
