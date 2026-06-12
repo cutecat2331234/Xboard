@@ -25,7 +25,7 @@ export function DialogFormFooter({
   extraLeft,
 }: Props) {
   return (
-    <DialogFooter className="flex h-[65px] shrink-0 flex-col justify-center border-t px-6 py-3">
+    <DialogFooter className="flex h-[62px] shrink-0 flex-col justify-center border-t px-6 py-3">
       <div className="flex w-full items-center justify-between gap-3">
         <div className="flex items-center gap-2">{extraLeft}</div>
         <div className="flex items-center gap-3">

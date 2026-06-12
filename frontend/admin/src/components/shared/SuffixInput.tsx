@@ -18,9 +18,8 @@ function addonCls(className: string | undefined, rounded: 'left' | 'right') {
   const dialog = isDialogStyle(className)
   const h = addonHeight(className)
   return cn(
-    'inline-flex shrink-0 items-center border border-input bg-transparent px-3 text-muted-foreground shadow-sm',
-    h,
-    dialog ? 'font-mono text-xs' : 'text-sm',
+    'inline-flex shrink-0 items-center border border-input bg-transparent px-3 text-muted-foreground',
+    dialog ? 'shadow-none font-mono text-xs' : 'text-sm shadow-sm',
     rounded === 'left' ? 'rounded-l-md rounded-r-none border-r-0' : 'rounded-r-md rounded-l-none border-l-0',
   )
 }

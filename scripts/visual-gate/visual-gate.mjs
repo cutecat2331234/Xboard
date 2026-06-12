@@ -529,6 +529,9 @@ async function maskAdminVolatile(page, route) {
           el.style.pointerEvents = 'none'
         }
       })
+      document.querySelectorAll('[role=alert]').forEach((el) => {
+        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
+      })
       document.querySelectorAll('[class*="text-2xl"][class*="font-bold"]').forEach((el) => {
         if (el.closest('.rounded-xl')) el.textContent = '—'
       })
