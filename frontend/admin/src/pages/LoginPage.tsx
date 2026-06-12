@@ -108,7 +108,7 @@ export default function LoginPage() {
           <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
+        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
           <div className="flex flex-col gap-6">
           <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
@@ -165,7 +165,7 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                 disabled={loading}
               >
                 {loading ? t('common.saving') : t('auth.signIn.submit')}

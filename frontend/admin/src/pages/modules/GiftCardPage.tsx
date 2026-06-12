@@ -10,7 +10,13 @@ import { toast } from 'sonner'
 
 import { downloadAdminFile, fetchJsonList, fetchJsonObject, fetchPaginatedList, postJson } from '@/lib/api'
 
-import { dialogFieldLabelCls, dialogInputCls, inputCls, textareaCls } from '@/lib/form-styles'
+import {
+  dialogFieldLabelCls,
+  dialogInputCls,
+  dialogSelectCls,
+  inputCls,
+  textareaCls,
+} from '@/lib/form-styles'
 
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
@@ -1396,7 +1402,7 @@ export default function GiftCardPage() {
                     <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.type.label')}</Label>
 
                     <FormSelect
-                      className={dialogInputCls}
+                      className={dialogSelectCls}
                       value={String(form.type)}
                       onChange={(v) => setForm((f) => ({ ...f, type: Number(v) }))}
                       options={giftTypeOptions.map(({ id, label }) => ({
@@ -1498,7 +1504,7 @@ export default function GiftCardPage() {
                       <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.plan_id.label')}</Label>
 
                       <FormSelect
-                        className={dialogInputCls}
+                        className={dialogSelectCls}
                         value={form.rewards.plan_id != null ? String(form.rewards.plan_id) : ''}
                         onChange={(v) =>
                           setForm((f) => ({
@@ -1522,11 +1528,9 @@ export default function GiftCardPage() {
                       <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.plan_validity_days.label')}</Label>
 
                       <SuffixInput
-
+                        className={dialogInputCls}
                         suffix={t('common.days')}
-
                         type="number"
-
                         placeholder={t('giftCard.template.form.rewards.plan_validity_days.placeholder')}
 
                         value={form.rewards.plan_validity_days ?? ''}
