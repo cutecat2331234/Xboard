@@ -105,7 +105,9 @@ export default function LoginPage() {
       <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:w-[350px] md:w-[420px] lg:p-8">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-bold sm:text-3xl">{settings.title || 'XBoard'}</h1>
-          <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
+          {settings.description ? (
+            <p className="text-sm text-muted-foreground">{settings.description}</p>
+          ) : null}
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
