@@ -1389,7 +1389,7 @@ export default function ServerManagePage() {
 
                 <Plus className="mr-2 h-4 w-4" />
 
-                {t('server.form.add')}
+                {t('server.form.add_node')}
 
               </Button>
 
