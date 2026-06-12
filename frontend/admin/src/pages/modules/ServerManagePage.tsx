@@ -1516,7 +1516,7 @@ export default function ServerManagePage() {
 
         <DialogContent className="!flex h-[838px] max-h-[838px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
-          <div className="shrink-0 border-b bg-muted/20 px-6 pb-4 pt-6">
+          <div className="shrink-0 border-b px-6 pb-4 pt-6">
 
             <div className="flex items-center justify-between pr-8">
 
@@ -1547,8 +1547,8 @@ export default function ServerManagePage() {
           </div>
 
           <div className="flex h-[75vh] min-h-[500px] flex-col">
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
-          <div className="space-y-6">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          <div className="xb-stack-gap">
 
             <div className="flex gap-4">
 
@@ -1616,7 +1616,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+            <div className="flex items-center justify-between gap-3 py-1">
 
               <div>
 
