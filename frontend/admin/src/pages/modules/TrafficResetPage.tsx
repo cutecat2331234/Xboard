@@ -271,7 +271,7 @@ export default function TrafficResetPage() {
         accessorKey: 'old_traffic',
         header: () => t('user.traffic_reset_logs.columns.cleared_traffic'),
         cell: ({ row }) => (
-          <div className="space-y-0.5 text-sm">
+          <div className="xb-stack-05 text-sm">
             <div className="font-mono text-foreground/90">
               {row.original.old_traffic?.formatted ?? '—'}
             </div>

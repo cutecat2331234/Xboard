@@ -34,7 +34,7 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
   if (prefix) {
     return (
       <div className="flex w-full">
-        <div className={addonCls(className, 'left')}>{prefix}</div>
+        <span className={addonCls(className, 'left')}>{prefix}</span>
         <input className={cn(inputCls, 'rounded-l-none', spinless, className)} type={type} {...props} />
       </div>
     )
@@ -47,7 +47,7 @@ export function SuffixInput({ suffix, prefix, className, type = 'text', ...props
         type={type}
         {...props}
       />
-      <div className={addonCls(className, 'right')}>{suffix}</div>
+      <span className={addonCls(className, 'right')}>{suffix}</span>
     </div>
   )
 }
