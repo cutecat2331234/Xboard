@@ -53,7 +53,7 @@ export function FormMultiSelect<T extends string | number = number>({
           )}
         >
           <span className="truncate">{summary || placeholder}</span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">

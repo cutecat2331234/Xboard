@@ -1531,7 +1531,7 @@ export default function ServerManagePage() {
               </div>
 
               <FormSelect
-                className="h-8 w-[150px] shrink-0 border-2 font-mono text-xs"
+                className="h-9 w-[150px] shrink-0 font-mono text-xs"
                 value={form.type}
                 onChange={handleTypeChange}
                 options={[
@@ -1578,7 +1578,7 @@ export default function ServerManagePage() {
                       <Tooltip.Root>
                         <Tooltip.Trigger asChild>
                           <span className="inline-flex opacity-70">
-                            <Lock className="size-3.5" />
+                            <Lock className="size-3" />
                           </span>
                         </Tooltip.Trigger>
                         <Tooltip.Portal>
@@ -1757,7 +1757,7 @@ export default function ServerManagePage() {
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
                         <button type="button" className="inline-flex opacity-70">
-                          <Info className="size-3.5" />
+                          <Info className="size-3" />
                         </button>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
@@ -1821,7 +1821,7 @@ export default function ServerManagePage() {
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
                         <button type="button" className="inline-flex opacity-70">
-                          <Info className="size-3.5" />
+                          <Info className="size-3" />
                         </button>
                       </Tooltip.Trigger>
                       <Tooltip.Portal>
