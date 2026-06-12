@@ -1,21 +1,27 @@
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 
+/** 7001 full-viewport 404 — English copy is fixed in legacy bundle. */
 export default function NotFoundPage() {
-  const { t } = useTranslation()
   const navigate = useNavigate()
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-      <h1 className="text-8xl font-bold tracking-tight text-muted-foreground">404</h1>
-      <h2 className="mt-4 text-2xl font-semibold">{t('notFound.title')}</h2>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">{t('notFound.description')}</p>
-      <div className="mt-6 flex gap-3">
-        <Button variant="outline" onClick={() => navigate(-1)}>
-          {t('notFound.goBack')}
-        </Button>
-        <Button onClick={() => navigate('/')}>{t('notFound.backToHome')}</Button>
+    <div className="h-svh">
+      <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-2">
+        <h1 className="text-[7rem] font-bold leading-tight">404</h1>
+        <span className="font-medium">Oops! Page Not Found!</span>
+        <p className="text-center text-muted-foreground">
+          It seems like the page you&apos;re looking for <br />
+          does not exist or might have been removed.
+        </p>
+        <div className="mt-6 flex gap-4">
+          <Button variant="outline" className="h-9 px-4 py-2" onClick={() => navigate(-1)}>
+            Go Back
+          </Button>
+          <Button className="h-9 px-4 py-2 shadow" onClick={() => navigate('/')}>
+            Back to Home
+          </Button>
+        </div>
       </div>
     </div>
   )

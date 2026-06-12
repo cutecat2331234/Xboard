@@ -18,7 +18,6 @@ export const ADMIN_ROUTE_PATHS: Record<string, string> = {
   'gift-card': 'finance/gift-card',
   user: 'user/manage',
   ticket: 'user/ticket',
-  'traffic-reset': 'traffic-reset',
 }
 
 export function gateRouteToPath(route: string): string {
