@@ -453,7 +453,7 @@ export default function PlanPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="!flex h-[774px] max-h-[774px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+        <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[550px]">
           <DialogHeader className="shrink-0 space-y-1.5 px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg tracking-tight">
               {editing
@@ -607,9 +607,9 @@ export default function PlanPage() {
                       placeholder={t('subscribe.plan.form.price.base_price')}
                       onChange={(e) => setBasePrice(e.target.value)}
                     />
-                    <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                    <div className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                       ¥
-                    </span>
+                    </div>
                   </div>
                   <Button
                     type="button"
@@ -623,7 +623,7 @@ export default function PlanPage() {
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                 {MAIN_PRICE_PERIODS.map((period) => (
                   <div key={period} className="space-y-1.5">
                     <Label className={dialogFieldLabelCls}>

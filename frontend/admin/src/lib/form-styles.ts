@@ -34,6 +34,10 @@ export const dialogSubFieldLabelCls =
 export const configSubFieldLabelCls =
   'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 
+/** 7001 user-edit sheet labels: standard FormLabel (not uppercase). */
+export const sheetFieldLabelCls =
+  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+
 /** 7001 shadcn FormDescription slot (empty on server multiselect rows). */
 export const formSubLabelCls = 'm-0 text-[0.8rem] text-muted-foreground'
 

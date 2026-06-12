@@ -1351,7 +1351,7 @@ export default function GiftCardPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 
-        <DialogContent className="!flex h-[774px] max-h-[774px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+        <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
           <DialogHeader className="shrink-0 space-y-1.5 px-6 pb-4 pt-6 text-left">
 

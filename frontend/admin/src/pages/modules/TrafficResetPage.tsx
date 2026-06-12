@@ -315,7 +315,7 @@ export default function TrafficResetPage() {
         <p className="mt-2 text-muted-foreground">{t('user.traffic_reset_logs.description')}</p>
       </div>
 
-      <div className="mb-4 space-y-3">
+      <div className="mb-4 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-medium">{t('user.traffic_reset.stats.title')}</h3>
@@ -337,7 +337,7 @@ export default function TrafficResetPage() {
             ))}
           </div>
         </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
             title={t('user.traffic_reset.stats.total_resets')}
             value={String(stats.total_resets ?? 0)}
