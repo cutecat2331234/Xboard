@@ -108,7 +108,7 @@ export default function LoginPage() {
           <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
+        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-auth sm:p-6">
           <div className="flex flex-col gap-6">
           <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">

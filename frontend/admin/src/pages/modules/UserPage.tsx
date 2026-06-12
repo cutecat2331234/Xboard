@@ -1267,7 +1267,7 @@ export default function UserPage() {
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-4 px-6 py-4 text-sm">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
                 <span className="ml-1 text-destructive">*</span>
@@ -1298,7 +1298,7 @@ export default function UserPage() {
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.password')}
               </Label>
@@ -1311,7 +1311,7 @@ export default function UserPage() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.expire_time')}
                 </Label>
@@ -1321,7 +1321,7 @@ export default function UserPage() {
                   placeholder={t('user.generate.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.subscription')}
                 </Label>
@@ -1345,7 +1345,7 @@ export default function UserPage() {
               </div>
             </div>
             {!form.email_prefix ? (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.generate_count')}
                 </Label>
@@ -1384,10 +1384,10 @@ export default function UserPage() {
           <SheetHeader className="shrink-0 border-b px-6 pb-4 pt-6">
             <SheetTitle>{t('user.edit.title')}</SheetTitle>
           </SheetHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-4 px-6 py-4 text-sm">
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4 text-sm">
+            <div className="flex flex-col gap-2">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.email')}
                 </Label>
                 <input
@@ -1396,8 +1396,8 @@ export default function UserPage() {
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.inviter_email')}
                 </Label>
                 <input
@@ -1407,8 +1407,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.inviter_email_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.password')}
                 </Label>
                 <input
@@ -1419,8 +1419,8 @@ export default function UserPage() {
                 />
               </div>
               <div className="grid gap-2 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
+                <div className="space-y-2">
+                  <Label className={dialogFieldLabelCls}>
                     {t('user.edit.form.balance')}
                   </Label>
                   <SuffixInput
@@ -1431,8 +1431,8 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.balance_placeholder')}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
+                <div className="space-y-2">
+                  <Label className={dialogFieldLabelCls}>
                     {t('user.edit.form.commission_balance')}
                   </Label>
                   <SuffixInput
@@ -1445,8 +1445,8 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.commission_balance_placeholder')}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
+                <div className="space-y-2">
+                  <Label className={dialogFieldLabelCls}>
                     {t('user.edit.form.upload')}
                   </Label>
                   <SuffixInput
@@ -1458,8 +1458,8 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.upload_placeholder')}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="uppercase tracking-wider text-muted-foreground">
+                <div className="space-y-2">
+                  <Label className={dialogFieldLabelCls}>
                     {t('user.edit.form.download')}
                   </Label>
                   <SuffixInput
@@ -1472,8 +1472,8 @@ export default function UserPage() {
                   />
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.total_traffic')}
                 </Label>
                 <SuffixInput
@@ -1494,8 +1494,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.total_traffic_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.expire_time')}
                 </Label>
                 <ExpireDateInput
@@ -1504,8 +1504,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.subscription')}
                 </Label>
                 <FormSelect
@@ -1522,8 +1522,8 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.account_status')}
                 </Label>
                 <FormSelect
@@ -1535,8 +1535,8 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.commission_type')}
                 </Label>
                 <FormSelect
@@ -1549,8 +1549,8 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.commission_rate')}
                 </Label>
                 <SuffixInput
@@ -1566,8 +1566,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.commission_rate_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.discount')}
                 </Label>
                 <SuffixInput
@@ -1583,8 +1583,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.discount_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.speed_limit')}
                 </Label>
                 <SuffixInput
@@ -1600,8 +1600,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.speed_limit_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.device_limit')}
                 </Label>
                 <SuffixInput
@@ -1617,8 +1617,8 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.device_limit_placeholder')}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.is_admin')}
                 </Label>
                 <div className="py-2">
@@ -1628,8 +1628,8 @@ export default function UserPage() {
                   />
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.is_staff')}
                 </Label>
                 <div className="py-2">
@@ -1639,12 +1639,12 @@ export default function UserPage() {
                   />
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <Label className="uppercase tracking-wider text-muted-foreground">
+              <div className="space-y-2">
+                <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.remarks')}
                 </Label>
                 <textarea
-                  className={`${textareaCls} h-24`}
+                  className={`${textareaCls} min-h-[96px]`}
                   value={String(form.remarks ?? '')}
                   onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))}
                   placeholder={t('user.edit.form.remarks_placeholder')}

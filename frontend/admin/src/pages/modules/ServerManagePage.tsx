@@ -1546,6 +1546,7 @@ export default function ServerManagePage() {
 
           </div>
 
+          <div className="flex h-[75vh] min-h-[500px] flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
           <div className="space-y-6">
 
@@ -1971,6 +1972,7 @@ export default function ServerManagePage() {
               </div>
             ) : null}
 
+          </div>
           </div>
           </div>
 
