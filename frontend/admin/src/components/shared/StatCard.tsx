@@ -48,7 +48,7 @@ export function StatCard({
           : undefined
       }
       className={cn(
-        'rounded-xl shadow transition-colors',
+        'rounded-xl shadow-sm transition-colors',
         (clickable || onClick) && 'cursor-pointer hover:bg-muted/50',
         className,
       )}
