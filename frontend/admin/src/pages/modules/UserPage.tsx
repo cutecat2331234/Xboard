@@ -15,6 +15,7 @@ import {
 } from '@/lib/api'
 import {
   dialogFieldLabelCls,
+  sheetFieldLabelCls,
   dialogInputCls,
   dialogSelectCls,
   inputCls,
@@ -34,7 +35,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Sheet, SheetContent, SheetFooter, SheetTitle } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1310,7 +1311,7 @@ export default function UserPage() {
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.expire_time')}
@@ -1381,9 +1382,11 @@ export default function UserPage() {
           showCloseButton={false}
           className="w-full max-w-[90%] overflow-y-auto p-6 sm:w-[448px] sm:max-w-[448px]"
         >
-          <SheetTitle className="text-lg font-semibold">{t('user.edit.title')}</SheetTitle>
+          <SheetHeader className="space-y-2 p-0 text-center sm:text-left">
+            <SheetTitle>{t('user.edit.title')}</SheetTitle>
+          </SheetHeader>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.email')}
                 </Label>
                 <input
@@ -1393,7 +1396,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.inviter_email')}
                 </Label>
                 <input
@@ -1404,7 +1407,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.password')}
                 </Label>
                 <input
@@ -1416,7 +1419,7 @@ export default function UserPage() {
               </div>
               <div className="grid gap-2 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className={dialogFieldLabelCls}>
+                  <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.balance')}
                   </Label>
                   <SuffixInput
@@ -1428,7 +1431,7 @@ export default function UserPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className={dialogFieldLabelCls}>
+                  <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.commission_balance')}
                   </Label>
                   <SuffixInput
@@ -1442,7 +1445,7 @@ export default function UserPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className={dialogFieldLabelCls}>
+                  <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.upload')}
                   </Label>
                   <SuffixInput
@@ -1455,7 +1458,7 @@ export default function UserPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className={dialogFieldLabelCls}>
+                  <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.download')}
                   </Label>
                   <SuffixInput
@@ -1469,7 +1472,7 @@ export default function UserPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.total_traffic')}
                 </Label>
                 <SuffixInput
@@ -1491,7 +1494,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.expire_time')}
                 </Label>
                 <ExpireDateInput
@@ -1501,7 +1504,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.subscription')}
                 </Label>
                 <FormSelect
@@ -1519,7 +1522,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.account_status')}
                 </Label>
                 <FormSelect
@@ -1532,7 +1535,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.commission_type')}
                 </Label>
                 <FormSelect
@@ -1546,7 +1549,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.commission_rate')}
                 </Label>
                 <SuffixInput
@@ -1563,7 +1566,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.discount')}
                 </Label>
                 <SuffixInput
@@ -1580,7 +1583,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.speed_limit')}
                 </Label>
                 <SuffixInput
@@ -1597,7 +1600,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.device_limit')}
                 </Label>
                 <SuffixInput
@@ -1614,7 +1617,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.is_admin')}
                 </Label>
                 <div className="py-2">
@@ -1625,7 +1628,7 @@ export default function UserPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.is_staff')}
                 </Label>
                 <div className="py-2">
@@ -1636,7 +1639,7 @@ export default function UserPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className={dialogFieldLabelCls}>
+                <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.remarks')}
                 </Label>
                 <textarea
