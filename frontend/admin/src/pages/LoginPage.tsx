@@ -80,6 +80,7 @@ export default function LoginPage() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs">
               <span
+                className="contents"
                 dangerouslySetInnerHTML={{
                   __html: flags[i18n.language as keyof typeof flags] ?? flags['en-US'],
                 }}
@@ -116,13 +117,13 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
+          <div className="flex flex-col xb-stack-2 text-left">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+              {t('auth.signIn.title')}
+            </h1>
+            <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
+          </div>
           <div className="grid gap-6">
-            <div className="flex flex-col xb-stack-2 text-left">
-              <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                {t('auth.signIn.title')}
-              </h1>
-              <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
-            </div>
             <form className="xb-stack-4" onSubmit={onSubmit}>
               <div className="xb-stack-4">
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
