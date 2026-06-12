@@ -73,7 +73,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container relative flex min-h-svh flex-col items-center justify-center bg-white px-4 py-8 lg:max-w-none lg:px-0">
+    <div className="container relative flex min-h-svh flex-col items-center justify-center bg-slate-50 px-4 py-8 lg:max-w-none lg:px-0">
       <div className="absolute right-4 top-4 md:right-8 md:top-8">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -108,7 +108,7 @@ export default function LoginPage() {
           <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-auth sm:p-6">
+        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
           <div className="flex flex-col gap-6">
           <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">

@@ -1266,7 +1266,7 @@ export default function UserPage() {
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-gap px-6 py-4 text-sm">
+            <div className="space-y-2 px-6 py-4 text-sm">
             <div className="space-y-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
