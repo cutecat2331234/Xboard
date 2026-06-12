@@ -1382,7 +1382,7 @@ export default function UserPage() {
           showCloseButton={false}
           className="w-full max-w-[90%] overflow-y-auto p-6 sm:w-[448px] sm:max-w-[448px]"
         >
-          <SheetHeader className="space-y-2 p-0 text-center sm:text-left">
+          <SheetHeader className="xb-stack-2 p-0 text-center sm:text-left">
             <SheetTitle className="text-lg font-semibold leading-9 tracking-tight">
               {t('user.edit.title')}
             </SheetTitle>
