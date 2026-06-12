@@ -121,10 +121,10 @@ export default function LoginPage() {
           <form className="space-y-4" onSubmit={onSubmit}>
             <div className="space-y-4">
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
-              <div className="space-y-2">
+              <div className="xb-stack-2">
                 <Label
                   htmlFor="email"
-                  className="text-sm font-medium leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   {t('auth.signIn.email')}
                 </Label>
@@ -140,10 +140,10 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div className="space-y-2">
+              <div className="xb-stack-2">
                 <Label
                   htmlFor="password"
-                  className="text-sm font-medium leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   {t('auth.signIn.password')}
                 </Label>
