@@ -119,11 +119,12 @@ export default function LoginPage() {
           </div>
           <div className="grid gap-6">
           <form className="space-y-4" onSubmit={onSubmit}>
+            <div className="space-y-4">
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
               <div className="space-y-2">
                 <Label
                   htmlFor="email"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   {t('auth.signIn.email')}
                 </Label>
@@ -142,7 +143,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <Label
                   htmlFor="password"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm font-medium leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   {t('auth.signIn.password')}
                 </Label>
@@ -156,7 +157,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex h-9 items-center justify-between">
                 <button
                   type="button"
                   className="inline-flex items-center justify-center px-0 text-sm font-normal text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
@@ -172,6 +173,7 @@ export default function LoginPage() {
               >
                 {loading ? t('common.saving') : t('auth.signIn.submit')}
               </button>
+            </div>
           </form>
           </div>
         </div>
