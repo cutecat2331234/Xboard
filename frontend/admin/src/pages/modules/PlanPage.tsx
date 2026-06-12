@@ -462,7 +462,7 @@ export default function PlanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="xb-stack-4 px-6 py-4 text-sm">
+          <div className="xb-stack-3 px-6 py-3 text-sm">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
