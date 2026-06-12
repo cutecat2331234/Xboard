@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { TagInput } from '@/components/shared/TagInput'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 
 type NoticeRow = {
@@ -65,7 +66,7 @@ export default function NoticePage() {
 
   function openCreate() {
     setEditing(null)
-    setForm({ show: 1, title: '', content: '', img_url: '' })
+    setForm({ show: 1, title: '', content: '', img_url: '', tags: [] })
     setDialogOpen(true)
   }
 
@@ -73,8 +74,12 @@ export default function NoticePage() {
     setEditing(row)
     setForm({
       ...row,
-      tags: Array.isArray(row.tags) ? row.tags.join(',') : (row.tags as string) ?? '',
-    } as NoticeRow)
+      tags: Array.isArray(row.tags)
+        ? row.tags
+        : typeof row.tags === 'string' && row.tags
+          ? row.tags.split(',').map((s) => s.trim()).filter(Boolean)
+          : [],
+    })
     setDialogOpen(true)
   }
 
@@ -84,7 +89,7 @@ export default function NoticePage() {
       const payload: Record<string, unknown> = {
         ...form,
         id: editing?.id,
-        tags: typeof form.tags === 'string' && form.tags ? form.tags.split(',').map((s) => s.trim()) : form.tags,
+        tags: Array.isArray(form.tags) ? form.tags : [],
       }
       await postJson('/notice/save', payload)
       toast.success(t('notice.form.buttons.success'))
@@ -252,8 +257,8 @@ export default function NoticePage() {
               {editing ? t('notice.form.edit.title') : t('notice.form.add.title')}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4 py-2">
-            <div className="flex flex-col gap-2">
+          <div className="xb-stack-4 py-2">
+            <div className="xb-stack-2">
               <Label>{t('notice.form.fields.title.label')}</Label>
               <input
                 className={inputCls}
@@ -262,7 +267,7 @@ export default function NoticePage() {
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="xb-stack-2">
               <Label>{t('notice.form.fields.content.label')}</Label>
               <textarea
                 className="flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -270,13 +275,21 @@ export default function NoticePage() {
                 onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="xb-stack-2">
               <Label>{t('notice.form.fields.img_url.label')}</Label>
               <input
                 className={inputCls}
                 value={form.img_url ?? ''}
                 placeholder={t('notice.form.fields.img_url.placeholder')}
                 onChange={(e) => setForm((f) => ({ ...f, img_url: e.target.value }))}
+              />
+            </div>
+            <div className="xb-stack-2">
+              <Label>{t('notice.form.fields.tags.label')}</Label>
+              <TagInput
+                value={Array.isArray(form.tags) ? form.tags : []}
+                onChange={(tags) => setForm((f) => ({ ...f, tags }))}
+                placeholder={t('notice.form.fields.tags.placeholder')}
               />
             </div>
             <div className="flex items-center gap-2">

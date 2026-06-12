@@ -78,7 +78,10 @@ export default function LoginPage() {
       <div className="absolute right-4 top-4 md:right-8 md:top-8">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs">
+            <button
+              type="button"
+              className="inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-md px-2 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+            >
               <span
                 className="contents"
                 dangerouslySetInnerHTML={{
@@ -86,7 +89,7 @@ export default function LoginPage() {
                 }}
               />
               <span className="text-sm font-medium">{localeLabel(i18n.language)}</span>
-            </Button>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[120px]">
             {ADMIN_LOCALES.map((l) => (
