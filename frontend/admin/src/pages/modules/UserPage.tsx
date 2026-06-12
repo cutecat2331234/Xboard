@@ -1135,8 +1135,8 @@ export default function UserPage() {
 
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
         <DialogContent className="!flex h-[764px] max-h-[764px] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
-          <DialogHeader className="shrink-0 xb-stack-15 border-b px-6 pb-4 pt-6 text-left">
-            <DialogTitle className="text-lg tracking-tight">
+          <DialogHeader className="shrink-0 xb-stack-15 border-b px-6 pb-3 pt-5 text-left">
+            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
               {t('user.send_mail.title')}
             </DialogTitle>
             <DialogDescription className="text-xs leading-relaxed opacity-70">
@@ -1144,7 +1144,7 @@ export default function UserPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-2 px-6 py-2 text-sm">
+            <div className="xb-stack-3 px-6 py-0 text-sm">
               <div className="xb-stack-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
@@ -1263,11 +1263,13 @@ export default function UserPage() {
         onOpenChange={(o) => !o && setDialogMode(null)}
       >
         <DialogContent className="!flex h-[468px] max-h-[468px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="shrink-0 border-b px-6 pb-4 pt-6">
-            <DialogTitle>{t('user.generate.title')}</DialogTitle>
+          <DialogHeader className="shrink-0 border-b px-6 pb-3 pt-5">
+            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+              {t('user.generate.title')}
+            </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-2 px-6 py-2 text-sm">
+            <div className="xb-stack-3 px-6 py-0 text-sm">
             <div className="xb-stack-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
@@ -1284,13 +1286,13 @@ export default function UserPage() {
                     }
                   />
                 ) : null}
-                <div
+                <span
                   className={`inline-flex h-9 shrink-0 items-center border-y border-input bg-muted/30 px-3 font-mono text-xs text-muted-foreground ${
                     form.generate_count ? 'rounded-l-md border-l' : 'border-l-0'
                   }`}
                 >
                   @
-                </div>
+                </span>
                 <input
                   className={`${inputCls} ${dialogInputCls} min-w-0 flex-[4] rounded-l-none rounded-r-md border border-l-0 border-input`}
                   placeholder={t('user.generate.form.email_domain')}
