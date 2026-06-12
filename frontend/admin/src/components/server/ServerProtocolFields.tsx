@@ -359,10 +359,10 @@ function CipherSelect({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn('w-full justify-between font-mono text-xs', !value && 'text-muted-foreground')}
+            className={cn('h-9 w-full justify-between font-mono text-xs', !value && 'text-muted-foreground')}
           >
             {value ? cipherLabel(value) : t('server.dynamic_form.shadowsocks.cipher.placeholder')}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[min(400px,calc(100vw-3rem))] p-0" align="start">
