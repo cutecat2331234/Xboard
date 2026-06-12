@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
 import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
-import flags from '@/components/shared/flag-svgs.json'
+import { InlineFlag } from '@/components/shared/InlineFlag'
 import { LocaleFlag } from '@/components/shared/LocaleFlag'
 import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Label } from '@/components/ui/label'
@@ -82,12 +82,7 @@ export default function LoginPage() {
               type="button"
               className="inline-flex h-8 items-center justify-center gap-1 whitespace-nowrap rounded-md px-2 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
             >
-              <span
-                className="contents"
-                dangerouslySetInnerHTML={{
-                  __html: flags[i18n.language as keyof typeof flags] ?? flags['en-US'],
-                }}
-              />
+              <InlineFlag locale={i18n.language} />
               <span className="text-sm font-medium">{localeLabel(i18n.language)}</span>
             </button>
           </DropdownMenuTrigger>
