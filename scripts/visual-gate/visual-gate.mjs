@@ -532,6 +532,9 @@ async function maskAdminVolatile(page, route) {
       document.querySelectorAll('[class*="text-2xl"][class*="font-bold"]').forEach((el) => {
         if (el.closest('.rounded-xl')) el.textContent = '—'
       })
+      document.querySelectorAll('.rounded-xl .text-emerald-500, .rounded-xl .text-red-500').forEach((el) => {
+        if (el.closest('.rounded-xl')) el.textContent = '—'
+      })
     }
   }, { maskTable, maskMonaco, maskCharts })
 }
