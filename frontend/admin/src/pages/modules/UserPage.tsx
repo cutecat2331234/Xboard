@@ -34,7 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetFooter, SheetTitle } from '@/components/ui/sheet'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1143,7 +1143,7 @@ export default function UserPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-gap px-6 py-4 text-sm">
+            <div className="xb-stack-4 px-6 py-4 text-sm">
               <div className="space-y-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
@@ -1266,7 +1266,7 @@ export default function UserPage() {
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="space-y-2 px-6 py-4 text-sm">
+            <div className="xb-stack-4 px-6 py-4 text-sm">
             <div className="space-y-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
@@ -1283,13 +1283,13 @@ export default function UserPage() {
                     }
                   />
                 ) : null}
-                <span
+                <div
                   className={`inline-flex h-9 shrink-0 items-center border-y border-input bg-muted/30 px-3 font-mono text-xs text-muted-foreground ${
                     form.generate_count ? 'rounded-l-md border-l' : 'border-l-0'
                   }`}
                 >
                   @
-                </span>
+                </div>
                 <input
                   className={`${inputCls} ${dialogInputCls} min-w-0 flex-[4] rounded-l-none rounded-r-md border border-l-0 border-input`}
                   placeholder={t('user.generate.form.email_domain')}
@@ -1379,12 +1379,9 @@ export default function UserPage() {
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="!flex w-full max-w-[90%] flex-col gap-0 overflow-hidden p-0 sm:w-[448px] sm:max-w-[448px]"
+          className="w-full max-w-[90%] overflow-y-auto p-6 sm:w-[448px] sm:max-w-[448px]"
         >
-          <SheetHeader className="shrink-0 border-b px-6 pb-4 pt-6">
-            <SheetTitle>{t('user.edit.title')}</SheetTitle>
-          </SheetHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4 text-sm">
+          <SheetTitle className="text-lg font-semibold">{t('user.edit.title')}</SheetTitle>
               <div className="space-y-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.email')}
@@ -1649,8 +1646,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.remarks_placeholder')}
                 />
               </div>
-          </div>
-          <SheetFooter className="shrink-0 border-t px-6 py-4">
+          <SheetFooter className="flex-row justify-end gap-2 sm:justify-end">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
               {t('user.edit.form.cancel')}
             </Button>
