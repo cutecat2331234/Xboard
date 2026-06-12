@@ -5,6 +5,7 @@ import { I18nextProvider } from 'react-i18next'
 import { Toaster } from 'sonner'
 import App from './App'
 import './index.css'
+import './lib/monaco-setup'
 import { initI18n, i18n } from './lib/i18n'
 import { ThemeProvider } from './lib/theme'
 

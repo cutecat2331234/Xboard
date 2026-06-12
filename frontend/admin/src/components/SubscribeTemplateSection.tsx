@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { TFunction } from 'i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TemplateMonacoEditor } from '@/components/TemplateMonacoEditor'
@@ -28,10 +28,6 @@ type Props = {
 }
 
 export function SubscribeTemplateSection({ t, tpl, update }: Props) {
-  useEffect(() => {
-    void import('monaco-editor')
-  }, [])
-
   const [active, setActive] = useState(TEMPLATE_KEYS[0].key)
   const current = TEMPLATE_KEYS.find((x) => x.key === active) ?? TEMPLATE_KEYS[0]
   const labelKey = LABEL_KEYS[current.key]

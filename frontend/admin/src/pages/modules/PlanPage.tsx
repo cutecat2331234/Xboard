@@ -665,10 +665,10 @@ export default function PlanPage() {
                 ))}
               </div>
             </div>
-            {editing ? (
+            {(
               <div className="xb-stack-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Label>{t('subscribe.plan.form.content.label')}</Label>
+                  <Label className={dialogSubFieldLabelCls}>{t('subscribe.plan.form.content.label')}</Label>
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
@@ -709,7 +709,7 @@ export default function PlanPage() {
                   </div>
                 ) : null}
               </div>
-            ) : null}
+            )}
           </div>
           </div>
           <DialogFormFooter
