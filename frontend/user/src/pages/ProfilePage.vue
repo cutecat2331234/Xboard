@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { h, onMounted, ref } from 'vue'
 import {
   NAlert,
   NButton,
   NCard,
+  NDataTable,
   NInput,
   NSwitch,
+  useDialog,
   useMessage,
 } from 'naive-ui'
 import { renderCarbonIcon } from '@/utils/carbon-icon'
 import { useAuthStore } from '@/stores/auth'
 import {
   changePassword,
+  getActiveSessions,
+  getQuickLoginUrl,
+  removeActiveSession,
   resetSecurity,
   updateUser,
+  type ActiveSession,
 } from '@/api/profile'
 import { fetchTelegramBotInfo } from '@/api/telegram'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
@@ -36,6 +42,10 @@ const { t } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 const botUsername = ref('')
 const currency = ref('CNY')
+const sessions = ref<ActiveSession[]>([])
+const sessionsLoading = ref(false)
+const quickLoginLoading = ref(false)
+const dialog = useDialog()
 
 const switchStyle = {
   '--n-button-border-radius': '3px',
@@ -79,12 +89,85 @@ async function saveNotify() {
   }
 }
 
+async function loadSessions() {
+  sessionsLoading.value = true
+  try {
+    sessions.value = await getActiveSessions()
+  } catch {
+    sessions.value = []
+  } finally {
+    sessionsLoading.value = false
+  }
+}
+
+function formatTime(value: string | null) {
+  if (!value) return '-'
+  const d = new Date(value)
+  return Number.isNaN(d.getTime()) ? value : d.toLocaleString()
+}
+
+function kickSession(row: ActiveSession) {
+  dialog.warning({
+    title: t('profile.kickSession'),
+    content: t('profile.kickSessionConfirm', { device: row.name || `#${row.id}` }),
+    positiveText: t('profile.kickSession'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        await removeActiveSession(String(row.id))
+        msg.success(t('common.success'))
+        await loadSessions()
+      } catch (e: unknown) {
+        msg.error(e instanceof Error ? e.message : t('common.error'))
+      }
+    },
+  })
+}
+
+async function generateQuickLogin() {
+  quickLoginLoading.value = true
+  try {
+    const url = await getQuickLoginUrl()
+    await navigator.clipboard.writeText(url)
+    msg.success(t('profile.quickLoginCopied'))
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
+  } finally {
+    quickLoginLoading.value = false
+  }
+}
+
+const sessionColumns = [
+  { title: () => t('profile.sessionDevice'), key: 'name' },
+  {
+    title: () => t('profile.sessionCreated'),
+    key: 'created_at',
+    render: (row: ActiveSession) => formatTime(row.created_at),
+  },
+  {
+    title: () => t('profile.sessionLastUsed'),
+    key: 'last_used_at',
+    render: (row: ActiveSession) => formatTime(row.last_used_at),
+  },
+  {
+    title: () => t('common.actions'),
+    key: 'actions',
+    render: (row: ActiveSession) =>
+      h(
+        NButton,
+        { size: 'small', type: 'error', tertiary: true, onClick: () => kickSession(row) },
+        { default: () => t('profile.kickSession') },
+      ),
+  },
+]
+
 onMounted(async () => {
   await auth.loadUser()
   remindExpire.value = Boolean(auth.user?.remind_expire ?? 1)
   remindTraffic.value = Boolean(auth.user?.remind_traffic ?? 1)
   const cfg = await loadComm()
   currency.value = cfg.currency ?? 'CNY'
+  await loadSessions()
   if (cfg.is_telegram) {
     try {
       const bot = await fetchTelegramBotInfo()
@@ -150,6 +233,30 @@ onMounted(async () => {
     >
       {{ t('profile.telegramGroup') }}
     </a>
+  </n-card>
+
+  <n-card :title="t('profile.activeSessions')" class="mt-5 rounded-md">
+    <n-data-table
+      :columns="sessionColumns"
+      :data="sessions"
+      :loading="sessionsLoading"
+      :bordered="false"
+      size="small"
+    />
+    <p v-if="!sessionsLoading && sessions.length === 0" class="text-gray-500">{{ t('profile.noSessions') }}</p>
+  </n-card>
+
+  <n-card :title="t('profile.quickLogin')" class="mt-5 rounded-md">
+    <p class="text-gray-500">{{ t('profile.quickLoginHint') }}</p>
+    <n-button
+      type="primary"
+      size="small"
+      class="mt-2.5"
+      :loading="quickLoginLoading"
+      @click="generateQuickLogin"
+    >
+      {{ t('profile.generateQuickLogin') }}
+    </n-button>
   </n-card>
 
   <n-card :title="t('profile.resetSubscribe')" class="mt-5 rounded-md">

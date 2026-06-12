@@ -1514,7 +1514,7 @@ export default function ServerManagePage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 
-        <DialogContent className="!flex h-[838px] max-h-[838px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+        <DialogContent className="!flex h-[800px] max-h-[800px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
           <div className="shrink-0 border-b px-6 pb-4 pt-6">
 

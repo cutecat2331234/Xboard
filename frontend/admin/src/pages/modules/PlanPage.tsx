@@ -453,8 +453,8 @@ export default function PlanPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="shrink-0 px-6 pb-3 pt-5 text-left">
+        <DialogContent className="!flex h-[784px] max-h-[784px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+          <DialogHeader className="shrink-0 px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg tracking-tight">
               {editing
                 ? t('subscribe.plan.form.edit_title')
@@ -462,7 +462,7 @@ export default function PlanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="xb-stack-2 px-6 py-2 text-sm">
+          <div className="xb-stack-2 px-6 py-0 text-sm">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               <div className="xb-stack-15">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
@@ -696,7 +696,7 @@ export default function PlanPage() {
                   </div>
                 </div>
                 <textarea
-                  className={`${textareaCls} min-h-[229px]`}
+                  className={`${textareaCls} min-h-[232px]`}
                   placeholder={t('subscribe.plan.form.content.placeholder')}
                   value={form.content ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
