@@ -471,7 +471,7 @@ function ShadowsocksCertFields({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="xb-stack-3">
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t(`${locale}.cert_mode.label`)}</Label>
         <FormSelect
@@ -529,7 +529,7 @@ function ShadowsocksCertFields({
       ) : null}
 
       {mode === 'dns' ? (
-        <div className="space-y-3">
+        <div className="xb-stack-3">
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t(`${locale}.dns_provider.label`)}</Label>
             <input
@@ -565,7 +565,7 @@ function ShadowsocksCertFields({
       ) : null}
 
       {mode === 'content' ? (
-        <div className="space-y-3">
+        <div className="xb-stack-3">
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t(`${locale}.cert_content.label`)}</Label>
             <textarea
@@ -629,7 +629,7 @@ function ShadowsocksProtocolFields({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="xb-stack-3">
       <CipherSelect
         value={value.cipher}
         onChange={(cipher) => onChange({ ...value, cipher })}
@@ -754,7 +754,7 @@ function ShadowsocksFields({
   const { t } = useTranslation()
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <Tabs value={tab} onValueChange={onTabChange}>
         <TabsList className="grid h-9 w-full grid-cols-2">
           <TabsTrigger value="protocol" className="text-xs">
@@ -764,7 +764,7 @@ function ShadowsocksFields({
             {t('server.dynamic_form.shadowsocks.cert_config.tab')}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="protocol" className="mt-3 space-y-3">
+        <TabsContent value="protocol" className="mt-3 xb-stack-3">
           <ShadowsocksProtocolFields value={value} onChange={onChange} />
         </TabsContent>
         <TabsContent value="cert" className="mt-3">
@@ -867,7 +867,7 @@ function VmessFields({
   const { t } = useTranslation()
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vmess.tls.label')}</Label>
         <FormSelect
@@ -967,7 +967,7 @@ function RealityFields({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="xb-stack-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="xb-stack-2 col-span-2 sm:col-span-1">
           <Label className={serverFieldLabelCls}>{t(`${locale}.server_name.label`)}</Label>
@@ -1064,7 +1064,7 @@ function TrojanFields({
   const { t } = useTranslation()
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.tls.label')}</Label>
         <FormSelect
@@ -1145,7 +1145,7 @@ function VlessFields({
   const { t } = useTranslation()
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.tls.label')}</Label>
         <FormSelect
@@ -1226,7 +1226,7 @@ function VlessFields({
         onChange={(network_settings) => onChange({ ...value, network_settings })}
       />
 
-      <div className="space-y-3 rounded-lg border bg-muted/10 p-3">
+      <div className="xb-stack-3 rounded-lg border bg-muted/10 p-3">
         <div className="flex items-center justify-between gap-3">
           <div>
             <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.encryption.label')}</Label>
@@ -1242,7 +1242,7 @@ function VlessFields({
           />
         </div>
         {value.encryption.enabled ? (
-          <div className="space-y-3 border-t border-dashed pt-3">
+          <div className="xb-stack-3 border-t border-dashed pt-3">
             <div className="xb-stack-2">
               <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.encryption.server_label')}</Label>
               <input
@@ -1324,7 +1324,7 @@ function HysteriaFields({
     value.version === 2 ? t('server.dynamic_form.hysteria.bandwidth.up.bbr_tip') : ''
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
           <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.version.label')}</Label>
@@ -1462,7 +1462,7 @@ function TuicFields({
   }
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.version.label')}</Label>
         <FormSelect
@@ -1550,7 +1550,7 @@ function AnyTlsFields({
   }
 
   return (
-    <div className="col-span-2 space-y-3 rounded-lg border border-dashed p-3">
+    <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <div className="grid grid-cols-2 gap-4">
         <div className="xb-stack-2">
           <Label className={serverFieldLabelCls}>{t('server.dynamic_form.anytls.tls.server_name.label')}</Label>
