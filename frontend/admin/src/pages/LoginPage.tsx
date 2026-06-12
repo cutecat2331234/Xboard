@@ -106,26 +106,24 @@ export default function LoginPage() {
         </DropdownMenu>
       </div>
 
-      <div className="mx-auto flex w-full flex-col justify-center xb-stack-4 sm:w-[350px] md:w-[420px] lg:p-8">
-        <div className="flex flex-col xb-stack-2 text-center">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px] md:w-[420px] lg:p-8">
+        <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-bold sm:text-3xl">{settings.title || 'XBoard'}</h1>
-          {settings.description ? (
-            <p className="text-sm text-muted-foreground">{settings.description}</p>
-          ) : null}
+          <p className="text-sm text-muted-foreground">{settings.description ?? ''}</p>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
-          <div className="flex flex-col xb-stack-2 text-left">
+        <div className="rounded-xl border bg-card p-4 text-card-foreground shadow sm:p-6">
+          <div className="flex flex-col space-y-2 text-left">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {t('auth.signIn.title')}
             </h1>
             <p className="text-sm text-muted-foreground">{t('auth.signIn.description')}</p>
           </div>
           <div className="grid gap-6">
-            <form className="xb-stack-4" onSubmit={onSubmit}>
-              <div className="xb-stack-4">
+            <form className="space-y-4" onSubmit={onSubmit}>
+              <div className="space-y-4">
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label
                   htmlFor="email"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -144,7 +142,7 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label
                   htmlFor="password"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -161,10 +159,10 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div className="flex h-9 items-center justify-between">
+              <div className="flex items-center justify-between">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-0 text-sm font-normal text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                  className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-0 py-2 text-sm font-normal text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                   onClick={() => setForgotOpen(true)}
                 >
                   {t('auth.signIn.forgotPassword')}

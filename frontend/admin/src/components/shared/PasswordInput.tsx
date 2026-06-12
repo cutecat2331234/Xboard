@@ -1,10 +1,10 @@
 import { forwardRef, useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { IconEye, IconEyeOff } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 
 type Props = React.InputHTMLAttributes<HTMLInputElement>
 
-/** 7001 h8e PasswordInput: relative rounded-md + ghost icon button. */
+/** 7001 h8e PasswordInput: relative rounded-md + Tabler eye toggle. */
 export const PasswordInput = forwardRef<HTMLInputElement, Props>(function PasswordInput(
   { className, ...props },
   ref,
@@ -24,11 +24,11 @@ export const PasswordInput = forwardRef<HTMLInputElement, Props>(function Passwo
       />
       <button
         type="button"
-        className="absolute right-1 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        className="absolute right-1 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
         onClick={() => setShow((v) => !v)}
         tabIndex={-1}
       >
-        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+        {show ? <IconEye size={18} stroke={2} /> : <IconEyeOff size={18} stroke={2} />}
       </button>
     </div>
   )
