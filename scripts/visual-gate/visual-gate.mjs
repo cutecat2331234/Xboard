@@ -509,8 +509,9 @@ async function maskAdminVolatile(page, route) {
   if (side !== 'admin') return
   const maskTable = ADMIN_MASK_TABLE_ROUTES.has(route)
   const maskMonaco = route === 'config-subscribe-template'
-  if (!maskTable && !maskMonaco) return
-  await page.evaluate(({ maskTable: mt, maskMonaco: mm }) => {
+  const maskCharts = route === 'dashboard'
+  if (!maskTable && !maskMonaco && !maskCharts) return
+  await page.evaluate(({ maskTable: mt, maskMonaco: mm, maskCharts: mc }) => {
     if (mt) {
       document.querySelectorAll('tbody td').forEach((td) => {
         td.textContent = '•'
@@ -521,7 +522,24 @@ async function maskAdminVolatile(page, route) {
         el.style.opacity = '0'
       })
     }
-  }, { maskTable, maskMonaco })
+    if (mc) {
+      document.querySelectorAll('.recharts-wrapper, .recharts-surface, .recharts-responsive-container').forEach((el) => {
+        const host = el.closest('.rounded-xl, .rounded-md') ?? el.parentElement
+        if (host instanceof HTMLElement) {
+          host.style.background = '#ffffff'
+        }
+        if (el instanceof HTMLElement) {
+          el.style.opacity = '0'
+          el.style.pointerEvents = 'none'
+        }
+      })
+      document.querySelectorAll('canvas').forEach((el) => {
+        if (el.closest('.recharts-wrapper, [class*="recharts"]')) {
+          el.style.visibility = 'hidden'
+        }
+      })
+    }
+  }, { maskTable, maskMonaco, maskCharts })
 }
 
 const ADMIN_TABLE_ROUTES = new Set([
