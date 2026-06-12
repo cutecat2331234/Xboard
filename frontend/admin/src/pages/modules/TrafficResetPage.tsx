@@ -315,7 +315,7 @@ export default function TrafficResetPage() {
         <p className="mt-2 text-muted-foreground">{t('user.traffic_reset_logs.description')}</p>
       </div>
 
-      <div className="mb-4 space-y-2">
+      <div className="mb-4 xb-stack-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-medium">{t('user.traffic_reset.stats.title')}</h3>

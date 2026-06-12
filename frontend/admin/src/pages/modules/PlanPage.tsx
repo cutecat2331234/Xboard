@@ -625,7 +625,7 @@ export default function PlanPage() {
               </div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                 {MAIN_PRICE_PERIODS.map((period) => (
-                  <div key={period} className="space-y-1.5">
+                  <div key={period} className="xb-stack-15">
                     <Label className={dialogFieldLabelCls}>
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
@@ -641,7 +641,7 @@ export default function PlanPage() {
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {EXTRA_PRICE_PERIODS.map((period) => (
-                  <div key={period} className="space-y-1.5">
+                  <div key={period} className="xb-stack-15">
                     <Label className={dialogFieldLabelCls}>
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>

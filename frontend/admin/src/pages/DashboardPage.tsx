@@ -492,7 +492,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="rounded-xl border bg-card text-card-foreground shadow">
-        <div className="flex flex-col space-y-1.5 p-6">
+        <div className="flex flex-col xb-stack-15 p-6">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold leading-none tracking-tight">{t('dashboard.overview.title')}</h3>
@@ -579,7 +579,7 @@ export default function DashboardPage() {
         </div>
         <div className="p-6 pt-0">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
+            <div className="xb-stack-1">
               <div className="text-sm text-muted-foreground">{t('dashboard.overview.totalIncome')}</div>
               <div className="text-2xl font-bold">{formatMoney(paidTotal)}</div>
               <div className="text-xs text-muted-foreground">
@@ -589,7 +589,7 @@ export default function DashboardPage() {
                 {t('dashboard.overview.avgOrderAmount')} {formatMoney(avgOrder)}
               </div>
             </div>
-            <div className="space-y-1">
+            <div className="xb-stack-1">
               <div className="text-sm text-muted-foreground">{t('dashboard.overview.totalCommission')}</div>
               <div className="text-2xl font-bold">{formatMoney(commissionTotal)}</div>
               <div className="text-xs text-muted-foreground">
@@ -816,7 +816,7 @@ function QueueStatusCard({ stats }: { stats: QueueStats }) {
 
       </CardHeader>
 
-      <CardContent className="space-y-4 text-sm">
+      <CardContent className="xb-stack-4 text-sm">
 
         <div className="flex items-center justify-between">
 
@@ -830,7 +830,7 @@ function QueueStatusCard({ stats }: { stats: QueueStats }) {
 
         </div>
 
-        <div className="space-y-1">
+        <div className="xb-stack-1">
 
           <div className="flex items-center justify-between">
 
@@ -848,7 +848,7 @@ function QueueStatusCard({ stats }: { stats: QueueStats }) {
 
         </div>
 
-        <div className="space-y-1">
+        <div className="xb-stack-1">
 
           <div className="flex items-center justify-between">
 
@@ -902,9 +902,9 @@ function QueueDetailsCard({
 
       </CardHeader>
 
-      <CardContent className="space-y-4 text-sm">
+      <CardContent className="xb-stack-4 text-sm">
 
-        <div className="space-y-2 rounded-lg bg-muted/50 p-3">
+        <div className="xb-stack-2 rounded-lg bg-muted/50 p-3">
 
           <p className="text-muted-foreground">{t('dashboard.queue.details.failedJobs7Days')}</p>
 
@@ -945,7 +945,7 @@ function QueueDetailsCard({
 
         </div>
 
-        <div className="space-y-1">
+        <div className="xb-stack-1">
 
           <div className="flex items-center justify-between">
 
@@ -1246,11 +1246,11 @@ function FailedJobDetailDialog({
 
         {job ? (
 
-          <div className="space-y-5 text-sm">
+          <div className="xb-stack-gap text-sm">
 
             <div className="grid grid-cols-2 gap-4">
 
-              <div className="space-y-2">
+              <div className="xb-stack-2">
 
                 <h3 className="font-medium text-muted-foreground">{t('dashboard.queue.details.id')}</h3>
 
@@ -1258,7 +1258,7 @@ function FailedJobDetailDialog({
 
               </div>
 
-              <div className="space-y-2">
+              <div className="xb-stack-2">
 
                 <h3 className="font-medium text-muted-foreground">{t('dashboard.queue.details.time')}</h3>
 
@@ -1270,7 +1270,7 @@ function FailedJobDetailDialog({
 
             <div className="grid grid-cols-2 gap-4">
 
-              <div className="space-y-2">
+              <div className="xb-stack-2">
 
                 <h3 className="font-medium text-muted-foreground">{t('dashboard.queue.details.queue')}</h3>
 
@@ -1278,7 +1278,7 @@ function FailedJobDetailDialog({
 
               </div>
 
-              <div className="space-y-2">
+              <div className="xb-stack-2">
 
                 <h3 className="font-medium text-muted-foreground">{t('dashboard.queue.details.connection')}</h3>
 
@@ -1288,7 +1288,7 @@ function FailedJobDetailDialog({
 
             </div>
 
-            <div className="space-y-2">
+            <div className="xb-stack-2">
 
               <h3 className="font-medium text-muted-foreground">{t('dashboard.queue.details.name')}</h3>
 
@@ -1296,7 +1296,7 @@ function FailedJobDetailDialog({
 
             </div>
 
-            <div className="space-y-2">
+            <div className="xb-stack-2">
 
               <h3 className="font-medium text-muted-foreground">{t('dashboard.queue.details.exception')}</h3>
 
@@ -1308,7 +1308,7 @@ function FailedJobDetailDialog({
 
             </div>
 
-            <div className="space-y-2">
+            <div className="xb-stack-2">
 
               <h3 className="font-medium text-muted-foreground">{t('dashboard.queue.details.payload')}</h3>
 
