@@ -21,7 +21,6 @@ function addonCls(className: string | undefined, rounded: 'left' | 'right') {
     'inline-flex shrink-0 items-center border border-input bg-transparent px-3 text-muted-foreground shadow-sm',
     h,
     dialog ? 'font-mono text-xs' : 'text-sm',
-    'z-[-1]',
     rounded === 'left' ? 'rounded-l-md rounded-r-none border-r-0' : 'rounded-r-md rounded-l-none border-l-0',
   )
 }

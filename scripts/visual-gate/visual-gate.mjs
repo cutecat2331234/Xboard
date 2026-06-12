@@ -462,7 +462,9 @@ async function openAdminDialog(page, route) {
   } else if (route === 'server-add') {
     await clickVisible(page, [
       'button:has-text("添加节点")',
+      'button:has-text("添加服务器")',
       'button:has-text("Add Node")',
+      'button:has-text("Add Server")',
       'button:has-text("添加")',
       'button:has-text("Add")',
     ])
