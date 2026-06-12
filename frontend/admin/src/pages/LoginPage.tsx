@@ -73,7 +73,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container relative flex min-h-svh flex-col items-center justify-center bg-primary-foreground px-4 py-8 lg:max-w-none lg:px-0">
+    <div className="container relative flex min-h-svh flex-col items-center justify-center bg-white px-4 py-8 lg:max-w-none lg:px-0">
       <div className="absolute right-4 top-4 md:right-8 md:top-8">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

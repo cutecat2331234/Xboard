@@ -454,15 +454,15 @@ export default function PlanPage() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
-          <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 pb-4 pt-6 text-left">
+          <DialogHeader className="shrink-0 space-y-1.5 px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg tracking-tight">
               {editing
                 ? t('subscribe.plan.form.edit_title')
                 : t('subscribe.plan.form.add_title')}
             </DialogTitle>
           </DialogHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto bg-background">
-          <div className="space-y-6 px-6 py-4 text-sm">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="xb-stack-gap px-6 py-4 text-sm">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
@@ -629,11 +629,10 @@ export default function PlanPage() {
                     <Label className={dialogFieldLabelCls}>
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
-                    <SuffixInput
-                      prefix="¥"
+                    <input
                       type="number"
                       step="0.01"
-                      className={dialogInputCls}
+                      className={`${inputCls} ${dialogInputCls}`}
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
@@ -646,11 +645,10 @@ export default function PlanPage() {
                     <Label className={dialogFieldLabelCls}>
                       {t(`subscribe.plan.columns.price_period.${period}`)}
                     </Label>
-                    <SuffixInput
-                      prefix="¥"
+                    <input
                       type="number"
                       step="0.01"
-                      className={dialogInputCls}
+                      className={`${inputCls} ${dialogInputCls}`}
                       value={form.prices?.[period] ?? ''}
                       onChange={(e) => setPrice(period, e.target.value)}
                     />
