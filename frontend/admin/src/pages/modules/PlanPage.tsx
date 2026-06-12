@@ -453,7 +453,7 @@ export default function PlanPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
+        <DialogContent className="!flex h-[774px] max-h-[774px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
           <DialogHeader className="shrink-0 space-y-1.5 px-6 pb-4 pt-6 text-left">
             <DialogTitle className="text-lg tracking-tight">
               {editing
@@ -462,7 +462,7 @@ export default function PlanPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="xb-stack-gap px-6 py-4 text-sm">
+          <div className="xb-stack-4 px-6 py-4 text-sm">
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>{t('subscribe.plan.form.name.label')}</Label>
@@ -595,7 +595,7 @@ export default function PlanPage() {
                 />
               </div>
             </div>
-            <div className="space-y-3 rounded-lg border border-dashed p-4">
+            <div className="space-y-2 rounded-lg border border-dashed p-3">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-sm font-medium">{t('subscribe.plan.form.price.title')}</h3>
                 <div className="flex items-center gap-2">
