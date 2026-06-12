@@ -1353,7 +1353,7 @@ export default function GiftCardPage() {
 
         <DialogContent className="!flex h-[810px] max-h-[810px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[576px]">
 
-          <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 pb-4 pt-6 text-left">
+          <DialogHeader className="shrink-0 space-y-1.5 px-6 pb-4 pt-6 text-left">
 
             <DialogTitle className="text-lg tracking-tight">
 
@@ -1363,11 +1363,11 @@ export default function GiftCardPage() {
 
           </DialogHeader>
 
-          <div className="min-h-0 flex-1 overflow-y-auto bg-background">
+          <div className="min-h-0 flex-1 overflow-y-auto">
 
-            <div className="space-y-4 px-6 py-4 text-sm">
+            <div className="xb-stack-gap px-6 py-4 text-sm">
 
-              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
+              <div className="xb-stack-4">
 
                 <div className="mb-2 flex items-center gap-2">
 
@@ -1485,7 +1485,7 @@ export default function GiftCardPage() {
 
 
 
-              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
+              <div className="xb-stack-4">
 
                 <div className="mb-2 flex items-center gap-2">
 
@@ -1743,7 +1743,7 @@ export default function GiftCardPage() {
 
 
 
-              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
+              <div className="xb-stack-4">
 
                 <div className="mb-2 flex items-center gap-2">
 
@@ -1927,7 +1927,7 @@ export default function GiftCardPage() {
 
 
 
-              <div className="space-y-4 rounded-xl border bg-card/50 p-4">
+              <div className="xb-stack-4">
 
                 <div className="mb-2 flex items-center gap-2">
 

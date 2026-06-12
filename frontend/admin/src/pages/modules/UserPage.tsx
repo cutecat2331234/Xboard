@@ -1142,8 +1142,8 @@ export default function UserPage() {
               {t('user.send_mail.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto bg-background">
-            <div className="space-y-4 px-6 py-4 text-sm">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="xb-stack-gap px-6 py-4 text-sm">
               <div className="space-y-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
@@ -1201,7 +1201,7 @@ export default function UserPage() {
                 </div>
                 <textarea
                   id="mail-content"
-                  className={`${textareaCls} min-h-[220px] font-mono text-xs`}
+                  className={`${inputCls} !min-h-[220px] py-2 font-mono text-xs`}
                   value={mailContent}
                   onChange={(e) => setMailContent(e.target.value)}
                   placeholder={t('user.send_mail.content_placeholder')}
@@ -1266,7 +1266,7 @@ export default function UserPage() {
             <DialogTitle>{t('user.generate.title')}</DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="space-y-4 px-6 py-4 text-sm">
+            <div className="xb-stack-gap px-6 py-4 text-sm">
             <div className="space-y-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
@@ -1283,13 +1283,13 @@ export default function UserPage() {
                     }
                   />
                 ) : null}
-                <div
-                  className={`flex h-9 shrink-0 items-center border-y border-input bg-muted/30 px-3 font-mono text-xs text-muted-foreground ${
+                <span
+                  className={`inline-flex h-9 shrink-0 items-center border-y border-input bg-muted/30 px-3 font-mono text-xs text-muted-foreground ${
                     form.generate_count ? 'rounded-l-md border-l' : 'border-l-0'
                   }`}
                 >
                   @
-                </div>
+                </span>
                 <input
                   className={`${inputCls} ${dialogInputCls} min-w-0 flex-[4] rounded-l-none rounded-r-md border border-l-0 border-input`}
                   placeholder={t('user.generate.form.email_domain')}
@@ -1310,7 +1310,7 @@ export default function UserPage() {
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.expire_time')}
@@ -1385,7 +1385,6 @@ export default function UserPage() {
             <SheetTitle>{t('user.edit.title')}</SheetTitle>
           </SheetHeader>
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4 text-sm">
-            <div className="flex flex-col gap-2">
               <div className="space-y-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.edit.form.email')}
@@ -1644,13 +1643,12 @@ export default function UserPage() {
                   {t('user.edit.form.remarks')}
                 </Label>
                 <textarea
-                  className={`${textareaCls} min-h-[96px]`}
+                  className="flex !min-h-[96px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   value={String(form.remarks ?? '')}
                   onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))}
                   placeholder={t('user.edit.form.remarks_placeholder')}
                 />
               </div>
-            </div>
           </div>
           <SheetFooter className="shrink-0 border-t px-6 py-4">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
