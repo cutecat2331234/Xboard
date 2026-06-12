@@ -1,13 +1,12 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Copy, Loader2 } from 'lucide-react'
+import { Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { getSettings } from '@/lib/settings'
 import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
 import { LocaleFlag } from '@/components/shared/LocaleFlag'
 import { PasswordInput } from '@/components/shared/PasswordInput'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,8 +25,8 @@ import {
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
-const inputCls =
-  'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
+const emailInputCls =
+  'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -126,7 +125,7 @@ export default function LoginPage() {
                 >
                   {t('auth.signIn.email')}
                 </Label>
-                <Input
+                <input
                   id="email"
                   name="email"
                   type="text"
@@ -134,7 +133,7 @@ export default function LoginPage() {
                   placeholder={t('auth.signIn.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={inputCls}
+                  className={emailInputCls}
                   required
                 />
               </div>
@@ -169,14 +168,7 @@ export default function LoginPage() {
                 className="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                 disabled={loading}
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('common.saving')}
-                  </>
-                ) : (
-                  t('auth.signIn.submit')
-                )}
+                {loading ? t('common.saving') : t('auth.signIn.submit')}
               </button>
           </form>
           </div>

@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { dialogSuffixAddonCls, inputCls } from '@/lib/form-styles'
+import { inputCls } from '@/lib/form-styles'
 
 type SuffixInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   suffix: string
@@ -10,10 +10,17 @@ function isDialogStyle(className?: string) {
   return Boolean(className?.includes('font-mono') || className?.includes('text-xs'))
 }
 
+function addonHeight(className?: string) {
+  return className?.includes('h-8') ? 'h-8' : 'h-9'
+}
+
 function addonCls(className: string | undefined, rounded: 'left' | 'right') {
   const dialog = isDialogStyle(className)
+  const h = addonHeight(className)
   return cn(
-    dialog ? dialogSuffixAddonCls : 'inline-flex h-9 shrink-0 items-center border border-input bg-transparent px-3 text-sm text-muted-foreground shadow-sm',
+    'inline-flex shrink-0 items-center border border-input bg-transparent px-3 text-muted-foreground shadow-sm',
+    h,
+    dialog ? 'font-mono text-xs' : 'text-sm',
     'z-[-1]',
     rounded === 'left' ? 'rounded-l-md rounded-r-none border-r-0' : 'rounded-r-md rounded-l-none border-l-0',
   )
