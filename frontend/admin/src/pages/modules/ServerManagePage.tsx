@@ -1522,7 +1522,7 @@ export default function ServerManagePage() {
 
               <div className="flex items-center gap-3">
 
-                <DialogTitle className="font-mono text-lg tracking-tight">
+                <DialogTitle className="font-semibold font-mono text-lg tracking-tight">
 
                   {editing ? t('server.form.edit_node') : t('server.form.new_node')}
 
@@ -1531,7 +1531,7 @@ export default function ServerManagePage() {
               </div>
 
               <FormSelect
-                className="h-9 w-[150px] shrink-0 font-mono text-xs"
+                className="h-8 w-[150px] shrink-0 font-mono text-xs"
                 value={form.type}
                 onChange={handleTypeChange}
                 options={[
@@ -1542,13 +1542,12 @@ export default function ServerManagePage() {
 
             </div>
 
-            <p className="mt-1 font-mono text-xs opacity-70">{t('server.manage.description')}</p>
+            <p className="mt-1.5 font-mono text-xs opacity-70">{t('server.manage.description')}</p>
 
           </div>
 
-          <div className="flex h-[75vh] min-h-[500px] flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-2">
-          <div className="xb-stack-3">
+          <div className="xb-stack-4">
 
             <div className="flex gap-4">
 
@@ -1726,7 +1725,7 @@ export default function ServerManagePage() {
                 emptyText={t('server.form.groups.empty')}
               />
 
-              <p className={formSubLabelCls} aria-hidden="true" />
+              <label className={formSubLabelCls} aria-hidden="true" />
 
             </div>
 
@@ -1892,7 +1891,7 @@ export default function ServerManagePage() {
                   emptyText={t('server.form.route.empty')}
                 />
 
-                <p className={formSubLabelCls} aria-hidden="true" />
+                <label className={formSubLabelCls} aria-hidden="true" />
 
               </div>
 
@@ -1972,7 +1971,6 @@ export default function ServerManagePage() {
               </div>
             ) : null}
 
-          </div>
           </div>
           </div>
 

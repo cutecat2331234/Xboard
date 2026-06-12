@@ -1144,7 +1144,8 @@ export default function UserPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-3 px-6 py-0 text-sm">
+            <div className="xb-stack-4 px-6 py-4 text-sm">
+            <div className="xb-stack-3">
               <div className="xb-stack-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
@@ -1219,6 +1220,7 @@ export default function UserPage() {
                 </div>
               </div>
             </div>
+            </div>
           </div>
           <DialogFormFooter
             onCancel={() => setMailOpen(false)}
@@ -1269,7 +1271,7 @@ export default function UserPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-3 px-6 py-0 text-sm">
+            <div className="xb-stack-4 px-6 py-4 text-sm">
             <div className="xb-stack-2">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
@@ -1313,7 +1315,7 @@ export default function UserPage() {
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               />
             </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-4">
               <div className="xb-stack-2">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.expire_time')}

@@ -491,10 +491,10 @@ export default function DashboardPage() {
 
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow">
-        <div className="flex flex-col xb-stack-15 p-6">
+      <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+        <div className="flex flex-col p-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="xb-stack-15">
               <h3 className="font-semibold leading-none tracking-tight">{t('dashboard.overview.title')}</h3>
               <p className="text-sm text-muted-foreground">
                 {String(summary.start_date ?? '')} {t('dashboard.overview.to')} {String(summary.end_date ?? '')}
