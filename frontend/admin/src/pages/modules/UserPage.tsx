@@ -13,7 +13,13 @@ import {
   postJson,
   type PaginatedResult,
 } from '@/lib/api'
-import { dialogFieldLabelCls, dialogInputCls, inputCls, textareaCls } from '@/lib/form-styles'
+import {
+  dialogFieldLabelCls,
+  dialogInputCls,
+  dialogSelectCls,
+  inputCls,
+  textareaCls,
+} from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
@@ -1144,7 +1150,7 @@ export default function UserPage() {
                   value={mailScope}
                   onValueChange={(v) => setMailScope(v as 'selected' | 'filtered' | 'all')}
                 >
-                  <SelectTrigger className={dialogInputCls}>
+                  <SelectTrigger className={dialogSelectCls}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1162,12 +1168,12 @@ export default function UserPage() {
                 <label htmlFor="mail-subject" className={dialogFieldLabelCls}>
                   {t('user.send_mail.subject')}
                 </label>
-                <Input
+                <input
                   id="mail-subject"
                   value={mailSubject}
                   onChange={(e) => setMailSubject(e.target.value)}
                   placeholder={t('user.send_mail.subject_placeholder')}
-                  className={dialogInputCls}
+                  className={`${inputCls} ${dialogInputCls}`}
                   disabled={mailSending}
                 />
                 <p className="font-mono text-[10px] leading-relaxed opacity-70">
@@ -1269,7 +1275,7 @@ export default function UserPage() {
               <div className="flex w-full items-center gap-0">
                 {!form.generate_count ? (
                   <input
-                    className={`${inputCls} ${dialogInputCls} min-w-0 flex-[5] rounded-l-md rounded-r-none border-r-0 bg-background`}
+                    className={`${inputCls} ${dialogInputCls} min-w-0 flex-[5] rounded-l-md rounded-r-none border-r-0`}
                     placeholder={t('user.generate.form.email_prefix')}
                     value={String(form.email_prefix ?? '')}
                     onChange={(e) =>
@@ -1285,7 +1291,7 @@ export default function UserPage() {
                   @
                 </div>
                 <input
-                  className={`${inputCls} ${dialogInputCls} min-w-0 flex-[4] rounded-l-none rounded-r-md border border-l-0 border-input bg-background`}
+                  className={`${inputCls} ${dialogInputCls} min-w-0 flex-[4] rounded-l-none rounded-r-md border border-l-0 border-input`}
                   placeholder={t('user.generate.form.email_domain')}
                   value={String(form.email_suffix ?? '')}
                   onChange={(e) => setForm((f) => ({ ...f, email_suffix: e.target.value }))}
@@ -1320,7 +1326,7 @@ export default function UserPage() {
                   {t('user.generate.form.subscription')}
                 </Label>
                 <FormSelect
-                  className={dialogInputCls}
+                  className={dialogSelectCls}
                   value={String(form.plan_id ?? '')}
                   onChange={(v) =>
                     setForm((f) => ({

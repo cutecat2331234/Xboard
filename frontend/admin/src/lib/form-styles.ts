@@ -15,6 +15,10 @@ export const dialogFieldLabelCls =
 export const dialogInputCls =
   'h-9 font-mono text-xs'
 
+/** 7001 dialog FormSelect triggers: mono xs + compact chevron. */
+export const dialogSelectCls =
+  'h-9 font-mono text-xs [&_svg]:h-3 [&_svg]:w-3'
+
 /** 7001 dialog SuffixInput prefix/suffix addon (h-9 mono xs). */
 export const dialogSuffixAddonCls =
   'inline-flex h-9 shrink-0 items-center border border-input bg-transparent px-3 font-mono text-xs text-muted-foreground shadow-sm'
