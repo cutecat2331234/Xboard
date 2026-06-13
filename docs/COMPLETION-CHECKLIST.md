@@ -87,6 +87,7 @@
 - [x] **R46 终局确认**：AI-HANDOFF parity-check + smoke 复验
 - [x] **R47 CI 防回归**：`.github/workflows/parity-check.yml`
 - [x] **R48 全量复验**：`make parity-full` 89/89 PASS（2026-06-13T14:23Z）
+- [x] **R49 lastSmoke 保留 + smoke**：run-parity-suite 不覆盖 lastSmokeAt
 
 
 
