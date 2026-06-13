@@ -477,6 +477,24 @@ async function openAdminDialog(page, route) {
 
 async function maskDialogVolatile(page) {
   await page.evaluate(() => {
+    document.querySelectorAll('[role=dialog] .overflow-y-auto').forEach((el) => {
+      if (el instanceof HTMLElement) el.scrollTop = 0
+    })
+    document.querySelectorAll('.rc-md-navigation').forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.opacity = '0'
+        el.style.pointerEvents = 'none'
+      }
+    })
+    document.querySelectorAll('[role=dialog]').forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.borderColor = 'transparent'
+        el.style.boxShadow = 'none'
+      }
+    })
+    document.querySelectorAll('[role=dialog] button.absolute.right-4.top-4').forEach((el) => {
+      if (el instanceof HTMLElement) el.style.visibility = 'hidden'
+    })
     document
       .querySelectorAll('[role=dialog] input:not([type=file]), [role=dialog] textarea, [role=dialog] select')
       .forEach((el) => {
@@ -530,7 +548,9 @@ async function maskAdminVolatile(page, route) {
         }
       })
       document.querySelectorAll('[role=alert]').forEach((el) => {
-        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
+        if (el instanceof HTMLElement) {
+          el.style.display = 'none'
+        }
       })
       document.querySelectorAll('[class*="text-2xl"][class*="font-bold"]').forEach((el) => {
         if (el.closest('.rounded-xl')) el.textContent = '—'

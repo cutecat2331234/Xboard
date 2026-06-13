@@ -1,27 +1,54 @@
+import { cn } from '@/lib/utils'
+
 export const inputCls =
   'flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
 
 export const textareaCls =
-  'flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
+  'flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-none placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'
 
 /** 7001 config form labels: 11px / semibold / leading-5 (lh 20px) */
 export const configFieldLabelCls =
   'text-[11px] font-semibold leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 
-/** 7001 dialog form labels (user-create, send-mail, etc.): uppercase 11px */
+/** 7001 dialog form labels (user-create, send-mail, etc.): uppercase 11px / lh 14px */
 export const dialogFieldLabelCls =
-  'text-[11px] font-semibold uppercase tracking-wider text-muted-foreground'
+  'text-[11px] font-semibold uppercase leading-none tracking-wider text-muted-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+
+/** 7001 gift-card template dialog section cards */
+export const giftSectionCardCls = 'space-y-4 rounded-xl border bg-card/50 p-4'
+
+/** 7001 dialog uppercase-field inputs: standard inputCls, measured 34px. */
+export const dialogPlainFieldInputCls = cn(
+  inputCls,
+  'h-[34px] min-h-[34px] max-h-[34px] py-1 shadow-sm',
+)
+
+/** 7001 send-mail dialog inputs (no mono). */
+export const dialogMailInputCls = cn(inputCls, 'h-[34px] py-1 shadow-sm bg-transparent')
+
+/** 7001 send-mail content textarea. */
+export const dialogMailTextareaCls = cn(
+  textareaCls,
+  'h-[210px] min-h-[210px] py-2 shadow-sm bg-transparent',
+)
 
 export const dialogInputCls =
-  'h-9 font-mono text-xs shadow-none'
+  'h-[34px] min-h-[34px] max-h-[34px] bg-background py-0 font-mono text-xs shadow-none'
+
+export function dialogFieldInputCls(extra?: string) {
+  return cn(dialogPlainFieldInputCls, 'font-mono text-xs', extra)
+}
+
+/** 7001 user-create dialog inputs (mono xs). */
+export const dialogCompactInputCls = cn(dialogPlainFieldInputCls, 'font-mono text-xs bg-background')
 
 /** 7001 dialog FormSelect triggers: mono xs + compact chevron, no input shadow. */
 export const dialogSelectCls =
-  'h-9 font-mono text-xs shadow-none [&_svg]:h-3 [&_svg]:w-3'
+  'h-[34px] min-h-[34px] py-1 font-mono text-xs shadow-none [&_svg]:h-3 [&_svg]:w-3'
 
 /** 7001 dialog SuffixInput prefix/suffix addon (h-9 mono xs). */
 export const dialogSuffixAddonCls =
-  'inline-flex h-9 shrink-0 items-center border border-input bg-transparent px-3 font-mono text-xs text-muted-foreground shadow-none'
+  'inline-flex h-[34px] min-h-[34px] shrink-0 items-center border border-input bg-transparent px-3 font-mono text-xs text-muted-foreground shadow-none'
 
 /** 7001 server node dialog labels: mono 12px, not uppercase */
 export const serverFieldLabelCls = 'font-mono text-[12px] text-foreground/80'

@@ -14,13 +14,18 @@ import {
   type PaginatedResult,
 } from '@/lib/api'
 import {
+  dialogCompactInputCls,
+  dialogFieldInputCls,
   dialogFieldLabelCls,
+  dialogMailInputCls,
+  dialogMailTextareaCls,
   sheetFieldLabelCls,
   dialogInputCls,
   dialogSelectCls,
   inputCls,
   textareaCls,
 } from '@/lib/form-styles'
+import { cn } from '@/lib/utils'
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
@@ -1134,19 +1139,17 @@ export default function UserPage() {
       </Dialog>
 
       <Dialog open={mailOpen} onOpenChange={setMailOpen}>
-        <DialogContent className="!flex h-[764px] max-h-[764px] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
-          <DialogHeader className="shrink-0 xb-stack-15 border-b px-6 pb-4 pt-6 text-left">
-            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
-              {t('user.send_mail.title')}
-            </DialogTitle>
-            <DialogDescription className="text-xs leading-relaxed opacity-70">
+        <DialogContent className="!flex h-[764px] max-h-[764px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[672px]">
+          <DialogHeader className="box-border flex h-[88px] shrink-0 flex-col justify-center border-b px-6 pb-4 pt-6">
+            <DialogTitle>{t('user.send_mail.title')}</DialogTitle>
+            <DialogDescription className="text-xs opacity-70">
               {t('user.send_mail.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-4 px-6 py-4 text-sm">
-            <div className="xb-stack-3">
-              <div className="xb-stack-2">
+            <div className="space-y-4 px-6 py-4 text-sm">
+            <div className="space-y-4">
+              <div className="space-y-2">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
                   value={mailScope}
@@ -1166,7 +1169,7 @@ export default function UserPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <label htmlFor="mail-subject" className={dialogFieldLabelCls}>
                   {t('user.send_mail.subject')}
                 </label>
@@ -1175,14 +1178,14 @@ export default function UserPage() {
                   value={mailSubject}
                   onChange={(e) => setMailSubject(e.target.value)}
                   placeholder={t('user.send_mail.subject_placeholder')}
-                  className={`${inputCls} ${dialogInputCls}`}
+                  className={dialogMailInputCls}
                   disabled={mailSending}
                 />
                 <p className="font-mono text-[10px] leading-relaxed opacity-70">
                   {t('user.send_mail.subject_placeholder_hint')}
                 </p>
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
                   <label htmlFor="mail-content" className={dialogFieldLabelCls}>
                     {t('user.send_mail.content')}
@@ -1203,7 +1206,7 @@ export default function UserPage() {
                 </div>
                 <textarea
                   id="mail-content"
-                  className={`${inputCls} !min-h-[220px] py-2 font-mono text-xs`}
+                  className={dialogMailTextareaCls}
                   value={mailContent}
                   onChange={(e) => setMailContent(e.target.value)}
                   placeholder={t('user.send_mail.content_placeholder')}
@@ -1271,16 +1274,18 @@ export default function UserPage() {
             </DialogTitle>
           </DialogHeader>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="xb-stack-4 px-6 py-4 text-sm">
-            <div className="xb-stack-2">
+            <div className="space-y-4 px-6 py-4 text-sm">
+            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+            <div className="space-y-1.5">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.email')}
                 <span className="ml-1 text-destructive">*</span>
               </Label>
+              <div className="flex min-h-9 w-full items-center">
               <div className="flex w-full items-center gap-0">
                 {!form.generate_count ? (
                   <input
-                    className={`${inputCls} ${dialogInputCls} min-w-0 flex-[5] rounded-l-md rounded-r-none border-r-0`}
+                    className={cn(dialogCompactInputCls, 'flex-[5] rounded-l-md border-r-0')}
                     placeholder={t('user.generate.form.email_prefix')}
                     value={String(form.email_prefix ?? '')}
                     onChange={(e) =>
@@ -1288,27 +1293,24 @@ export default function UserPage() {
                     }
                   />
                 ) : null}
-                <span
-                  className={`inline-flex h-9 shrink-0 items-center border-y border-input bg-muted/30 px-3 font-mono text-xs text-muted-foreground ${
-                    form.generate_count ? 'rounded-l-md border-l' : 'border-l-0'
-                  }`}
-                >
+                <div className="flex h-[34px] items-center border-y border-input bg-muted/30 px-3 font-mono text-xs text-muted-foreground border-l-0">
                   @
-                </span>
+                </div>
                 <input
-                  className={`${inputCls} ${dialogInputCls} min-w-0 flex-[4] rounded-l-none rounded-r-md border border-l-0 border-input`}
+                  className={cn(dialogCompactInputCls, 'flex-[4] rounded-l-none rounded-r-md border-l-0')}
                   placeholder={t('user.generate.form.email_domain')}
                   value={String(form.email_suffix ?? '')}
                   onChange={(e) => setForm((f) => ({ ...f, email_suffix: e.target.value }))}
                 />
               </div>
+              </div>
             </div>
-            <div className="xb-stack-2">
+            <div className="space-y-1.5">
               <Label className={dialogFieldLabelCls}>
                 {t('user.generate.form.password')}
               </Label>
               <input
-                className={`${inputCls} ${dialogInputCls}`}
+                className={dialogCompactInputCls}
                 type="password"
                 placeholder={t('user.generate.form.password_placeholder')}
                 value={String(form.password ?? '')}
@@ -1316,7 +1318,7 @@ export default function UserPage() {
               />
             </div>
               <div className="grid grid-cols-2 gap-4">
-              <div className="xb-stack-2">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.expire_time')}
                 </Label>
@@ -1326,7 +1328,7 @@ export default function UserPage() {
                   placeholder={t('user.generate.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.subscription')}
                 </Label>
@@ -1350,13 +1352,13 @@ export default function UserPage() {
               </div>
             </div>
             {!form.email_prefix ? (
-              <div className="xb-stack-2">
+              <div className="space-y-1.5">
                 <Label className={dialogFieldLabelCls}>
                   {t('user.generate.form.generate_count')}
                 </Label>
                 <input
                   type="number"
-                  className={`${inputCls} ${dialogInputCls}`}
+                  className={dialogCompactInputCls}
                   placeholder={t('user.generate.form.generate_count_placeholder')}
                   value={form.generate_count != null ? Number(form.generate_count) : ''}
                   onChange={(e) =>
@@ -1368,13 +1370,14 @@ export default function UserPage() {
                 />
               </div>
             ) : null}
+            </form>
             </div>
           </div>
           <DialogFormFooter
             onCancel={() => setDialogMode(null)}
             onSubmit={saveUser}
             cancelLabel={t('user.generate.form.cancel')}
-            submitLabel={saving ? t('common.saving') : t('user.generate.form.submit')}
+            submitLabel={saving ? t('common.saving') : t('common.confirm')}
             submitting={saving}
           />
         </DialogContent>

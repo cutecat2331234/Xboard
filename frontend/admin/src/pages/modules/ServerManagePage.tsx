@@ -18,6 +18,7 @@ import { fetchJsonList, generateEchKey, postJson } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
 import {
+  dialogFieldInputCls,
   dialogInputCls,
   formSubLabelCls,
   inputCls,
@@ -1546,18 +1547,18 @@ export default function ServerManagePage() {
 
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-2">
-          <div className="xb-stack-4">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6 pt-4">
+          <div className="space-y-4">
 
             <div className="flex gap-4">
 
-              <div className="min-w-0 flex-[2] xb-stack-2">
+              <div className="min-w-0 flex-[2] space-y-2">
 
                 <Label className={serverFieldLabelCls}>{t('server.form.name.label')}</Label>
 
                 <input
 
-                  className={`${inputCls} ${dialogInputCls}`}
+                  className={dialogFieldInputCls()}
 
                   placeholder={t('server.form.name.placeholder')}
 
@@ -1569,7 +1570,7 @@ export default function ServerManagePage() {
 
               </div>
 
-              <div className="min-w-0 flex-1 xb-stack-2">
+              <div className="min-w-0 flex-1 space-y-2">
 
                 <Label className={`${serverFieldLabelCls} flex items-center gap-1.5`}>
                   {t('server.form.rate.label')}
@@ -1641,13 +1642,13 @@ export default function ServerManagePage() {
 
             <div className="grid grid-cols-2 gap-4">
 
-              <div className="xb-stack-2">
+              <div className="space-y-2">
 
                 <Label className={serverFieldLabelCls}>{t('server.form.traffic_limit.label')}(GB)</Label>
 
                 <input
                   type="number"
-                  className={`${inputCls} ${dialogInputCls}`}
+                  className={dialogFieldInputCls()}
                   placeholder={t('server.form.traffic_limit.placeholder')}
                   value={form.traffic_limit}
                   onChange={(e) => setForm((f) => ({ ...f, traffic_limit: e.target.value }))}
@@ -1655,7 +1656,7 @@ export default function ServerManagePage() {
 
               </div>
 
-              <div className="xb-stack-2">
+              <div className="space-y-2">
 
                 <Label className={serverFieldLabelCls}>
                   {t('server.form.code.label')}
@@ -1664,7 +1665,7 @@ export default function ServerManagePage() {
 
                 <input
 
-                  className={`${inputCls} ${dialogInputCls}`}
+                  className={dialogFieldInputCls()}
 
                   placeholder={t('server.form.code.placeholder')}
 
@@ -1678,7 +1679,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-2">
 
               <Label className={serverFieldLabelCls}>{t('server.form.tags.label')}</Label>
 
@@ -1696,7 +1697,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-2">
 
               <div className="flex items-center justify-between gap-2">
 
@@ -1729,13 +1730,13 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-2">
 
               <Label className={serverFieldLabelCls}>{t('server.form.host.label')}</Label>
 
               <input
 
-                className={`${inputCls} ${dialogInputCls}`}
+                className={dialogFieldInputCls()}
 
                 placeholder={t('server.form.host.placeholder')}
 
@@ -1749,7 +1750,7 @@ export default function ServerManagePage() {
 
             <div className="flex gap-4">
 
-              <div className="min-w-0 flex-1 xb-stack-2">
+              <div className="min-w-0 flex-1 space-y-2">
 
                 <Label className={`${serverFieldLabelCls} flex items-center gap-1.5`}>
                   {t('server.form.port.label')}
@@ -1776,7 +1777,7 @@ export default function ServerManagePage() {
 
                 <div className="flex items-center gap-1">
                   <input
-                    className={`${inputCls} ${dialogInputCls} min-w-0 flex-1`}
+                    className={dialogFieldInputCls('min-w-0 flex-1')}
                     placeholder={t('server.form.port.placeholder')}
                     value={form.port}
                     onChange={(e) => setForm((f) => ({ ...f, port: e.target.value }))}
@@ -1813,7 +1814,7 @@ export default function ServerManagePage() {
 
               </div>
 
-              <div className="min-w-0 flex-1 xb-stack-2">
+              <div className="min-w-0 flex-1 space-y-2">
 
                 <Label className={`${serverFieldLabelCls} flex items-center gap-1.5`}>
                   {t('server.form.server_port.label')}
@@ -1839,7 +1840,7 @@ export default function ServerManagePage() {
                 </Label>
 
                 <input
-                  className={`${inputCls} ${dialogInputCls}`}
+                  className={dialogFieldInputCls()}
                   placeholder={t('server.form.server_port.placeholder')}
                   value={form.server_port}
                   onChange={(e) => setForm((f) => ({ ...f, server_port: e.target.value }))}
@@ -1851,7 +1852,7 @@ export default function ServerManagePage() {
 
             <div className="grid grid-cols-2 gap-4">
 
-              <div className="xb-stack-2">
+              <div className="space-y-2">
 
                 <Label className={serverFieldLabelCls}>{t('server.form.parent.label')}</Label>
 
@@ -1876,7 +1877,7 @@ export default function ServerManagePage() {
 
               </div>
 
-              <div className="xb-stack-2">
+              <div className="space-y-2">
 
                 <Label className={serverFieldLabelCls}>{t('server.form.route.label')}</Label>
 
@@ -1897,7 +1898,7 @@ export default function ServerManagePage() {
 
             </div>
 
-            <div className="xb-stack-2">
+            <div className="space-y-2">
 
               <Label className={serverFieldLabelCls}>{t('server.form.machine.label')}</Label>
 
@@ -1922,7 +1923,7 @@ export default function ServerManagePage() {
             ) : null}
 
             {shouldShowEchFields(form.type, protocolSettings) ? (
-              <div className="col-span-2 xb-stack-2 rounded-lg border border-dashed p-3">
+              <div className="col-span-2 space-y-2 rounded-lg border border-dashed p-3">
                 <div className="flex items-center justify-between gap-2">
                   <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.generate')}</Label>
                   <Button
@@ -1941,16 +1942,16 @@ export default function ServerManagePage() {
                     {t('server.dynamic_form.ech.generate')}
                   </Button>
                 </div>
-                <div className="xb-stack-2">
+                <div className="space-y-2">
                   <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.query_server_name.label')}</Label>
                   <input
-                    className={`${inputCls} ${dialogInputCls}`}
+                    className={dialogFieldInputCls()}
                     value={echForm.query_server_name}
                     onChange={(e) => setEchForm((f) => ({ ...f, query_server_name: e.target.value }))}
                     placeholder={t('server.dynamic_form.ech.query_server_name.placeholder')}
                   />
                 </div>
-                <div className="xb-stack-2">
+                <div className="space-y-2">
                   <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.config.label')}</Label>
                   <textarea
                     className={`${textareaCls} font-mono text-xs`}
@@ -1959,7 +1960,7 @@ export default function ServerManagePage() {
                     placeholder={t('server.dynamic_form.ech.config.placeholder')}
                   />
                 </div>
-                <div className="xb-stack-2">
+                <div className="space-y-2">
                   <Label className={serverFieldLabelCls}>{t('server.dynamic_form.ech.key.label')}</Label>
                   <textarea
                     className={`${textareaCls} font-mono text-xs`}

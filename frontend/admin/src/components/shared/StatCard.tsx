@@ -48,13 +48,13 @@ export function StatCard({
           : undefined
       }
       className={cn(
-        'rounded-xl shadow-sm transition-colors',
+        'rounded-xl shadow transition-colors',
         (clickable || onClick) && 'cursor-pointer hover:bg-muted/50',
         className,
       )}
     >
-      <CardHeader className="flex flex-row items-center justify-between p-6 pb-2">
-        <CardTitle className="text-sm font-medium tracking-tight">{title}</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 pb-2">
+        <CardTitle className="tracking-tight text-sm font-medium">{title}</CardTitle>
         {Icon ? <Icon className={cn('h-4 w-4 text-muted-foreground', iconClassName)} /> : null}
       </CardHeader>
       <CardContent className="p-6 pt-0">
