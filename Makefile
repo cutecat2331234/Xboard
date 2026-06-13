@@ -4,7 +4,7 @@ help:
 	@echo "Xboard parity targets (7001 ref vs 7002 cmp):"
 	@echo "  make parity        - show last full-suite report"
 	@echo "  make parity-smoke  - quick smoke (~13 min)"
-	@echo "  make parity-full   - full suite (~65 min, 87 routes)"
+	@echo "  make parity-full   - full suite (~65 min, 87 parity + 2 cmp-only)"
 	@echo "  make parity-status - alias for parity"
 
 parity parity-status:

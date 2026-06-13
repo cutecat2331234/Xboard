@@ -78,6 +78,7 @@
 - [x] **R40 全量复验**：`run-parity-suite.mjs` 87/87 PASS + README/`parity-status --full`
 - [x] **R41 Makefile 验收入口**：`make parity` / `parity-smoke` / `parity-full` + smoke PASS
 - [x] **R42 AI-HANDOFF 终稿对齐**：§1 100% 状态 + `make parity-smoke` PASS（2026-06-13）
+- [x] **R43 cmp-only 验收**：`verify-cmp-only.mjs` gift-generate + user-gift-card，接入 parity suite
 
 
 

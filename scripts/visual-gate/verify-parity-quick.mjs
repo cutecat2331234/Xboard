@@ -34,15 +34,23 @@ const steps = [
       ROUTES: 'user-edit,user-create,user-mail,gift-template,plan-add,server-add',
     },
   },
+  {
+    name: 'cmp-only (2)',
+    cmd: 'verify-cmp-only',
+  },
 ]
 
 const failures = []
 
 for (const step of steps) {
   console.log(`\n=== ${step.name} ===`)
-  const r = spawnSync('node', ['scripts/visual-gate/visual-gate.mjs'], {
+  const args =
+    step.cmd === 'verify-cmp-only'
+      ? ['scripts/visual-gate/verify-cmp-only.mjs']
+      : ['scripts/visual-gate/visual-gate.mjs']
+  const r = spawnSync('node', args, {
     cwd: root,
-    env: step.env,
+    env: step.env || baseEnv,
     stdio: 'inherit',
   })
   if (r.status !== 0) failures.push(step.name)

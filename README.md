@@ -127,6 +127,7 @@ php artisan horizon
 | 维度 | 状态 |
 |------|------|
 | Visual Gate 像素 | **87/87 PASS** |
+| Cmp-only（7002 独有） | **2/2 PASS** |
 | 功能覆盖（相对后端 API） | **100%** |
 
 ```bash

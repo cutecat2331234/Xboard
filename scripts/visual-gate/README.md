@@ -38,7 +38,15 @@ Environment overrides: `REF_BASE`, `CMP_BASE`, `SECURE_PATH`, `VIEWPORT_W`, `VIE
 node scripts/visual-gate/run-parity-suite.mjs
 ```
 
-Runs **user visual-gate (16)** + **admin visual-gate (39)** + **audit-admin-full (26)** + **probe-round29 dialogs (6)**. Exit `0` = full parity PASS.
+Runs **user visual-gate (16)** + **admin visual-gate (39)** + **audit-admin-full (26)** + **probe-round29 dialogs (6)** + **cmp-only (2)**. Exit `0` = full parity PASS.
+
+### Cmp-only (7002-only, no 7001 ref)
+
+```bash
+node scripts/visual-gate/verify-cmp-only.mjs
+```
+
+Covers `gift-generate` dialog and user `#/gift-card` page smoke on 7002 only.
 
 Writes `output/parity-suite-report.json` with timestamp, step status, and excluded scenarios.
 
@@ -48,7 +56,7 @@ Writes `output/parity-suite-report.json` with timestamp, step status, and exclud
 node scripts/visual-gate/verify-parity-quick.mjs
 ```
 
-Covers user core 4 routes + admin core 3 routes + all 6 dialog routes.
+Covers user core 4 routes + admin core 3 routes + all 6 dialog routes + cmp-only 2 scenarios.
 
 ### Status check (read last full-suite report)
 

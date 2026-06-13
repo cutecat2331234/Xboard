@@ -38,6 +38,9 @@ function printReport(report) {
   console.log('ref:      ', report.refBase)
   console.log('cmp:      ', report.cmpBase)
   console.log('routes:   ', report.totals?.routes ?? '?', '/ 87')
+  if (report.totals?.cmpOnly != null) {
+    console.log('cmp-only: ', report.totals.cmpOnly, '/ 2')
+  }
   if (report.steps?.length) {
     for (const s of report.steps) {
       console.log(`  - ${s.name}: ${s.status}`)
@@ -64,7 +67,7 @@ if (full) {
   const report = readReport()
   if (!report?.passed) process.exit(1)
   printReport(report)
-  console.log('\nPARITY_100_OK (87/87 routes, full suite refreshed)')
+  console.log('\nPARITY_100_OK (87/87 parity + 2/2 cmp-only, full suite refreshed)')
   process.exit(0)
 }
 
@@ -94,5 +97,5 @@ if (smoke) {
   console.log('\nSMOKE_PASS (updated lastSmokeAt in report)')
 }
 
-console.log('\nPARITY_100_OK (87/87 routes in last full suite)')
+console.log('\nPARITY_100_OK (87/87 parity + 2/2 cmp-only in last full suite)')
 process.exit(0)
