@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "timestamp": "2026-06-13T11:15:54.908Z",
+  "results": [
+    {
+      "id": "gift-generate",
+      "pass": true
+    },
+    {
+      "id": "user-gift-card",
+      "pass": true
+    }
+  ]
+}

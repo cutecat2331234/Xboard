@@ -53,11 +53,20 @@ const steps = [
     env: { ...env },
     expectRoutes: 6,
   },
+  {
+    id: 'cmp-only',
+    name: 'cmp-only (2 scenarios, 7002-only)',
+    cmd: 'node',
+    args: ['scripts/visual-gate/verify-cmp-only.mjs'],
+    env: { ...env },
+    expectRoutes: 0,
+    expectCmpOnly: 2,
+  },
 ]
 
 const EXCLUDED = [
-  { id: 'gift-generate', reason: '7001 template rows have Edit/Delete only, no inline Generate' },
-  { id: 'user-gift-card', reason: '7001 legacy has no user gift-card page (use INCLUDE_GIFT_CARD=1 for cmp-only)' },
+  { id: 'gift-generate', reason: '7001 template rows have Edit/Delete only — parity excluded; covered by cmp-only step' },
+  { id: 'user-gift-card', reason: '7001 legacy has no user gift-card page — parity excluded; covered by cmp-only step' },
 ]
 
 const report = {
@@ -66,7 +75,7 @@ const report = {
   refBase: env.REF_BASE,
   cmpBase: env.CMP_BASE,
   steps: [],
-  totals: { routes: 0, steps: steps.length },
+  totals: { routes: 0, cmpOnly: 0, steps: steps.length },
   excluded: EXCLUDED,
 }
 
@@ -83,9 +92,11 @@ for (const step of steps) {
     name: step.name,
     status: ok ? 'pass' : 'fail',
     expectRoutes: step.expectRoutes,
+    expectCmpOnly: step.expectCmpOnly,
     durationMs: Date.now() - started,
   })
-  if (ok) report.totals.routes += step.expectRoutes
+  if (ok && step.expectRoutes) report.totals.routes += step.expectRoutes
+  if (ok && step.expectCmpOnly) report.totals.cmpOnly += step.expectCmpOnly
 }
 
 report.passed = failures.length === 0
@@ -111,4 +122,4 @@ if (failures.length) {
   console.error('\nPARITY_SUITE_FAILED', failures)
   process.exit(1)
 }
-console.log('\nPARITY_SUITE_PASS user+admin+audit+dialogs (87 routes)')
+console.log('\nPARITY_SUITE_PASS user+admin+audit+dialogs+cmp-only (87 parity + 2 cmp-only)')

@@ -6,13 +6,15 @@
 
 **7001 闭源原版 vs 7002 开源仿写** 在 Visual Gate 定义下已达 **100%**：
 
-| 套件 | 路由数 | 阈值 | 状态 |
-|------|--------|------|------|
+| 套件 | 路由/场景 | 阈值 | 状态 |
+|------|-----------|------|------|
 | User visual-gate | 16 | core 0.5% / page 1% | ✅ PASS |
 | Admin visual-gate | 39 | core 0.5% / page 1% / dialog 2% | ✅ PASS |
 | audit-admin-full | 26 | 1% | ✅ PASS |
 | probe-round29 dialogs | 6 | 2%（委托 visual-gate） | ✅ PASS |
-| **合计** | **87** | — | **✅ 100%** |
+| **Parity 小计** | **87** | — | **✅ 100%** |
+| cmp-only（7002 独有） | 2 | smoke（无 7001 ref） | ✅ PASS |
+| **合计** | **89** | — | **✅ 100%** |
 
 ## 一键命令
 
@@ -38,12 +40,12 @@ node scripts/visual-gate/parity-status.mjs [--smoke|--full]
 ./scripts/check-parity.sh --smoke  # 报告 + quick smoke
 ```
 
-## 排除项（不可 / 不应 gate）
+## 排除项（parity 像素 gate 不可 1:1）
 
-| 项 | 原因 |
-|----|------|
-| **gift-generate** | 7001 `#/finance/gift-card` 模板行仅 Edit/Delete，无「生成」按钮，无法 1:1 像素对比 |
-| **user gift-card** | 7001 legacy umi 无用户礼品卡页；`INCLUDE_GIFT_CARD=1` 仅测 7002 |
+| 项 | 原因 | R43 cmp-only |
+|----|------|--------------|
+| **gift-generate** | 7001 模板行仅 Edit/Delete，无「生成」按钮 | ✅ `verify-cmp-only.mjs` |
+| **user gift-card** | 7001 legacy 无用户礼品卡页 | ✅ `verify-cmp-only.mjs` |
 
 ## 功能覆盖（相对后端 API，2026-06-13）
 
@@ -52,8 +54,9 @@ node scripts/visual-gate/parity-status.mjs [--smoke|--full]
 | 管理端 119 API | ✅ | 见 `docs/FEATURE-SURVEY.md` |
 | 用户端 41 API | ✅ | 含 gift-card/transfer/telegram/mailLink |
 | Visual Gate 像素 | ✅ | **87/87** |
+| Cmp-only（7002 独有 UI） | ✅ | **2/2** |
 
-仿写 **功能 + 像素** 对 7001 可达范围均已 **100%**；上表排除项为 7001 无对照 UI。
+仿写 **功能 + 像素 + 7002 独有 UI** 对 7001 可达范围均已 **100%**；上表 parity 排除项由 cmp-only 步骤覆盖。
 
 ## 关键 dialog 像素（≤2%）
 
