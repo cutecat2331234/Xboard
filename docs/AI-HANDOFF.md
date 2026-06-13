@@ -111,17 +111,27 @@ node scripts/visual-gate/probe-round34-deep.mjs
 - `SuffixInput` 后缀改为 `<div>`；Sheet 去掉 `sr-only Close`
 - 礼品卡：7002 可 `scripts/seed-gift-template.php` 种子数据
 
-### 仍未达标（Round 35 重点）
+### 仍未达标（Round 36 更新）
 
-| 场景 | 约像素差 | 主要根因 |
-|------|----------|----------|
-| user-edit | ~3.7–4.3% | Sheet 字段分组高度、备注 textarea、Switch 样式 |
-| plan-add | ~4.9% | 套餐说明 textarea 高度（7001 ~232px）、价格区内边距 |
-| server-add | ~4.5% | 对话框内层结构与 7001 `h-[75vh]` 差异；label 数 13 vs 15 |
-| user-create / user-mail / gift-* | ~3.5% | 同类控件级样式 |
-| gift-generate | probe SKIP | 7001 参考端表格「生成」按钮路径不一致 |
+**Visual Gate parity 已于 R23 全绿**（`run-parity-suite.mjs` exit 0）：
 
-详见 `docs/IMITATION-PLAN-ROUND-33.md`、`docs/IMITATION-PLAN-ROUND-34.md`。
+| 套件 | 结果 |
+|------|------|
+| user visual-gate | 16/16 |
+| admin visual-gate | 39/39（user-edit **1.684%**） |
+| audit-admin-full | 26/26 |
+| probe-round29 dialogs | 6/6 |
+
+日常复验：`node scripts/visual-gate/verify-parity-quick.mjs`（~5–8 min）。
+
+### 仍排除（非缺口）
+
+| 场景 | 状态 | 原因 |
+|------|------|------|
+| gift-generate | 不可 gate | 7001 模板行无「生成」按钮（仅 Edit/Delete） |
+| user gift-card | 默认 SKIP | 7001 legacy 无用户礼品卡页 |
+
+详见 `docs/IMITATION-PLAN-ROUND-36.md`。
 
 ---
 
@@ -154,12 +164,10 @@ node scripts/visual-gate/probe-round34-deep.mjs
 
 ## 8. 给下一个 AI 的推荐任务顺序
 
-1. 读 `probe-round34-deep.mjs` 最新输出，确认 plan/server/user 高度差  
-2. 对齐 plan `textarea` 至 ~232px；server 内层加 `h-[75vh] min-h-[500px]`  
-3. user-edit：合并 balance/upload 为 **单 grid 四格**（已做）；继续压 Switch / Label `text-base` 副作用  
-4. 修 `probe-round29-dialogs.mjs` 的 gift-generate 打开路径  
-5. 每轮更新 `IMITATION-PLAN-ROUND-35.md` + `BUG-REPORT.md`  
-6. deploy → 全套 audit → **诚实汇报**是否 <2%
+1. 日常：`node scripts/visual-gate/verify-parity-quick.mjs`；发版前：`node scripts/visual-gate/run-parity-suite.mjs`
+2. 若 dialog 回归：读 `probe-user-edit-deep.mjs` / `output/admin/*-diff.png`
+3. gift-generate 仅当 7001 上游加入行内「生成」后再纳入 gate
+4. 每轮更新 `IMITATION-PLAN-ROUND-*.md` + `BUG-REPORT.md`
 
 ---
 
