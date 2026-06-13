@@ -85,6 +85,7 @@
 - [x] **R44 文档终局**：AI-HANDOFF 89 场景 + smoke 复验
 - [x] **R45 验收固化**：`make parity-check` + README 89 场景
 - [x] **R46 终局确认**：AI-HANDOFF parity-check + smoke 复验
+- [x] **R47 CI 防回归**：`.github/workflows/parity-check.yml`
 
 
 

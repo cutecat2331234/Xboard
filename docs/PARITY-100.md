@@ -59,6 +59,11 @@ node scripts/visual-gate/parity-status.mjs [--smoke|--full|--check]
 
 仿写 **功能 + 像素 + 7002 独有 UI** 对 7001 可达范围均已 **100%**；上表 parity 排除项由 cmp-only 步骤覆盖。
 
+## CI
+
+GitHub Actions `parity-check.yml` 在 push/PR 时运行 `make parity-check`，校验仓库内 `parity-suite-report.json`（87+2、各 step pass）。  
+实机像素 gate 仍在部署服务器执行：`make parity-smoke` / `make parity-full`。
+
 ## 关键 dialog 像素（≤2%）
 
 | 路由 | 典型 diff |

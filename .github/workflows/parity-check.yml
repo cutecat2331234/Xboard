@@ -1,0 +1,24 @@
+name: Parity Check
+
+# Validates committed parity-suite-report.json (87 parity + 2 cmp-only).
+# Live visual-gate against 7001/7002 runs on the deploy server via make parity-smoke / parity-full.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  parity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Strict parity report validation
+        run: make parity-check

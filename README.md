@@ -4,6 +4,7 @@
 
 ![PHP](https://img.shields.io/badge/PHP-8.5+-green.svg)
 ![Laravel](https://img.shields.io/badge/Laravel-13-red.svg)
+![Parity](https://github.com/cutecat2331234/Xboard/actions/workflows/parity-check.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 基于 Laravel + Octane 的代理面板系统，前后端分离，支持用户端与管理端。
