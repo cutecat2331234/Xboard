@@ -1387,15 +1387,15 @@ export default function UserPage() {
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="flex w-full max-w-[90%] flex-col gap-0 overflow-y-auto p-6 sm:w-[448px] sm:max-w-[448px]"
+          className="flex w-full max-w-[90%] flex-col gap-4 overflow-y-scroll p-6 sm:w-[448px] sm:max-w-[448px]"
         >
-          <SheetHeader className="xb-stack-2 p-0 text-center sm:text-left">
+          <SheetHeader className="space-y-2 p-0 text-center sm:text-left">
             <SheetTitle className="text-lg font-semibold leading-9 tracking-tight">
               {t('user.edit.title')}
             </SheetTitle>
           </SheetHeader>
-          <div className="xb-stack-4">
-              <div className="xb-stack-2">
+          <div className="space-y-4">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.email')}
                 </Label>
@@ -1405,7 +1405,7 @@ export default function UserPage() {
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.inviter_email')}
                 </Label>
@@ -1416,7 +1416,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.inviter_email_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.password')}
                 </Label>
@@ -1428,7 +1428,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="grid gap-2 md:grid-cols-2">
-                <div className="xb-stack-2">
+                <div className="space-y-2">
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.balance')}
                   </Label>
@@ -1440,7 +1440,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.balance_placeholder')}
                   />
                 </div>
-                <div className="xb-stack-2">
+                <div className="space-y-2">
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.commission_balance')}
                   </Label>
@@ -1454,7 +1454,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.commission_balance_placeholder')}
                   />
                 </div>
-                <div className="xb-stack-2">
+                <div className="space-y-2">
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.upload')}
                   </Label>
@@ -1467,7 +1467,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.upload_placeholder')}
                   />
                 </div>
-                <div className="xb-stack-2">
+                <div className="space-y-2">
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.download')}
                   </Label>
@@ -1481,7 +1481,7 @@ export default function UserPage() {
                   />
                 </div>
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.total_traffic')}
                 </Label>
@@ -1503,7 +1503,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.total_traffic_placeholder')}
                 />
               </div>
-              <div className="flex flex-col xb-stack-2">
+              <div className="flex flex-col space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.expire_time')}
                 </Label>
@@ -1513,7 +1513,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.subscription')}
                 </Label>
@@ -1531,7 +1531,7 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.account_status')}
                 </Label>
@@ -1544,7 +1544,7 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.commission_type')}
                 </Label>
@@ -1558,7 +1558,7 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.commission_rate')}
                 </Label>
@@ -1575,7 +1575,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.commission_rate_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.discount')}
                 </Label>
@@ -1592,7 +1592,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.discount_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.speed_limit')}
                 </Label>
@@ -1609,7 +1609,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.speed_limit_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.device_limit')}
                 </Label>
@@ -1626,7 +1626,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.device_limit_placeholder')}
                 />
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.is_admin')}
                 </Label>
@@ -1637,7 +1637,7 @@ export default function UserPage() {
                   />
                 </div>
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.is_staff')}
                 </Label>
@@ -1648,7 +1648,7 @@ export default function UserPage() {
                   />
                 </div>
               </div>
-              <div className="xb-stack-2">
+              <div className="space-y-2">
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.remarks')}
                 </Label>
@@ -1789,7 +1789,7 @@ export default function UserPage() {
           </DialogHeader>
           <p className="text-sm text-muted-foreground">{assignUser?.email}</p>
           <div className="flex flex-col gap-4 py-2">
-                  <div className="xb-stack-2">
+                  <div className="space-y-2">
               <Label>{t('user.edit.form.subscription')}</Label>
               <select
                 className={inputCls}
@@ -1804,7 +1804,7 @@ export default function UserPage() {
                 ))}
               </select>
             </div>
-                  <div className="xb-stack-2">
+                  <div className="space-y-2">
               <Label>{t('order.form.period')}</Label>
               <select
                 className={inputCls}
@@ -1818,7 +1818,7 @@ export default function UserPage() {
                 ))}
               </select>
             </div>
-                  <div className="xb-stack-2">
+                  <div className="space-y-2">
               <Label>{t('order.form.total_amount')}</Label>
               <input
                 type="number"

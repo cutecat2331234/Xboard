@@ -118,27 +118,7 @@ function diffPct(a, b) {
   return { pct: (n / (w * h)) * 100, w, h, n, out }
 }
 
-async function maskVolatile(page, routeId) {
-  await page.evaluate(
-    ({ isTable, isConfig }) => {
-      if (isTable) {
-        document.querySelectorAll('tbody td').forEach((td) => {
-          td.textContent = '•'
-        })
-      }
-      if (isConfig) {
-        document.querySelectorAll('input:not([type=hidden]), textarea').forEach((el) => {
-          el.value = 'x'
-          el.setAttribute('value', 'x')
-        })
-      }
-      document.querySelectorAll('.monaco-editor .view-lines').forEach((el) => {
-        el.style.opacity = '0'
-      })
-    },
-    { isTable: TABLE_ROUTES.has(routeId), isConfig: routeId.startsWith('config-') },
-  )
-}
+import { maskAdminRoute } from './mask-utils.mjs'
 
 /** Main content below PageToolbar (4rem); exclude w-64 shell sidebar. */
 const CONFIG_CLIP = { x: 256, y: 64, width: 1024, height: 656 }
@@ -200,8 +180,8 @@ for (const route of ROUTES) {
         hasChinese: /[\u4e00-\u9fff]/.test(document.body.innerText.slice(0, 500)),
       }))
 
-    await maskVolatile(refPage, route.id)
-    await maskVolatile(cmpPage, route.id)
+    await maskAdminRoute(refPage, route.id, { tableRoutes: TABLE_ROUTES })
+    await maskAdminRoute(cmpPage, route.id, { tableRoutes: TABLE_ROUTES })
 
     const refMeta = await snap(refPage)
     const cmpMeta = await snap(cmpPage)

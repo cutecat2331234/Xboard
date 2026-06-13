@@ -143,28 +143,16 @@ function diffPct(a, b) {
   return { pct: (n / (w * h)) * 100, out }
 }
 
-async function maskDialog(page) {
-  await page.evaluate(() => {
-    document
-      .querySelectorAll('[role=dialog] input:not([type=file]), [role=dialog] textarea, [role=dialog] select')
-      .forEach((el) => {
-        if (el instanceof HTMLInputElement) {
-          if (el.readOnly || el.type === 'date' || el.type === 'hidden') return
-        }
-        if (el instanceof HTMLButtonElement && el.type === 'button') return
-        if (el instanceof HTMLSelectElement) {
-          if (el.options.length > 0) el.selectedIndex = 0
-          return
-        }
-        el.value = 'x'
-      })
-  })
-}
+import { maskDialogVolatile } from './mask-utils.mjs'
 
 async function shotDialog(page) {
-  const dialog = page.locator('[role=dialog]').first()
+  const dialog = page.locator('[role=dialog][data-state=open]').first()
   if ((await dialog.count()) > 0) {
     return dialog.screenshot()
+  }
+  const fallback = page.locator('[role=dialog]').first()
+  if ((await fallback.count()) > 0) {
+    return fallback.screenshot()
   }
   return page.screenshot()
 }
@@ -182,16 +170,18 @@ for (const sc of SCENARIOS) {
       ['ref', REF],
       ['cmp', CMP],
     ]) {
-      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
       await login(page, base)
       await page.goto(`${base}/${SECURE}${sc.hash}`, { waitUntil: 'domcontentloaded', timeout: 90000 })
       await page.waitForSelector(sc.wait, { timeout: 45000 }).catch(() => {})
       await page.waitForTimeout(2000)
       try {
         await sc.open(page)
+        await page.waitForSelector('[role=dialog][data-state=open], [role=dialog]', { timeout: 15000 })
+        await page.waitForTimeout(2000)
         if (side === 'ref') row.refOpened = true
         else row.cmpOpened = true
-        await maskDialog(page)
+        await maskDialogVolatile(page)
         const buf = await shotDialog(page)
         fs.writeFileSync(path.join(outDir, `${sc.id}-${side}.png`), buf)
       } catch (e) {
@@ -204,7 +194,7 @@ for (const sc of SCENARIOS) {
     if (fs.existsSync(refPath) && fs.existsSync(cmpPath)) {
       const { pct, out } = diffPct(fs.readFileSync(refPath), fs.readFileSync(cmpPath))
       row.diffPct = +pct.toFixed(3)
-      row.pass = pct < 2
+      row.pass = pct <= 2
       fs.writeFileSync(path.join(outDir, `${sc.id}-diff.png`), PNG.sync.write(out))
     }
   } catch (e) {

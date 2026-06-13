@@ -32,6 +32,14 @@ SIDE=admin ROUTES=user-create,plan-add,server-add,gift-template,user-mail node v
 
 Environment overrides: `REF_BASE`, `CMP_BASE`, `SECURE_PATH`, `VIEWPORT_W`, `VIEWPORT_H`, `FULL_PAGE=1`, `INCLUDE_GIFT_CARD=1`.
 
+### Full parity suite (recommended)
+
+```bash
+node scripts/visual-gate/run-parity-suite.mjs
+```
+
+Runs **user visual-gate (16)** + **admin visual-gate (39)** + **audit-admin-full (26)**. Exit `0` = full parity PASS.
+
 ## Route lists
 
 ### User (`USER_ROUTES_DEFAULT`)
