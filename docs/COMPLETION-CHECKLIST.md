@@ -90,6 +90,7 @@
 - [x] **R49 lastSmoke 保留 + smoke**：run-parity-suite 不覆盖 lastSmokeAt
 - [x] **R50 Gitea CI**：`.gitea/workflows/parity-check.yml`
 - [x] **R51 imitation-done**：`make imitation-done` + smoke 复验
+- [x] **R52 parity-status --json**：机器可读摘要 + PARITY-100 补全
 
 
 
