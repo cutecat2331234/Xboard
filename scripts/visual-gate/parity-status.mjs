@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Print parity status from parity-suite-report.json.
- * Exit 0 when passed=true; use --smoke to also run verify-parity-quick.mjs.
+ *   --smoke  run verify-parity-quick.mjs (~13 min)
+ *   --full   run run-parity-suite.mjs (~65 min)
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -12,6 +13,7 @@ const __dir = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dir, '../..')
 const reportPath = path.join(__dir, 'output', 'parity-suite-report.json')
 const smoke = process.argv.includes('--smoke')
+const full = process.argv.includes('--full')
 
 function readReport() {
   if (!fs.existsSync(reportPath)) {
@@ -27,27 +29,49 @@ function readReport() {
   }
 }
 
+function printReport(report) {
+  console.log('Visual Gate Parity Status')
+  console.log('-------------------------')
+  console.log('passed:   ', report.passed ? 'YES' : 'NO')
+  console.log('timestamp:', report.timestamp)
+  if (report.lastSmokeAt) console.log('lastSmoke:', report.lastSmokeAt)
+  console.log('ref:      ', report.refBase)
+  console.log('cmp:      ', report.cmpBase)
+  console.log('routes:   ', report.totals?.routes ?? '?', '/ 87')
+  if (report.steps?.length) {
+    for (const s of report.steps) {
+      console.log(`  - ${s.name}: ${s.status}`)
+    }
+  }
+  if (report.excluded?.length) {
+    console.log('excluded:')
+    for (const x of report.excluded) {
+      console.log(`  - ${x.id}: ${x.reason}`)
+    }
+  }
+}
+
+if (full) {
+  console.log('Running run-parity-suite.mjs (full, ~65 min) ...')
+  const r = spawnSync('node', ['scripts/visual-gate/run-parity-suite.mjs'], {
+    cwd: root,
+    stdio: 'inherit',
+  })
+  if (r.status !== 0) {
+    console.error('\nFULL_SUITE_FAILED')
+    process.exit(1)
+  }
+  const report = readReport()
+  if (!report?.passed) process.exit(1)
+  printReport(report)
+  console.log('\nPARITY_100_OK (87/87 routes, full suite refreshed)')
+  process.exit(0)
+}
+
 const report = readReport()
 if (!report) process.exit(1)
 
-console.log('Visual Gate Parity Status')
-console.log('-------------------------')
-console.log('passed:   ', report.passed ? 'YES' : 'NO')
-console.log('timestamp:', report.timestamp)
-console.log('ref:      ', report.refBase)
-console.log('cmp:      ', report.cmpBase)
-console.log('routes:   ', report.totals?.routes ?? '?', '/ 87')
-if (report.steps?.length) {
-  for (const s of report.steps) {
-    console.log(`  - ${s.name}: ${s.status}`)
-  }
-}
-if (report.excluded?.length) {
-  console.log('excluded:')
-  for (const x of report.excluded) {
-    console.log(`  - ${x.id}: ${x.reason}`)
-  }
-}
+printReport(report)
 
 if (!report.passed) {
   console.error('\nPARITY_NOT_100', report.failures)

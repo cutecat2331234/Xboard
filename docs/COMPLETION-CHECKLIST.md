@@ -75,6 +75,7 @@
 - [x] **R37 验收闭环**：`run-parity-suite.mjs` 输出 `parity-suite-report.json` + `verify-parity-quick.mjs` 日常 smoke
 - [x] **R38 100% 单一真相源**：`docs/PARITY-100.md` + `parity-status.mjs` + `scripts/check-parity.sh`
 - [x] **R39 功能覆盖文档 100%**：FEATURE-SURVEY 核对完成（traffic-reset/transfer/gift-card/telegram/mailLink 均已实现）
+- [x] **R40 全量复验**：`run-parity-suite.mjs` 87/87 PASS + README/`parity-status --full`
 
 
 

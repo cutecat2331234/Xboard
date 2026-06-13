@@ -59,6 +59,12 @@ node scripts/visual-gate/parity-status.mjs --smoke
 
 See also `docs/PARITY-100.md`.
 
+### Full suite (refresh report, ~65 min)
+
+```bash
+node scripts/visual-gate/parity-status.mjs --full
+```
+
 ## Route lists
 
 ### User (`USER_ROUTES_DEFAULT`)

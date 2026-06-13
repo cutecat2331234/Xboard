@@ -120,6 +120,28 @@ php artisan octane:start --server=swoole --host=0.0.0.0 --port=7001
 php artisan horizon
 ```
 
+## 7001 vs 7002 仿写验收（Visual Gate 100%）
+
+双端口对比环境：`7001` 闭源原版 · `7002` 开源仿写（见 `docs/FRONTEND-COMPARE.md`）。
+
+| 维度 | 状态 |
+|------|------|
+| Visual Gate 像素 | **87/87 PASS** |
+| 功能覆盖（相对后端 API） | **100%** |
+
+```bash
+# 查看上次全量报告
+node scripts/visual-gate/parity-status.mjs
+
+# 日常 smoke（~13 min）
+node scripts/visual-gate/parity-status.mjs --smoke
+
+# 发版前全量（~65 min）
+node scripts/visual-gate/parity-status.mjs --full
+```
+
+详情：`docs/PARITY-100.md` · 报告：`scripts/visual-gate/output/parity-suite-report.json`
+
 ### 5. Docker 一键部署（可选）
 
 详见 [Docker Compose 部署文档](./docs/en/installation/docker-compose.md)。
