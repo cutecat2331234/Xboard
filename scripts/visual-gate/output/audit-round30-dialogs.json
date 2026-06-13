@@ -2,56 +2,56 @@
   {
     "id": "user-edit",
     "refOpened": true,
-    "cmpOpened": false,
-    "diffPct": 4.313,
+    "cmpOpened": true,
+    "diffPct": 3.788,
     "pass": false,
-    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody tr').first().locator('button').last()\n"
+    "error": null
   },
   {
     "id": "user-create",
     "refOpened": true,
-    "cmpOpened": false,
-    "diffPct": 3.511,
+    "cmpOpened": true,
+    "diffPct": 2.148,
     "pass": false,
-    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('button:has-text(\"创建用户\")').first()\n"
+    "error": null
   },
   {
     "id": "user-mail",
     "refOpened": true,
-    "cmpOpened": false,
-    "diffPct": 3.732,
-    "pass": false,
-    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('button:has-text(\"操作\")').first()\n"
+    "cmpOpened": true,
+    "diffPct": 1.589,
+    "pass": true,
+    "error": null
   },
   {
     "id": "gift-template-edit",
     "refOpened": true,
-    "cmpOpened": false,
-    "diffPct": 3.547,
+    "cmpOpened": true,
+    "diffPct": 2.057,
     "pass": false,
-    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody button:has-text(\"编辑\")').first()\n"
+    "error": null
   },
   {
     "id": "gift-generate",
     "refOpened": false,
-    "cmpOpened": false,
+    "cmpOpened": true,
     "diffPct": null,
     "pass": false,
-    "error": "cmp: locator.click: Timeout 8000ms exceeded.\nCall log:\n  - waiting for locator('tbody tr').first().locator('td').last().locator('button').nth(1)\n"
+    "error": "ref: page.waitForSelector: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator('[role=dialog]') to be visible\n"
   },
   {
     "id": "plan-add",
     "refOpened": true,
     "cmpOpened": true,
-    "diffPct": 4.86,
-    "pass": false,
+    "diffPct": 1.705,
+    "pass": true,
     "error": null
   },
   {
     "id": "server-add",
     "refOpened": true,
     "cmpOpened": true,
-    "diffPct": 4.767,
+    "diffPct": 2.195,
     "pass": false,
     "error": null
   }

@@ -77,6 +77,7 @@
 - [x] **R39 功能覆盖文档 100%**：FEATURE-SURVEY 核对完成（traffic-reset/transfer/gift-card/telegram/mailLink 均已实现）
 - [x] **R40 全量复验**：`run-parity-suite.mjs` 87/87 PASS + README/`parity-status --full`
 - [x] **R41 Makefile 验收入口**：`make parity` / `parity-smoke` / `parity-full` + smoke PASS
+- [x] **R42 AI-HANDOFF 终稿对齐**：§1 100% 状态 + `make parity-smoke` PASS（2026-06-13）
 
 
 
