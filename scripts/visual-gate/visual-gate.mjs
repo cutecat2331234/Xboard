@@ -36,7 +36,7 @@ const USER_ROUTES_BASE =
 const USER_ROUTES_DEFAULT =
   USER_ROUTES_BASE + (process.env.INCLUDE_GIFT_CARD === '1' ? ',gift-card' : '')
 const ADMIN_ROUTES_DEFAULT =
-  'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset,user-create,plan-add,server-add,gift-template,user-mail'
+  'sign-in,dashboard,config,config-safe,config-subscribe,config-invite,config-server,config-email,config-telegram,config-app,config-subscribe-template,plugin,theme,notice,payment,knowledge,server_manage,server_machine,server_group,server_route,plan,order,coupon,gift-card,user,ticket,traffic-reset,user-create,user-edit,plan-add,server-add,gift-template,user-mail'
 const ADMIN_LOCALE = process.env.ADMIN_LOCALE || 'zh-CN'
 /** Legacy 7001 on ref server uses vue-i18n `locale` key; default en-US for pixel parity. */
 const USER_LOCALE = process.env.USER_LOCALE || 'en-US'
@@ -50,9 +50,10 @@ const outDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'outpu
 const CORE = new Set(side === 'admin' ? ['sign-in', 'dashboard'] : ['login', 'dashboard'])
 
 /** Admin modal flows: open dialog on parent page, screenshot dialog, allow ≤2% diff. */
-const DIALOG_ROUTES = new Set(['user-create', 'plan-add', 'server-add', 'gift-template', 'user-mail'])
+const DIALOG_ROUTES = new Set(['user-create', 'user-edit', 'plan-add', 'server-add', 'gift-template', 'user-mail'])
 const DIALOG_PARENT = {
   'user-create': 'user',
+  'user-edit': 'user',
   'user-mail': 'user',
   'plan-add': 'plan',
   'server-add': 'server_manage',
@@ -428,6 +429,21 @@ async function openAdminDialog(page, route) {
       '[role=menuitem]:has-text("Send Email")',
       '[role=menuitem]:has-text("Send Mail")',
     ])
+  } else if (route === 'user-edit') {
+    await page.waitForSelector('tbody tr', { state: 'visible', timeout: 90000 }).catch(() => {})
+    await clickVisible(page, [
+      'tbody tr:first-child button.h-8.w-8',
+      'tbody tr:first-child button:has(svg.tabler-icon)',
+      'tbody tr:first-child button[class*="w-8"]',
+      'tbody tr:first-child button:last-of-type',
+    ])
+    await clickVisible(page, [
+      '[role=menuitem]:has-text("编辑")',
+      '[role=menuitem]:has-text("Edit")',
+    ])
+    await page
+      .waitForSelector('[role=dialog][data-state=open]', { timeout: 15000 })
+      .catch(() => {})
   } else if (route === 'gift-template') {
     await page
       .locator(

@@ -38,7 +38,7 @@ Environment overrides: `REF_BASE`, `CMP_BASE`, `SECURE_PATH`, `VIEWPORT_W`, `VIE
 node scripts/visual-gate/run-parity-suite.mjs
 ```
 
-Runs **user visual-gate (16)** + **admin visual-gate (39)** + **audit-admin-full (26)**. Exit `0` = full parity PASS.
+Runs **user visual-gate (16)** + **admin visual-gate (39)** + **audit-admin-full (26)** + **probe-round29 dialogs (6)**. Exit `0` = full parity PASS.
 
 ## Route lists
 

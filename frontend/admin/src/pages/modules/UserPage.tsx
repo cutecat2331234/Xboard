@@ -19,6 +19,13 @@ import {
   dialogFieldLabelCls,
   dialogMailInputCls,
   dialogMailTextareaCls,
+  editSheetFieldCls,
+  editSheetExpireBtnCls,
+  editSheetExpireFieldCls,
+  editSheetRemarksFieldCls,
+  editSheetSelectCls,
+  editSheetSwitchFieldCls,
+  editSheetSwitchWrapCls,
   sheetFieldLabelCls,
   dialogInputCls,
   dialogSelectCls,
@@ -1389,13 +1396,13 @@ export default function UserPage() {
           showCloseButton={false}
           className="flex w-full max-w-[90%] flex-col gap-4 overflow-y-scroll p-6 sm:w-[448px] sm:max-w-[448px]"
         >
-          <SheetHeader className="space-y-2 p-0 text-center sm:text-left">
-            <SheetTitle className="text-lg font-semibold leading-9 tracking-tight">
-              {t('user.edit.title')}
-            </SheetTitle>
+          <SheetHeader className="mt-4 p-0">
+            <SheetTitle>{t('user.edit.title')}</SheetTitle>
+            <p className="m-0 h-0 overflow-hidden p-0 text-sm text-muted-foreground" aria-hidden>
+              {'\u00a0'}
+            </p>
           </SheetHeader>
-          <div className="space-y-4">
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.email')}
                 </Label>
@@ -1405,7 +1412,7 @@ export default function UserPage() {
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.inviter_email')}
                 </Label>
@@ -1416,7 +1423,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.inviter_email_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.password')}
                 </Label>
@@ -1428,7 +1435,7 @@ export default function UserPage() {
                 />
               </div>
               <div className="grid gap-2 md:grid-cols-2">
-                <div className="space-y-2">
+                <div className={editSheetFieldCls}>
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.balance')}
                   </Label>
@@ -1440,7 +1447,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.balance_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className={editSheetFieldCls}>
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.commission_balance')}
                   </Label>
@@ -1454,7 +1461,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.commission_balance_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className={editSheetFieldCls}>
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.upload')}
                   </Label>
@@ -1467,7 +1474,7 @@ export default function UserPage() {
                     placeholder={t('user.edit.form.upload_placeholder')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className={editSheetFieldCls}>
                   <Label className={sheetFieldLabelCls}>
                     {t('user.edit.form.download')}
                   </Label>
@@ -1481,7 +1488,7 @@ export default function UserPage() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.total_traffic')}
                 </Label>
@@ -1503,21 +1510,23 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.total_traffic_placeholder')}
                 />
               </div>
-              <div className="flex flex-col space-y-2">
+              <div className={editSheetExpireFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.expire_time')}
                 </Label>
                 <ExpireDateInput
+                  className={editSheetExpireBtnCls}
                   value={form.expired_at as number | null | undefined}
                   onChange={(ts) => setForm((f) => ({ ...f, expired_at: ts }))}
                   placeholder={t('user.edit.form.expire_time_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.subscription')}
                 </Label>
                 <FormSelect
+                  className={editSheetSelectCls}
                   value={String(form.plan_id ?? '')}
                   onChange={(v) =>
                     setForm((f) => ({
@@ -1531,11 +1540,12 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.account_status')}
                 </Label>
                 <FormSelect
+                  className={editSheetSelectCls}
                   value={form.banned ? 'true' : 'false'}
                   onChange={(v) => setForm((f) => ({ ...f, banned: v === 'true' }))}
                   options={[
@@ -1544,11 +1554,12 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.commission_type')}
                 </Label>
                 <FormSelect
+                  className={editSheetSelectCls}
                   value={String(form.commission_type ?? 0)}
                   onChange={(v) => setForm((f) => ({ ...f, commission_type: Number(v) }))}
                   options={[
@@ -1558,7 +1569,7 @@ export default function UserPage() {
                   ]}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.commission_rate')}
                 </Label>
@@ -1575,7 +1586,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.commission_rate_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.discount')}
                 </Label>
@@ -1592,7 +1603,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.discount_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.speed_limit')}
                 </Label>
@@ -1609,7 +1620,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.speed_limit_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.device_limit')}
                 </Label>
@@ -1626,29 +1637,29 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.device_limit_placeholder')}
                 />
               </div>
-              <div className="space-y-2">
+              <div className={editSheetSwitchFieldCls} data-mask-switch-row>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.is_admin')}
                 </Label>
-                <div className="py-2">
+                <div className={editSheetSwitchWrapCls}>
                   <Switch
                     checked={Boolean(form.is_admin)}
                     onCheckedChange={(v) => setForm((f) => ({ ...f, is_admin: v }))}
                   />
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className={editSheetSwitchFieldCls} data-mask-switch-row>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.is_staff')}
                 </Label>
-                <div className="py-2">
+                <div className={editSheetSwitchWrapCls}>
                   <Switch
                     checked={Boolean(form.is_staff)}
                     onCheckedChange={(v) => setForm((f) => ({ ...f, is_staff: v }))}
                   />
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className={editSheetRemarksFieldCls}>
                 <Label className={sheetFieldLabelCls}>
                   {t('user.edit.form.remarks')}
                 </Label>
@@ -1659,8 +1670,7 @@ export default function UserPage() {
                   placeholder={t('user.edit.form.remarks_placeholder')}
                 />
               </div>
-          </div>
-          <SheetFooter className="mt-4 flex-row justify-end gap-2 sm:justify-end">
+          <SheetFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button variant="outline" onClick={() => setDialogMode(null)}>
               {t('user.edit.form.cancel')}
             </Button>

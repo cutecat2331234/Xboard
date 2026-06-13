@@ -35,6 +35,12 @@ const steps = [
     args: ['scripts/visual-gate/audit-admin-full.mjs'],
     env: { ...env },
   },
+  {
+    name: 'probe-round29 dialogs (6 scenarios)',
+    cmd: 'node',
+    args: ['scripts/visual-gate/probe-round29-dialogs.mjs'],
+    env: { ...env },
+  },
 ]
 
 const failures = []
@@ -49,4 +55,4 @@ if (failures.length) {
   console.error('\nPARITY_SUITE_FAILED', failures)
   process.exit(1)
 }
-console.log('\nPARITY_SUITE_PASS user+admin+audit')
+console.log('\nPARITY_SUITE_PASS user+admin+audit+dialogs')

@@ -101,9 +101,32 @@ export const dialogSubFieldLabelCls =
 export const configSubFieldLabelCls =
   'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 
-/** 7001 user-edit sheet labels: standard FormLabel (text-sm / leading-5). */
+/** 7001 user-edit sheet labels: FormLabel text-sm / leading-none (measured 19px block). */
 export const sheetFieldLabelCls =
-  'text-sm font-medium leading-5 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+  'block min-h-[19px] text-sm font-medium leading-[19px] peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+
+/** 7001 user-edit sheet field stack (measured block min-heights from 7001 ref). */
+export const editSheetFieldCls = 'flex flex-col gap-2.5 min-h-[68px]'
+
+/** 7001 user-edit expire row (measured 58px). */
+export const editSheetExpireFieldCls = 'flex flex-col gap-2.5 min-h-[58px]'
+
+/** 7001 user-edit switch rows (measured 72px incl. py-2 wrap). */
+export const editSheetSwitchFieldCls = 'flex flex-col gap-2.5 min-h-[72px]'
+
+/** 7001 user-edit remarks row (measured 128px). */
+export const editSheetRemarksFieldCls = 'flex flex-col gap-2.5 min-h-[128px]'
+
+/** 7001 user-edit sheet expire trigger (36px, non-mono). */
+export const editSheetExpireBtnCls =
+  '!h-9 !min-h-9 !max-h-9 bg-transparent text-sm font-normal shadow-sm [&_svg]:h-3 [&_svg]:w-3'
+
+/** 7001 user-edit sheet switch row inner wrapper. */
+export const editSheetSwitchWrapCls = 'py-2'
+
+/** 7001 user-edit sheet FormSelect triggers (36px). */
+export const editSheetSelectCls =
+  'h-9 min-h-9 max-h-9 py-1 shadow-none [&_svg]:h-3 [&_svg]:w-3'
 
 /** 7001 shadcn FormDescription slot (empty on server multiselect rows). */
 export const formSubLabelCls = 'm-0 text-[0.8rem] text-muted-foreground'

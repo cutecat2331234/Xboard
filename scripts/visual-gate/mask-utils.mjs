@@ -52,6 +52,7 @@ export async function maskDialogVolatile(page) {
       if (el instanceof HTMLElement) {
         el.style.visibility = 'hidden'
         const row =
+          el.closest('[data-mask-switch-row]') ||
           el.closest('.flex.items-center.justify-between') ||
           el.closest('.xb-stack-2') ||
           el.closest('.space-y-2')
@@ -73,6 +74,14 @@ export async function maskDialogVolatile(page) {
       .forEach((el) => {
         if (el instanceof HTMLElement) el.style.visibility = 'hidden'
       })
+    document.querySelectorAll('[role=dialog] button[type=button]').forEach((el) => {
+      if (!(el instanceof HTMLElement)) return
+      if (el.closest('footer, [class*="SheetFooter"], [class*="flex-col-reverse"]')) return
+      if (!el.querySelector('svg.tabler-icon, svg.lucide-calendar')) return
+      const span = el.querySelector('span')
+      if (span instanceof HTMLElement) span.textContent = 'x'
+      el.style.color = 'transparent'
+    })
     document
       .querySelectorAll(
         '[role=dialog] input, [role=dialog] textarea, [role=dialog] select, [role=dialog] button[role=combobox]',
