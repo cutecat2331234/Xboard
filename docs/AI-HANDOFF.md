@@ -1,6 +1,6 @@
 # AI 交接文档 — Xboard 双前端仿造项目
 
-> **最后更新**：2026-06-13（R46 — 89 场景终局确认）  
+> **最后更新**：2026-06-13（R47 — CI parity-check）  
 > **仓库**：GitHub `origin` · Gitea `http://111.170.170.147:3004/ookkyys/Xboard`  
 > **当前分支**：`master`
 
@@ -50,7 +50,7 @@ Xboard/
     ├── AI-HANDOFF.md         # 本文件
     ├── FRONTEND-REPLICA.md   # 仿造策略
     ├── BUG-REPORT.md         # 各轮 bug 记录
-    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 46）
+    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 47）
     ├── PARITY-100.md            # ★ Visual Gate 100% 定义与命令
     └── COMPLETION-CHECKLIST.md
 ```
@@ -116,7 +116,8 @@ node scripts/visual-gate/run-parity-suite.mjs   # 全量套件
 | cmp-only（7002 独有） | 2/2（gift-generate + user-gift-card） |
 | 功能覆盖（FEATURE-SURVEY） | 100% |
 
-日常复验：`make parity-smoke` · 发版前：`make parity-full` · CI/快速：`make parity-check`
+日常复验：`make parity-smoke` · 发版前：`make parity-full` · CI/快速：`make parity-check`  
+GitHub Actions：`parity-check.yml` 校验已提交报告（push/PR 自动跑）。
 
 ### Parity 排除项 → cmp-only 覆盖
 
