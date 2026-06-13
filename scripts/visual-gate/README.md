@@ -50,6 +50,15 @@ node scripts/visual-gate/verify-parity-quick.mjs
 
 Covers user core 4 routes + admin core 3 routes + all 6 dialog routes.
 
+### Status check (read last full-suite report)
+
+```bash
+node scripts/visual-gate/parity-status.mjs
+node scripts/visual-gate/parity-status.mjs --smoke
+```
+
+See also `docs/PARITY-100.md`.
+
 ## Route lists
 
 ### User (`USER_ROUTES_DEFAULT`)
