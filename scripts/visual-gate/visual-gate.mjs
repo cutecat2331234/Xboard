@@ -17,6 +17,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { maskDialogVolatile as applyDialogMask, maskAdminCharts, maskAdminTables, maskAdminMonaco } from './mask-utils.mjs'
 import { PNG } from 'pngjs'
 import pixelmatch from 'pixelmatch'
 
@@ -476,90 +477,7 @@ async function openAdminDialog(page, route) {
 }
 
 async function maskDialogVolatile(page) {
-  await page.evaluate(() => {
-    document.querySelectorAll('[role=dialog] .overflow-y-auto').forEach((el) => {
-      if (el instanceof HTMLElement) el.scrollTop = 0
-    })
-    document.querySelectorAll('.rc-md-navigation').forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.style.opacity = '0'
-        el.style.pointerEvents = 'none'
-      }
-    })
-    document.querySelectorAll('.rc-md-editor .section-container').forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.style.opacity = '0'
-        el.style.pointerEvents = 'none'
-      }
-    })
-    document
-      .querySelectorAll(
-        '[role=dialog] p.font-mono, [role=dialog] p.text-muted-foreground, [role=dialog] label[aria-hidden="true"]',
-      )
-      .forEach((el) => {
-        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
-      })
-    document.querySelectorAll('[role=dialog]').forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.style.borderColor = 'transparent'
-        el.style.boxShadow = 'none'
-      }
-    })
-    document.querySelectorAll('[role=dialog] button.absolute.right-4.top-4').forEach((el) => {
-      if (el instanceof HTMLElement) el.style.visibility = 'hidden'
-    })
-    document.querySelectorAll('[role=dialog] .rounded-xl.border').forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.style.borderColor = 'transparent'
-        el.style.backgroundColor = 'transparent'
-      }
-    })
-    document.querySelectorAll('[role=dialog] .rounded-xl svg, [role=dialog] .border-dashed svg').forEach((el) => {
-      if (el instanceof SVGElement) el.style.visibility = 'hidden'
-    })
-    document.querySelectorAll('[role=dialog] [role=switch]').forEach((el) => {
-      if (el instanceof HTMLElement) {
-        el.style.visibility = 'hidden'
-        const row = el.closest('.flex.items-center.justify-between')
-        if (row instanceof HTMLElement) row.style.visibility = 'hidden'
-      }
-    })
-    document.querySelectorAll('[role=dialog] .border-dashed').forEach((el) => {
-      if (el instanceof HTMLElement) el.style.visibility = 'hidden'
-    })
-    document
-      .querySelectorAll('[role=dialog] button.inline-flex.opacity-70, [role=dialog] button.size-6')
-      .forEach((el) => {
-        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
-      })
-    document
-      .querySelectorAll(
-        '[role=dialog] .flex.flex-wrap.items-center.gap-1.rounded-md.border, [role=dialog] button[role=combobox]',
-      )
-      .forEach((el) => {
-        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
-      })
-    document
-      .querySelectorAll(
-        '[role=dialog] input, [role=dialog] textarea, [role=dialog] select, [role=dialog] button[role=combobox]',
-      )
-      .forEach((el) => {
-        if (el instanceof HTMLElement) el.style.boxShadow = 'none'
-      })
-    document
-      .querySelectorAll('[role=dialog] input:not([type=file]), [role=dialog] textarea, [role=dialog] select')
-      .forEach((el) => {
-        if (el instanceof HTMLInputElement) {
-          if (el.readOnly || el.type === 'date' || el.type === 'hidden') return
-        }
-        if (el instanceof HTMLButtonElement && el.type === 'button') return
-        if (el instanceof HTMLSelectElement) {
-          if (el.options.length > 0) el.selectedIndex = 0
-          return
-        }
-        el.value = 'x'
-      })
-  })
+  return applyDialogMask(page)
 }
 
 async function screenshotDialog(page, shotOpts) {
@@ -579,41 +497,9 @@ async function maskAdminVolatile(page, route) {
   const maskTable = ADMIN_MASK_TABLE_ROUTES.has(route)
   const maskMonaco = route === 'config-subscribe-template'
   const maskCharts = route === 'dashboard'
-  if (!maskTable && !maskMonaco && !maskCharts) return
-  await page.evaluate(({ maskTable: mt, maskMonaco: mm, maskCharts: mc }) => {
-    if (mt) {
-      document.querySelectorAll('tbody td').forEach((td) => {
-        td.textContent = '•'
-      })
-    }
-    if (mm) {
-      document.querySelectorAll('.monaco-editor .view-lines').forEach((el) => {
-        el.style.opacity = '0'
-      })
-    }
-    if (mc) {
-      document.querySelectorAll('.recharts-wrapper, .recharts-surface, .recharts-responsive-container').forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.opacity = '0'
-          el.style.pointerEvents = 'none'
-        }
-      })
-      document.querySelectorAll('[role=alert]').forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.display = 'none'
-        }
-      })
-      document.querySelectorAll('[class*="text-2xl"][class*="font-bold"]').forEach((el) => {
-        if (el.closest('.rounded-xl')) el.textContent = '—'
-      })
-      document.querySelectorAll('.rounded-xl .text-emerald-500, .rounded-xl .text-red-500').forEach((el) => {
-        if (el.closest('.rounded-xl')) el.textContent = '—'
-      })
-      document.querySelectorAll('.rounded-xl svg.lucide-trending-up').forEach((el) => {
-        if (el instanceof SVGElement) el.style.opacity = '0'
-      })
-    }
-  }, { maskTable, maskMonaco, maskCharts })
+  if (maskTable) await maskAdminTables(page)
+  if (maskMonaco) await maskAdminMonaco(page)
+  if (maskCharts) await maskAdminCharts(page)
 }
 
 const ADMIN_TABLE_ROUTES = new Set([
