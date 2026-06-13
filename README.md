@@ -2,105 +2,196 @@
 
 <div align="center">
 
-[![Telegram](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/XboardOfficial)
-![PHP](https://img.shields.io/badge/PHP-8.2+-green.svg)
-![MySQL](https://img.shields.io/badge/MySQL-5.7+-blue.svg)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![PHP](https://img.shields.io/badge/PHP-8.5+-green.svg)
+![Laravel](https://img.shields.io/badge/Laravel-13-red.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+基于 Laravel + Octane 的代理面板系统，前后端分离，支持用户端与管理端。
 
 </div>
 
-## 📖 Introduction
+## 重要说明：源码仓库
 
-Xboard is a modern panel system built on Laravel 11, focusing on providing a clean and efficient user experience.
+**本仓库仅保留可维护的源码，不包含任何前端构建产物。**
 
-## ✨ Features
+以下目录已从 Git 历史中移除，且已加入 `.gitignore`，**请勿再次提交**：
 
-- 🚀 Built with Laravel 12 + Octane for significant performance gains
-- 🎨 Redesigned admin interface (React + Shadcn UI)
-- 📱 Modern user frontend (Vue3 + TypeScript)
-- 🐳 Ready-to-use Docker deployment solution
-- 🎯 Optimized system architecture for better maintainability
+| 目录 | 说明 |
+|------|------|
+| `public/assets/` | 管理端（React）构建输出 |
+| `public/theme/` | 用户端旧版主题构建输出 |
+| `theme/Xboard/assets/` | 用户端（Vue3）构建输出 |
+| `legacy-dist/` | 历史 dist 快照 |
+| `theme/v2board/` | 旧版 v2board 主题构建产物 |
 
-## 🚀 Quick Start
+克隆后必须**本地构建前端**，否则页面无法正常加载。
+
+> 仓库 Git 对象约 **22 MB**（源码）。若在 Gitea 仍看到较大体积，请在仓库设置中执行 **Git 垃圾回收**，并清理已无引用的 LFS 孤儿对象。
+
+## 功能特性
+
+- Laravel 13 + Octane (Swoole) 高性能后端
+- 管理端：React + TypeScript + Shadcn UI
+- 用户端：Vue3 + TypeScript + Naive UI
+- 插件体系、队列（Horizon）、Redis 缓存
+- Docker / 1Panel / aaPanel 等多种部署方式
+
+## 技术栈
+
+| 层级 | 技术 |
+|------|------|
+| 后端 | PHP 8.5、Laravel 13、Octane、Horizon |
+| 管理端源码 | `frontend/admin` → 构建到 `public/assets/admin` |
+| 用户端源码 | `frontend/user` → 构建到 `theme/Xboard/assets` |
+| 主题模板 | `theme/Xboard/`（blade、config，不含 assets） |
+| 缓存 / 队列 | Redis |
+
+## 仓库地址
+
+| 远程 | 地址 |
+|------|------|
+| Gitea（主） | http://https://github.com/cutecat2331234/Xboard |
+| GitHub | https://github.com/cutecat2331234/Xboard |
+
+## 环境要求
+
+- PHP **8.5+**（扩展：swoole、redis、pdo、mbstring、bcmath、intl、gmp、curl、zip）
+- Composer 2.x
+- Node.js **18+**（推荐 22）
+- Redis
+- MySQL 5.7+ / MariaDB / SQLite（开发可用 SQLite）
+
+## 快速开始
+
+### 1. 克隆仓库
 
 ```bash
-git clone -b compose --depth 1 https://github.com/cedar2025/Xboard && \
-cd Xboard && \
-docker compose run -it --rm \
-    -e ENABLE_SQLITE=true \
-    -e ENABLE_REDIS=true \
-    -e ADMIN_ACCOUNT=admin@demo.com \
-    xboard php artisan xboard:install && \
-docker compose up -d
+git clone http://https://github.com/cutecat2331234/Xboard.git
+cd Xboard
 ```
 
-> After installation, visit: http://SERVER_IP:7001  
-> ⚠️ Make sure to save the admin credentials shown during installation
+或从 GitHub：
 
-## 📖 Documentation
-
-### 🔄 Upgrade Notice
-> 🚨 **Important:** This version involves significant changes. Please strictly follow the upgrade documentation and backup your database before upgrading. Note that upgrading and migration are different processes, do not confuse them.
-
-### Development Guides
-- [Plugin Development Guide](./docs/en/development/plugin-development-guide.md) - Complete guide for developing XBoard plugins
-
-### Deployment Guides
-- [Deploy with 1Panel](./docs/en/installation/1panel.md)
-- [Deploy with Docker Compose](./docs/en/installation/docker-compose.md)
-- [Deploy with aaPanel](./docs/en/installation/aapanel.md)
-- [Deploy with aaPanel + Docker](./docs/en/installation/aapanel-docker.md) (Recommended)
-
-### Migration Guides
-- [Migrate from v2board dev](./docs/en/migration/v2board-dev.md)
-- [Migrate from v2board 1.7.4](./docs/en/migration/v2board-1.7.4.md)
-- [Migrate from v2board 1.7.3](./docs/en/migration/v2board-1.7.3.md)
-
-## 🛠️ Tech Stack
-
-- Backend: Laravel 11 + Octane
-- Admin Panel: React + Shadcn UI + TailwindCSS
-- User Frontend: Vue3 + TypeScript + NaiveUI
-- Deployment: Docker + Docker Compose
-- Caching: Redis + Octane Cache
-
-## 📷 Preview
-![Admin Preview](./docs/images/admin.png)
-
-![User Preview](./docs/images/user.png)
-
-## ⚠️ Disclaimer
-
-This project is for learning and communication purposes only. Users are responsible for any consequences of using this project.
-
-## ❤️ Support The Project
-
-If this project has helped you, donations are appreciated. They help support ongoing maintenance and would make me very happy.
-
-TRC20: `TLypStEWsVrj6Wz9mCxbXffqgt5yz3Y4XB`
-
-## 🌟 Maintenance Notice
-
-This project is currently under light maintenance. We will:
-- Fix critical bugs and security issues
-- Review and merge important pull requests
-- Provide necessary updates for compatibility
-
-However, new feature development may be limited.
-
-## 🔔 Important Notes
-
-1. Restart required after modifying admin path:
 ```bash
-docker compose restart
+git clone https://github.com/cutecat2331234/Xboard.git
+cd Xboard
 ```
 
-2. For aaPanel installations, restart the Octane daemon process
+### 2. 安装后端依赖
 
-## 🤝 Contributing
+```bash
+composer install
+cp .env.example .env   # 按需修改数据库、Redis 等配置
+```
 
-Issues and Pull Requests are welcome to help improve the project.
+### 3. 构建前端（必须）
 
-## 📈 Star History
+```bash
+npm --prefix frontend/admin install
+npm --prefix frontend/admin run build
 
-[![Stargazers over time](https://starchart.cc/cedar2025/Xboard.svg)](https://starchart.cc/cedar2025/Xboard)
+npm --prefix frontend/user install
+npm --prefix frontend/user run build
+```
+
+构建结果写入（已在 `.gitignore` 中，不会进入 Git）：
+
+- `public/assets/admin/` — 管理端静态资源
+- `theme/Xboard/assets/` — 用户端静态资源
+
+### 4. 安装与启动
+
+```bash
+# 启动 Redis
+redis-server --daemonize yes
+
+# 初始化（首次）
+ADMIN_ACCOUNT=admin@example.com php artisan xboard:install
+
+# 启动 Octane
+php artisan octane:start --server=swoole --host=0.0.0.0 --port=7001
+```
+
+访问 `http://localhost:7001/` 为用户端。管理端路径为 `hash('crc32b', APP_KEY)`，`xboard:install` 安装时会输出。
+
+可选队列：
+
+```bash
+php artisan horizon
+```
+
+### 5. Docker 一键部署（可选）
+
+详见 [Docker Compose 部署文档](./docs/en/installation/docker-compose.md)。
+
+## 目录结构
+
+```
+Xboard/
+├── app/                    # Laravel 应用代码
+├── frontend/
+│   ├── admin/              # 管理端 React 源码
+│   └── user/               # 用户端 Vue3 源码
+├── theme/Xboard/           # 用户端主题模板（blade、config）
+├── public/                 # Web 根目录（构建后生成 assets）
+├── plugins-core/           # 内置插件
+├── docs/                   # 文档与截图
+└── tests/
+```
+
+## 前端开发
+
+开发模式（热更新）：
+
+```bash
+npm --prefix frontend/admin run dev
+npm --prefix frontend/user run dev
+```
+
+默认 `vite.config.ts` 可能将 API 代理到远程地址。对接本地后端时，请将 proxy 目标改为 `http://localhost:7001`。
+
+修改前端后重新 `npm run build`，**不要**将 `public/assets/` 或 `theme/Xboard/assets/` 提交到 Git。
+
+## 文档
+
+- [插件开发指南](./docs/en/development/plugin-development-guide.md)
+- [Docker Compose 部署](./docs/en/installation/docker-compose.md)
+- [1Panel 部署](./docs/en/installation/1panel.md)
+- [aaPanel 部署](./docs/en/installation/aapanel.md)
+- [从 v2board 迁移](./docs/en/migration/v2board-dev.md)
+
+## 质量检查
+
+```bash
+# 静态分析
+vendor/bin/phpstan analyse --memory-limit=1G
+
+# 测试
+vendor/bin/phpunit
+```
+
+## 预览
+
+![管理端](./docs/images/admin.png)
+
+![用户端](./docs/images/user.png)
+
+## 免责声明
+
+本项目仅供学习与交流。使用本项目所产生的任何后果由使用者自行承担。
+
+## 维护状态
+
+当前为轻量维护：修复关键缺陷与安全问题，合并重要 PR；新功能开发可能有限。
+
+## 参与贡献
+
+欢迎提交 Issue 与 Pull Request。提交前请确认：
+
+1. **不要**提交 `public/assets/`、`theme/Xboard/assets/`、`legacy-dist/` 等构建产物
+2. 前端改动需在本地完成 `npm run build` 验证
+3. 若同时维护 Gitea 与 GitHub，推送后请确认两边同步
+
+## License
+
+[MIT](LICENSE)
