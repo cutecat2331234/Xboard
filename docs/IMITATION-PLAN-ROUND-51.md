@@ -15,4 +15,10 @@
 
 ## R51 执行记录
 
-（跑完填写）
+| 项 | 结果 |
+|---|---|
+| `make imitation-done` | ✅ parity-check + 完工 banner |
+| `make parity-smoke` | ✅ PASS |
+| commit | `master` → origin + gitea |
+
+**结论**：**89/89 维持 100%**。
