@@ -15,4 +15,11 @@ R48 全量复验 PASS，但 `run-parity-suite.mjs` 覆盖报告时丢失 `lastSm
 
 ## R49 执行记录
 
-（跑完填写）
+| 项 | 结果 |
+|---|---|
+| `run-parity-suite` 保留 lastSmokeAt | ✅ |
+| AI-HANDOFF R48 timestamp | ✅ |
+| `make parity-smoke` | ✅ PASS |
+| commit | `master` → origin + gitea |
+
+**结论**：**89/89 维持 100%**，全量/smoke 报告字段完整。
