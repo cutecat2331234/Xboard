@@ -61,7 +61,7 @@ node scripts/visual-gate/parity-status.mjs [--smoke|--full|--check]
 
 ## CI
 
-GitHub Actions `parity-check.yml` 在 push/PR 时运行 `make parity-check`，校验仓库内 `parity-suite-report.json`（87+2、各 step pass）。  
+GitHub Actions `.github/workflows/parity-check.yml` 与 Gitea Actions `.gitea/workflows/parity-check.yml` 在 push/PR 时运行 `make parity-check`，校验仓库内 `parity-suite-report.json`（87+2、各 step pass）。  
 实机像素 gate 仍在部署服务器执行：`make parity-smoke` / `make parity-full`。
 
 ## 关键 dialog 像素（≤2%）

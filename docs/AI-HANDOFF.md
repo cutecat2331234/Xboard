@@ -1,6 +1,6 @@
 # AI 交接文档 — Xboard 双前端仿造项目
 
-> **最后更新**：2026-06-13（R49 — 89 场景维持 100%）  
+> **最后更新**：2026-06-13（R50 — Gitea CI + 89 场景 100%）  
 > **仓库**：GitHub `origin` · Gitea `http://111.170.170.147:3004/ookkyys/Xboard`  
 > **当前分支**：`master`
 
@@ -20,7 +20,7 @@
 **目标**：7002 在功能、布局、弹窗、图标、 i18n 上与 7001 尽可能一致。
 
 **当前状态（2026-06-13）**：**87/87 Visual Gate + 2/2 cmp-only + 功能覆盖 100%**（合计 **89 场景**）。  
-单一真相源：`docs/PARITY-100.md` · 报告：`scripts/visual-gate/output/parity-suite-report.json`
+全量复验：`2026-06-13T14:23:21Z`（R48）· 单一真相源：`docs/PARITY-100.md` · 报告：`scripts/visual-gate/output/parity-suite-report.json`
 
 parity 不可 1:1 的两项（7001 无 UI）已由 **cmp-only** 步骤覆盖：`gift-generate`、`user-gift-card`。
 
@@ -50,7 +50,7 @@ Xboard/
     ├── AI-HANDOFF.md         # 本文件
     ├── FRONTEND-REPLICA.md   # 仿造策略
     ├── BUG-REPORT.md         # 各轮 bug 记录
-    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 47）
+    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 50）
     ├── PARITY-100.md            # ★ Visual Gate 100% 定义与命令
     └── COMPLETION-CHECKLIST.md
 ```
@@ -117,7 +117,8 @@ node scripts/visual-gate/run-parity-suite.mjs   # 全量套件
 | 功能覆盖（FEATURE-SURVEY） | 100% |
 
 日常复验：`make parity-smoke` · 发版前：`make parity-full` · CI/快速：`make parity-check`  
-GitHub Actions：`parity-check.yml` 校验已提交报告（push/PR 自动跑）。
+GitHub Actions：`parity-check.yml` 校验已提交报告（push/PR 自动跑）。  
+Gitea Actions：`.gitea/workflows/parity-check.yml` 同样跑 `make parity-check`。
 
 ### Parity 排除项 → cmp-only 覆盖
 
@@ -159,12 +160,12 @@ GitHub Actions：`parity-check.yml` 校验已提交报告（push/PR 自动跑）
 
 ## 8. 给下一个 AI 的推荐任务顺序
 
-**Parity 仿造线已完工。** 仅在以下情况继续开发：
+**Parity 仿造线已 100% 完工（89 场景）。** 除非出现回归或新需求，**勿再开 imitation round**。仅在以下情况继续：
 
-1. 改动了 `frontend/admin` 或 `frontend/user` → `make parity-smoke`（或 `--full` 发版前）
+1. 改动了 `frontend/admin` 或 `frontend/user` → `make parity-smoke`（发版前 `--full`）
 2. dialog 回归 → `output/admin/*-diff.png` + `probe-user-edit-deep.mjs`
-3. 7001 上游新增 UI → 扩展 `DIALOG_ROUTES` / cmp-only 后再 gate
-4. 新功能（7002 独有）→ 单独规划，不破坏 87/87 parity（cmp-only 可扩展）
+3. 7001 上游新增 UI → 扩展 gate / cmp-only
+4. **新功能（7002 独有）** → 单独规划，不破坏 87/87 parity
 
 ---
 
