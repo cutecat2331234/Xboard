@@ -21,18 +21,18 @@
 | 模块 | 关键端点 | replica 页面 | 状态 |
 |------|----------|--------------|------|
 | 仪表盘 stat | getOverride/getStats/getOrder/getRanking/getTrafficRank/getServerLastRank/getStatUser | `DashboardPage` | ✅ |
-| 系统配置 config | fetch/save/getEmailTemplate/getThemeTemplate/testSendMail/setTelegramWebhook | `ConfigPage`(站点/安全/订阅/邀请/节点/邮件/Telegram/APP/订阅模板) | ✅ 像素≤1.06% |
+| 系统配置 config | fetch/save/getEmailTemplate/getThemeTemplate/testSendMail/setTelegramWebhook | `ConfigPage`(站点/安全/订阅/邀请/节点/邮件/Telegram/APP/订阅模板) | ✅ audit 26/26 PASS |
 | 插件 plugin | getPlugins/types/config/install/uninstall/enable/disable/upgrade/upload/delete | `PluginPage` | ✅ |
 | 主题 theme | getThemes + config | `ThemePage` | ✅ |
 | 公告 notice | fetch/save/update/show/drop/sort | `NoticePage` | ✅ |
 | 支付 payment | fetch/save/show/drop/sort/getPaymentMethods/getPaymentForm | `PaymentPage` | ✅ |
 | 知识库 knowledge | fetch/save/show/drop/sort/getCategory | `KnowledgePage` | ✅ |
-| 节点 server | manage/getNodes·save·update·sort·copy·batch*·generateEchKey; group/*; route/*; machine/* | `ServerManagePage`/`ServerGroupPage`/`ServerRoutePage`/`ServerMachinePage` | ✅ 列表✅;弹窗对齐进行中 |
-| 套餐 plan | fetch/save/update/drop/sort | `PlanPage` | ✅ 列表✅;弹窗 width/grid 已对齐 |
+| 节点 server | manage/getNodes·save·update·sort·copy·batch*·generateEchKey; group/*; route/*; machine/* | `ServerManagePage`/`ServerGroupPage`/`ServerRoutePage`/`ServerMachinePage` | ✅ gate PASS；server-add dialog ~1.81% |
+| 套餐 plan | fetch/save/update/drop/sort | `PlanPage` | ✅ gate PASS；plan-add dialog ~1.02% |
 | 订单 order | fetch/detail/assign/cancel/paid/update | `OrderPage` | ✅ |
 | 优惠券 coupon | fetch/generate/show/update/drop | `CouponPage` | ✅ |
 | 礼品卡 gift-card | templates/codes/usages/statistics/create-template/generate-codes/export-codes/toggle-code/... (13) | `GiftCardPage`(模板/卡密/使用记录/统计 Tabs) | ✅ |
-| 用户 user | fetch/getUserInfoById/save/update/ban/... (11) | `UserPage` | ✅ 列表✅;创建/编辑弹窗对齐进行中 |
+| 用户 user | fetch/getUserInfoById/save/update/ban/... (11) | `UserPage` | ✅ gate PASS；user-edit Sheet ~1.68% |
 | 工单 ticket | fetch/reply/close | `TicketPage` | ✅ |
 | 邮件模板 mail | template/list·get·save·reset·test | `MailTemplatePanel` | ✅ |
 | 流量重置 traffic-reset | logs/stats/user/{id}/history | ⚠️ **需核对是否有独立页面** |

@@ -122,7 +122,9 @@ node scripts/visual-gate/probe-round34-deep.mjs
 | audit-admin-full | 26/26 |
 | probe-round29 dialogs | 6/6 |
 
-日常复验：`node scripts/visual-gate/verify-parity-quick.mjs`（~5–8 min）。
+日常复验：`node scripts/visual-gate/verify-parity-quick.mjs`（~13 min）。
+
+**单一真相源**：`docs/PARITY-100.md` · 状态：`node scripts/visual-gate/parity-status.mjs`
 
 ### 仍排除（非缺口）
 
@@ -131,7 +133,7 @@ node scripts/visual-gate/probe-round34-deep.mjs
 | gift-generate | 不可 gate | 7001 模板行无「生成」按钮（仅 Edit/Delete） |
 | user gift-card | 默认 SKIP | 7001 legacy 无用户礼品卡页 |
 
-详见 `docs/IMITATION-PLAN-ROUND-37.md`。
+详见 `docs/PARITY-100.md`、`docs/IMITATION-PLAN-ROUND-38.md`。
 
 ---
 
