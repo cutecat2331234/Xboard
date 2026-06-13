@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "timestamp": "2026-06-13T07:57:04.741Z",
+  "refBase": "http://127.0.0.1:7001",
+  "cmpBase": "http://127.0.0.1:7002",
+  "steps": [
+    {
+      "id": "user-gate",
+      "name": "visual-gate user (16 routes)",
+      "status": "pass",
+      "expectRoutes": 16,
+      "durationMs": 1032188
+    },
+    {
+      "id": "admin-gate",
+      "name": "visual-gate admin (39 routes)",
+      "status": "pass",
+      "expectRoutes": 39,
+      "durationMs": 1921914
+    },
+    {
+      "id": "audit-full",
+      "name": "audit-admin-full (26 routes)",
+      "status": "pass",
+      "expectRoutes": 26,
+      "durationMs": 562224
+    },
+    {
+      "id": "dialogs",
+      "name": "probe-round29 dialogs (6 scenarios)",
+      "status": "pass",
+      "expectRoutes": 6,
+      "durationMs": 370294
+    }
+  ],
+  "totals": {
+    "routes": 87,
+    "steps": 4
+  },
+  "excluded": [
+    {
+      "id": "gift-generate",
+      "reason": "7001 template rows have Edit/Delete only, no inline Generate"
+    },
+    {
+      "id": "user-gift-card",
+      "reason": "7001 legacy has no user gift-card page (use INCLUDE_GIFT_CARD=1 for cmp-only)"
+    }
+  ],
+  "failures": [],
+  "auditFailCount": 0
+}

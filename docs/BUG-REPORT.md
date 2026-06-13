@@ -570,6 +570,16 @@
 
 计划文档：`docs/IMITATION-PLAN-ROUND-36.md`
 
+## Round 37 — 验收闭环 JSON 报告（2026-06-13）
+
+| # | 项 | 结果 |
+|---|-----|------|
+| 168 | run-parity-suite 增强 | 输出 `output/parity-suite-report.json`（87 routes + excluded 列表） |
+| 169 | 全量复验 | user **16/16** + admin **39/39** + audit **26/26** + dialogs **6/6** |
+| 170 | verify-parity-quick | **PASS** |
+
+计划文档：`docs/IMITATION-PLAN-ROUND-37.md`
+
 ## 验收命令
 
 ```bash

@@ -111,7 +111,7 @@ node scripts/visual-gate/probe-round34-deep.mjs
 - `SuffixInput` 后缀改为 `<div>`；Sheet 去掉 `sr-only Close`
 - 礼品卡：7002 可 `scripts/seed-gift-template.php` 种子数据
 
-### 仍未达标（Round 36 更新）
+### Visual Gate 100% 已达标（Round 37）
 
 **Visual Gate parity 已于 R23 全绿**（`run-parity-suite.mjs` exit 0）：
 
@@ -131,7 +131,7 @@ node scripts/visual-gate/probe-round34-deep.mjs
 | gift-generate | 不可 gate | 7001 模板行无「生成」按钮（仅 Edit/Delete） |
 | user gift-card | 默认 SKIP | 7001 legacy 无用户礼品卡页 |
 
-详见 `docs/IMITATION-PLAN-ROUND-36.md`。
+详见 `docs/IMITATION-PLAN-ROUND-37.md`。
 
 ---
 
