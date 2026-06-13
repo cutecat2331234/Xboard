@@ -40,6 +40,8 @@ node scripts/visual-gate/run-parity-suite.mjs
 
 Runs **user visual-gate (16)** + **admin visual-gate (39)** + **audit-admin-full (26)** + **probe-round29 dialogs (6)**. Exit `0` = full parity PASS.
 
+Writes `output/parity-suite-report.json` with timestamp, step status, and excluded scenarios.
+
 ### Quick smoke (~5–8 min)
 
 ```bash

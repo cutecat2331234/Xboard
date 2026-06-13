@@ -72,6 +72,7 @@
   - 根因修复：移除 `dashboard.blade.php` Google Fonts 注入；邀请码/余额区按钮改原生 `<button>` 对齐 7001；`AppLayout` 壳层与 `global.css` padding 对齐
 - [x] visual-gate 用户端登录流程 + `zh-CN` locale 对齐 7001
 - [x] **R23 parity 100%**（2026-06-13）：`run-parity-suite.mjs` — user **16/16** + admin **39/39** + audit **26/26** + dialogs **6/6**；user-edit Sheet **1.684%**
+- [x] **R37 验收闭环**：`run-parity-suite.mjs` 输出 `parity-suite-report.json` + `verify-parity-quick.mjs` 日常 smoke
 
 
 
