@@ -20,7 +20,8 @@
 
 ```bash
 make parity              # 读上次全量报告
-make parity-smoke        # 日常 smoke ~13min
+make parity-check        # 严格校验 87+2（不发跑 gate）
+make parity-smoke        # 日常 smoke ~15min
 make parity-full         # 发版全量 ~65min
 ```
 
@@ -29,8 +30,8 @@ make parity-full         # 发版全量 ~65min
 ```bash
 node scripts/visual-gate/verify-parity-quick.mjs
 node scripts/visual-gate/run-parity-suite.mjs
-node scripts/visual-gate/parity-status.mjs [--smoke|--full]
-./scripts/check-parity.sh [--smoke|--full]
+node scripts/visual-gate/parity-status.mjs [--smoke|--full|--check]
+./scripts/check-parity.sh [--smoke|--full|--check]
 ```
 
 或：
