@@ -76,6 +76,7 @@
 - [x] **R38 100% 单一真相源**：`docs/PARITY-100.md` + `parity-status.mjs` + `scripts/check-parity.sh`
 - [x] **R39 功能覆盖文档 100%**：FEATURE-SURVEY 核对完成（traffic-reset/transfer/gift-card/telegram/mailLink 均已实现）
 - [x] **R40 全量复验**：`run-parity-suite.mjs` 87/87 PASS + README/`parity-status --full`
+- [x] **R41 Makefile 验收入口**：`make parity` / `parity-smoke` / `parity-full` + smoke PASS
 
 
 
