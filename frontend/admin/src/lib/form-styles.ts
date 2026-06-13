@@ -29,7 +29,43 @@ export const dialogMailInputCls = cn(inputCls, 'h-[34px] py-1 shadow-sm bg-trans
 /** 7001 send-mail content textarea. */
 export const dialogMailTextareaCls = cn(
   textareaCls,
-  'h-[210px] min-h-[210px] py-2 shadow-sm bg-transparent',
+  'h-[209px] min-h-[209px] max-h-[209px] py-2 shadow-sm bg-transparent',
+)
+
+/** 7001 gift-card template description textarea (80px, overrides textareaCls min-h). */
+export const giftDescriptionTextareaCls = cn(
+  textareaCls,
+  '!h-[80px] !min-h-[80px] !max-h-[80px] py-2 font-mono text-xs shadow-sm',
+)
+
+/** 7001 gift-card template dialog inputs (36px). */
+export const giftDialogInputCls = cn(
+  inputCls,
+  'h-[36px] min-h-[36px] max-h-[36px] py-1 font-mono text-xs bg-background shadow-none',
+)
+
+/** 7001 gift-card template dialog FormSelect triggers (36px). */
+export const giftDialogSelectCls =
+  'h-[36px] min-h-[36px] py-1 font-mono text-xs shadow-none [&_svg]:h-3 [&_svg]:w-3'
+
+/** 7001 server node dialog inputs (36px mono). */
+export const serverDialogFieldInputCls = cn(
+  inputCls,
+  'h-[36px] min-h-[36px] max-h-[36px] py-1 font-mono text-xs shadow-sm bg-transparent',
+)
+
+/** 7001 server node dialog FormSelect / multiselect triggers (36px). */
+export const serverDialogInputCls =
+  'h-[36px] min-h-[36px] max-h-[36px] py-1 font-mono text-xs shadow-none [&_svg]:h-3 [&_svg]:w-3'
+
+/** 7001 server node dialog compact triggers/number fields (32px). */
+export const serverDialogCompactInputCls =
+  'h-[32px] min-h-[32px] max-h-[32px] py-1 font-mono text-xs shadow-none [&_svg]:h-3 [&_svg]:w-3'
+
+/** 7001 server protocol subsection inputs (30px compact). */
+export const serverProtocolInputCls = cn(
+  inputCls,
+  'h-[30px] min-h-[30px] max-h-[30px] py-0 font-mono text-xs shadow-none',
 )
 
 export const dialogInputCls =
@@ -50,7 +86,11 @@ export const dialogSelectCls =
 export const dialogSuffixAddonCls =
   'inline-flex h-[34px] min-h-[34px] shrink-0 items-center border border-input bg-transparent px-3 font-mono text-xs text-muted-foreground shadow-none'
 
-/** 7001 server node dialog labels: mono 12px, not uppercase */
+/** 7001 server node dialog labels: shadcn FormLabel default (font-medium text-sm). */
+export const serverDialogLabelCls =
+  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+
+/** 7001 server protocol subsection labels: mono 12px */
 export const serverFieldLabelCls = 'font-mono text-[12px] text-foreground/80'
 
 /** 7001 plan tags/group/content labels: shadcn FormLabel default */

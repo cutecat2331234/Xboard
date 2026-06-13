@@ -11,7 +11,10 @@ function isDialogStyle(className?: string) {
 }
 
 function addonHeight(className?: string) {
-  return className?.includes('h-8') ? 'h-8' : 'h-9'
+  if (className?.includes('h-8')) return 'h-8'
+  if (className?.includes('h-[36px]')) return 'h-[36px]'
+  if (isDialogStyle(className)) return 'h-[34px]'
+  return 'h-9'
 }
 
 function addonCls(className: string | undefined, rounded: 'left' | 'right') {

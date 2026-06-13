@@ -29,7 +29,12 @@ export function TagInput({ value, onChange, placeholder, className }: Props) {
   }
 
   return (
-    <div className={cn('flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-transparent px-2 py-1 shadow-sm', className)}>
+    <div
+      className={cn(
+        'flex h-[34px] min-h-[34px] w-full flex-wrap items-center gap-1 rounded-md border border-input bg-transparent px-2 py-0 shadow-sm',
+        className,
+      )}
+    >
       {value.map((tag) => (
         <Badge key={tag} variant="secondary" className="gap-1 text-xs">
           {tag}

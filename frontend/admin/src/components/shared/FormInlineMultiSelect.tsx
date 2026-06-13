@@ -49,8 +49,8 @@ export function FormInlineMultiSelect({
         className="h-auto overflow-visible rounded-md bg-transparent text-popover-foreground"
         shouldFilter={false}
       >
-        <div className="rounded-md border border-input font-mono text-xs ring-offset-background focus-within:ring-1 focus-within:ring-ring">
-          <div className="flex flex-wrap gap-1">
+        <div className="min-h-[32px] rounded-md border border-input font-mono text-xs ring-offset-background focus-within:ring-1 focus-within:ring-ring">
+          <div className="flex min-h-[32px] flex-wrap items-center gap-1">
             {selected.map((o) => (
               <span
                 key={o.value}
@@ -69,7 +69,7 @@ export function FormInlineMultiSelect({
             ))}
             <Command.Input
               placeholder={placeholder}
-              className="min-w-[120px] flex-1 bg-transparent px-3 py-2 outline-none placeholder:text-muted-foreground"
+              className="min-w-[120px] flex-1 bg-transparent px-3 py-1.5 text-xs outline-none placeholder:text-muted-foreground"
               onFocus={() => setOpen(true)}
               onBlur={() => setTimeout(() => setOpen(false), 150)}
             />
