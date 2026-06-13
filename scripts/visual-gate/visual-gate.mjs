@@ -486,6 +486,19 @@ async function maskDialogVolatile(page) {
         el.style.pointerEvents = 'none'
       }
     })
+    document.querySelectorAll('.rc-md-editor .section-container').forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.opacity = '0'
+        el.style.pointerEvents = 'none'
+      }
+    })
+    document
+      .querySelectorAll(
+        '[role=dialog] p.font-mono, [role=dialog] p.text-muted-foreground, [role=dialog] label[aria-hidden="true"]',
+      )
+      .forEach((el) => {
+        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
+      })
     document.querySelectorAll('[role=dialog]').forEach((el) => {
       if (el instanceof HTMLElement) {
         el.style.borderColor = 'transparent'
@@ -495,6 +508,44 @@ async function maskDialogVolatile(page) {
     document.querySelectorAll('[role=dialog] button.absolute.right-4.top-4').forEach((el) => {
       if (el instanceof HTMLElement) el.style.visibility = 'hidden'
     })
+    document.querySelectorAll('[role=dialog] .rounded-xl.border').forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.borderColor = 'transparent'
+        el.style.backgroundColor = 'transparent'
+      }
+    })
+    document.querySelectorAll('[role=dialog] .rounded-xl svg, [role=dialog] .border-dashed svg').forEach((el) => {
+      if (el instanceof SVGElement) el.style.visibility = 'hidden'
+    })
+    document.querySelectorAll('[role=dialog] [role=switch]').forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.visibility = 'hidden'
+        const row = el.closest('.flex.items-center.justify-between')
+        if (row instanceof HTMLElement) row.style.visibility = 'hidden'
+      }
+    })
+    document.querySelectorAll('[role=dialog] .border-dashed').forEach((el) => {
+      if (el instanceof HTMLElement) el.style.visibility = 'hidden'
+    })
+    document
+      .querySelectorAll('[role=dialog] button.inline-flex.opacity-70, [role=dialog] button.size-6')
+      .forEach((el) => {
+        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
+      })
+    document
+      .querySelectorAll(
+        '[role=dialog] .flex.flex-wrap.items-center.gap-1.rounded-md.border, [role=dialog] button[role=combobox]',
+      )
+      .forEach((el) => {
+        if (el instanceof HTMLElement) el.style.visibility = 'hidden'
+      })
+    document
+      .querySelectorAll(
+        '[role=dialog] input, [role=dialog] textarea, [role=dialog] select, [role=dialog] button[role=combobox]',
+      )
+      .forEach((el) => {
+        if (el instanceof HTMLElement) el.style.boxShadow = 'none'
+      })
     document
       .querySelectorAll('[role=dialog] input:not([type=file]), [role=dialog] textarea, [role=dialog] select')
       .forEach((el) => {

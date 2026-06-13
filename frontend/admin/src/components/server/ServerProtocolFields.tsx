@@ -11,7 +11,7 @@ import { FormSelect } from '@/components/shared/FormSelect'
 
 import { SuffixInput } from '@/components/shared/SuffixInput'
 
-import { dialogInputCls, inputCls, serverFieldLabelCls, textareaCls } from '@/lib/form-styles'
+import { inputCls, serverFieldLabelCls, serverProtocolInputCls, textareaCls } from '@/lib/form-styles'
 
 import { cn } from '@/lib/utils'
 
@@ -359,7 +359,7 @@ function CipherSelect({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className={cn('h-9 w-full justify-between font-mono text-xs', !value && 'text-muted-foreground')}
+            className={cn('h-[30px] w-full justify-between font-mono text-xs', !value && 'text-muted-foreground')}
           >
             {value ? cipherLabel(value) : t('server.dynamic_form.shadowsocks.cipher.placeholder')}
             <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
@@ -368,7 +368,7 @@ function CipherSelect({
         <PopoverContent className="w-[min(400px,calc(100vw-3rem))] p-0" align="start">
           <div className="border-b p-2">
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={search}
               onChange={(e) => {
                 const next = e.target.value
@@ -495,7 +495,7 @@ function ShadowsocksCertFields({
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t(`${locale}.domain.label`)}</Label>
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={value.domain}
               onChange={(e) => patch({ domain: e.target.value })}
               placeholder={t(`${locale}.domain.placeholder`)}
@@ -505,7 +505,7 @@ function ShadowsocksCertFields({
             <div className="xb-stack-2">
               <Label className={serverFieldLabelCls}>{t(`${locale}.email.label`)}</Label>
               <input
-                className={cn(inputCls, dialogInputCls)}
+                className={cn(inputCls, serverProtocolInputCls)}
                 value={value.email}
                 onChange={(e) => patch({ email: e.target.value })}
                 placeholder={t(`${locale}.email.placeholder`)}
@@ -520,7 +520,7 @@ function ShadowsocksCertFields({
           <Label className={serverFieldLabelCls}>{t(`${locale}.http_port.label`)}</Label>
           <input
             type="number"
-            className={cn(inputCls, dialogInputCls)}
+            className={cn(inputCls, serverProtocolInputCls)}
             value={value.http_port}
             onChange={(e) => patch({ http_port: e.target.value })}
           />
@@ -533,7 +533,7 @@ function ShadowsocksCertFields({
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t(`${locale}.dns_provider.label`)}</Label>
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={value.dns_provider}
               onChange={(e) => patch({ dns_provider: e.target.value })}
               placeholder="cloudflare / alidns / dnspod"
@@ -642,7 +642,7 @@ function ShadowsocksProtocolFields({
           onChange={(plugin) => onChange({ ...value, plugin })}
           options={pluginOptions}
           placeholder={t('server.dynamic_form.shadowsocks.plugin.placeholder')}
-          className={dialogInputCls}
+          className={serverProtocolInputCls}
         />
         {hintKey ? <p className="m-0 text-[11px] leading-tight text-muted-foreground">{t(hintKey)}</p> : null}
       </div>
@@ -711,7 +711,7 @@ function ShadowsocksProtocolFields({
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.obfs_settings.path')}</Label>
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={value.obfs_settings.path}
               onChange={(e) =>
                 onChange({
@@ -724,7 +724,7 @@ function ShadowsocksProtocolFields({
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t('server.dynamic_form.shadowsocks.obfs_settings.host')}</Label>
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={value.obfs_settings.host}
               onChange={(e) =>
                 onChange({
@@ -756,7 +756,7 @@ function ShadowsocksFields({
   return (
     <div className="col-span-2 xb-stack-3 rounded-lg border border-dashed p-3">
       <Tabs value={tab} onValueChange={onTabChange}>
-        <TabsList className="grid h-9 w-full grid-cols-2">
+        <TabsList className="grid h-[30px] w-full grid-cols-2">
           <TabsTrigger value="protocol" className="text-xs">
             {t('server.dynamic_form.shadowsocks.plugin.label')}
           </TabsTrigger>
@@ -797,7 +797,7 @@ function TransportNetworkSubFields({
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t(`${locale}.serviceName`)}</Label>
         <input
-          className={cn(inputCls, dialogInputCls)}
+          className={cn(inputCls, serverProtocolInputCls)}
           value={value.serviceName}
           onChange={(e) => onChange({ ...value, serviceName: e.target.value })}
           placeholder={t(`${locale}.serviceName_placeholder`)}
@@ -812,7 +812,7 @@ function TransportNetworkSubFields({
         <div className="xb-stack-2">
           <Label className={serverFieldLabelCls}>{t(`${locale}.seed`)}</Label>
           <input
-            className={cn(inputCls, dialogInputCls)}
+            className={cn(inputCls, serverProtocolInputCls)}
             value={value.seed}
             onChange={(e) => onChange({ ...value, seed: e.target.value })}
             placeholder={t(`${locale}.seed_placeholder`)}
@@ -838,7 +838,7 @@ function TransportNetworkSubFields({
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t(`${locale}.path`)}</Label>
         <input
-          className={cn(inputCls, dialogInputCls)}
+          className={cn(inputCls, serverProtocolInputCls)}
           value={value.path}
           onChange={(e) => onChange({ ...value, path: e.target.value })}
           placeholder={t(`${locale}.path_placeholder`)}
@@ -847,7 +847,7 @@ function TransportNetworkSubFields({
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t(`${locale}.host`)}</Label>
         <input
-          className={cn(inputCls, dialogInputCls)}
+          className={cn(inputCls, serverProtocolInputCls)}
           value={value.host}
           onChange={(e) => onChange({ ...value, host: e.target.value })}
           placeholder={t(`${locale}.host_placeholder`)}
@@ -887,7 +887,7 @@ function VmessFields({
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vmess.tls_settings.server_name.label')}</Label>
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={value.tls_settings.server_name}
               onChange={(e) =>
                 onChange({
@@ -972,7 +972,7 @@ function RealityFields({
         <div className="xb-stack-2 col-span-2 sm:col-span-1">
           <Label className={serverFieldLabelCls}>{t(`${locale}.server_name.label`)}</Label>
           <input
-            className={cn(inputCls, dialogInputCls)}
+            className={cn(inputCls, serverProtocolInputCls)}
             value={reality.server_name}
             onChange={(e) => patchReality({ server_name: e.target.value })}
             placeholder={t(`${locale}.server_name.placeholder`)}
@@ -981,7 +981,7 @@ function RealityFields({
         <div className="xb-stack-2">
           <Label className={serverFieldLabelCls}>{t(`${locale}.server_port.label`)}</Label>
           <input
-            className={cn(inputCls, dialogInputCls)}
+            className={cn(inputCls, serverProtocolInputCls)}
             value={reality.server_port}
             onChange={(e) => patchReality({ server_port: e.target.value })}
             placeholder={t(`${locale}.server_port.placeholder`)}
@@ -1002,7 +1002,7 @@ function RealityFields({
         <Label className={serverFieldLabelCls}>{t(`${locale}.private_key.label`)}</Label>
         <div className="relative">
           <input
-            className={cn(inputCls, dialogInputCls, 'pr-10')}
+            className={cn(inputCls, serverProtocolInputCls, 'pr-10')}
             value={reality.private_key}
             onChange={(e) => patchReality({ private_key: e.target.value })}
           />
@@ -1022,7 +1022,7 @@ function RealityFields({
       <div className="xb-stack-2">
         <Label className={serverFieldLabelCls}>{t(`${locale}.public_key.label`)}</Label>
         <input
-          className={cn(inputCls, dialogInputCls)}
+          className={cn(inputCls, serverProtocolInputCls)}
           value={reality.public_key}
           onChange={(e) => patchReality({ public_key: e.target.value })}
         />
@@ -1032,7 +1032,7 @@ function RealityFields({
         <Label className={serverFieldLabelCls}>{t(`${locale}.short_id.label`)}</Label>
         <div className="relative">
           <input
-            className={cn(inputCls, dialogInputCls, 'pr-10')}
+            className={cn(inputCls, serverProtocolInputCls, 'pr-10')}
             value={reality.short_id}
             onChange={(e) => patchReality({ short_id: e.target.value })}
             placeholder={t(`${locale}.short_id.placeholder`)}
@@ -1084,7 +1084,7 @@ function TrojanFields({
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t('server.dynamic_form.trojan.server_name.label')}</Label>
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={value.tls_settings.server_name}
               onChange={(e) =>
                 onChange({
@@ -1166,7 +1166,7 @@ function VlessFields({
           <div className="xb-stack-2">
             <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.tls_settings.server_name.label')}</Label>
             <input
-              className={cn(inputCls, dialogInputCls)}
+              className={cn(inputCls, serverProtocolInputCls)}
               value={value.tls_settings.server_name}
               onChange={(e) =>
                 onChange({
@@ -1246,7 +1246,7 @@ function VlessFields({
             <div className="xb-stack-2">
               <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.encryption.server_label')}</Label>
               <input
-                className={cn(inputCls, dialogInputCls)}
+                className={cn(inputCls, serverProtocolInputCls)}
                 value={value.encryption.decryption}
                 onChange={(e) =>
                   onChange({
@@ -1260,7 +1260,7 @@ function VlessFields({
             <div className="xb-stack-2">
               <Label className={serverFieldLabelCls}>{t('server.dynamic_form.vless.encryption.client_label')}</Label>
               <input
-                className={cn(inputCls, dialogInputCls)}
+                className={cn(inputCls, serverProtocolInputCls)}
                 value={value.encryption.encryption}
                 onChange={(e) =>
                   onChange({
@@ -1401,7 +1401,7 @@ function HysteriaFields({
         <div className="xb-stack-2">
           <Label className={serverFieldLabelCls}>{t('server.dynamic_form.hysteria.tls.server_name.label')}</Label>
           <input
-            className={cn(inputCls, dialogInputCls)}
+            className={cn(inputCls, serverProtocolInputCls)}
             value={value.tls.server_name}
             onChange={(e) => patchTls({ server_name: e.target.value })}
             placeholder={t('server.dynamic_form.hysteria.tls.server_name.placeholder')}
@@ -1490,7 +1490,7 @@ function TuicFields({
         <div className="xb-stack-2">
           <Label className={serverFieldLabelCls}>{t('server.dynamic_form.tuic.tls.server_name.label')}</Label>
           <input
-            className={cn(inputCls, dialogInputCls)}
+            className={cn(inputCls, serverProtocolInputCls)}
             value={value.tls.server_name}
             onChange={(e) => patchTls({ server_name: e.target.value })}
             placeholder={t('server.dynamic_form.tuic.tls.server_name.placeholder')}
@@ -1555,7 +1555,7 @@ function AnyTlsFields({
         <div className="xb-stack-2">
           <Label className={serverFieldLabelCls}>{t('server.dynamic_form.anytls.tls.server_name.label')}</Label>
           <input
-            className={cn(inputCls, dialogInputCls)}
+            className={cn(inputCls, serverProtocolInputCls)}
             value={value.tls.server_name}
             onChange={(e) => patchTls({ server_name: e.target.value })}
             placeholder={t('server.dynamic_form.anytls.tls.server_name.placeholder')}

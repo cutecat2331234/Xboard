@@ -12,12 +12,14 @@ import { downloadAdminFile, fetchJsonList, fetchJsonObject, fetchPaginatedList, 
 
 import {
   dialogFieldLabelCls,
-  dialogInputCls,
-  dialogSelectCls,
+  giftDescriptionTextareaCls,
+  giftDialogInputCls,
+  giftDialogSelectCls,
   giftSectionCardCls,
   inputCls,
-  textareaCls,
 } from '@/lib/form-styles'
+
+import { cn } from '@/lib/utils'
 
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
@@ -1449,7 +1451,7 @@ export default function GiftCardPage() {
 
           <div className="min-h-0 flex-1 overflow-y-auto">
 
-            <div className="xb-stack-4 px-6 py-4 text-sm">
+            <div className="space-y-4 px-6 py-4 text-sm">
 
               <div className={giftSectionCardCls}>
 
@@ -1469,7 +1471,7 @@ export default function GiftCardPage() {
 
                     <input
 
-                      className={`${inputCls} ${dialogInputCls}`}
+                      className={giftDialogInputCls}
 
                       placeholder={t('giftCard.template.form.name.placeholder')}
 
@@ -1486,7 +1488,7 @@ export default function GiftCardPage() {
                     <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.type.label')}</Label>
 
                     <FormSelect
-                      className={dialogSelectCls}
+                      className={giftDialogSelectCls}
                       value={String(form.type)}
                       onChange={(v) => setForm((f) => ({ ...f, type: Number(v) }))}
                       options={giftTypeOptions.map(({ id, label }) => ({
@@ -1505,7 +1507,7 @@ export default function GiftCardPage() {
 
                   <textarea
 
-                    className={`${textareaCls} min-h-[80px] font-mono text-xs`}
+                    className={giftDescriptionTextareaCls}
 
                     placeholder={t('giftCard.template.form.description.placeholder')}
 
@@ -1527,7 +1529,7 @@ export default function GiftCardPage() {
 
                       type="number"
 
-                      className={`${inputCls} ${dialogInputCls}`}
+                      className={giftDialogInputCls}
 
                       placeholder={t('giftCard.template.form.sort.placeholder')}
 
@@ -1588,7 +1590,7 @@ export default function GiftCardPage() {
                       <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.plan_id.label')}</Label>
 
                       <FormSelect
-                        className={dialogSelectCls}
+                        className={giftDialogSelectCls}
                         value={form.rewards.plan_id != null ? String(form.rewards.plan_id) : ''}
                         onChange={(v) =>
                           setForm((f) => ({
@@ -1612,7 +1614,7 @@ export default function GiftCardPage() {
                       <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.rewards.plan_validity_days.label')}</Label>
 
                       <SuffixInput
-                        className={dialogInputCls}
+                        className={giftDialogInputCls}
                         suffix={t('common.days')}
                         type="number"
                         placeholder={t('giftCard.template.form.rewards.plan_validity_days.placeholder')}
@@ -1655,7 +1657,7 @@ export default function GiftCardPage() {
 
                         <SuffixInput
 
-                          className={dialogInputCls}
+                          className={giftDialogInputCls}
 
                           suffix="¥"
 
@@ -1687,7 +1689,7 @@ export default function GiftCardPage() {
 
                         <SuffixInput
 
-                          className={dialogInputCls}
+                          className={giftDialogInputCls}
 
                           suffix="GB"
 
@@ -1725,7 +1727,7 @@ export default function GiftCardPage() {
 
                         <SuffixInput
 
-                          className={dialogInputCls}
+                          className={giftDialogInputCls}
 
                           suffix={t('common.days')}
 
@@ -1765,7 +1767,7 @@ export default function GiftCardPage() {
 
                           type="number"
 
-                          className={`${inputCls} ${dialogInputCls}`}
+                          className={giftDialogInputCls}
 
                           placeholder={t('giftCard.template.form.rewards.device_limit.placeholder')}
 
@@ -1853,7 +1855,7 @@ export default function GiftCardPage() {
 
                   <SuffixInput
 
-                    className={dialogInputCls}
+                    className={giftDialogInputCls}
 
                     suffix={t('common.days')}
 
@@ -2027,7 +2029,7 @@ export default function GiftCardPage() {
 
                       type="number"
 
-                      className={`${inputCls} ${dialogInputCls}`}
+                      className={giftDialogInputCls}
 
                       placeholder={t('giftCard.template.form.limits.max_use_per_user.placeholder')}
 
@@ -2061,7 +2063,7 @@ export default function GiftCardPage() {
 
                     <SuffixInput
 
-                      className={dialogInputCls}
+                      className={giftDialogInputCls}
 
                       suffix="h"
 
@@ -2105,7 +2107,7 @@ export default function GiftCardPage() {
 
                     step="0.01"
 
-                    className={`${inputCls} ${dialogInputCls}`}
+                    className={giftDialogInputCls}
 
                     placeholder={t('giftCard.template.form.limits.invite_reward_rate.placeholder')}
 
@@ -2163,7 +2165,7 @@ export default function GiftCardPage() {
 
                       type="datetime-local"
 
-                      className={`${inputCls} ${dialogInputCls}`}
+                      className={giftDialogInputCls}
 
                       value={tsToInput(form.special_config.start_time)}
 
@@ -2197,7 +2199,7 @@ export default function GiftCardPage() {
 
                       type="datetime-local"
 
-                      className={`${inputCls} ${dialogInputCls}`}
+                      className={giftDialogInputCls}
 
                       value={tsToInput(form.special_config.end_time)}
 
@@ -2235,7 +2237,7 @@ export default function GiftCardPage() {
 
                     step="0.01"
 
-                    className={`${inputCls} ${dialogInputCls}`}
+                    className={giftDialogInputCls}
 
                     placeholder={t('giftCard.template.form.special_config.festival_bonus.placeholder')}
 
@@ -2285,7 +2287,7 @@ export default function GiftCardPage() {
 
                     <input
 
-                      className={`${inputCls} ${dialogInputCls}`}
+                      className={giftDialogInputCls}
 
                       placeholder={t('giftCard.template.form.icon.placeholder')}
 
@@ -2303,7 +2305,7 @@ export default function GiftCardPage() {
 
                     <input
 
-                      className={`${inputCls} ${dialogInputCls}`}
+                      className={giftDialogInputCls}
 
                       placeholder={t('giftCard.template.form.background_image.placeholder')}
 

@@ -1149,7 +1149,7 @@ export default function UserPage() {
           <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-4 px-6 py-4 text-sm">
             <div className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className={dialogFieldLabelCls}>{t('user.send_mail.scope')}</label>
                 <Select
                   value={mailScope}
@@ -1169,7 +1169,7 @@ export default function UserPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label htmlFor="mail-subject" className={dialogFieldLabelCls}>
                   {t('user.send_mail.subject')}
                 </label>
@@ -1185,7 +1185,7 @@ export default function UserPage() {
                   {t('user.send_mail.subject_placeholder_hint')}
                 </p>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between gap-3">
                   <label htmlFor="mail-content" className={dialogFieldLabelCls}>
                     {t('user.send_mail.content')}
