@@ -57,5 +57,7 @@
     }
   ],
   "failures": [],
-  "auditFailCount": 0
+  "auditFailCount": 0,
+  "lastSmokeAt": "2026-06-13T15:46:54.242Z",
+  "lastSmokePass": true
 }
