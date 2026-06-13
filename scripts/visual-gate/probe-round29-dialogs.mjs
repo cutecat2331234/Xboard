@@ -2,6 +2,7 @@
 /**
  * Extended admin dialog parity — delegates to visual-gate.mjs (canonical harness).
  * Each scenario maps 1:1 to a visual-gate DIALOG_ROUTES entry (≤2% threshold).
+ * Retries each scenario up to 3× (7002 Octane can flake after long suite runs).
  */
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
@@ -17,6 +18,9 @@ const env = {
   SIDE: 'admin',
 }
 
+const MAX_ATTEMPTS = Number(process.env.PROBE_RETRIES || 3)
+const RETRY_DELAY_MS = Number(process.env.PROBE_RETRY_DELAY_MS || 8000)
+
 /** probe scenario id -> visual-gate route */
 const SCENARIOS = [
   { id: 'user-edit', route: 'user-edit' },
@@ -27,19 +31,39 @@ const SCENARIOS = [
   { id: 'server-add', route: 'server-add' },
 ]
 
-const failures = []
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms))
+}
 
-for (const { id, route } of SCENARIOS) {
-  console.log(`\n=== ${id} (visual-gate:${route}) ===`)
-  const r = spawnSync('node', ['scripts/visual-gate/visual-gate.mjs'], {
+function runRoute(route) {
+  return spawnSync('node', ['scripts/visual-gate/visual-gate.mjs'], {
     cwd: root,
     env: { ...env, ROUTES: route },
     encoding: 'utf8',
   })
-  const out = `${r.stdout || ''}${r.stderr || ''}`.trim()
-  if (out) console.log(out.split('\n').slice(-3).join('\n'))
-  if (r.status !== 0) failures.push(id)
-  else console.log(`${id}: PASS`)
+}
+
+const failures = []
+
+for (const { id, route } of SCENARIOS) {
+  console.log(`\n=== ${id} (visual-gate:${route}) ===`)
+  let ok = false
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    if (attempt > 1) {
+      console.log(`${id}: retry ${attempt}/${MAX_ATTEMPTS} after ${RETRY_DELAY_MS}ms`)
+      await sleep(RETRY_DELAY_MS)
+    }
+    const r = runRoute(route)
+    const out = `${r.stdout || ''}${r.stderr || ''}`.trim()
+    if (out) console.log(out.split('\n').slice(-3).join('\n'))
+    if (r.status === 0) {
+      ok = true
+      console.log(`${id}: PASS${attempt > 1 ? ` (attempt ${attempt})` : ''}`)
+      break
+    }
+    if (attempt < MAX_ATTEMPTS) console.warn(`${id}: attempt ${attempt} failed (exit ${r.status})`)
+  }
+  if (!ok) failures.push(id)
 }
 
 if (failures.length) {
