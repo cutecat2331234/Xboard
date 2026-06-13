@@ -16,4 +16,12 @@
 
 ## R45 执行记录
 
-（跑完填写）
+| 项 | 结果 |
+|---|---|
+| `parity-status --check` | ✅ 87 parity + 2 cmp-only |
+| `make parity-check` | ✅ Makefile 新目标 |
+| README / PARITY-100 | ✅ 89 场景 + 维护状态 |
+| `make parity-smoke` | ✅ PASS |
+| commit | `master` → origin + gitea |
+
+**结论**：验收入口固化，**89/89 维持 100%**。
