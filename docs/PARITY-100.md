@@ -42,6 +42,16 @@ node scripts/visual-gate/parity-status.mjs --smoke
 | **gift-generate** | 7001 `#/finance/gift-card` 模板行仅 Edit/Delete，无「生成」按钮，无法 1:1 像素对比 |
 | **user gift-card** | 7001 legacy umi 无用户礼品卡页；`INCLUDE_GIFT_CARD=1` 仅测 7002 |
 
+## 功能覆盖（相对后端 API，2026-06-13）
+
+| 区域 | 状态 | 说明 |
+|------|------|------|
+| 管理端 119 API | ✅ | 见 `docs/FEATURE-SURVEY.md` |
+| 用户端 41 API | ✅ | 含 gift-card/transfer/telegram/mailLink |
+| Visual Gate 像素 | ✅ | **87/87** |
+
+仿写 **功能 + 像素** 对 7001 可达范围均已 **100%**；上表排除项为 7001 无对照 UI。
+
 ## 关键 dialog 像素（≤2%）
 
 | 路由 | 典型 diff |

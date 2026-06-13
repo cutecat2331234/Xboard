@@ -64,7 +64,10 @@ if (smoke) {
     console.error('\nSMOKE_FAILED')
     process.exit(1)
   }
-  console.log('\nSMOKE_PASS')
+  report.lastSmokeAt = new Date().toISOString()
+  report.lastSmokePass = true
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2))
+  console.log('\nSMOKE_PASS (updated lastSmokeAt in report)')
 }
 
 console.log('\nPARITY_100_OK (87/87 routes in last full suite)')

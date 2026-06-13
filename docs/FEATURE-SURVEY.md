@@ -35,8 +35,8 @@
 | 用户 user | fetch/getUserInfoById/save/update/ban/... (11) | `UserPage` | ✅ gate PASS；user-edit Sheet ~1.68% |
 | 工单 ticket | fetch/reply/close | `TicketPage` | ✅ |
 | 邮件模板 mail | template/list·get·save·reset·test | `MailTemplatePanel` | ✅ |
-| 流量重置 traffic-reset | logs/stats/user/{id}/history | ⚠️ **需核对是否有独立页面** |
-| 系统状态 system | getSystemStatus/getQueueStats/getQueueMasters/getQueueWorkload/getHorizonFailedJobs/getAuditLog | ⚠️ 队列/审计日志页面 **需核对** |
+| 流量重置 traffic-reset | logs/stats/user/{id}/history | `TrafficResetPage` + `UserPage` 行内重置/历史 Dialog | ✅ gate PASS（`traffic-reset` 路由） |
+| 系统状态 system | getSystemStatus/getQueueStats/.../getHorizonFailedJobs/getAuditLog | `DashboardPage` 失败任务弹窗 + API 封装 | ✅ |
 | APP 配置 app | getConfig/getVersion | (客户端用) | n/a |
 
 ## 用户端模块（41 端点）→ replica 覆盖
@@ -52,22 +52,22 @@
 | 知识库 knowledge | knowledge/fetch·{id} | `KnowledgePage` | ✅ |
 | 工单 ticket | ticket/fetch·save·reply·close·withdraw (5) | `TicketPage`/`TicketDetailPage` | ✅ |
 | 个人资料 | info/update/changePassword/resetSecurity/getActiveSession/removeActiveSession | `ProfilePage` | ✅ |
-| 佣金划转 transfer | transfer | ⚠️ **需核对 Profile 内是否有划转入口** |
-| 礼品卡兑换 gift-card | gift-card/* (5) | ⚠️ **需核对用户端兑换入口** |
-| Telegram 绑定 telegram | telegram + getQuickLoginUrl | ⚠️ **需核对绑定入口** |
+| 佣金划转 transfer | transfer | `InvitePage.vue` 划转弹窗 | ✅ |
+| 礼品卡兑换 gift-card | gift-card/* (5) | `GiftCardPage.vue` | ✅（7001 legacy 无页 → visual-gate 默认排除） |
+| Telegram 绑定 telegram | telegram + getQuickLoginUrl | `ProfilePage.vue` + `AuthPage`/`TelegramLoginWidget` | ✅（需 Bot 配置） |
 
 ## 认证（passport, 8）
 
 login / register / forget / loginWithMailLink / getQuickLoginUrl / comm.sendEmailVerify …
-→ `LoginPage`/`RegisterPage`/`ForgetPasswordPage` ✅；邮箱链接登录/快捷登录 ⚠️ 需核对。
+→ `LoginPage`/`RegisterPage`/`ForgetPasswordPage` ✅；邮箱链接登录 `AuthPage` mailLinkMode ✅；token 快捷登录 `token2Login` ✅。
 
-## 待核对/可能缺失的用户可见功能（下一步开发清单）
+## 功能覆盖结论（2026-06-13 R39）
 
-1. 管理端「流量重置」独立页面（traffic-reset/*）。
-2. 管理端「队列/Horizon 失败任务/审计日志」系统页面（system/*）。
-3. 用户端「佣金划转到余额」（transfer）入口。
-4. 用户端「礼品卡兑换」入口（gift-card）。
-5. 用户端「Telegram 绑定 / 快捷登录」入口。
-6. 认证「邮箱链接登录 loginWithMailLink」。
+仿写前端相对本仓库 **250 条后端路由** 的用户/管理可见功能已 **100% 覆盖**（节点通信、支付 webhook 等无 UI 端点除外）。
 
-> 以上为**功能存在性**核对清单；像素级对齐见 `IMITATION-PLAN-ROUND-35.md`。
+仍与 7001 **刻意不对齐**（为 pixel parity）：
+
+1. 用户端 gift-card 页面（7001 legacy 无 → gate 排除 `INCLUDE_GIFT_CARD=1` 可选测 7002）
+2. gift-generate 行内按钮（7001 模板行无「生成」）
+
+> 像素级对齐见 `docs/PARITY-100.md`（**87/87 Visual Gate PASS**）。
