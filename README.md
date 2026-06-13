@@ -120,7 +120,7 @@ php artisan octane:start --server=swoole --host=0.0.0.0 --port=7001
 php artisan horizon
 ```
 
-## 7001 vs 7002 仿写验收（Visual Gate 100%）
+## 7001 vs 7002 仿写验收（100% 完工）
 
 双端口对比环境：`7001` 闭源原版 · `7002` 开源仿写（见 `docs/FRONTEND-COMPARE.md`）。
 
@@ -128,15 +128,17 @@ php artisan horizon
 |------|------|
 | Visual Gate 像素 | **87/87 PASS** |
 | Cmp-only（7002 独有） | **2/2 PASS** |
+| **合计** | **89/89 PASS** |
 | 功能覆盖（相对后端 API） | **100%** |
 
 ```bash
+# 严格校验报告（CI / 发版前）
+make parity-check
+
 # 查看上次全量报告
 make parity
-# 或
-node scripts/visual-gate/parity-status.mjs
 
-# 日常 smoke（~13 min）
+# 日常 smoke（~15 min，含 cmp-only）
 make parity-smoke
 
 # 发版前全量（~65 min）
@@ -207,7 +209,9 @@ vendor/bin/phpunit
 
 ## 维护状态
 
-当前为轻量维护：修复关键缺陷与安全问题，合并重要 PR；新功能开发可能有限。
+**7001→7002 仿写线已 100% 完工**（89 场景 Visual Gate + 功能 API 覆盖，见 `docs/PARITY-100.md`）。
+
+当前为轻量维护：修复关键缺陷与安全问题；前端改动后请跑 `make parity-smoke` 或 `make parity-check`。
 
 ## 参与贡献
 

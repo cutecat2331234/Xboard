@@ -83,6 +83,7 @@
 - [x] **R42 AI-HANDOFF 终稿对齐**：§1 100% 状态 + `make parity-smoke` PASS（2026-06-13）
 - [x] **R43 cmp-only 验收**：`verify-cmp-only.mjs` gift-generate + user-gift-card，接入 parity suite
 - [x] **R44 文档终局**：AI-HANDOFF 89 场景 + smoke 复验
+- [x] **R45 验收固化**：`make parity-check` + README 89 场景
 
 
 

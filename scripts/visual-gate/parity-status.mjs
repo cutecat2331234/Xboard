@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Print parity status from parity-suite-report.json.
- *   --smoke  run verify-parity-quick.mjs (~13 min)
+ *   --smoke  run verify-parity-quick.mjs (~15 min)
  *   --full   run run-parity-suite.mjs (~65 min)
+ *   --check  strict validate report (87 parity + 2 cmp-only, all steps pass)
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -14,6 +15,25 @@ const root = path.resolve(__dir, '../..')
 const reportPath = path.join(__dir, 'output', 'parity-suite-report.json')
 const smoke = process.argv.includes('--smoke')
 const full = process.argv.includes('--full')
+const check = process.argv.includes('--check')
+
+const EXPECT_ROUTES = 87
+const EXPECT_CMP_ONLY = 2
+
+function validateReport(report) {
+  const errors = []
+  if (!report?.passed) errors.push('report.passed is not true')
+  if (report.totals?.routes !== EXPECT_ROUTES) {
+    errors.push(`totals.routes=${report.totals?.routes ?? '?'} expected ${EXPECT_ROUTES}`)
+  }
+  if (report.totals?.cmpOnly !== EXPECT_CMP_ONLY) {
+    errors.push(`totals.cmpOnly=${report.totals?.cmpOnly ?? '?'} expected ${EXPECT_CMP_ONLY}`)
+  }
+  for (const step of report.steps || []) {
+    if (step.status !== 'pass') errors.push(`step ${step.id} status=${step.status}`)
+  }
+  return errors
+}
 
 function readReport() {
   if (!fs.existsSync(reportPath)) {
@@ -54,6 +74,24 @@ function printReport(report) {
   }
 }
 
+function assertParity100(report) {
+  const errors = validateReport(report)
+  if (errors.length) {
+    console.error('\nPARITY_CHECK_FAILED')
+    for (const e of errors) console.error(' -', e)
+    process.exit(1)
+  }
+}
+
+if (check) {
+  const report = readReport()
+  if (!report) process.exit(1)
+  printReport(report)
+  assertParity100(report)
+  console.log('\nPARITY_CHECK_OK (87 parity + 2 cmp-only)')
+  process.exit(0)
+}
+
 if (full) {
   console.log('Running run-parity-suite.mjs (full, ~65 min) ...')
   const r = spawnSync('node', ['scripts/visual-gate/run-parity-suite.mjs'], {
@@ -66,6 +104,7 @@ if (full) {
   }
   const report = readReport()
   if (!report?.passed) process.exit(1)
+  assertParity100(report)
   printReport(report)
   console.log('\nPARITY_100_OK (87/87 parity + 2/2 cmp-only, full suite refreshed)')
   process.exit(0)
@@ -80,6 +119,8 @@ if (!report.passed) {
   console.error('\nPARITY_NOT_100', report.failures)
   process.exit(1)
 }
+
+assertParity100(report)
 
 if (smoke) {
   console.log('\nRunning verify-parity-quick.mjs ...')
