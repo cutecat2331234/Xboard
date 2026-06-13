@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "timestamp": "2026-06-13T12:32:31.273Z",
+  "timestamp": "2026-06-13T14:23:21.834Z",
   "refBase": "http://127.0.0.1:7001",
   "cmpBase": "http://127.0.0.1:7002",
   "steps": [
@@ -9,28 +9,28 @@
       "name": "visual-gate user (16 routes)",
       "status": "pass",
       "expectRoutes": 16,
-      "durationMs": 1029740
+      "durationMs": 1059064
     },
     {
       "id": "admin-gate",
       "name": "visual-gate admin (39 routes)",
       "status": "pass",
       "expectRoutes": 39,
-      "durationMs": 1944502
+      "durationMs": 1985729
     },
     {
       "id": "audit-full",
       "name": "audit-admin-full (26 routes)",
       "status": "pass",
       "expectRoutes": 26,
-      "durationMs": 575811
+      "durationMs": 585273
     },
     {
       "id": "dialogs",
       "name": "probe-round29 dialogs (6 scenarios)",
       "status": "pass",
       "expectRoutes": 6,
-      "durationMs": 373096
+      "durationMs": 377619
     },
     {
       "id": "cmp-only",
@@ -38,7 +38,7 @@
       "status": "pass",
       "expectRoutes": 0,
       "expectCmpOnly": 2,
-      "durationMs": 25499
+      "durationMs": 22486
     }
   ],
   "totals": {
@@ -57,7 +57,5 @@
     }
   ],
   "failures": [],
-  "auditFailCount": 0,
-  "lastSmokeAt": "2026-06-13T14:22:06.093Z",
-  "lastSmokePass": true
+  "auditFailCount": 0
 }
