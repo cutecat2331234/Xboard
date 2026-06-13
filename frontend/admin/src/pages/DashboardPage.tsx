@@ -63,12 +63,8 @@ import {
 
 } from '@/lib/api'
 
-import {
-  AuditLogPanel,
-  QueueWorkloadPanel,
-  SystemStatusPanel,
-} from '@/components/dashboard/SystemMonitorPanels'
 import { SystemUpdateNotice } from '@/components/dashboard/SystemUpdateNotice'
+import { FormSelect } from '@/components/shared/FormSelect'
 import { StatCard } from '@/components/shared/StatCard'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -491,64 +487,29 @@ export default function DashboardPage() {
 
       </div>
 
-      <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-        <div className="flex flex-col p-6">
+      <Card className="rounded-xl border bg-card text-card-foreground shadow">
+        <div className="flex flex-col space-y-1.5 p-6">
           <div className="flex items-center justify-between">
-            <div className="xb-stack-15">
+            <div>
               <h3 className="font-semibold leading-none tracking-tight">{t('dashboard.overview.title')}</h3>
               <p className="text-sm text-muted-foreground">
                 {String(summary.start_date ?? '')} {t('dashboard.overview.to')} {String(summary.end_date ?? '')}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative flex min-w-0 items-center gap-1">
-                <select
-                  aria-label={t('dashboard.overview.selectTimeRange')}
-                  className="absolute inset-0 z-10 cursor-pointer opacity-0"
-                  value={overviewRange}
-                  onChange={(e) => setOverviewRange(e.target.value as OverviewRange)}
-                >
-                  <option value="7d">{t('dashboard.overview.last7Days')}</option>
-                  <option value="30d">{t('dashboard.overview.last30Days')}</option>
-                  <option value="90d">{t('dashboard.overview.last90Days')}</option>
-                  <option value="180d">{t('dashboard.overview.last180Days')}</option>
-                  <option value="365d">{t('dashboard.overview.lastYear')}</option>
-                  <option value="custom">{t('dashboard.overview.customRange')}</option>
-                </select>
-                <button
-                  type="button"
-                  className="flex h-9 w-[140px] items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="line-clamp-1">
-                    {overviewRange === '7d'
-                      ? t('dashboard.overview.last7Days')
-                      : overviewRange === '90d'
-                        ? t('dashboard.overview.last90Days')
-                        : overviewRange === '180d'
-                          ? t('dashboard.overview.last180Days')
-                          : overviewRange === '365d'
-                            ? t('dashboard.overview.lastYear')
-                            : overviewRange === 'custom'
-                              ? t('dashboard.overview.customRange')
-                              : t('dashboard.overview.last30Days')}
-                  </span>
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 15 15"
-                    fill="none"
-                    className="h-4 w-4 opacity-50"
-                    aria-hidden
-                  >
-                    <path
-                      d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-                      fill="currentColor"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <FormSelect
+                className="w-[120px] py-2"
+                value={overviewRange}
+                onChange={(v) => setOverviewRange(v as OverviewRange)}
+                options={[
+                  { value: '7d', label: t('dashboard.overview.last7Days') },
+                  { value: '30d', label: t('dashboard.overview.last30Days') },
+                  { value: '90d', label: t('dashboard.overview.last90Days') },
+                  { value: '180d', label: t('dashboard.overview.last180Days') },
+                  { value: '365d', label: t('dashboard.overview.lastYear') },
+                  { value: 'custom', label: t('dashboard.overview.customRange') },
+                ]}
+              />
               {overviewRange === 'custom' && (
                 <div className="flex items-center gap-2 text-sm">
                   <input
@@ -577,7 +538,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <div className="p-6 pt-0">
+        <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div className="xb-stack-1">
               <div className="text-sm text-muted-foreground">{t('dashboard.overview.totalIncome')}</div>
@@ -622,8 +583,8 @@ export default function DashboardPage() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
 
 
@@ -661,11 +622,7 @@ export default function DashboardPage() {
 
       </div>
 
-      <SystemStatusPanel />
-
-      <QueueWorkloadPanel />
-
-      <AuditLogPanel />
+      {/* 7001 legacy dashboard has no system-status / queue-workload / audit-log sections below. */}
 
       <FailedJobsDialog
         open={failedJobsOpen}

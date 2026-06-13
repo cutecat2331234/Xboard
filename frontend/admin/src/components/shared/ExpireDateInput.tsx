@@ -36,13 +36,13 @@ export function ExpireDateInput({ value, onChange, placeholder, className }: Pro
         <button
           type="button"
           className={cn(
-            'inline-flex h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 text-left font-mono text-xs font-normal shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+            'inline-flex h-[34px] min-h-[34px] max-h-[34px] w-full items-center justify-center whitespace-nowrap rounded-md border border-input bg-background px-3 text-left font-mono text-xs font-normal shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
             !label && 'text-muted-foreground',
             className,
           )}
         >
           <span className="truncate">{label || placeholder}</span>
-          <IconCalendar className="tabler-icon h-3 w-3 shrink-0 opacity-50" stroke={2} />
+          <IconCalendar className="tabler-icon ml-2 h-3 w-3 shrink-0 opacity-50" stroke={2} />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
