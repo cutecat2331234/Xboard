@@ -1,6 +1,6 @@
 # AI 交接文档 — Xboard 双前端仿造项目
 
-> **最后更新**：2026-06-13（R44 — 89 场景 100% 文档终局）  
+> **最后更新**：2026-06-13（R46 — 89 场景终局确认）  
 > **仓库**：GitHub `origin` · Gitea `http://https://github.com/cutecat2331234/Xboard`  
 > **当前分支**：`master`
 
@@ -50,7 +50,7 @@ Xboard/
     ├── AI-HANDOFF.md         # 本文件
     ├── FRONTEND-REPLICA.md   # 仿造策略
     ├── BUG-REPORT.md         # 各轮 bug 记录
-    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 44）
+    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 46）
     ├── PARITY-100.md            # ★ Visual Gate 100% 定义与命令
     └── COMPLETION-CHECKLIST.md
 ```
@@ -86,7 +86,8 @@ python scripts/ssh-run.py scripts/restart-dual.sh
 ## 4. 验收命令（必跑）
 
 ```bash
-make parity              # 读上次全量报告（87 parity + 2 cmp-only）
+make parity-check        # 严格校验报告（87+2，不发跑 gate）
+make parity              # 读上次全量报告
 make parity-smoke        # 日常 smoke ~15 min（含 cmp-only）
 make parity-full         # 发版全量 ~65 min
 ```
@@ -94,7 +95,7 @@ make parity-full         # 发版全量 ~65 min
 等价：
 
 ```bash
-node scripts/visual-gate/parity-status.mjs [--smoke|--full]
+node scripts/visual-gate/parity-status.mjs [--check|--smoke|--full]
 node scripts/visual-gate/run-parity-suite.mjs   # 全量套件
 ```
 
@@ -115,7 +116,7 @@ node scripts/visual-gate/run-parity-suite.mjs   # 全量套件
 | cmp-only（7002 独有） | 2/2（gift-generate + user-gift-card） |
 | 功能覆盖（FEATURE-SURVEY） | 100% |
 
-日常复验：`make parity-smoke` · 发版：`make parity-full`
+日常复验：`make parity-smoke` · 发版前：`make parity-full` · CI/快速：`make parity-check`
 
 ### Parity 排除项 → cmp-only 覆盖
 
