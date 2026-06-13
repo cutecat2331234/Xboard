@@ -86,6 +86,7 @@ python scripts/ssh-run.py scripts/restart-dual.sh
 ## 4. 验收命令（必跑）
 
 ```bash
+make imitation-done       # 一键确认 89/89 完工（parity-check + banner）
 make parity-check        # 严格校验报告（87+2，不发跑 gate）
 make parity              # 读上次全量报告
 make parity-smoke        # 日常 smoke ~15 min（含 cmp-only）

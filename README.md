@@ -133,6 +133,9 @@ php artisan horizon
 | 功能覆盖（相对后端 API） | **100%** |
 
 ```bash
+# 一键确认仿造线 100%（校验报告 + 完工 banner）
+make imitation-done
+
 # 严格校验报告（CI / 发版前）
 make parity-check
 
