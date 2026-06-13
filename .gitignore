@@ -29,7 +29,12 @@ frontend/*/node_modules/
 frontend/*/.vite/
 frontend/*/dist/
 scripts/**/node_modules/
-public/assets/admin/.vite/
+# Frontend build outputs — run npm run build locally
+public/assets/
+public/theme/
+legacy-dist/
+theme/Xboard/assets/
+theme/v2board/
 docker-compose.yaml
 bun.lockb
 compose.yaml
