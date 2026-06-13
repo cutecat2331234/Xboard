@@ -69,6 +69,19 @@ const EXCLUDED = [
   { id: 'user-gift-card', reason: '7001 legacy has no user gift-card page — parity excluded; covered by cmp-only step' },
 ]
 
+function readPreviousSmokeMeta() {
+  if (!fs.existsSync(outPath)) return {}
+  try {
+    const prev = JSON.parse(fs.readFileSync(outPath, 'utf8'))
+    const meta = {}
+    if (prev.lastSmokeAt) meta.lastSmokeAt = prev.lastSmokeAt
+    if (prev.lastSmokePass != null) meta.lastSmokePass = prev.lastSmokePass
+    return meta
+  } catch {
+    return {}
+  }
+}
+
 const report = {
   passed: false,
   timestamp: new Date().toISOString(),
@@ -77,6 +90,7 @@ const report = {
   steps: [],
   totals: { routes: 0, cmpOnly: 0, steps: steps.length },
   excluded: EXCLUDED,
+  ...readPreviousSmokeMeta(),
 }
 
 const failures = []
