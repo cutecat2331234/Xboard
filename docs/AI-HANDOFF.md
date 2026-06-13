@@ -1,6 +1,6 @@
 # AI 交接文档 — Xboard 双前端仿造项目
 
-> **最后更新**：2026-06-13（R42 — Parity 100% 终稿）  
+> **最后更新**：2026-06-13（R44 — 89 场景 100% 文档终局）  
 > **仓库**：GitHub `origin` · Gitea `http://https://github.com/cutecat2331234/Xboard`  
 > **当前分支**：`master`
 
@@ -19,10 +19,10 @@
 
 **目标**：7002 在功能、布局、弹窗、图标、 i18n 上与 7001 尽可能一致。
 
-**当前状态（2026-06-13）**：**Visual Gate 87/87 PASS + 功能覆盖 100%**（相对 7001 可对照范围）。  
+**当前状态（2026-06-13）**：**87/87 Visual Gate + 2/2 cmp-only + 功能覆盖 100%**（合计 **89 场景**）。  
 单一真相源：`docs/PARITY-100.md` · 报告：`scripts/visual-gate/output/parity-suite-report.json`
 
-仍排除（7001 无 UI，非缺口）：`gift-generate` 行内生成、`user gift-card` 用户页 gate。
+parity 不可 1:1 的两项（7001 无 UI）已由 **cmp-only** 步骤覆盖：`gift-generate`、`user-gift-card`。
 
 ---
 
@@ -50,7 +50,7 @@ Xboard/
     ├── AI-HANDOFF.md         # 本文件
     ├── FRONTEND-REPLICA.md   # 仿造策略
     ├── BUG-REPORT.md         # 各轮 bug 记录
-    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 42）
+    ├── IMITATION-PLAN-ROUND-*.md  # 每轮仿造计划（最新 Round 44）
     ├── PARITY-100.md            # ★ Visual Gate 100% 定义与命令
     └── COMPLETION-CHECKLIST.md
 ```
@@ -86,8 +86,8 @@ python scripts/ssh-run.py scripts/restart-dual.sh
 ## 4. 验收命令（必跑）
 
 ```bash
-make parity              # 读上次全量报告（87/87）
-make parity-smoke        # 日常 smoke ~13 min
+make parity              # 读上次全量报告（87 parity + 2 cmp-only）
+make parity-smoke        # 日常 smoke ~15 min（含 cmp-only）
 make parity-full         # 发版全量 ~65 min
 ```
 
@@ -102,28 +102,29 @@ node scripts/visual-gate/run-parity-suite.mjs   # 全量套件
 
 ---
 
-## 5. 当前进度摘要（R42 终稿）
+## 5. 当前进度摘要（R44 终局）
 
-### Parity 100% 已达成
+### 100% 已达成（89 场景）
 
 | 套件 | 结果 |
 |------|------|
 | user visual-gate | 16/16 |
 | admin visual-gate | 39/39（含 user-edit ~1.68%） |
 | audit-admin-full | 26/26 |
-| probe-round29 dialogs | 6/6 |
+| probe-round29 dialogs | 6/6（每场景最多 3 次重试） |
+| cmp-only（7002 独有） | 2/2（gift-generate + user-gift-card） |
 | 功能覆盖（FEATURE-SURVEY） | 100% |
 
 日常复验：`make parity-smoke` · 发版：`make parity-full`
 
-### 仍排除（非缺口）
+### Parity 排除项 → cmp-only 覆盖
 
-| 场景 | 状态 | 原因 |
-|------|------|------|
-| gift-generate | 不可 gate | 7001 模板行无「生成」按钮（仅 Edit/Delete） |
-| user gift-card | 默认 SKIP | 7001 legacy 无用户礼品卡页 |
+| 场景 | parity | cmp-only |
+|------|--------|----------|
+| gift-generate | 7001 无「生成」按钮 | ✅ `verify-cmp-only.mjs` |
+| user gift-card | 7001 legacy 无页 | ✅ `verify-cmp-only.mjs` |
 
-详见 `docs/PARITY-100.md`、`docs/IMITATION-PLAN-ROUND-38.md`。
+详见 `docs/PARITY-100.md`、`docs/IMITATION-PLAN-ROUND-43.md`。
 
 ---
 
@@ -160,8 +161,8 @@ node scripts/visual-gate/run-parity-suite.mjs   # 全量套件
 
 1. 改动了 `frontend/admin` 或 `frontend/user` → `make parity-smoke`（或 `--full` 发版前）
 2. dialog 回归 → `output/admin/*-diff.png` + `probe-user-edit-deep.mjs`
-3. 7001 上游新增 UI（如 gift-generate）→ 扩展 `DIALOG_ROUTES` 后再 gate
-4. 新功能（7002 独有）→ 单独规划，不破坏 87/87 parity
+3. 7001 上游新增 UI → 扩展 `DIALOG_ROUTES` / cmp-only 后再 gate
+4. 新功能（7002 独有）→ 单独规划，不破坏 87/87 parity（cmp-only 可扩展）
 
 ---
 

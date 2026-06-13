@@ -1,4 +1,7 @@
-# L 节总完工清单（2026-06-09 更新）
+# L 节总完工清单（2026-06-13 更新）
+
+> **仿造线状态**：**100% 完工**（87 parity + 2 cmp-only + 功能 API 覆盖）。  
+> 验收：`make parity` · 报告：`scripts/visual-gate/output/parity-suite-report.json`
 
 
 
@@ -79,6 +82,7 @@
 - [x] **R41 Makefile 验收入口**：`make parity` / `parity-smoke` / `parity-full` + smoke PASS
 - [x] **R42 AI-HANDOFF 终稿对齐**：§1 100% 状态 + `make parity-smoke` PASS（2026-06-13）
 - [x] **R43 cmp-only 验收**：`verify-cmp-only.mjs` gift-generate + user-gift-card，接入 parity suite
+- [x] **R44 文档终局**：AI-HANDOFF 89 场景 + smoke 复验
 
 
 
