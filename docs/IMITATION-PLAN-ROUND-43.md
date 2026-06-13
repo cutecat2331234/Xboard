@@ -16,4 +16,12 @@ Parity **87/87** 已达成，但 `gift-generate` 与 `user-gift-card` 因 7001 �
 
 ## R43 执行记录
 
-（跑完填写）
+| 项 | 结果 |
+|---|---|
+| `verify-cmp-only.mjs` | ✅ gift-generate + user-gift-card 2/2 PASS |
+| 接入 parity suite | ✅ run-parity-suite / verify-parity-quick / parity-status |
+| probe-round29 重试 | ✅ 每场景最多 3 次（修复长 suite 后 user-edit flake） |
+| `make parity-full` | ✅ PASS（2026-06-13T12:32:31Z） |
+| commit | `master` → origin + gitea |
+
+**结论**：**87 parity + 2 cmp-only = 89 场景 100%**。

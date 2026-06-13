@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "timestamp": "2026-06-13T09:30:36.215Z",
+  "timestamp": "2026-06-13T12:32:31.273Z",
   "refBase": "http://127.0.0.1:7001",
   "cmpBase": "http://127.0.0.1:7002",
   "steps": [
@@ -9,46 +9,53 @@
       "name": "visual-gate user (16 routes)",
       "status": "pass",
       "expectRoutes": 16,
-      "durationMs": 1016179
+      "durationMs": 1029740
     },
     {
       "id": "admin-gate",
       "name": "visual-gate admin (39 routes)",
       "status": "pass",
       "expectRoutes": 39,
-      "durationMs": 1930357
+      "durationMs": 1944502
     },
     {
       "id": "audit-full",
       "name": "audit-admin-full (26 routes)",
       "status": "pass",
       "expectRoutes": 26,
-      "durationMs": 552406
+      "durationMs": 575811
     },
     {
       "id": "dialogs",
       "name": "probe-round29 dialogs (6 scenarios)",
       "status": "pass",
       "expectRoutes": 6,
-      "durationMs": 377107
+      "durationMs": 373096
+    },
+    {
+      "id": "cmp-only",
+      "name": "cmp-only (2 scenarios, 7002-only)",
+      "status": "pass",
+      "expectRoutes": 0,
+      "expectCmpOnly": 2,
+      "durationMs": 25499
     }
   ],
   "totals": {
     "routes": 87,
-    "steps": 4
+    "cmpOnly": 2,
+    "steps": 5
   },
   "excluded": [
     {
       "id": "gift-generate",
-      "reason": "7001 template rows have Edit/Delete only, no inline Generate"
+      "reason": "7001 template rows have Edit/Delete only — parity excluded; covered by cmp-only step"
     },
     {
       "id": "user-gift-card",
-      "reason": "7001 legacy has no user gift-card page (use INCLUDE_GIFT_CARD=1 for cmp-only)"
+      "reason": "7001 legacy has no user gift-card page — parity excluded; covered by cmp-only step"
     }
   ],
   "failures": [],
-  "auditFailCount": 0,
-  "lastSmokeAt": "2026-06-13T11:09:01.220Z",
-  "lastSmokePass": true
+  "auditFailCount": 0
 }
