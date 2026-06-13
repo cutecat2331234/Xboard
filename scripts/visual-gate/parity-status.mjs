@@ -4,6 +4,7 @@
  *   --smoke  run verify-parity-quick.mjs (~15 min)
  *   --full   run run-parity-suite.mjs (~65 min)
  *   --check  strict validate report (87 parity + 2 cmp-only, all steps pass)
+ *   --json   machine-readable summary (stdout JSON, exit 1 if not complete)
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -16,6 +17,7 @@ const reportPath = path.join(__dir, 'output', 'parity-suite-report.json')
 const smoke = process.argv.includes('--smoke')
 const full = process.argv.includes('--full')
 const check = process.argv.includes('--check')
+const jsonOut = process.argv.includes('--json')
 
 const EXPECT_ROUTES = 87
 const EXPECT_CMP_ONLY = 2
@@ -33,6 +35,29 @@ function validateReport(report) {
     if (step.status !== 'pass') errors.push(`step ${step.id} status=${step.status}`)
   }
   return errors
+}
+
+function buildSummary(report) {
+  const errors = validateReport(report)
+  return {
+    complete: Boolean(report?.passed) && errors.length === 0,
+    passed: Boolean(report?.passed),
+    routes: report.totals?.routes ?? null,
+    cmpOnly: report.totals?.cmpOnly ?? null,
+    totalScenarios: (report.totals?.routes ?? 0) + (report.totals?.cmpOnly ?? 0),
+    timestamp: report.timestamp ?? null,
+    lastSmokeAt: report.lastSmokeAt ?? null,
+    refBase: report.refBase ?? null,
+    cmpBase: report.cmpBase ?? null,
+    steps: (report.steps || []).map((s) => ({ id: s.id, status: s.status })),
+    errors,
+  }
+}
+
+function emitJson(report) {
+  const summary = buildSummary(report)
+  console.log(JSON.stringify(summary, null, 2))
+  process.exit(summary.complete ? 0 : 1)
 }
 
 function readReport() {
@@ -86,6 +111,7 @@ function assertParity100(report) {
 if (check) {
   const report = readReport()
   if (!report) process.exit(1)
+  if (jsonOut) emitJson(report)
   printReport(report)
   assertParity100(report)
   console.log('\nPARITY_CHECK_OK (87 parity + 2 cmp-only)')
@@ -112,6 +138,8 @@ if (full) {
 
 const report = readReport()
 if (!report) process.exit(1)
+
+if (jsonOut) emitJson(report)
 
 printReport(report)
 

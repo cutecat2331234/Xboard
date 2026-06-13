@@ -19,6 +19,7 @@
 ## 一键命令
 
 ```bash
+make imitation-done      # 一键确认 89/89 完工
 make parity              # 读上次全量报告
 make parity-check        # 严格校验 87+2（不发跑 gate）
 make parity-smoke        # 日常 smoke ~15min
@@ -28,9 +29,10 @@ make parity-full         # 发版全量 ~65min
 或：
 
 ```bash
+node scripts/visual-gate/parity-status.mjs --json --check   # CI/脚本用 JSON
 node scripts/visual-gate/verify-parity-quick.mjs
 node scripts/visual-gate/run-parity-suite.mjs
-node scripts/visual-gate/parity-status.mjs [--smoke|--full|--check]
+node scripts/visual-gate/parity-status.mjs [--smoke|--full|--check|--json]
 ./scripts/check-parity.sh [--smoke|--full|--check]
 ```
 
