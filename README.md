@@ -131,13 +131,15 @@ php artisan horizon
 
 ```bash
 # 查看上次全量报告
+make parity
+# 或
 node scripts/visual-gate/parity-status.mjs
 
 # 日常 smoke（~13 min）
-node scripts/visual-gate/parity-status.mjs --smoke
+make parity-smoke
 
 # 发版前全量（~65 min）
-node scripts/visual-gate/parity-status.mjs --full
+make parity-full
 ```
 
 详情：`docs/PARITY-100.md` · 报告：`scripts/visual-gate/output/parity-suite-report.json`

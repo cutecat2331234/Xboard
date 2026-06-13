@@ -17,15 +17,18 @@
 ## 一键命令
 
 ```bash
-# 日常 smoke（~13 min）
+make parity              # 读上次全量报告
+make parity-smoke        # 日常 smoke ~13min
+make parity-full         # 发版全量 ~65min
+```
+
+或：
+
+```bash
 node scripts/visual-gate/verify-parity-quick.mjs
-
-# 发版前全量（~65 min）
 node scripts/visual-gate/run-parity-suite.mjs
-
-# 读上次报告 + 可选 smoke
-node scripts/visual-gate/parity-status.mjs
-node scripts/visual-gate/parity-status.mjs --smoke
+node scripts/visual-gate/parity-status.mjs [--smoke|--full]
+./scripts/check-parity.sh [--smoke|--full]
 ```
 
 或：
