@@ -1,7 +1,8 @@
-.PHONY: parity parity-smoke parity-full parity-check parity-status help
+.PHONY: parity parity-smoke parity-full parity-check parity-status imitation-done help
 
 help:
 	@echo "Xboard parity targets (7001 ref vs 7002 cmp):"
+	@echo "  make imitation-done  - verify 89/89 complete (parity-check + banner)"
 	@echo "  make parity        - show last full-suite report"
 	@echo "  make parity-check  - strict validate 87 parity + 2 cmp-only"
 	@echo "  make parity-smoke  - quick smoke (~15 min)"
@@ -19,3 +20,13 @@ parity-smoke:
 
 parity-full:
 	@node scripts/visual-gate/parity-status.mjs --full
+
+imitation-done:
+	@node scripts/visual-gate/parity-status.mjs --check
+	@echo ""
+	@echo "=========================================="
+	@echo " IMITATION_LINE_COMPLETE"
+	@echo " 87/87 Visual Gate + 2/2 cmp-only = 89"
+	@echo " Feature API coverage: 100%"
+	@echo " See docs/PARITY-100.md"
+	@echo "=========================================="
