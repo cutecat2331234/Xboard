@@ -558,11 +558,25 @@
 
 计划文档：`docs/IMITATION-PLAN-ROUND-32.md`
 
+## Round 23 — user-edit Sheet + parity 100%（2026-06-13）
+
+| # | 项 | 结果 |
+|---|-----|------|
+| 163 | user-edit Sheet | 布局对齐：`editSheetFieldCls`、Switch `py-2`、`SheetHeader mt-4`、label `min-h-[19px]` |
+| 164 | visual-gate user-edit | **1.684%** PASS（≤2%） |
+| 165 | probe-round29 | **6/6**（委托 canonical visual-gate） |
+| 166 | run-parity-suite | user **16/16** + admin **39/39** + audit **26/26** + dialogs **6/6** |
+| 167 | gift-generate | **排除**：7001 模板行无「生成」按钮（实机探针 2026-06-13） |
+
+计划文档：`docs/IMITATION-PLAN-ROUND-36.md`
+
 ## 验收命令
 
 ```bash
 python scripts/ssh-run.py scripts/restart-dual.sh
 python scripts/deploy-rewrite-frontend.py
+node scripts/visual-gate/verify-parity-quick.mjs
+node scripts/visual-gate/run-parity-suite.mjs
 node scripts/visual-gate/audit-admin-full.mjs
 cd scripts/visual-gate && SIDE=admin ADMIN_LOCALE=zh-CN node visual-gate.mjs
 cd scripts/visual-gate && SIDE=user ROUTES=login,dashboard,plan node visual-gate.mjs

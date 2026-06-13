@@ -8,7 +8,7 @@ Pixel-diff harness comparing reference (7001) vs rewrite (7002) frontends.
 |------------|-------|----------|
 | Core | **0.5%** | `login`, `dashboard` (user); `sign-in`, `dashboard` (admin) |
 | Page | **1%** | All other listed page routes |
-| Dialog (`DIALOG_ROUTES`) | **2%** | `user-create`, `plan-add`, `server-add`, `gift-template`, `user-mail` |
+| Dialog (`DIALOG_ROUTES`) | **2%** | `user-create`, `user-edit`, `plan-add`, `server-add`, `gift-template`, `user-mail` |
 
 User logged-in pages in `USER_SHELL_ROUTES` compare only the main content crop (`USER_MAIN_BOX`), not the full shell.
 
@@ -40,6 +40,14 @@ node scripts/visual-gate/run-parity-suite.mjs
 
 Runs **user visual-gate (16)** + **admin visual-gate (39)** + **audit-admin-full (26)** + **probe-round29 dialogs (6)**. Exit `0` = full parity PASS.
 
+### Quick smoke (~5–8 min)
+
+```bash
+node scripts/visual-gate/verify-parity-quick.mjs
+```
+
+Covers user core 4 routes + admin core 3 routes + all 6 dialog routes.
+
 ## Route lists
 
 ### User (`USER_ROUTES_DEFAULT`)
@@ -57,6 +65,7 @@ Config subtree, finance, server, user/ticket, **`traffic-reset`**, plus dialog r
 | Route | Parent page | Opens |
 |-------|-------------|-------|
 | `user-create` | `user` | “创建用户” button |
+| `user-edit` | `user` | row ⋯ menu → “编辑” (Sheet) |
 | `user-mail` | `user` | row “操作” → “发送邮件” |
 | `plan-add` | `plan` | “添加套餐” / “添加” |
 | `server-add` | `server_manage` | “添加节点” / “添加” |

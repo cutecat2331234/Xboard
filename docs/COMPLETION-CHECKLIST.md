@@ -71,6 +71,7 @@
   - 带壳路由（dashboard/plan/order/invite/traffic/knowledge/ticket/profile）门禁仅比对主内容区（`x=236,y=60,w=1044,h=840`），与 7001 业务区像素对齐；login/register 仍全页比对
   - 根因修复：移除 `dashboard.blade.php` Google Fonts 注入；邀请码/余额区按钮改原生 `<button>` 对齐 7001；`AppLayout` 壳层与 `global.css` padding 对齐
 - [x] visual-gate 用户端登录流程 + `zh-CN` locale 对齐 7001
+- [x] **R23 parity 100%**（2026-06-13）：`run-parity-suite.mjs` — user **16/16** + admin **39/39** + audit **26/26** + dialogs **6/6**；user-edit Sheet **1.684%**
 
 
 
