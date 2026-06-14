@@ -24,6 +24,7 @@ import {
 import { fetchTelegramBotInfo, unbindTelegram } from '@/api/telegram'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const WalletIcon = renderCarbonIcon(
   'M216 64H56a8 8 0 0 1 0-16h136a8 8 0 0 0 0-16H56a24 24 0 0 0-24 24v128a24 24 0 0 0 24 24h160a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16m-36 80a12 12 0 1 1 12-12a12 12 0 0 1-12 12',
@@ -84,8 +85,8 @@ async function saveNotify() {
       remind_expire: remindExpire.value ? 1 : 0,
       remind_traffic: remindTraffic.value ? 1 : 0,
     })
-  } catch {
-    /* ignore */
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
   }
 }
 
