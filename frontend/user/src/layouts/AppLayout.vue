@@ -24,6 +24,7 @@ import { useI18n } from '@/i18n'
 import { toggleColorScheme } from '@/lib/theme'
 import { LANG_LABELS } from '@/lib/lang-labels'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { featureEnabled } from '@/lib/feature-flags'
 
 const s = getSettings()
 const auth = useAuthStore()
@@ -32,6 +33,7 @@ const route = useRoute()
 const dialog = useDialog()
 const { t, locale, setLocale } = useI18n()
 const { config: commConfig, load: loadCommConfig } = useUserCommConfig()
+const commConfigLoaded = ref(false)
 
 const isDark = ref(document.documentElement.classList.contains('dark'))
 
@@ -60,10 +62,10 @@ const menuOptions = computed<MenuOption[]>(() => {
   const billingChildren: MenuOption[] = [
     { label: t('nav.order'), key: '/order', icon: renderIcon(MENU_ICON_PATHS.order) },
   ]
-  if (commConfig.value?.invite_enable !== 0) {
+  if (featureEnabled(commConfig.value?.invite_enable, commConfigLoaded.value)) {
     billingChildren.push({ label: t('nav.invite'), key: '/invite', icon: renderIcon(MENU_ICON_PATHS.invite) })
   }
-  if (commConfig.value?.gift_card_enable !== 0) {
+  if (featureEnabled(commConfig.value?.gift_card_enable, commConfigLoaded.value)) {
     billingChildren.push({ label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) })
   }
   return [
@@ -90,7 +92,7 @@ const menuOptions = computed<MenuOption[]>(() => {
     key: 'g-account',
     children: [
       { label: t('nav.profile'), key: '/profile', icon: renderIcon(MENU_ICON_PATHS.profile) },
-      ...(commConfig.value?.ticket_enable !== 0
+      ...(featureEnabled(commConfig.value?.ticket_enable, commConfigLoaded.value)
         ? [{ label: t('nav.ticket'), key: '/ticket', icon: renderIcon(MENU_ICON_PATHS.ticket) }]
         : []),
       { label: t('nav.traffic'), key: '/traffic', icon: renderIcon(MENU_ICON_PATHS.traffic) },
@@ -153,8 +155,12 @@ function updateMobile() {
 
 let themeObserver: MutationObserver | undefined
 
-onMounted(() => {
-  void loadCommConfig()
+onMounted(async () => {
+  try {
+    await loadCommConfig()
+  } finally {
+    commConfigLoaded.value = true
+  }
   updateMobile()
   mobileQuery.addEventListener('change', updateMobile)
   themeObserver = new MutationObserver(() => {

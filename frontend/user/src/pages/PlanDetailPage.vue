@@ -10,6 +10,7 @@ import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
 import { useAuthStore } from '@/stores/auth'
 import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
 import DOMPurify from 'dompurify'
 
 const route = useRoute()
@@ -170,7 +171,7 @@ onMounted(async () => {
   try {
     commConfig.value = await fetchUserCommConfig()
   } catch {
-    commConfig.value = null
+    commConfig.value = { coupon_enable: 0, plan_change_enable: 1 }
   }
   await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })
@@ -209,12 +210,12 @@ onMounted(async () => {
           {{ formatPrice((plan[p.key as keyof PlanItem] as number) ?? 0) }}
         </n-radio>
       </n-radio-group>
-      <div v-if="commConfig?.coupon_enable !== 0" class="section-label">{{ t('plan.coupon') }}</div>
-      <div v-if="commConfig?.coupon_enable !== 0" class="coupon-row">
+      <div v-if="featureEnabled(commConfig?.coupon_enable, commConfig != null)" class="section-label">{{ t('plan.coupon') }}</div>
+      <div v-if="featureEnabled(commConfig?.coupon_enable, commConfig != null)" class="coupon-row">
         <n-input v-model:value="couponCode" :placeholder="t('plan.couponPh')" />
         <n-button @click="applyCoupon">{{ t('plan.applyCoupon') }}</n-button>
       </div>
-      <p v-if="commConfig?.coupon_enable !== 0 && couponDiscount" class="coupon-hint">{{ t('plan.couponDiscount') }}: {{ couponDiscount }}</p>
+      <p v-if="featureEnabled(commConfig?.coupon_enable, commConfig != null) && couponDiscount" class="coupon-hint">{{ t('plan.couponDiscount') }}: {{ couponDiscount }}</p>
       <n-button type="primary" class="buy-btn" :loading="buying" :disabled="isSoldOut()" @click="buy">{{ t('plan.buyNow') }}</n-button>
     </template>
   </n-card>

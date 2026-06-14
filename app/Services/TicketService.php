@@ -23,15 +23,28 @@ class TicketService
         return self::WITHDRAW_SUBJECT_PREFIX . ' ' . __('Commission withdrawal request');
     }
 
-    public static function buildWithdrawMessage(int $amountCents, string $method, string $account): string
+    public static function buildWithdrawMessage(int $grossCents, int $netCents, string $method, string $account): string
     {
         return sprintf(
-            "[withdraw_amount:%d]\r\n%s\r\n%s\r\n%s",
-            $amountCents,
-            __('Withdrawal amount') . '：' . number_format($amountCents / 100, 2),
+            "[withdraw_amount:%d][withdraw_net:%d]\r\n%s\r\n%s\r\n%s",
+            $grossCents,
+            $netCents,
+            __('Withdrawal amount') . '：' . number_format($grossCents / 100, 2),
             __('Withdrawal method') . '：' . $method,
             __('Withdrawal account') . '：' . $account
         );
+    }
+
+    public static function parseWithdrawNetCents(?string $message): ?int
+    {
+        if ($message === null || $message === '') {
+            return null;
+        }
+        if (preg_match('/\[withdraw_net:(\d+)\]/', $message, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
     }
 
     public static function parseWithdrawAmountCents(?string $message): ?int
@@ -42,8 +55,41 @@ class TicketService
         if (preg_match('/\[withdraw_amount:(\d+)\]/', $message, $matches)) {
             return (int) $matches[1];
         }
+        if (preg_match('/Withdrawal amount[：:]\s*([\d,]+\.?\d*)/i', $message, $matches)) {
+            return (int) round((float) str_replace(',', '', $matches[1]) * 100);
+        }
+        if (preg_match('/提现金额[：:]\s*([\d,]+\.?\d*)/u', $message, $matches)) {
+            return (int) round((float) str_replace(',', '', $matches[1]) * 100);
+        }
 
         return null;
+    }
+
+    public static function finalizeWithdrawPayout(Ticket $ticket): bool
+    {
+        $firstMessage = TicketMessage::where('ticket_id', $ticket->id)
+            ->orderBy('id')
+            ->value('message');
+        if (!is_string($firstMessage)) {
+            return false;
+        }
+        $netCents = self::parseWithdrawNetCents($firstMessage);
+        if ($netCents === null || $netCents <= 0) {
+            $netCents = self::parseWithdrawAmountCents($firstMessage);
+        }
+        if ($netCents === null || $netCents <= 0) {
+            return false;
+        }
+
+        $log = \App\Models\CommissionLog::where('trade_no', 'withdraw:' . $ticket->id)->first();
+        if (!$log) {
+            return false;
+        }
+        if ((int) $log->get_amount > 0) {
+            return true;
+        }
+        $log->get_amount = $netCents;
+        return $log->save();
     }
 
     public static function isLegacyWithdrawTicket(Ticket $ticket): bool

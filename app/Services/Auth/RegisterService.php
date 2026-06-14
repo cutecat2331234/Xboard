@@ -89,7 +89,7 @@ class RegisterService
             }
         }
 
-        if ((int) admin_setting('invite_force', 0)) {
+        if ((int) admin_setting('invite_force', 0) && AppFeature::inviteEnabled()) {
             if (empty($request->input('invite_code'))) {
                 return [false, [422, __('You must use the invitation code to register')]];
             }

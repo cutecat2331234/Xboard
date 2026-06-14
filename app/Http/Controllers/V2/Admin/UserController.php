@@ -749,6 +749,20 @@ class UserController extends Controller
             return $this->fail([400, '不能将自己设为邀请人']);
         }
 
+        if ($inviteUserId) {
+            $visited = [(int) $user->id];
+            $current = (int) $inviteUserId;
+            $depth = 0;
+            while ($current && $depth < 20) {
+                if (in_array($current, $visited, true)) {
+                    return $this->fail([400, '邀请链存在循环，无法设置']);
+                }
+                $visited[] = $current;
+                $current = (int) User::where('id', $current)->value('invite_user_id');
+                $depth++;
+            }
+        }
+
         $user->invite_user_id = $inviteUserId ?: null;
         if (!$user->save()) {
             return $this->fail([500, '保存失败']);

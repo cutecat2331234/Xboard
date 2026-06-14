@@ -18,6 +18,7 @@ interface TrafficRow {
 
 const rows = ref<TrafficRow[]>([])
 const loading = ref(true)
+const loadError = ref(false)
 const msg = useMessage()
 const { t } = useI18n()
 
@@ -71,9 +72,12 @@ const columns = computed(() => [
 
 onMounted(async () => {
   loading.value = true
+  loadError.value = false
   try {
     rows.value = await fetchTrafficLog()
   } catch (e: unknown) {
+    loadError.value = true
+    rows.value = []
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
@@ -86,7 +90,10 @@ onMounted(async () => {
     <n-alert type="info" :bordered="false" class="traffic-alert">
       {{ t('traffic.hint') }}
     </n-alert>
-    <n-empty v-if="!loading && rows.length === 0" :description="t('traffic.empty')" />
+    <n-alert v-if="loadError" type="error" :bordered="false" class="traffic-alert">
+      {{ t('errors.requestFailed') }}
+    </n-alert>
+    <n-empty v-else-if="!loading && rows.length === 0" :description="t('traffic.empty')" />
     <n-data-table v-else :loading="loading" :columns="columns" :data="rows" :scroll-x="600" />
   </n-card>
 </template>

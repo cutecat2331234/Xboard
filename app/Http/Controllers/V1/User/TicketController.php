@@ -203,6 +203,7 @@ class TicketController extends Controller
                 $subject = TicketService::withdrawSubject();
                 $message = TicketService::buildWithdrawMessage(
                     $withdrawAmount,
+                    $netAmount,
                     $request->input('withdraw_method'),
                     $request->input('withdraw_account')
                 );

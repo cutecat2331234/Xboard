@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V2\Client;
 
 use App\Http\Controllers\Controller;
+use App\Support\AppFeature;
 use App\Services\ServerService;
 use App\Services\UserService;
 use App\Utils\Dict;
@@ -25,7 +26,7 @@ class AppController extends Controller
             ],
             'features' => [
                 'enable_register' => \App\Support\AppFeature::registerEnabled(),
-                'enable_invite_system' => (bool) admin_setting('app_enable_invite_system', true), // 是否开启邀请系统
+                'enable_invite_system' => AppFeature::inviteEnabled() && AppFeature::commissionEnabled(),
                 'enable_telegram_bot' => (bool) admin_setting('telegram_bot_enable', false), // 是否开启 Telegram 机器人
                 'enable_ticket_system' => (bool) admin_setting('app_enable_ticket_system', true), // 是否开启工单系统
                 'ticket_must_wait_reply' => (bool) admin_setting('ticket_must_wait_reply', 0), // 工单是否需要等待管理员回复后才可继续发消息
@@ -100,7 +101,7 @@ class AppController extends Controller
                 'currency_symbol' => admin_setting('currency_symbol', '¥'), // 货币符号
                 'withdraw_methods' => admin_setting('commission_withdraw_method', Dict::WITHDRAW_METHOD_WHITELIST_DEFAULT),
                 'min_withdraw_amount' => (int) admin_setting('commission_withdraw_limit', 100) * 100,
-                'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0.01), // 提现手续费率
+                'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
             ],
             'notification_config' => [
                 'enable_push_notifications' => (bool) admin_setting('app_enable_push_notifications', true), // 是否开启推送通知
