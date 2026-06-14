@@ -57,7 +57,7 @@ class PaymentController extends Controller
                 return false;
             }
 
-            if ($order->status === Order::STATUS_COMPLETED) {
+            if (in_array((int) $order->status, [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED], true)) {
                 return true;
             }
 

@@ -23,6 +23,9 @@ export default {
   auth: {
     defaultTitle: 'Xboard',
     defaultDescription: 'Professional network acceleration service',
+    or: 'or',
+    loginFailed: 'Login failed',
+    registerFailed: 'Registration failed',
   },
   nav: {
     dashboard: 'Dashboard',
@@ -129,11 +132,6 @@ export default {
     catTutorial: 'Tutorial',
     catFaq: 'FAQ',
     catNotice: 'Notice',
-  },
-  auth: {
-    or: 'or',
-    loginFailed: 'Login failed',
-    registerFailed: 'Registration failed',
   },
   errors: {
     incorrectCredentials: 'Incorrect email or password',

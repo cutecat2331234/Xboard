@@ -26,6 +26,7 @@ import {
   type InviteCode,
 } from '@/api/invite'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { useGuestConfig } from '@/composables/useGuestConfig'
 import { useCurrency } from '@/composables/useCurrency'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
@@ -70,6 +71,7 @@ const transferOpen = ref(false)
 const withdrawOpen = ref(false)
 const transferAmount = ref('')
 const { config: commConfig, load: loadComm } = useUserCommConfig()
+const { config: guestConfig, load: loadGuest } = useGuestConfig()
 const withdrawMethod = ref('')
 const withdrawAccount = ref('')
 const pageLoading = ref(true)
@@ -147,7 +149,9 @@ const withdrawFeeLabel = computed(() => {
 })
 
 function inviteLink(code: string) {
-  return `${window.location.protocol}//${window.location.host}/#/register?code=${code}`
+  const appUrl = guestConfig.value?.app_url?.trim().replace(/\/+$/, '')
+  const base = appUrl || `${window.location.protocol}//${window.location.host}`
+  return `${base}/#/register?code=${code}`
 }
 
 async function loadDetails() {
@@ -293,6 +297,7 @@ const detailColumns = computed(() => [
 
 onMounted(async () => {
   await loadCurrency()
+  await loadGuest()
   await load()
   const cfg = await loadComm()
   const methods = cfg.withdraw_methods

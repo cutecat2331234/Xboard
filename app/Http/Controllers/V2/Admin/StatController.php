@@ -272,6 +272,15 @@ class StatController extends Controller
 
     public function getStatRecord(Request $request)
     {
+        $request->validate([
+            'start_time' => 'nullable|integer|min:1000000000|max:9999999999',
+            'end_time' => 'nullable|integer|min:1000000000|max:9999999999',
+        ]);
+        $startDate = (int) $request->input('start_time', strtotime('-30 days'));
+        $endDate = (int) $request->input('end_time', time());
+        $this->service->setStartAt($startDate);
+        $this->service->setEndAt($endDate);
+
         return [
             'data' => $this->service->getStatRecord($request->input('type'))
         ];
@@ -527,10 +536,16 @@ class StatController extends Controller
         $request->validate([
             'type' => 'nullable|string|in:server_traffic_rank,user_consumption_rank,invite_rank',
             'limit' => 'nullable|integer|min:1|max:100',
+            'start_time' => 'nullable|integer|min:1000000000|max:9999999999',
+            'end_time' => 'nullable|integer|min:1000000000|max:9999999999',
         ]);
 
         $type = $request->input('type', 'server_traffic_rank');
         $limit = (int) $request->input('limit', 20);
+        $startDate = (int) $request->input('start_time', strtotime('today'));
+        $endDate = (int) $request->input('end_time', strtotime('tomorrow'));
+        $this->service->setStartAt($startDate);
+        $this->service->setEndAt($endDate);
 
         return $this->success($this->service->getRanking($type, $limit));
     }

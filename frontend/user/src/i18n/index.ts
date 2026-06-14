@@ -33,6 +33,8 @@ import zhTW from './locales/zh-TW'
 
 import faIR from './locales/fa-IR'
 
+import ruRU from './locales/ru-RU'
+
 
 
 const catalogs: Record<string, Record<string, unknown>> = {
@@ -50,6 +52,8 @@ const catalogs: Record<string, Record<string, unknown>> = {
   'zh-TW': zhTW,
 
   'fa-IR': faIR,
+
+  'ru-RU': ruRU,
 
 }
 

@@ -22,6 +22,7 @@ function formatOrderAmount(cents: number) {
 
 function orderStatusDotClass(status: number) {
   if (status === 3) return 'status-dot status-dot--ok'
+  if (status === 4) return 'status-dot status-dot--info'
   if (status === 1) return 'status-dot status-dot--info'
   return 'status-dot status-dot--bad'
 }

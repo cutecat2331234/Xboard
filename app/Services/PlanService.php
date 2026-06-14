@@ -153,7 +153,7 @@ class PlanService
 
     protected function validateResetTrafficPurchase(User $user): void
     {
-        if (!app(UserService::class)->isAvailable($user) || $this->plan->id !== $user->plan_id) {
+        if (!$user->isActive() || $this->plan->id !== $user->plan_id) {
             throw new ApiException(__('Subscription has expired or no active subscription, unable to purchase Data Reset Package'));
         }
     }
