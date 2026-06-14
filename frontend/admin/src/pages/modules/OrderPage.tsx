@@ -545,7 +545,11 @@ export default function OrderPage() {
                 </button>
               </div>
             </div>
-            <button data-state="closed">
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:text-muted-foreground"
+              title={t('order.status.tooltip')}
+            >
               <OrderStatusHelpIcon />
             </button>
           </div>

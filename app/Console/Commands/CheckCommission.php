@@ -78,7 +78,10 @@ class CheckCommission extends Command
                         'paid' => $paidTotal,
                         'expected' => $expectedTotal,
                     ]);
-                    DB::rollBack();
+                    $order->commission_status = 2;
+                    $order->actual_commission_balance = $paidTotal;
+                    $order->save();
+                    DB::commit();
                     continue;
                 }
 
@@ -152,6 +155,29 @@ class CheckCommission extends Command
             ]);
             $inviteUserId = $inviter->invite_user_id;
             $order->actual_commission_balance = (int) $order->actual_commission_balance + $commissionBalance;
+        }
+
+        if ($remaining > 0) {
+            $directInviter = User::where('id', $order->invite_user_id)->lockForUpdate()->first();
+            if ($directInviter && $remaining > 0) {
+                if ((int)admin_setting('withdraw_close_enable', 0)) {
+                    $directInviter->increment('balance', $remaining);
+                } else {
+                    $directInviter->increment('commission_balance', $remaining);
+                }
+                if (!$directInviter->save()) {
+                    return false;
+                }
+                CommissionLog::create([
+                    'invite_user_id' => $order->invite_user_id,
+                    'user_id' => $order->user_id,
+                    'trade_no' => $order->trade_no,
+                    'order_amount' => $order->total_amount,
+                    'get_amount' => $remaining
+                ]);
+                $order->actual_commission_balance = (int) $order->actual_commission_balance + $remaining;
+                $remaining = 0;
+            }
         }
 
         if ($remaining > 0) {

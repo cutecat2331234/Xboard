@@ -198,7 +198,7 @@ class GiftCardService
         }
 
         if (isset($rewards['plan_id'])) {
-            $plan = Plan::find($rewards['plan_id']);
+            $plan = Plan::where('id', $rewards['plan_id'])->lockForUpdate()->first();
             if (!$plan) {
                 throw new ApiException('关联套餐不存在');
             }

@@ -2474,6 +2474,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "status": "状态",
       "updated_at": "最后更新",
       "created_at": "创建时间",
+      "reply_status": "回复状态",
       "actions": "操作"
     },
     "status": {
@@ -2485,27 +2486,38 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "level": {
       "low": "低优先",
       "medium": "中优先",
-      "high": "高优先"
+      "high": "高优先",
+      "withdraw": "提现"
     },
     "filter": {
       "placeholder": "搜索{field}...",
       "no_results": "未找到结果",
       "selected": "已选择 {count} 项",
-      "clear": "清除筛选"
+      "clear": "清除筛选",
+      "reply_status_all": "全部回复状态"
     },
     "actions": {
       "view_details": "查看详情",
       "reply": "回复",
       "close": "关闭工单",
       "close_reject_withdraw": "拒绝提现并关闭",
+      "approve_withdraw": "批准提现并关闭",
       "close_ticket": "关闭工单",
       "close_confirm_title": "确认关闭工单",
       "close_confirm_description": "确定要关闭这个工单吗？关闭后会移入已关闭列表，但仍可继续回复。",
       "close_confirm_button": "确认关闭",
       "close_success": "工单已关闭",
-      "view_ticket": "查看工单"
+      "view_ticket": "查看工单",
+      "approve_withdraw_confirm_title": "确认批准提现？",
+      "approve_withdraw_confirm_description": "将关闭工单并标记提现已完成，不会恢复佣金。",
+      "reject_withdraw_confirm_title": "确认拒绝提现？",
+      "reject_withdraw_confirm_description": "将关闭工单并恢复用户被冻结的佣金。"
+    },
+    "reply": {
+      "label": "回复"
     },
     "detail": {
+      "title": "工单详情",
       "no_messages": "暂无消息记录",
       "created_at": "创建于",
       "sender_admin": "管理员",
@@ -3263,6 +3275,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "title": "使用限制",
           "max_use_per_user": {
             "label": "单用户最大使用次数",
+            "placeholder": "留空则不限制"
+          },
+          "max_total_uses": {
+            "label": "模板总兑换上限",
             "placeholder": "留空则不限制"
           },
           "cooldown_hours": {

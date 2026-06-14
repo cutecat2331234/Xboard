@@ -139,6 +139,8 @@ type GiftCardLimits = {
 
   max_use_per_user?: number | null
 
+  max_total_uses?: number | null
+
   cooldown_hours?: number | null
 
   invite_reward_rate?: number | null
@@ -336,6 +338,8 @@ function parseLimits(raw: unknown): GiftCardLimits {
   return {
 
     max_use_per_user: l.max_use_per_user != null ? Number(l.max_use_per_user) : null,
+
+    max_total_uses: l.max_total_uses != null ? Number(l.max_total_uses) : null,
 
     cooldown_hours: l.cooldown_hours != null ? Number(l.cooldown_hours) : null,
 
@@ -718,6 +722,12 @@ export default function GiftCardPage() {
     if (form.limits.max_use_per_user != null) {
 
       limits.max_use_per_user = form.limits.max_use_per_user
+
+    }
+
+    if (form.limits.max_total_uses != null) {
+
+      limits.max_total_uses = form.limits.max_total_uses
 
     }
 
@@ -2422,6 +2432,42 @@ export default function GiftCardPage() {
                             ...f.limits,
 
                             max_use_per_user: e.target.value ? Number(e.target.value) : null,
+
+                          },
+
+                        }))
+
+                      }
+
+                    />
+
+                  </div>
+
+                  <div className="space-y-1.5">
+
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.max_total_uses.label')}</Label>
+
+                    <input
+
+                      type="number"
+
+                      className={giftDialogInputCls}
+
+                      placeholder={t('giftCard.template.form.limits.max_total_uses.placeholder')}
+
+                      value={form.limits.max_total_uses ?? ''}
+
+                      onChange={(e) =>
+
+                        setForm((f) => ({
+
+                          ...f,
+
+                          limits: {
+
+                            ...f.limits,
+
+                            max_total_uses: e.target.value ? Number(e.target.value) : null,
 
                           },
 
