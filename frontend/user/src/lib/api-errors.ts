@@ -197,6 +197,21 @@ const ERROR_PATTERNS: ErrorPattern[] = [
       return hit ? { limit: hit[1] } : undefined
     },
   },
+  {
+    test: (m) => m.startsWith('兑换码不可用'),
+    key: 'errors.giftCardNotFound',
+  },
+  {
+    test: (m) =>
+      m === '礼品卡模板不存在' ||
+      m === '关联套餐不存在' ||
+      m === '未设置使用用户',
+    key: 'errors.giftCardNotFound',
+  },
+  {
+    test: (m) => m === '余额发放失败' || m === '用户信息更新失败',
+    key: 'errors.requestFailed',
+  },
 ]
 
 function extractMessage(error: unknown): string {

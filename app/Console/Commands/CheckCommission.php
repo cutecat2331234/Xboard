@@ -17,9 +17,7 @@ class CheckCommission extends Command
 
     private function orderAmount(Order $order): int
     {
-        return (int) $order->total_amount
-            + (int) ($order->balance_amount ?? 0)
-            + (int) ($order->surplus_amount ?? 0);
+        return (int) $order->total_amount + (int) ($order->balance_amount ?? 0);
     }
 
     public function handle()
@@ -104,9 +102,16 @@ class CheckCommission extends Command
                             $paidTotal += $remainder;
                         }
                     }
-                    $order->commission_status = 2;
-                    $order->actual_commission_balance = $paidTotal;
-                    $order->save();
+                    if ($paidTotal >= $expectedTotal) {
+                        $order->commission_status = 2;
+                        $order->actual_commission_balance = $paidTotal;
+                        $order->save();
+                    } else {
+                        Log::warning('Commission payout still incomplete after remainder attempt for order ' . $orderId, [
+                            'paid' => $paidTotal,
+                            'expected' => $expectedTotal,
+                        ]);
+                    }
                     DB::commit();
                     continue;
                 }

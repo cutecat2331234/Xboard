@@ -1005,12 +1005,10 @@ function FailedJobsDialog({
 
       })
 
-      .catch(() => {
-
+      .catch((e) => {
         setRows([])
-
         setTotal(0)
-
+        toastApiError(e, toast, t, t('common.error'))
       })
 
       .finally(() => setLoading(false))

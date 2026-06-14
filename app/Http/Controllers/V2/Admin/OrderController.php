@@ -243,79 +243,71 @@ class OrderController extends Controller
     public function assign(OrderAssign $request)
     {
         try {
-            DB::beginTransaction();
-            $user = User::byEmail($request->input('email'))->lockForUpdate()->first();
-            $plan = Plan::where('id', $request->input('plan_id'))->lockForUpdate()->first();
+            $tradeNo = DB::transaction(function () use ($request) {
+                $user = User::byEmail($request->input('email'))->lockForUpdate()->first();
+                $plan = Plan::where('id', $request->input('plan_id'))->lockForUpdate()->first();
 
-            if (!$user) {
-                DB::rollBack();
-                return $this->fail([400202, '该用户不存在']);
-            }
+                if (!$user) {
+                    throw new \RuntimeException('该用户不存在');
+                }
 
-            if (!$plan) {
-                DB::rollBack();
-                return $this->fail([400202, '该订阅不存在']);
-            }
+                if (!$plan) {
+                    throw new \RuntimeException('该订阅不存在');
+                }
 
-            $userService = new UserService();
-            if ($userService->isNotCompleteOrderByUserId($user->id)) {
-                DB::rollBack();
-                return $this->fail([400, '该用户还有待支付的订单，无法分配']);
-            }
+                $userService = new UserService();
+                if ($userService->isNotCompleteOrderByUserId($user->id)) {
+                    throw new \RuntimeException('该用户还有待支付的订单，无法分配');
+                }
 
-            $periodKey = PlanService::getPeriodKey((string) $request->input('period'));
-            $price = $plan->prices[$periodKey] ?? null;
-            if ($price === null) {
-                DB::rollBack();
-                return $this->fail([400, '该订阅周期不可购买']);
-            }
+                $periodKey = PlanService::getPeriodKey((string) $request->input('period'));
+                $price = $plan->prices[$periodKey] ?? null;
+                if ($price === null) {
+                    throw new \RuntimeException('该订阅周期不可购买');
+                }
 
-            $planService = new PlanService($plan);
-            try {
+                $planService = new PlanService($plan);
                 $planService->validatePurchase($user, (string) $request->input('period'));
-            } catch (\App\Exceptions\ApiException $e) {
-                DB::rollBack();
-                return $this->fail([400, $e->getMessage()]);
+
+                $order = new Order();
+                $orderService = new OrderService($order);
+                $order->user_id = $user->id;
+                $order->plan_id = $plan->id;
+                $order->period = $periodKey;
+                $order->trade_no = Helper::guid();
+                $order->total_amount = $request->input('total_amount');
+
+                $orderService->setOrderType($user);
+                $orderService->setInvite($user);
+
+                if (!$order->save()) {
+                    throw new \RuntimeException('订单创建失败');
+                }
+
+                $orderService = new OrderService($order->fresh());
+                if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
+                    throw new \RuntimeException('订单开通失败');
+                }
+                $order->refresh();
+                if ((int) $order->status !== Order::STATUS_COMPLETED) {
+                    throw new \RuntimeException('订单开通失败');
+                }
+
+                return $order->trade_no;
+            });
+
+            return $this->success($tradeNo);
+        } catch (\App\Exceptions\ApiException $e) {
+            return $this->fail([400, $e->getMessage()]);
+        } catch (\RuntimeException $e) {
+            $message = $e->getMessage();
+            if ($message === '该用户不存在' || $message === '该订阅不存在') {
+                return $this->fail([400202, $message]);
             }
-
-            $order = new Order();
-            $orderService = new OrderService($order);
-            $order->user_id = $user->id;
-            $order->plan_id = $plan->id;
-            $period = $request->input('period');
-            $order->period = $periodKey;
-            $order->trade_no = Helper::guid();
-            $order->total_amount = $request->input('total_amount');
-
-            $orderService->setOrderType($user);
-            $orderService->setInvite($user);
-
-            if (!$order->save()) {
-                DB::rollBack();
-                return $this->fail([500, '订单创建失败']);
-            }
-            DB::commit();
+            return $this->fail([500, $message]);
         } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-
-        $orderService = new OrderService($order->fresh());
-        if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
-            $order->refresh();
-            if (in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
-                $orderService->cancel();
-            }
+            Log::error($e);
             return $this->fail([500, '订单开通失败']);
         }
-        $order->refresh();
-        if ((int) $order->status !== Order::STATUS_COMPLETED) {
-            if (in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
-                $orderService->cancel();
-            }
-            return $this->fail([500, '订单开通失败']);
-        }
-
-        return $this->success($order->trade_no);
     }
 }

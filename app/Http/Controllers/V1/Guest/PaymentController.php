@@ -83,6 +83,13 @@ class PaymentController extends Controller
                     $order->refresh();
                     if ((int) $order->status === Order::STATUS_PROCESSING) {
                         if (!$orderService->failOpenAndRefund('Order remained in processing after payment notify retry')) {
+                            $order->refresh();
+                            if ($order->paid_at) {
+                                Log::warning('Payment notify: open failed after pay, acknowledging gateway for manual recovery', [
+                                    'trade_no' => $tradeNo,
+                                ]);
+                                return true;
+                            }
                             return false;
                         }
                         $order->refresh();
@@ -223,7 +230,8 @@ class PaymentController extends Controller
 
     private function creditOrphanPaymentOnce(Order $order, string $callbackNo, string $reason): void
     {
-        if ($this->isOrphanCreditProcessed($order->trade_no, $callbackNo)) {
+        $cacheKey = $this->orphanCreditCacheKey($order->trade_no, $callbackNo);
+        if (Cache::has($cacheKey)) {
             Log::info('Payment notify: orphan credit already processed', [
                 'trade_no' => $order->trade_no,
                 'callback_no' => $callbackNo,
@@ -231,8 +239,20 @@ class PaymentController extends Controller
             return;
         }
 
-        $this->creditOrphanPayment($order, $callbackNo, $reason);
-        $this->markOrphanCreditProcessed($order->trade_no, $callbackNo);
+        if (!Cache::add($cacheKey, 1)) {
+            Log::info('Payment notify: orphan credit claim skipped (concurrent)', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+            ]);
+            return;
+        }
+
+        try {
+            $this->creditOrphanPayment($order, $callbackNo, $reason);
+        } catch (\Throwable $e) {
+            Cache::forget($cacheKey);
+            throw $e;
+        }
     }
 
     private function isOrphanCreditProcessed(string $tradeNo, string $callbackNo): bool

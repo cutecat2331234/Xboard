@@ -167,7 +167,7 @@ class RegisterService
         $inviteCode = $request->input('invite_code');
 
         try {
-            return DB::transaction(function () use ($request, $email, $password, $inviteCode) {
+            [$ok, $result] = DB::transaction(function () use ($request, $email, $password, $inviteCode) {
                 HookManager::call('user.register.before', $request);
 
                 if (User::byEmail($email)->lockForUpdate()->exists()) {
@@ -199,15 +199,6 @@ class RegisterService
                 $user->last_login_at = time();
                 $user->save();
 
-                if ((int) admin_setting('register_limit_by_ip_enable', 0)) {
-                    $registerCountByIP = Cache::get(CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip())) ?? 0;
-                    Cache::put(
-                        CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip()),
-                        (int) $registerCountByIP + 1,
-                        (int) admin_setting('register_limit_expire', 60) * 60
-                    );
-                }
-
                 return [true, $user];
             });
         } catch (ApiException $e) {
@@ -216,5 +207,16 @@ class RegisterService
         } catch (\Throwable $e) {
             return [false, [500, __('Register failed')]];
         }
+
+        if ($ok && (int) admin_setting('register_limit_by_ip_enable', 0)) {
+            $registerCountByIP = Cache::get(CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip())) ?? 0;
+            Cache::put(
+                CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip()),
+                (int) $registerCountByIP + 1,
+                (int) admin_setting('register_limit_expire', 60) * 60
+            );
+        }
+
+        return [$ok, $result];
     }
 }

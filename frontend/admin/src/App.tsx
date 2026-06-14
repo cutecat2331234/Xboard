@@ -21,6 +21,7 @@ import CouponPage from '@/pages/modules/CouponPage'
 import GiftCardPage from '@/pages/modules/GiftCardPage'
 import UserPage from '@/pages/modules/UserPage'
 import TicketPage from '@/pages/modules/TicketPage'
+import TrafficResetPage from '@/pages/modules/TrafficResetPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import PluginAdminRoute from '@/pages/PluginAdminRoute'
 
@@ -88,6 +89,7 @@ export default function App() {
           <Route path="finance/coupon" element={<CouponPage />} />
           <Route path="finance/gift-card" element={<GiftCardPage />} />
           <Route path="user/manage" element={<UserPage />} />
+          <Route path="user/traffic-reset" element={<TrafficResetPage />} />
           <Route path="user/ticket" element={<TicketPage />} />
           {/* legacy redirects */}
           <Route path="config" element={<Navigate to="/config/system" replace />} />

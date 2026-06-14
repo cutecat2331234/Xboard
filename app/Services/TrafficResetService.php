@@ -138,6 +138,7 @@ class TrafficResetService
 
     $expiredAt = Carbon::createFromTimestamp($user->expired_at, config('app.timezone'));
     $resetDay = $expiredAt->day;
+    $resetDay = min($resetDay, $from->copy()->endOfMonth()->day);
     $resetTime = [$expiredAt->hour, $expiredAt->minute, $expiredAt->second];
     
     $currentMonthTarget = $from->copy()->day($resetDay)->setTime(...$resetTime);
