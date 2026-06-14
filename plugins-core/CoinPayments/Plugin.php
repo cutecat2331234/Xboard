@@ -106,6 +106,7 @@ class Plugin extends AbstractPlugin implements PaymentInterface
             return [
                 'trade_no' => $params['item_number'],
                 'callback_no' => $params['txn_id'],
+                'amount' => (int) round(((float) ($params['amount1'] ?? $params['amount2'] ?? 0)) * 100),
                 'custom_result' => 'IPN OK'
             ];
         } else if ($status < 0) {

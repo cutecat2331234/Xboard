@@ -229,7 +229,7 @@ class OrderController extends Controller
                 $order->type = Order::TYPE_RESET_TRAFFIC;
             } else if ($user->plan_id !== NULL && $order->plan_id !== $user->plan_id) {
                 $order->type = Order::TYPE_UPGRADE;
-            } else if ($user->expired_at > time() && $order->plan_id == $user->plan_id) {
+            } else if ($user->expired_at !== null && $user->expired_at > time() && $order->plan_id == $user->plan_id) {
                 $order->type = Order::TYPE_RENEWAL;
             } else {
                 $order->type = Order::TYPE_NEW_PURCHASE;

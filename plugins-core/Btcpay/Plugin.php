@@ -113,7 +113,8 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         
         return [
             'trade_no' => $out_trade_no,
-            'callback_no' => $pay_trade_no
+            'callback_no' => $pay_trade_no,
+            'amount' => (int) round(((float) ($invoiceDetail['amount'] ?? $invoiceDetail['price'] ?? 0)) * 100),
         ];
     }
 

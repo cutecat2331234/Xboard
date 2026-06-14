@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
+import { ensureAdminSession } from '@/lib/admin-session'
 import { getSettings } from '@/lib/settings'
 import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
 import { InlineFlag } from '@/components/shared/InlineFlag'
@@ -42,7 +43,17 @@ export default function LoginPage() {
   const resetCommand = t('auth.signIn.resetPassword.command')
 
   useEffect(() => {
-    if (getAuthData()) navigate('/', { replace: true })
+    let active = true
+    async function verifyExistingSession() {
+      if (!getAuthData()) return
+      const valid = await ensureAdminSession()
+      if (active && valid) navigate('/', { replace: true })
+      if (active && !valid) clearAuthData()
+    }
+    void verifyExistingSession()
+    return () => {
+      active = false
+    }
   }, [navigate])
 
   async function copyResetCommand() {

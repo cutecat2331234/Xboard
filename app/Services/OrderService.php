@@ -205,7 +205,7 @@ class OrderService
         if ($user->discount) {
             $order->discount_amount = $order->discount_amount + ($order->total_amount * ($user->discount / 100));
         }
-        $order->total_amount = $order->total_amount - $order->discount_amount;
+        $order->total_amount = max(0, $order->total_amount - $order->discount_amount);
     }
 
     public function setInvite(User $user): void

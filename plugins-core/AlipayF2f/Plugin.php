@@ -94,7 +94,8 @@ class Plugin extends AbstractPlugin implements PaymentInterface
             if ($gateway->verify($params)) {
                 return [
                     'trade_no' => $params['out_trade_no'],
-                    'callback_no' => $params['trade_no']
+                    'callback_no' => $params['trade_no'],
+                    'amount' => (int) round(((float) ($params['total_amount'] ?? 0)) * 100),
                 ];
             } else {
                 return false;

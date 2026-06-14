@@ -98,17 +98,11 @@ export function resolvePluginMenuIframeSrc(
   return null
 }
 
-function appendAuthQuery(url: string, authData?: string | null): string {
-  if (!authData) return url
-  const joiner = url.includes('?') ? '&' : '?'
-  return `${url}${joiner}${new URLSearchParams({ auth_data: authData }).toString()}`
-}
-
-/** Admin API URL for a plugin-provided page (opens in a new tab). */
+/** Admin API URL for a plugin-provided page (Authorization header required — no token in query). */
 export function resolvePluginMenuBackendPageUrl(
   pluginCode: string,
   menu: PluginAdminMenu,
-  options: { apiPrefix: string; authData?: string | null },
+  options: { apiPrefix: string },
 ): string | null {
   if (!pluginCode) return null
 
@@ -125,14 +119,14 @@ export function resolvePluginMenuBackendPageUrl(
   }
 
   if (!apiPath) return null
-  return appendAuthQuery(`${options.apiPrefix}${apiPath}`, options.authData)
+  return `${options.apiPrefix}${apiPath}`
 }
 
 /** Same as backend page URL; used to probe HTML responses for inline embedding. */
 export function resolvePluginMenuPageApiUrl(
   pluginCode: string,
   menuPath: string,
-  options: { apiPrefix: string; authData?: string | null },
+  options: { apiPrefix: string },
 ): string | null {
   if (!pluginCode || !menuPath) return null
   const apiPath = `/plugin/${pluginCode}/page?${new URLSearchParams({ path: menuPath }).toString()}`
@@ -162,6 +156,20 @@ export async function fetchPluginMenuPageHtml(pageApiUrl: string): Promise<strin
   }
 
   return null
+}
+
+/** Open plugin backend HTML in a new tab using Authorization header (no token in URL). */
+export async function openPluginBackendPage(pageApiUrl: string): Promise<boolean> {
+  const html = await fetchPluginMenuPageHtml(pageApiUrl)
+  if (!html) return false
+
+  const popup = window.open('', '_blank', 'noopener,noreferrer')
+  if (!popup) return false
+
+  popup.document.open()
+  popup.document.write(html)
+  popup.document.close()
+  return true
 }
 
 export function isPluginAdminPath(pathname: string): boolean {

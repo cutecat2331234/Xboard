@@ -5,6 +5,7 @@ namespace Plugin\Coinbase;
 use App\Services\Plugin\AbstractPlugin;
 use App\Contracts\PaymentInterface;
 use App\Exceptions\ApiException;
+use Illuminate\Support\Facades\Http;
 
 class Plugin extends AbstractPlugin implements PaymentInterface
 {
@@ -58,16 +59,24 @@ class Plugin extends AbstractPlugin implements PaymentInterface
                 'currency' => 'CNY'
             ],
             'metadata' => [
-                "outTradeNo" => $order['trade_no'],
+                'outTradeNo' => $order['trade_no'],
             ],
         ];
 
-        $params_string = http_build_query($params);
-        $ret_raw = $this->curlPost($this->getConfig('coinbase_url'), $params_string);
-        $ret = @json_decode($ret_raw, true);
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'X-CC-Api-Key' => $this->getConfig('coinbase_api_key'),
+                'X-CC-Version' => '2018-03-22',
+            ])
+            ->post($this->getConfig('coinbase_url'), $params);
 
+        if (!$response->successful()) {
+            throw new ApiException('Coinbase API request failed');
+        }
+
+        $ret = $response->json();
         if (empty($ret['data']['hosted_url'])) {
-            throw new ApiException("error!");
+            throw new ApiException('Coinbase charge creation failed');
         }
         
         return [
@@ -98,11 +107,15 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         if (!$out_trade_no || !$pay_trade_no) {
             throw new ApiException('Invalid Coinbase webhook payload', 400);
         }
+
+        $localAmount = $json_param['event']['data']['pricing']['local']['amount'] ?? null;
+        $amountCents = $localAmount !== null ? (int) round(((float) $localAmount) * 100) : null;
         
-        return [
+        return array_filter([
             'trade_no' => $out_trade_no,
-            'callback_no' => $pay_trade_no
-        ];
+            'callback_no' => $pay_trade_no,
+            'amount' => $amountCents,
+        ], static fn ($value) => $value !== null);
     }
 
     private function curlPost($url, $params = false)

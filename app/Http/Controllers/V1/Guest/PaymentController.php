@@ -26,7 +26,7 @@ class PaymentController extends Controller
                 return $this->fail([422, 'verify error']);
             }
             HookManager::call('payment.notify.verified', $verify);
-            if (!$this->handle($verify['trade_no'], $verify['callback_no'])) {
+            if (!$this->handle($verify)) {
                 return $this->fail([400, 'handle error']);
             }
             return (isset($verify['custom_result']) ? $verify['custom_result'] : 'success');
@@ -36,8 +36,15 @@ class PaymentController extends Controller
         }
     }
 
-    private function handle($tradeNo, $callbackNo): bool
+    private function handle(array $verify): bool
     {
+        $tradeNo = $verify['trade_no'] ?? null;
+        $callbackNo = $verify['callback_no'] ?? null;
+        if (!$tradeNo || !$callbackNo) {
+            Log::warning('Payment notify: missing trade_no or callback_no', $verify);
+            return false;
+        }
+
         $order = Order::where('trade_no', $tradeNo)->first();
         if (!$order) {
             Log::warning('Payment notify: order not found', ['trade_no' => $tradeNo]);
@@ -46,6 +53,16 @@ class PaymentController extends Controller
         if ($order->status !== Order::STATUS_PENDING) {
             return true;
         }
+
+        if (isset($verify['amount']) && !$this->verifyAmount($order, (int) $verify['amount'])) {
+            Log::warning('Payment notify: amount mismatch', [
+                'trade_no' => $tradeNo,
+                'expected' => $this->expectedAmountCents($order),
+                'received' => (int) $verify['amount'],
+            ]);
+            return false;
+        }
+
         $orderService = new OrderService($order);
         if (!$orderService->paid($callbackNo)) {
             return false;
@@ -53,5 +70,15 @@ class PaymentController extends Controller
 
         HookManager::call('payment.notify.success', $order);
         return true;
+    }
+
+    private function expectedAmountCents(Order $order): int
+    {
+        return (int) $order->total_amount + (int) ($order->handling_amount ?? 0);
+    }
+
+    private function verifyAmount(Order $order, int $notifyAmountCents): bool
+    {
+        return abs($this->expectedAmountCents($order) - $notifyAmountCents) <= 1;
     }
 }

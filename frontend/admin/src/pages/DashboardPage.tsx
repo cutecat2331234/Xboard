@@ -64,12 +64,18 @@ import {
 } from '@/lib/api'
 
 import { SystemUpdateNotice } from '@/components/dashboard/SystemUpdateNotice'
+import {
+  AuditLogPanel,
+  QueueWorkloadPanel,
+  SystemStatusPanel,
+} from '@/components/dashboard/SystemMonitorPanels'
 import { FormSelect } from '@/components/shared/FormSelect'
 import { StatCard } from '@/components/shared/StatCard'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 import {
 
@@ -239,12 +245,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
 
-    fetchDashboardStats().then(setStats).catch(() => {})
+    fetchDashboardStats()
+      .then(setStats)
+      .catch(() => toast.error(t('common.error')))
 
-    fetchQueueStats().then(setQueueStats).catch(() => {})
+    fetchQueueStats()
+      .then(setQueueStats)
+      .catch(() => toast.error(t('common.error')))
 
     const timer = window.setInterval(() => {
-      fetchDashboardStats().then(setStats).catch(() => {})
+      fetchDashboardStats()
+        .then(setStats)
+        .catch(() => {})
     }, 60_000)
 
     return () => window.clearInterval(timer)
@@ -621,6 +633,13 @@ export default function DashboardPage() {
         <QueueDetailsCard stats={queueStats} onViewFailedJobs={() => setFailedJobsOpen(true)} />
 
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <SystemStatusPanel />
+        <QueueWorkloadPanel />
+      </div>
+
+      <AuditLogPanel />
 
       {/* 7001 legacy dashboard has no system-status / queue-workload / audit-log sections below. */}
 
