@@ -140,6 +140,11 @@ const MESSAGE_MAP: Record<string, string> = {
   '工单已关闭，无法回复': 'errors.ticketClosedReply',
   'Ticket reply failed': 'errors.ticketReplyFailed',
   '工单回复失败': 'errors.ticketReplyFailed',
+  'The ticket system is disabled': 'errors.ticketSystemDisabled',
+  '工单系统已关闭': 'errors.ticketSystemDisabled',
+  'Withdraw tickets cannot be closed by user': 'errors.withdrawTicketCloseForbidden',
+  'Withdraw tickets cannot be closed by user. Please contact support.': 'errors.withdrawTicketCloseForbidden',
+  '提现工单不能自行关闭，请联系客服处理': 'errors.withdrawTicketCloseForbidden',
   'Close failed': 'errors.ticketCloseFailed',
   '关闭失败': 'errors.ticketCloseFailed',
   'Ticket subject cannot be empty': 'errors.ticketSubjectEmpty',
@@ -172,6 +177,8 @@ const MESSAGE_MAP: Record<string, string> = {
   '您不满足此礼品卡的使用条件': 'errors.giftCardIneligible',
   '您已达到此礼品卡的使用限制': 'errors.giftCardLimitReached',
   '查询失败，请稍后重试': 'errors.giftCardQueryFailed',
+  'Gift card is not available': 'errors.giftCardUnavailable',
+  '礼品卡功能未开启': 'errors.giftCardUnavailable',
 }
 
 interface ErrorPattern {

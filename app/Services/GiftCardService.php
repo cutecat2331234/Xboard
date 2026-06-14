@@ -11,6 +11,7 @@ use App\Models\GiftCardUsage;
 use App\Models\Plan;
 use App\Models\TrafficResetLog;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Services\PlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -146,7 +147,12 @@ class GiftCardService
             $this->giveRewards($actualRewards);
 
             $inviteRewards = null;
-            if ($this->user->invite_user_id && isset($actualRewards['invite_reward_rate'])) {
+            if (
+                $this->user->invite_user_id
+                && isset($actualRewards['invite_reward_rate'])
+                && AppFeature::inviteEnabled()
+                && AppFeature::commissionEnabled()
+            ) {
                 $inviteRewards = $this->giveInviteRewards($actualRewards);
             }
 

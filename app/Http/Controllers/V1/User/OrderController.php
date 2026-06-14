@@ -208,22 +208,29 @@ class OrderController extends Controller
         if (empty($request->input('trade_no'))) {
             return $this->fail([422, __('Invalid parameter')]);
         }
-        $order = Order::where('trade_no', $request->input('trade_no'))
-            ->where('user_id', $request->user()->id)
-            ->first();
-        if (!$order) {
-            return $this->fail([400, __('Order does not exist')]);
-        }
-        if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
-            return $this->fail([400, __('You can only cancel pending orders')]);
-        }
-        if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
-            return $this->fail([400, __('Payment is in progress for this order, cannot cancel')]);
-        }
-        $orderService = new OrderService($order);
-        if (!$orderService->cancel()) {
+        try {
+            return DB::transaction(function () use ($request) {
+                $order = Order::where('trade_no', $request->input('trade_no'))
+                    ->where('user_id', $request->user()->id)
+                    ->lockForUpdate()
+                    ->first();
+                if (!$order) {
+                    return $this->fail([400, __('Order does not exist')]);
+                }
+                if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
+                    return $this->fail([400, __('You can only cancel pending orders')]);
+                }
+                if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
+                    return $this->fail([400, __('Payment is in progress for this order, cannot cancel')]);
+                }
+                $orderService = new OrderService($order);
+                if (!$orderService->cancel()) {
+                    return $this->fail([400, __('Cancel failed')]);
+                }
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
             return $this->fail([400, __('Cancel failed')]);
         }
-        return $this->success(true);
     }
 }

@@ -35,6 +35,7 @@ class CommController extends Controller
             'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
             'coupon_enable' => (int) AppFeature::couponEnabled(),
             'register_enable' => (int) AppFeature::registerEnabled(),
+            'ticket_enable' => (int) AppFeature::ticketEnabled(),
         ];
         return $this->success($data);
     }

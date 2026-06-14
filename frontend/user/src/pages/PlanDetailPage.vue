@@ -19,7 +19,7 @@ const dialog = useDialog()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 const auth = useAuthStore()
-const commConfig = ref<{ plan_change_enable?: number } | null>(null)
+const commConfig = ref<{ plan_change_enable?: number; coupon_enable?: number } | null>(null)
 
 const plan = ref<PlanItem | null>(null)
 const tryOutPlanId = ref(0)
@@ -209,12 +209,12 @@ onMounted(async () => {
           {{ formatPrice((plan[p.key as keyof PlanItem] as number) ?? 0) }}
         </n-radio>
       </n-radio-group>
-      <div class="section-label">{{ t('plan.coupon') }}</div>
-      <div class="coupon-row">
+      <div v-if="commConfig?.coupon_enable !== 0" class="section-label">{{ t('plan.coupon') }}</div>
+      <div v-if="commConfig?.coupon_enable !== 0" class="coupon-row">
         <n-input v-model:value="couponCode" :placeholder="t('plan.couponPh')" />
         <n-button @click="applyCoupon">{{ t('plan.applyCoupon') }}</n-button>
       </div>
-      <p v-if="couponDiscount" class="coupon-hint">{{ t('plan.couponDiscount') }}: {{ couponDiscount }}</p>
+      <p v-if="commConfig?.coupon_enable !== 0 && couponDiscount" class="coupon-hint">{{ t('plan.couponDiscount') }}: {{ couponDiscount }}</p>
       <n-button type="primary" class="buy-btn" :loading="buying" :disabled="isSoldOut()" @click="buy">{{ t('plan.buyNow') }}</n-button>
     </template>
   </n-card>

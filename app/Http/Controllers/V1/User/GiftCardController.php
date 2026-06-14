@@ -8,16 +8,28 @@ use App\Http\Requests\User\GiftCardCheckRequest;
 use App\Http\Requests\User\GiftCardRedeemRequest;
 use App\Models\GiftCardUsage;
 use App\Services\GiftCardService;
+use App\Support\AppFeature;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class GiftCardController extends Controller
 {
+    private function ensureEnabled()
+    {
+        if (!AppFeature::giftCardEnabled()) {
+            return $this->fail([403, __('Gift card is not available')]);
+        }
+        return null;
+    }
+
     /**
      * 查询兑换码信息
      */
     public function check(GiftCardCheckRequest $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         try {
             $giftCardService = new GiftCardService($request->input('code'));
             $giftCardService->setUser($request->user());
@@ -57,6 +69,9 @@ class GiftCardController extends Controller
      */
     public function redeem(GiftCardRedeemRequest $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         try {
             $giftCardService = new GiftCardService($request->input('code'));
             $giftCardService->setUser($request->user());
@@ -99,6 +114,9 @@ class GiftCardController extends Controller
      */
     public function history(Request $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         $request->validate([
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
@@ -126,7 +144,7 @@ class GiftCardController extends Controller
                 'created_at' => $usage->created_at,
             ];
         })->values();
-        return response()->json([
+        return $this->success([
             'data' => $data,
             'pagination' => [
                 'current_page' => $usages->currentPage(),
@@ -142,6 +160,9 @@ class GiftCardController extends Controller
      */
     public function detail(Request $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         $request->validate([
             'id' => 'required|integer|min:1',
         ]);
@@ -186,6 +207,9 @@ class GiftCardController extends Controller
      */
     public function types(Request $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         return $this->success([
             'types' => \App\Models\GiftCardTemplate::getTypeMap(),
         ]);

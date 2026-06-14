@@ -22,6 +22,9 @@ class TicketController extends Controller
 {
     public function fetch(Request $request)
     {
+        if (!AppFeature::ticketEnabled()) {
+            return $this->fail([403, __('The ticket system is disabled')]);
+        }
         if ($request->input('id')) {
             $ticket = Ticket::where('id', $request->input('id'))
                 ->where('user_id', $request->user()->id)
@@ -45,7 +48,7 @@ class TicketController extends Controller
     public function save(TicketSave $request)
     {
         if (!AppFeature::ticketEnabled()) {
-            return $this->fail([403, __('Ticket reply failed')]);
+            return $this->fail([403, __('The ticket system is disabled')]);
         }
         $ticketService = new TicketService();
         $ticket = $ticketService->createTicket(
@@ -62,7 +65,7 @@ class TicketController extends Controller
     public function reply(Request $request)
     {
         if (!AppFeature::ticketEnabled()) {
-            return $this->fail([403, __('Ticket reply failed')]);
+            return $this->fail([403, __('The ticket system is disabled')]);
         }
         if (empty($request->input('id'))) {
             return $this->fail([400, __('Invalid parameter')]);
@@ -102,6 +105,9 @@ class TicketController extends Controller
 
     public function close(Request $request)
     {
+        if (!AppFeature::ticketEnabled()) {
+            return $this->fail([403, __('The ticket system is disabled')]);
+        }
         if (empty($request->input('id'))) {
             return $this->fail([422, __('Invalid parameter')]);
         }
@@ -124,13 +130,15 @@ class TicketController extends Controller
                     ->orderBy('id')
                     ->value('message');
                 if (TicketService::isWithdrawTicket($locked, is_string($firstMessage) ? $firstMessage : null)) {
-                    TicketService::restoreWithdrawCommission($locked);
+                    throw new \RuntimeException(__('Withdraw tickets cannot be closed by user'));
                 }
                 $locked->status = Ticket::STATUS_CLOSED;
                 if (!$locked->save()) {
                     throw new \RuntimeException('Close failed');
                 }
             });
+        } catch (\RuntimeException $e) {
+            return $this->fail([400, $e->getMessage()]);
         } catch (\Exception $e) {
             return $this->fail([500, __('Close failed')]);
         }

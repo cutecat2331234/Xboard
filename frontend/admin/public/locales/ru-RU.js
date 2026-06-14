@@ -1495,22 +1495,22 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       }
     },
     "network_settings": {
-      "edit_protocol": "Редактировать протокол",
-      "edit_protocol_config": "Редактировать конфигурацию протокола",
-      "use_template": "Использовать шаблон {{template}}",
-      "json_config_placeholder": "Введите JSON-конфигурацию",
-      "json_config_placeholder_with_template": "Введите JSON-конфигурацию или выберите шаблон выше",
+      "edit_protocol": "Edit Protocol",
+      "edit_protocol_config": "Edit Protocol Configuration",
+      "use_template": "Use {{template}} Template",
+      "json_config_placeholder": "Please enter JSON configuration",
+      "json_config_placeholder_with_template": "Please enter JSON configuration or select template above",
       "validation": {
-        "must_be_object": "Конфигурация должна быть JSON-объектом",
-        "invalid_json": "Неверный формат JSON"
+        "must_be_object": "Configuration must be a JSON object",
+        "invalid_json": "Invalid JSON format"
       },
       "errors": {
-        "save_failed": "Ошибка при сохранении"
+        "save_failed": "Error occurred while saving"
       }
     },
     "common": {
-      "cancel": "Отмена",
-      "confirm": "Подтвердить"
+      "cancel": "Cancel",
+      "confirm": "Confirm"
     }
   },
   "search": {

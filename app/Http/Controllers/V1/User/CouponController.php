@@ -19,6 +19,10 @@ class CouponController extends Controller
         if (empty($request->input('code'))) {
             return $this->fail([422, __('Coupon cannot be empty')]);
         }
+        $request->validate([
+            'plan_id' => 'required|integer|min:1',
+            'period' => 'required|string',
+        ]);
         $couponService = CouponService::findByCode($request->input('code'));
         $couponService->setPlanId($request->input('plan_id'));
         $couponService->setUserId($request->user()->id);

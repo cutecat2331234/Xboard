@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, useMessage } from 'naive-ui'
+import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, NEmpty, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
@@ -22,6 +22,7 @@ const scrollContentRef = ref<HTMLElement | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const isClosed = computed(() => Boolean(ticket.value?.status))
+const isWithdrawTicket = computed(() => ticket.value?.level === 2)
 
 const mustWaitForAdmin = computed(() => {
   if (!commConfig.value?.ticket_must_wait_reply || !ticket.value?.message?.length) return false
@@ -111,7 +112,7 @@ onUnmounted(stopPoll)
 <template>
   <n-spin :show="pageLoading">
   <n-card v-if="ticket" :title="ticket.subject" class="ticket-detail-card rounded-md">
-    <template v-if="ticket.status === 0" #header-extra>
+    <template v-if="ticket.status === 0 && !isWithdrawTicket" #header-extra>
       <n-button size="small" @click="close">{{ t('ticket.close') }}</n-button>
     </template>
     <div class="ticket-scroll-wrap">
@@ -156,6 +157,7 @@ onUnmounted(stopPoll)
       </n-button>
     </div>
   </n-card>
+  <n-empty v-else-if="!pageLoading" :description="t('errors.ticketNotFound')" />
   </n-spin>
 </template>
 

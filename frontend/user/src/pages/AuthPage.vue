@@ -88,7 +88,7 @@ const mailLinkLoading = ref(false)
 const forgetLoading = ref(false)
 
 const showMailLink = computed(() => Boolean(config.value?.login_with_mail_link_enable))
-const registerClosed = computed(() => Boolean(config.value?.stop_register))
+const registerClosed = computed(() => Number(config.value?.register_enable) === 0)
 const brandLogo = computed(() =>
   resolveAssetUrl(config.value?.logo || settings.value.logo || '', config.value?.app_url),
 )

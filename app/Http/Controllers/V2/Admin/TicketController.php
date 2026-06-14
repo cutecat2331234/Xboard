@@ -168,6 +168,8 @@ class TicketController extends Controller
             return $this->success(true);
         } catch (ModelNotFoundException $e) {
             return $this->fail([400202, '工单不存在']);
+        } catch (\RuntimeException $e) {
+            return $this->fail([400, $e->getMessage()]);
         } catch (\Exception $e) {
             return $this->fail([500101, '关闭失败']);
         }

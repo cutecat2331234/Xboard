@@ -35,6 +35,7 @@ class AppController extends Controller
                 'enable_announcements' => (bool) admin_setting('app_enable_announcements', true), // 是否开启公告系统
                 'enable_auto_renewal' => false, // 服务端自动续费尚未实现，固定返回 false
                 'enable_coupon_system' => (bool) admin_setting('app_enable_coupon_system', true), // 是否开启优惠券系统
+                'enable_gift_card_system' => \App\Support\AppFeature::giftCardEnabled(),
                 'enable_speed_test' => (bool) admin_setting('app_enable_speed_test', true), // 是否开启测速功能
                 'enable_server_ping' => (bool) admin_setting('app_enable_server_ping', true), // 是否开启服务器延迟检测
             ],
