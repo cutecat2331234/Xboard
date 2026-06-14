@@ -458,15 +458,14 @@ function confirmClose() {
     negativeText: t('common.cancel'),
 
     onPositiveClick: async () => {
-
       if (!order.value) return
-
-      await cancelOrder(order.value.trade_no)
-
-      msg.success(t('order.closeSuccess'))
-
-      await load()
-
+      try {
+        await cancelOrder(order.value.trade_no)
+        msg.success(t('order.closeSuccess'))
+        await load()
+      } catch (e: unknown) {
+        msg.error(e instanceof Error ? e.message : t('common.error'))
+      }
     },
 
   })

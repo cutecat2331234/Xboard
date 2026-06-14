@@ -28,7 +28,7 @@ const activeCategory = ref(ALL_CATEGORY)
 const keyword = ref('')
 const query = ref('')
 const loading = ref(true)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const msg = useMessage()
 
 const filtered = computed(() => {
@@ -56,9 +56,10 @@ function search() {
 onMounted(async () => {
   loading.value = true
   try {
+    const lang = locale.value.startsWith('zh') ? 'zh-CN' : locale.value.startsWith('ru') ? 'ru-RU' : 'en-US'
     const [list, cats] = await Promise.all([
-      fetchKnowledge(),
-      fetchKnowledgeCategories().catch(() => []),
+      fetchKnowledge(lang),
+      fetchKnowledgeCategories(lang).catch(() => []),
     ])
     items.value = list
     categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]

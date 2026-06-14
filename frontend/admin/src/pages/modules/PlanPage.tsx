@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { fetchJsonList, postJson } from '@/lib/api'
+import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import {
   dialogFieldInputCls,
   dialogFieldLabelCls,
@@ -115,7 +116,15 @@ function PlanStatsCell({ row }: { row: PlanRow }) {
   )
 }
 
-function PlanPriceCell({ row, t }: { row: PlanRow; t: (key: string) => string }) {
+function PlanPriceCell({
+  row,
+  t,
+  symbol,
+}: {
+  row: PlanRow
+  t: (key: string) => string
+  symbol: string
+}) {
   const prices = row.prices ?? {}
   const priced = PRICE_BADGE_PERIODS.filter(({ key }) => prices[key] != null)
   if (!priced.length) {
@@ -136,7 +145,7 @@ function PlanPriceCell({ row, t }: { row: PlanRow; t: (key: string) => string })
           variant="secondary"
           className="text-nowrap border border-border/50 px-2 py-0.5 font-medium"
         >
-          {t(`subscribe.plan.columns.price_period.${key}`)} ¥{prices[key]}
+          {t(`subscribe.plan.columns.price_period.${key}`)} {symbol}{prices[key]}
           {unitKey ? t(`subscribe.plan.columns.price_period.unit.${unitKey}`) : ''}
         </Badge>
       ))}
@@ -168,6 +177,7 @@ export default function PlanPage() {
   const [forceUpdate, setForceUpdate] = useState(false)
   const [showContentPreview, setShowContentPreview] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const load = useCallback(() => {
     setLoading(true)
@@ -179,6 +189,10 @@ export default function PlanPage() {
       .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
+
+  useEffect(() => {
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
+  }, [])
 
   useEffect(() => {
     load()
@@ -375,7 +389,7 @@ export default function PlanPage() {
       {
         id: 'prices',
         header: () => t('subscribe.plan.columns.price'),
-        cell: ({ row }) => <PlanPriceCell row={row.original} t={t} />,
+        cell: ({ row }) => <PlanPriceCell row={row.original} t={t} symbol={currencySymbol} />,
       },
       ...(!sort.sortMode
         ? [
@@ -408,7 +422,7 @@ export default function PlanPage() {
           ]
         : []),
     ],
-    [t, sort],
+    [t, sort, currencySymbol],
   )
 
   return (
@@ -612,7 +626,7 @@ export default function PlanPage() {
                       onChange={(e) => setBasePrice(e.target.value)}
                     />
                     <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                      ¥
+                      {currencySymbol}
                     </span>
                   </div>
                   <Button

@@ -2944,6 +2944,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "cancel": "Cancel",
         "confirm": "Confirm Ban",
         "banning": "Banning..."
+      },
+      "export_confirm": {
+        "title": "Confirm User CSV Export",
+        "description": "By default, subscribe URLs are omitted. Enable the option below to include full subscribe links (with tokens). Handle exported files securely.",
+        "include_subscribe": "Include subscribe URLs",
+        "exporting": "Exporting..."
       }
     },
     "messages": {

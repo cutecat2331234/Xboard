@@ -65,7 +65,7 @@ const columns = computed(() => [
       ]),
     key: 'total',
     fixed: 'right' as const,
-    render: (r: TrafficRow) => formatBytes(r.u + r.d),
+    render: (r: TrafficRow) => formatBytes((r.u + r.d) / serverRate(r)),
   },
 ])
 

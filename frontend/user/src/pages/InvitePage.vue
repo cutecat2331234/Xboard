@@ -191,7 +191,7 @@ async function doTransfer() {
     return
   }
   try {
-    await transferCommission(amount)
+    await transferCommission(amount * 100)
     msg.success(t('common.success'))
     transferOpen.value = false
     transferAmount.value = ''

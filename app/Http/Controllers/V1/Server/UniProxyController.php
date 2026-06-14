@@ -88,7 +88,7 @@ class UniProxyController extends Controller
             return response()->json(['error' => 'Invalid online data'], 400);
         }
 
-        ServerService::processAlive($node->id, $data);
+        ServerService::processAlive($node, $data);
 
         return response()->json(['data' => true]);
     }

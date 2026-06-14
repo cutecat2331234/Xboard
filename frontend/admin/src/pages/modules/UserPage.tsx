@@ -33,6 +33,7 @@ import {
   textareaCls,
 } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
+import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
@@ -305,6 +306,9 @@ export default function UserPage() {
   const [banOpen, setBanOpen] = useState(false)
   const [banning, setBanning] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
+  const [exportIncludeSubscribe, setExportIncludeSubscribe] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const [trafficResetUser, setTrafficResetUser] = useState<UserRow | null>(null)
   const [trafficResetTab, setTrafficResetTab] = useState<'reset' | 'history'>('reset')
@@ -367,6 +371,10 @@ export default function UserPage() {
 
   useEffect(() => {
     fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+  }, [])
+
+  useEffect(() => {
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
   }, [])
 
   useEffect(() => {
@@ -471,10 +479,18 @@ export default function UserPage() {
     try {
       await downloadAdminFile(
         '/user/dumpCSV',
-        { method: 'POST', jsonBody: buildBulkBody() },
+        {
+          method: 'POST',
+          jsonBody: {
+            ...buildBulkBody(),
+            include_subscribe_url: exportIncludeSubscribe,
+          },
+        },
         'users.csv',
       )
       toast.success(t('user.messages.export.success'))
+      setExportOpen(false)
+      setExportIncludeSubscribe(false)
     } catch (e) {
       toast.error(
         e instanceof Error
@@ -993,7 +1009,7 @@ export default function UserPage() {
                   <Mail className="mr-2 h-4 w-4" />
                   {t('user.actions.send_email')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportCsv} disabled={exporting}>
+                <DropdownMenuItem onClick={() => setExportOpen(true)} disabled={exporting}>
                   {t('user.actions.export_csv')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setBanOpen(true)}>
@@ -1253,6 +1269,34 @@ export default function UserPage() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('user.actions.export_confirm.title')}</DialogTitle>
+            <DialogDescription>{t('user.actions.export_confirm.description')}</DialogDescription>
+          </DialogHeader>
+          <div className={editSheetSwitchFieldCls} data-mask-switch-row>
+            <Label className={sheetFieldLabelCls}>
+              {t('user.actions.export_confirm.include_subscribe')}
+            </Label>
+            <div className={editSheetSwitchWrapCls}>
+              <Switch
+                checked={exportIncludeSubscribe}
+                onCheckedChange={setExportIncludeSubscribe}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExportOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={exportCsv} disabled={exporting}>
+              {exporting ? t('user.actions.export_confirm.exporting') : t('user.actions.export_csv')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={banOpen} onOpenChange={setBanOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -1450,7 +1494,7 @@ export default function UserPage() {
                     {t('user.edit.form.balance')}
                   </Label>
                   <SuffixInput
-                    suffix="¥"
+                    suffix={currencySymbol}
                     type="number"
                     value={Number(form.balance ?? 0)}
                     onChange={(e) => setForm((f) => ({ ...f, balance: Number(e.target.value) }))}
@@ -1462,7 +1506,7 @@ export default function UserPage() {
                     {t('user.edit.form.commission_balance')}
                   </Label>
                   <SuffixInput
-                    suffix="¥"
+                    suffix={currencySymbol}
                     type="number"
                     value={Number(form.commission_balance ?? 0)}
                     onChange={(e) =>

@@ -20,6 +20,7 @@ import {
 } from '@/lib/form-styles'
 
 import { cn } from '@/lib/utils'
+import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
@@ -75,6 +76,9 @@ type CodeForm = {
 type UsageRow = Record<string, unknown>
 
 type PlanRow = { id?: number; name?: string }
+
+const TRAFFIC_BYTES_PER_GB = 1073741824
+const BALANCE_CENTS_PER_UNIT = 100
 
 
 
@@ -230,9 +234,9 @@ function parseRewards(raw: unknown): GiftCardRewards {
 
   return {
 
-    balance: Number(r.balance ?? 0),
+    balance: Number(r.balance ?? 0) / BALANCE_CENTS_PER_UNIT,
 
-    transfer_enable: r.transfer_enable != null ? Number(r.transfer_enable) : undefined,
+    transfer_enable: r.transfer_enable != null ? Number(r.transfer_enable) / TRAFFIC_BYTES_PER_GB : undefined,
 
     expire_days: r.expire_days != null ? Number(r.expire_days) : undefined,
 
@@ -353,6 +357,7 @@ export default function GiftCardPage() {
   const [form, setForm] = useState<TemplateForm>(emptyForm())
 
   const [saving, setSaving] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const [generateOpen, setGenerateOpen] = useState(false)
 
@@ -387,6 +392,8 @@ export default function GiftCardPage() {
 
 
   useEffect(() => {
+
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
 
     fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
 
@@ -587,6 +594,14 @@ export default function GiftCardPage() {
   function buildTemplatePayload() {
 
     const rewards: GiftCardRewards = { ...form.rewards }
+
+    if (rewards.balance != null && rewards.balance > 0) {
+      rewards.balance = Math.round(Number(rewards.balance) * BALANCE_CENTS_PER_UNIT)
+    }
+
+    if (rewards.transfer_enable != null && rewards.transfer_enable > 0) {
+      rewards.transfer_enable = Math.round(Number(rewards.transfer_enable) * TRAFFIC_BYTES_PER_GB)
+    }
 
     if (form.type === 2) {
 
@@ -1659,7 +1674,7 @@ export default function GiftCardPage() {
 
                           className={giftDialogInputCls}
 
-                          suffix="¥"
+                          suffix={currencySymbol}
 
                           type="number"
 

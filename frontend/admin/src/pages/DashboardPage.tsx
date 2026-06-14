@@ -274,8 +274,8 @@ export default function DashboardPage() {
         setChartData(d.list)
         setSummary(d.summary)
       })
-      .catch(() => {})
-  }, [overviewRange, overviewCustom])
+      .catch(() => toast.error(t('common.error')))
+  }, [overviewRange, overviewCustom, t])
 
 
 
@@ -284,18 +284,24 @@ export default function DashboardPage() {
     setNodeRankLoading(true)
     fetchTrafficRank('node', start, end)
       .then(setNodeRank)
-      .catch(() => setNodeRank([]))
+      .catch(() => {
+        setNodeRank([])
+        toast.error(t('common.error'))
+      })
       .finally(() => setNodeRankLoading(false))
-  }, [nodeRankRange, rankCustom])
+  }, [nodeRankRange, rankCustom, t])
 
   const loadUserRank = useCallback(() => {
     const { start, end } = trafficRankWindow(userRankRange, rankCustom)
     setUserRankLoading(true)
     fetchTrafficRank('user', start, end)
       .then(setUserRank)
-      .catch(() => setUserRank([]))
+      .catch(() => {
+        setUserRank([])
+        toast.error(t('common.error'))
+      })
       .finally(() => setUserRankLoading(false))
-  }, [userRankRange, rankCustom])
+  }, [userRankRange, rankCustom, t])
 
   useEffect(() => {
     loadNodeRank()

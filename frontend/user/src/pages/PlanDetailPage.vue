@@ -83,8 +83,13 @@ async function ensureNoPendingOrder() {
       positiveText: t('plan.cancelPending'),
       negativeText: t('common.cancel'),
       onPositiveClick: async () => {
-        await cancelOrder(pending.trade_no)
-        resolve(true)
+        try {
+          await cancelOrder(pending.trade_no)
+          resolve(true)
+        } catch (e: unknown) {
+          msg.error(e instanceof Error ? e.message : t('common.error'))
+          resolve(false)
+        }
       },
       onNegativeClick: () => resolve(false),
     })
