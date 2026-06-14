@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { telegramLogin } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
+import { invalidateAppConfigCaches } from '@/lib/invalidate-app-config'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
@@ -36,6 +37,7 @@ function loadScript(): Promise<void> {
 async function handleAuth(user: Record<string, unknown>) {
   try {
     await telegramLogin(user)
+    invalidateAppConfigCaches()
     await auth.loadUser()
     msg.success(t('login'))
     router.push(resolveLoginRedirect(route.query.redirect))

@@ -252,14 +252,13 @@ class OrderService
             return;
         }
         $inviter = User::find($user->invite_user_id);
-        if (!$inviter) {
+        if (!$inviter || $inviter->banned) {
             return;
         }
         $order->invite_user_id = $user->invite_user_id;
 
         $commissionBase = (int) $order->total_amount
-            + (int) ($order->balance_amount ?? 0)
-            + (int) ($order->surplus_amount ?? 0);
+            + (int) ($order->balance_amount ?? 0);
         if ($commissionBase <= 0) {
             return;
         }
@@ -392,7 +391,7 @@ class OrderService
                 if (!$this->failOpenAndRefund('Order remained in processing after open')) {
                     throw new \RuntimeException('Order open failed and refund could not be completed');
                 }
-                return false;
+                return true;
             }
             return (int) $this->order->status === Order::STATUS_COMPLETED;
         } catch (\Throwable $e) {
@@ -403,7 +402,7 @@ class OrderService
             if (!$this->failOpenAndRefund($e->getMessage())) {
                 throw new \RuntimeException('Order open and refund both failed: ' . $e->getMessage(), 0, $e);
             }
-            return false;
+            return true;
         }
     }
 

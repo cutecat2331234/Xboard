@@ -806,6 +806,20 @@ class UserController extends Controller
                 DB::rollBack();
                 return $this->fail([400, '用户存在支付处理中的订单，请等待开通完成或退款后再删除']);
             }
+            $openOrders = Order::where('user_id', $userId)
+                ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                ->lockForUpdate()
+                ->get();
+            foreach ($openOrders as $openOrder) {
+                if ($openOrder->paid_at) {
+                    continue;
+                }
+                $orderService = new OrderService($openOrder);
+                if (!$orderService->cancel()) {
+                    DB::rollBack();
+                    return $this->fail([400, '无法取消用户未完成订单，请先处理订单后再删除']);
+                }
+            }
             $ticketIds = $user->tickets()->pluck('id');
             if ($ticketIds->isNotEmpty()) {
                 TicketMessage::whereIn('ticket_id', $ticketIds)->delete();

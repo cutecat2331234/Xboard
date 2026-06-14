@@ -347,6 +347,7 @@ export default {
     scanPay: "掃碼支付",
     scanHint: "請使用對應 App 掃描 QR 碼完成支付",
     stripeRequired: "請填寫信用卡資訊",
+    stripeTokenFailed: "Stripe 支付驗證失敗",
     tryOutBadge: "試用套餐",
     tryOutHint: "此訂單包含註冊試用套餐，支付完成後將開通對應試用權益。"
   },

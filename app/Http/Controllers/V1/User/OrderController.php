@@ -134,9 +134,17 @@ class OrderController extends Controller
                 throw new ApiException(__('Order does not exist or has been paid'));
             }
 
+            if ($order->payment_id && (int) $order->payment_id !== $method) {
+                throw new ApiException(__('Please cancel the order and create a new one to change payment method'));
+            }
+
             if ($order->total_amount <= 0) {
                 $orderService = new OrderService($order);
                 if (!$orderService->paid('free:' . $order->trade_no)) {
+                    throw new ApiException(__('Payment failed'));
+                }
+                $order->refresh();
+                if ((int) $order->status !== Order::STATUS_COMPLETED) {
                     throw new ApiException(__('Payment failed'));
                 }
 
@@ -197,8 +205,15 @@ class OrderController extends Controller
                 if (!$order) {
                     throw new ApiException(__('Order does not exist or has been paid'));
                 }
+                if ((int) $order->status !== Order::STATUS_PENDING) {
+                    throw new ApiException(__('Order does not exist or has been paid'));
+                }
                 $orderService = new OrderService($order);
                 if (!$orderService->paid((string) $result['callback_no'])) {
+                    throw new ApiException(__('Payment failed. Please check your credit card information'));
+                }
+                $order->refresh();
+                if ((int) $order->status !== Order::STATUS_COMPLETED) {
                     throw new ApiException(__('Payment failed. Please check your credit card information'));
                 }
             });

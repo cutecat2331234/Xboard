@@ -45,6 +45,7 @@ class CommController extends Controller
     {
         $payment = Payment::where('id', $request->input('id'))
             ->where('payment', 'StripeCredit')
+            ->where('enable', 1)
             ->first();
         if (!$payment) throw new ApiException(__('Payment method is not available'));
         return $this->success($payment->config['stripe_pk_live']);

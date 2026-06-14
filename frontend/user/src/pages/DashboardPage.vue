@@ -46,8 +46,11 @@ const sanitizedPopupContent = computed(() =>
   popupNotice.value?.content ? DOMPurify.sanitize(popupNotice.value.content) : '',
 )
 const hasActiveSubscription = computed(() => {
-  const expiredAt = subscribe.value?.expired_at
-  return Boolean(expiredAt && expiredAt > Date.now() / 1000)
+  const sub = subscribe.value
+  if (!sub?.plan) return false
+  const expiredAt = sub.expired_at
+  if (expiredAt === null) return true
+  return expiredAt > Date.now() / 1000
 })
 
 const trafficWarnThreshold = computed(() => resolveTrafficWarnRate(commConfig.value))
@@ -81,8 +84,10 @@ const trafficUsagePercent = computed(() => {
 
 function copySubscribe() {
   if (!subscribeUrl.value) return
-  navigator.clipboard.writeText(subscribeUrl.value)
-  msg.success(t('profile.copied'))
+  navigator.clipboard
+    .writeText(subscribeUrl.value)
+    .then(() => msg.success(t('profile.copied')))
+    .catch(() => msg.error(t('errors.requestFailed')))
 }
 
 function openClientImport() {

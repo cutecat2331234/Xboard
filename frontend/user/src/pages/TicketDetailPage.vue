@@ -16,6 +16,7 @@ const { config: commConfig, load: loadComm } = useUserCommConfig()
 
 const ticket = ref<TicketItem | null>(null)
 const pageLoading = ref(true)
+const commReady = ref(false)
 const replyText = ref('')
 const sending = ref(false)
 const scrollRef = ref<InstanceType<typeof NScrollbar> | null>(null)
@@ -26,7 +27,8 @@ const isClosed = computed(() => Boolean(ticket.value?.status))
 const isWithdraw = computed(() => (ticket.value ? isWithdrawTicket(ticket.value) : false))
 
 const mustWaitForAdmin = computed(() => {
-  if (!commConfig.value?.ticket_must_wait_reply || !ticket.value?.message?.length) return false
+  if (!commReady.value || commConfig.value == null) return true
+  if (!commConfig.value.ticket_must_wait_reply || !ticket.value?.message?.length) return false
   const last = ticket.value.message[ticket.value.message.length - 1]
   return Boolean(last?.is_me)
 })
@@ -105,6 +107,7 @@ function stopPoll() {
 onMounted(async () => {
   try {
     await loadComm()
+    commReady.value = true
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
