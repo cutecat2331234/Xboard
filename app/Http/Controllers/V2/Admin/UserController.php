@@ -798,6 +798,14 @@ class UserController extends Controller
                 DB::rollBack();
                 return $this->fail([400, '用户存在待处理的提现工单，请先处理后再删除']);
             }
+            $processingPaidOrder = Order::where('user_id', $userId)
+                ->where('status', Order::STATUS_PROCESSING)
+                ->whereNotNull('paid_at')
+                ->exists();
+            if ($processingPaidOrder) {
+                DB::rollBack();
+                return $this->fail([400, '用户存在支付处理中的订单，请等待开通完成或退款后再删除']);
+            }
             $ticketIds = $user->tickets()->pluck('id');
             if ($ticketIds->isNotEmpty()) {
                 TicketMessage::whereIn('ticket_id', $ticketIds)->delete();

@@ -464,6 +464,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "forgotPassword": "Forgot Password?",
       "submit": "Sign In",
       "rememberMe": "Remember me",
+      "invalidCredentials": "Incorrect email or password",
+      "accountSuspended": "Your account has been suspended",
+      "notAdmin": "This account is not an administrator",
       "resetPassword": {
         "title": "Reset Password",
         "description": "Execute the following command in the site directory to reset your password",

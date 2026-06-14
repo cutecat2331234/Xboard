@@ -290,6 +290,7 @@ class OrderService
     {
         return Order::where('user_id', $user->id)
             ->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
+            ->whereRaw('(COALESCE(total_amount, 0) + COALESCE(balance_amount, 0) + COALESCE(surplus_amount, 0)) > 0')
             ->first();
     }
 

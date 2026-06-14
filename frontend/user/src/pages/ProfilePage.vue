@@ -191,20 +191,24 @@ onMounted(async () => {
   await auth.loadUser()
   remindExpire.value = Boolean(auth.user?.remind_expire ?? 1)
   remindTraffic.value = Boolean(auth.user?.remind_traffic ?? 1)
-  const cfg = await loadComm()
-  currency.value = cfg.currency ?? 'CNY'
-  await loadSessions()
-  if (cfg.is_telegram) {
-    try {
-      const bot = await fetchTelegramBotInfo()
-      botUsername.value = bot.username
-      telegramBotError.value = false
-    } catch (e: unknown) {
-      botUsername.value = ''
-      telegramBotError.value = true
-      msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  try {
+    const cfg = await loadComm()
+    currency.value = cfg.currency ?? 'CNY'
+    if (cfg.is_telegram) {
+      try {
+        const bot = await fetchTelegramBotInfo()
+        botUsername.value = bot.username
+        telegramBotError.value = false
+      } catch (e: unknown) {
+        botUsername.value = ''
+        telegramBotError.value = true
+        msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+      }
     }
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
+  await loadSessions()
 })
 </script>
 

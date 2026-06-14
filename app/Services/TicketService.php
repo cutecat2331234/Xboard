@@ -191,7 +191,7 @@ class TicketService
                 ->lockForUpdate()
                 ->exists();
             if ($alreadyRestored) {
-                return false;
+                return true;
             }
 
             $firstMessage = TicketMessage::where('ticket_id', $ticket->id)
@@ -199,6 +199,13 @@ class TicketService
                 ->value('message');
 
             if (!self::isWithdrawTicket($ticket, $firstMessage)) {
+                return false;
+            }
+
+            $payoutLog = CommissionLog::where('trade_no', 'withdraw:' . $ticket->id)
+                ->lockForUpdate()
+                ->first();
+            if ($payoutLog && (int) $payoutLog->get_amount > 0) {
                 return false;
             }
 
