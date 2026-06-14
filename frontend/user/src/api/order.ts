@@ -14,7 +14,7 @@ export interface OrderItem {
 }
 
 export function canCancelOrder(row: OrderItem) {
-  if (row.status === 0 && (row.payment_id == null || row.payment_id === 0)) {
+  if (row.status === 0 && !row.paid_at) {
     return true
   }
   return row.status === 1 && !row.paid_at

@@ -255,6 +255,8 @@ export default {
     withdrawMethodRequired: "روش برداشت را انتخاب کنید",
     withdrawFullBalanceHint: "کل کمیسیون موجود برداشت می‌شود (پس از کسر کارمزد)",
     withdrawFeeHint: "کارمزد برداشت: {rate}%",
+    transferMinHint: "حداقل مبلغ انتقال: {limit}",
+    transferNetHint: "کارمزد {fee}، واریز خالص {net}",
     withdrawLimitHint: "حداقل برداشت: {limit}",
     peopleCount: "{number} نفر",
     title: "دعوتنامه های من",

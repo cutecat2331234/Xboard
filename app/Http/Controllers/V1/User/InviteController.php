@@ -39,7 +39,7 @@ class InviteController extends Controller
             return $this->fail([403, __('Unsupported withdraw')]);
         }
         $current = $request->input('current') ? $request->input('current') : 1;
-        $pageSize = $request->input('page_size') >= 10 ? $request->input('page_size') : 10;
+        $pageSize = min(100, max(10, (int) ($request->input('page_size') ?: 10)));
         $builder = CommissionLog::where('invite_user_id', $request->user()->id)
             ->where('get_amount', '>', 0)
             ->where('trade_no', 'not like', 'transfer:%')

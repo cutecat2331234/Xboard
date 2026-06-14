@@ -183,11 +183,30 @@ const handlingPreview = computed(() => {
 
 
 
+const lockedPaymentId = computed(() => {
+  const pid = order.value?.payment_id
+  if (pid == null || pid === 0) return null
+  return Number(pid)
+})
+
+function applyPaymentSelection() {
+  if (!methods.value.length) return
+  const locked = lockedPaymentId.value
+  if (locked) {
+    const idx = methods.value.findIndex((m) => m.id === locked)
+    if (idx >= 0) {
+      selectedMethodIndex.value = idx
+      selectedMethod.value = locked
+      return
+    }
+  }
+  selectedMethodIndex.value = 0
+  selectedMethod.value = methods.value[0]?.id ?? null
+}
+
 const isPending = computed(() => Number(order.value?.status) === 0)
 
 const canCancel = computed(() => (order.value ? canCancelOrder(order.value) : false))
-
-
 
 /** Paid orders store handling on the order; pending uses live payment-method preview. */
 const orderHandlingDisplay = computed(() => {
@@ -245,13 +264,7 @@ async function load() {
 
       methods.value = await fetchPaymentMethods()
 
-      if (methods.value.length) {
-
-        selectedMethod.value = methods.value[0].id
-
-        selectedMethodIndex.value = 0
-
-      }
+      applyPaymentSelection()
 
     }
 
@@ -271,9 +284,15 @@ async function load() {
 
 function selectMethod(index: number) {
 
+  const locked = lockedPaymentId.value
+  const target = methods.value[index]?.id ?? null
+  if (locked && target && target !== locked) {
+    msg.warning(t('order.paymentLocked'))
+    return
+  }
   selectedMethodIndex.value = index
 
-  selectedMethod.value = methods.value[index]?.id ?? null
+  selectedMethod.value = target
 
 }
 
@@ -707,7 +726,10 @@ onUnmounted(stopPoll)
 
           class="border-2 rounded-md p-5 border-solid flex pay-option"
 
-          :class="selectedMethodIndex === index ? 'border-primary' : 'border-transparent'"
+          :class="[
+            selectedMethodIndex === index ? 'border-primary' : 'border-transparent',
+            lockedPaymentId && m.id !== lockedPaymentId ? 'pay-option--disabled' : '',
+          ]"
 
           @click="selectMethod(index)"
 
@@ -965,6 +987,10 @@ onUnmounted(stopPoll)
 
 }
 
+.pay-option--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .pay-option {
 
   cursor: pointer;

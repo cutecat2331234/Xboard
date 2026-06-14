@@ -201,12 +201,15 @@ async function submitMailLink() {
   if (!addr) return
   mailLinkLoading.value = true
   try {
-    await loginWithMailLink(addr)
+    const captcha = await captchaRef.value?.getPayload()
+    await loginWithMailLink(addr, captcha)
     msg.success(t('mailLinkSent'))
+    captchaRef.value?.reset()
   } catch (e: unknown) {
     const message = resolveApiError(e, t)
     errorText.value = message
     msg.error(message)
+    captchaRef.value?.reset()
   } finally {
     mailLinkLoading.value = false
   }
@@ -394,7 +397,7 @@ function submit() {
             </div>
           </template>
 
-          <div v-else-if="showCaptcha && !mailLinkMode" class="auth-field">
+          <div v-else-if="isLogin && showCaptcha" class="auth-field">
             <CaptchaWidget ref="captchaRef" :config="config" />
           </div>
 

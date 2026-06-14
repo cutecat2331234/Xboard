@@ -356,6 +356,38 @@ export default function PaymentPage() {
               )
             })}
             <div className="flex flex-col gap-2">
+              <Label>{t('payment.form.fields.handling_fee_percent.label')}</Label>
+              <input
+                className={inputCls}
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.handling_fee_percent ?? ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    handling_fee_percent: e.target.value === '' ? undefined : Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>{t('payment.form.fields.handling_fee_fixed.label')}</Label>
+              <input
+                className={inputCls}
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.handling_fee_fixed ?? ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    handling_fee_fixed: e.target.value === '' ? undefined : Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-2">
               <Label>{t('payment.form.fields.notify_domain.label')}</Label>
               <input
                 className={inputCls}

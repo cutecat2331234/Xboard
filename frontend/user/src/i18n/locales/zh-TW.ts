@@ -256,6 +256,8 @@ export default {
     withdrawMethodRequired: "請選擇提現方式",
     withdrawFullBalanceHint: "將提現全部可用佣金（扣除手續費）",
     withdrawFeeHint: "提現手續費：{rate}%",
+    transferMinHint: "最低劃轉金額：{limit}",
+    transferNetHint: "手續費 {fee}，實際到帳 {net}",
     withdrawLimitHint: "最低提現金額：{limit}",
     peopleCount: "{number} 人",
     title: "我的邀請",

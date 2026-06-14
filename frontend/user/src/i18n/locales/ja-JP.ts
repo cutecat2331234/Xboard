@@ -255,6 +255,8 @@ export default {
     withdrawMethodRequired: "出金方法を選択してください",
     withdrawFullBalanceHint: "利用可能な全コミッションを出金します（手数料差引後）",
     withdrawFeeHint: "出金手数料：{rate}%",
+    transferMinHint: "最低振替金額：{limit}",
+    transferNetHint: "手数料 {fee}、残高反映 {net}",
     withdrawLimitHint: "最低出金額：{limit}",
     peopleCount: "{number} 人",
     title: "招待リスト",

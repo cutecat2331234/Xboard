@@ -36,6 +36,18 @@ class AuthController extends Controller
      */
     public function loginWithMailLink(Request $request)
     {
+        $captchaService = app(CaptchaService::class);
+        [$captchaValid, $captchaError] = $captchaService->verify($request);
+        if (!$captchaValid) {
+            return $this->fail($captchaError);
+        }
+
+        $rateKey = 'mail-link:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 10)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 60);
+
         $params = $request->validate([
             'email' => 'required|email:strict',
             'redirect' => 'nullable'

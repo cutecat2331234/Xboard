@@ -256,6 +256,8 @@ export default {
     withdrawMethodRequired: "Vui lòng chọn phương thức rút",
     withdrawFullBalanceHint: "Rút toàn bộ hoa hồng khả dụng (trừ phí)",
     withdrawFeeHint: "Phí rút: {rate}%",
+    transferMinHint: "Số tiền chuyển tối thiểu: {limit}",
+    transferNetHint: "Phí {fee}, thực nhận {net}",
     withdrawLimitHint: "Số tiền rút tối thiểu: {limit}",
     peopleCount: "{number} người",
     title: "Lời Mời Của Tôi",

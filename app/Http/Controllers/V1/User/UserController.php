@@ -15,7 +15,6 @@ use App\Services\Auth\LoginService;
 use App\Services\AuthService;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
-use App\Support\AppFeature;
 use App\Utils\CacheKey;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
