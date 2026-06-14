@@ -52,14 +52,23 @@ class NodeEventHandlers
         // Get old data
         $oldDevices = $service->getNodeDevices($nodeId);
 
+        $node = Server::find($nodeId);
+        if (!$node) {
+            return;
+        }
+
+        $allowedIds = array_flip(ServerService::filterUserIdsByNodeGroups($node, array_keys($data)));
+
         // Calculate diff
         $removedUsers = array_diff_key($oldDevices, $data);
         $newDevices = [];
 
         foreach ($data as $userId => $ips) {
-            if (is_numeric($userId) && is_array($ips)) {
-                $newDevices[(int) $userId] = $ips;
+            $uid = (int) $userId;
+            if (!isset($allowedIds[$uid]) || !is_array($ips)) {
+                continue;
             }
+            $newDevices[$uid] = $ips;
         }
 
         // Handle removed users

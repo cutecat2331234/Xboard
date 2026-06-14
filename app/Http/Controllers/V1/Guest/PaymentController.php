@@ -54,7 +54,15 @@ class PaymentController extends Controller
             return true;
         }
 
-        if (isset($verify['amount']) && !$this->verifyAmount($order, (int) $verify['amount'])) {
+        if (!isset($verify['amount'])) {
+            Log::warning('Payment notify: missing amount', [
+                'trade_no' => $tradeNo,
+                'expected' => $this->expectedAmountCents($order),
+            ]);
+            return false;
+        }
+
+        if (!$this->verifyAmount($order, (int) $verify['amount'])) {
             Log::warning('Payment notify: amount mismatch', [
                 'trade_no' => $tradeNo,
                 'expected' => $this->expectedAmountCents($order),

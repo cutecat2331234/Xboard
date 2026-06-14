@@ -36,7 +36,7 @@ function priceLabel(p: PlanItem) {
 }
 
 function transferGb(p: PlanItem) {
-  return (p.transfer_enable / 1073741824).toFixed(0)
+  return String(p.transfer_enable ?? 0)
 }
 
 function showCapacity(p: PlanItem) {

@@ -55,7 +55,7 @@ class ServerController extends Controller
 
         $alive = $request->input('alive');
         if (is_array($alive) && !empty($alive)) {
-            ServerService::processAlive($node->id, $alive);
+            ServerService::processAlive($node, $alive);
         }
 
         $online = $request->input('online');

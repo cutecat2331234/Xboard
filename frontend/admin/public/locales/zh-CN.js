@@ -2967,6 +2967,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "cancel": "取消",
         "confirm": "确认封禁",
         "banning": "封禁中..."
+      },
+      "export_confirm": {
+        "title": "确认导出用户 CSV",
+        "description": "默认导出不含订阅链接。开启下方选项后才会包含完整订阅地址（含 token），请妥善保管导出文件。",
+        "include_subscribe": "包含订阅地址",
+        "exporting": "导出中..."
       }
     },
     "traffic_reset": {

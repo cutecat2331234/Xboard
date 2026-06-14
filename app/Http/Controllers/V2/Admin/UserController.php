@@ -375,13 +375,15 @@ class UserController extends Controller
 
         if ($scope === 'selected') {
             $query->whereIn('id', $userIds);
-        } elseif ($scope === 'filtered') {
+        } else        if ($scope === 'filtered') {
             $this->applyFiltersAndSorts($request, $query);
         } // all: ignore filter/sort
 
+        $includeSubscribeUrl = $request->boolean('include_subscribe_url');
+
         $filename = 'users_' . date('Y-m-d_His') . '.csv';
 
-        return response()->streamDownload(function () use ($query) {
+        return response()->streamDownload(function () use ($query, $includeSubscribeUrl) {
             // 打开输出流
             $output = fopen('php://output', 'w');
 
@@ -389,7 +391,7 @@ class UserController extends Controller
             fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             // 写入CSV头部
-            fputcsv($output, [
+            $headers = [
                 '邮箱',
                 '余额',
                 '推广佣金',
@@ -397,11 +399,14 @@ class UserController extends Controller
                 '剩余流量',
                 '套餐到期时间',
                 '订阅计划',
-                '订阅地址'
-            ]);
+            ];
+            if ($includeSubscribeUrl) {
+                $headers[] = '订阅地址';
+            }
+            fputcsv($output, $headers);
 
             // 分批处理数据以减少内存使用
-            $query->chunk(500, function ($users) use ($output) {
+            $query->chunk(500, function ($users) use ($output, $includeSubscribeUrl) {
                 foreach ($users as $user) {
                     try {
                         $row = [
@@ -412,8 +417,10 @@ class UserController extends Controller
                             Helper::trafficConvert($user->transfer_enable - ($user->u + $user->d)),
                             $user->expired_at ? date('Y-m-d H:i:s', $user->expired_at) : '长期有效',
                             $user->plan ? $user->plan->name : '无订阅',
-                            Helper::getSubscribeUrl($user->token)
                         ];
+                        if ($includeSubscribeUrl) {
+                            $row[] = Helper::getSubscribeUrl($user->token);
+                        }
                         fputcsv($output, $row);
                     } catch (\Exception $e) {
                         Log::error('CSV导出错误: ' . $e->getMessage(), [
@@ -522,22 +529,7 @@ class UserController extends Controller
             return response()->streamDownload($callback, 'users.csv', $headers);
         }
 
-        // 默认返回 JSON
-        $data = collect($users)->map(function ($user) use ($request) {
-            return [
-                'email' => $user['email'],
-                'password' => $request->input('password') ?? $user['email'],
-                'expired_at' => $user['expired_at'] === NULL ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']),
-                'uuid' => $user['uuid'],
-                'created_at' => date('Y-m-d H:i:s', $user['created_at']),
-                'subscribe_url' => Helper::getSubscribeUrl($user['token']),
-            ];
-        });
-        return response()->json([
-            'code' => 0,
-            'message' => '批量生成成功',
-            'data' => $data,
-        ]);
+        return $this->generatedUsersJsonResponse($users, $request);
     }
 
     private function multiGenerateWithPrefix(Request $request)
@@ -603,22 +595,7 @@ class UserController extends Controller
             return response()->streamDownload($callback, 'users.csv', $headers);
         }
 
-        // 默认返回 JSON
-        $data = collect($users)->map(function ($user) use ($request) {
-            return [
-                'email' => $user['email'],
-                'password' => $request->input('password') ?? $user['email'],
-                'expired_at' => $user['expired_at'] === NULL ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']),
-                'uuid' => $user['uuid'],
-                'created_at' => date('Y-m-d H:i:s', $user['created_at']),
-                'subscribe_url' => Helper::getSubscribeUrl($user['token']),
-            ];
-        });
-        return response()->json([
-            'code' => 0,
-            'message' => '批量生成成功',
-            'data' => $data,
-        ]);
+        return $this->generatedUsersJsonResponse($users, $request);
     }
 
     public function sendMail(UserSendMail $request)
@@ -723,6 +700,10 @@ class UserController extends Controller
                 'banned' => 1
             ]);
             foreach ($userIds as $userId) {
+                $bannedUser = User::find($userId);
+                if ($bannedUser) {
+                    (new AuthService($bannedUser))->removeAllSessions();
+                }
                 NodeUserSyncJob::dispatch($userId, 'updated');
             }
         } catch (\Exception $e) {
@@ -793,5 +774,35 @@ class UserController extends Controller
             Log::error($e);
             return $this->fail([500, '删除失败']);
         }
+    }
+
+    /**
+     * @param  array<int, User>  $users
+     */
+    private function generatedUsersJsonResponse(array $users, Request $request): JsonResponse
+    {
+        $includeCredentials = $request->boolean('return_credentials');
+
+        $data = collect($users)->map(function ($user) use ($request, $includeCredentials) {
+            $row = [
+                'email' => $user['email'],
+                'expired_at' => $user['expired_at'] === null ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']),
+                'uuid' => $user['uuid'],
+                'created_at' => date('Y-m-d H:i:s', $user['created_at']),
+            ];
+
+            if ($includeCredentials) {
+                $row['password'] = $request->input('password') ?? $user['email'];
+                $row['subscribe_url'] = Helper::getSubscribeUrl($user['token']);
+            }
+
+            return $row;
+        });
+
+        return response()->json([
+            'code' => 0,
+            'message' => '批量生成成功',
+            'data' => $data,
+        ]);
     }
 }

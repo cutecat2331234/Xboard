@@ -54,7 +54,8 @@ function formatRewards(rewards?: GiftCardRewards | null) {
     parts.push(`${t('giftCard.rewardBalance')}: ${formatPrice(rewards.balance)}`)
   }
   if (rewards.transfer_enable && rewards.transfer_enable > 0) {
-    parts.push(`${t('giftCard.rewardTraffic')}: ${rewards.transfer_enable} GB`)
+    const gb = rewards.transfer_enable / 1073741824
+    parts.push(`${t('giftCard.rewardTraffic')}: ${gb >= 1 ? Math.round(gb) : gb.toFixed(2)} GB`)
   }
   if (rewards.expire_days && rewards.expire_days > 0) {
     parts.push(`${t('giftCard.rewardExpireDays')}: ${rewards.expire_days}`)
