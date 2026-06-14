@@ -9,6 +9,9 @@ export function isWithdrawTicket(row: Pick<TicketItem, 'level' | 'subject' | 'me
   const subject = row.subject ?? ''
   if (subject.includes(WITHDRAW_SUBJECT_PREFIX)) {
     const first = row.message?.[0]?.message ?? ''
+    if (!row.message?.length) {
+      return true
+    }
     return WITHDRAW_AMOUNT_PATTERN.test(first.trim())
   }
   const legacyOfficial =

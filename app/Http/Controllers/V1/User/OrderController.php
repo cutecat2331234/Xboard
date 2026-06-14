@@ -128,7 +128,7 @@ class OrderController extends Controller
             // free process
             if ($order->total_amount <= 0) {
                 $orderService = new OrderService($order);
-                if (!$orderService->paid($order->trade_no)) {
+                if (!$orderService->paid('free:' . $order->trade_no)) {
                     return $this->fail([400, '支付失败']);
                 }
                 return response([

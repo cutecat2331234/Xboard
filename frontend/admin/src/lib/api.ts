@@ -1,3 +1,4 @@
+import { shouldForceAdminLogoutOn403 } from '@/lib/auth-forbidden'
 import { getAdminApiPrefix, getPassportApiPrefix, getSettings } from '@/lib/settings'
 
 const AUTH_STORAGE_KEY = 'xboard_admin_auth_data'
@@ -58,8 +59,17 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
 
   const response = await fetch(url, { ...options, headers })
   if (response.status === 403) {
-    clearAuthData()
-    window.location.hash = '#/sign-in'
+    let message: string | undefined
+    try {
+      const payload = (await response.clone().json()) as ApiResponse
+      message = payload.message
+    } catch {
+      // ignore
+    }
+    if (shouldForceAdminLogoutOn403(message)) {
+      clearAuthData()
+      window.location.hash = '#/sign-in'
+    }
   }
   if (!response.ok) {
     let message = response.statusText

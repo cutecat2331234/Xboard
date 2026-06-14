@@ -171,7 +171,7 @@ onMounted(async () => {
   try {
     commConfig.value = await fetchUserCommConfig()
   } catch {
-    commConfig.value = { coupon_enable: 0, plan_change_enable: 1 }
+    commConfig.value = { coupon_enable: 0, plan_change_enable: 0 }
   }
   await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })

@@ -9,14 +9,12 @@ use App\Models\Order;
 use App\Models\Plan;
 use App\Models\Server;
 use App\Models\User;
-use App\Services\OrderService;
 use App\Services\Plugin\HookManager;
 use App\Services\TrafficResetService;
 use App\Models\TrafficResetLog;
 use App\Utils\Helper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class UserService
 {
@@ -116,36 +114,7 @@ class UserService
                 return false;
             }
 
-            if ((int) $order->status === Order::STATUS_PROCESSING) {
-                $paidAt = (int) ($order->paid_at ?? 0);
-                if ($paidAt > 0 && (time() - $paidAt) > 120) {
-                    try {
-                        (new OrderService($order))->open();
-                        $order->refresh();
-                        if ((int) $order->status === Order::STATUS_COMPLETED) {
-                            return false;
-                        }
-                    } catch (\Throwable $e) {
-                        Log::warning('Failed to recover stale processing order', [
-                            'trade_no' => $order->trade_no,
-                            'user_id' => $userId,
-                            'error' => $e->getMessage(),
-                        ]);
-                        (new OrderService($order))->failOpenAndRefund($e->getMessage());
-                        $order->refresh();
-                        if ((int) $order->status === Order::STATUS_CANCELLED) {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
-                ->where('user_id', $userId)
-                ->lockForUpdate()
-                ->first();
-
-            return $order !== null;
+            return true;
         });
     }
 
