@@ -218,6 +218,15 @@ export default function PlanPage() {
   }
 
   async function savePlan() {
+    if (!form.name?.trim()) {
+      toast.error(t('subscribe.plan.form.name.label') + ': ' + t('common.error'))
+      return
+    }
+    const traffic = Number(form.transfer_enable)
+    if (!Number.isFinite(traffic) || traffic < 1) {
+      toast.error(t('subscribe.plan.form.transfer_enable.label') + ': invalid')
+      return
+    }
     setSaving(true)
     try {
       const payload: Record<string, unknown> = {

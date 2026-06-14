@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V2\Client;
 use App\Http\Controllers\Controller;
 use App\Services\ServerService;
 use App\Services\UserService;
+use App\Utils\Dict;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Yaml\Yaml;
@@ -93,8 +94,8 @@ class AppController extends Controller
             'payment_config' => [
                 'currency' => admin_setting('currency', 'CNY'), // 货币类型
                 'currency_symbol' => admin_setting('currency_symbol', '¥'), // 货币符号
-                'withdraw_methods' => admin_setting('app_withdraw_methods', ['alipay', 'wechat', 'bank']), // 提现方式列表
-                'min_withdraw_amount' => (int) admin_setting('app_min_withdraw_amount', 100), // 最小提现金额(分)
+                'withdraw_methods' => admin_setting('commission_withdraw_method', Dict::WITHDRAW_METHOD_WHITELIST_DEFAULT),
+                'min_withdraw_amount' => (int) admin_setting('commission_withdraw_limit', 100) * 100,
                 'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0.01), // 提现手续费率
             ],
             'notification_config' => [

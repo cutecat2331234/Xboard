@@ -67,7 +67,12 @@ export default function PluginPage() {
     invalidatePluginListCache()
     setLoading(true)
     fetchJsonList('/plugin/getPlugins')
-      .then((rows) => setPlugins(rows as PluginRow[]))
+      .then((rows) => {
+        const list = rows as PluginRow[]
+        setPlugins(list)
+        const types = orderedTypes(list)
+        setTab((current) => (current === 'all' || types.includes(current) ? current : types[0] ?? 'all'))
+      })
       .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
       .finally(() => setLoading(false))
   }, [t])

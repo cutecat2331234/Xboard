@@ -26,6 +26,7 @@ import { forgetPassword, loginWithMailLink, token2Login } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { storeInviteCode } from '@/api/pv'
 
 const LoginIcon = {
   render() {
@@ -94,11 +95,21 @@ const showTerms = computed(() => Boolean(config.value?.tos_url))
 const showEmailVerify = computed(() => Boolean(config.value?.is_email_verify))
 const inviteRequired = computed(() => Boolean(config.value?.is_invite_force))
 
+const pageTitle = computed(() => {
+  if (isForget.value) return t('forgotPassword')
+  return settings.value.title || config.value?.app_name || t('auth.defaultTitle')
+})
+
+const pageSubtitle = computed(() => {
+  return settings.value.description || config.value?.app_description || t('auth.defaultDescription')
+})
+
 function applyInviteFromQuery() {
   const code = route.query.code
   if (typeof code === 'string' && code) {
     inviteCode.value = code
     lockInvite.value = true
+    storeInviteCode(code)
   }
 }
 
@@ -261,9 +272,9 @@ function submit() {
     <n-card class="auth-card" :bordered="true">
       <div class="auth-card__body p-6">
         <h1 class="auth-card__title-main">
-          {{ isForget ? t('forgotPassword') : settings.title || 'Xboard' }}
+          {{ pageTitle }}
         </h1>
-        <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard is best' }}</h5>
+        <h5 class="auth-card__subtitle">{{ pageSubtitle }}</h5>
 
         <form v-if="!tokenLoading" @submit.prevent="submit">
           <div class="auth-field">

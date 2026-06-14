@@ -54,9 +54,18 @@ const RESET_TYPE_KEYS = [
   'yearly',
   'first_day_year',
   'manual',
+  'purchase',
 ] as const
 
-const TRIGGER_SOURCE_KEYS = ['auto', 'manual', 'cron'] as const
+const TRIGGER_SOURCE_KEYS = [
+  'auto',
+  'manual',
+  'cron',
+  'api',
+  'user_access',
+  'order',
+  'gift_card',
+] as const
 
 const STATS_DAYS_OPTIONS = [
   { key: 'week', days: 7 },

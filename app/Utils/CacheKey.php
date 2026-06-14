@@ -12,6 +12,7 @@ class CacheKey
         'LAST_SEND_EMAIL_REMIND_TRAFFIC' => '最后发送流量邮件提醒',
         'LAST_SEND_EMAIL_REMIND_EXPIRE' => '最后发送过期邮件提醒',
         'SERVER_OFFLINE_ALERT' => '节点掉线告警',
+        'INVITE_PV_RATE' => '邀请PV频率限制',
         'SCHEDULE_LAST_CHECK_AT' => '计划任务最后检查时间',
         'REGISTER_IP_RATE_LIMIT' => '注册频率限制',
         'LAST_SEND_LOGIN_WITH_MAIL_LINK_TIMESTAMP' => '最后一次发送登入链接时间',
