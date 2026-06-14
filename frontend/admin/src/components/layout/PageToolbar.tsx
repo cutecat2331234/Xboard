@@ -78,7 +78,7 @@ export function PageToolbar() {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-8 items-center justify-center gap-1 rounded-md px-2 text-xs font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+              className="inline-flex h-8 items-center justify-center gap-1 rounded-md px-2 text-xs font-medium transition-none hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
             >
               <LocaleFlag locale={i18n.language} />
               <span className="text-sm font-medium">
@@ -98,7 +98,7 @@ export function PageToolbar() {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="relative inline-flex h-8 w-8 items-center justify-center whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+              className="relative inline-flex h-8 w-8 items-center justify-center whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-none hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
             >
               <Avatar className="h-8 w-8">
                 <AvatarImage src={ADMIN_AVATAR} alt="admin" />

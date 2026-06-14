@@ -38,7 +38,7 @@
     "monaco-editor": "^0.52.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-hook-form": "^7.57.0",
+    "react-hook-form": "^7.79.0",
     "react-i18next": "^15.5.2",
     "react-markdown-editor-lite": "^1.4.2",
     "react-router-dom": "^7.6.2",
@@ -48,7 +48,7 @@
     "zod": "^3.25.42"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.8",
+    "@tailwindcss/vite": "^4.3.1",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.4.1",

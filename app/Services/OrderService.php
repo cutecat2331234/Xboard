@@ -96,12 +96,18 @@ class OrderService
     {
         $order = $this->order;
         $plan = Plan::find($order->plan_id);
+        if (!$plan) {
+            throw new \RuntimeException('订阅计划不存在或已删除');
+        }
 
         HookManager::call('order.open.before', $order);
 
 
         DB::transaction(function () use ($order, $plan) {
             $this->user = User::lockForUpdate()->find($order->user_id);
+            if (!$this->user) {
+                throw new \RuntimeException('用户不存在');
+            }
 
             if ($order->surplus_credit) {
                 $this->user->balance += $order->surplus_credit;
@@ -132,7 +138,7 @@ class OrderService
         });
 
         $eventId = match ((int) $order->type) {
-            Order::STATUS_PROCESSING => admin_setting('new_order_event_id', 0),
+            Order::TYPE_NEW_PURCHASE => admin_setting('new_order_event_id', 0),
             Order::TYPE_RENEWAL => admin_setting('renew_order_event_id', 0),
             Order::TYPE_UPGRADE => admin_setting('change_order_event_id', 0),
             default => 0,
@@ -297,6 +303,8 @@ class OrderService
             OrderHandleJob::dispatchSync($order->trade_no);
         } catch (\Exception $e) {
             Log::error($e);
+            $order->status = Order::STATUS_PENDING;
+            $order->save();
             return false;
         }
         return true;

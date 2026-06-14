@@ -106,6 +106,11 @@ class GiftCardService
         }
 
         return DB::transaction(function () use ($options) {
+            $code = GiftCardCode::where('id', $this->code->id)->lockForUpdate()->first();
+            if (!$code || !$code->isAvailable()) {
+                throw new ApiException('兑换码不可用：' . ($code?->status_name ?? '不存在'));
+            }
+
             $actualRewards = $this->template->calculateActualRewards($this->user);
 
             if ($this->template->type === GiftCardTemplate::TYPE_MYSTERY) {
@@ -119,10 +124,10 @@ class GiftCardService
                 $inviteRewards = $this->giveInviteRewards($actualRewards);
             }
 
-            $this->code->markAsUsed($this->user);
+            $code->markAsUsed($this->user);
 
             GiftCardUsage::createRecord(
-                $this->code,
+                $code,
                 $this->user,
                 $actualRewards,
                 array_merge($options, [
@@ -134,7 +139,7 @@ class GiftCardService
             return [
                 'rewards' => $actualRewards,
                 'invite_rewards' => $inviteRewards,
-                'code' => $this->code->code,
+                'code' => $code->code,
                 'template_name' => $this->template->name,
             ];
         });
