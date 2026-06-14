@@ -80,7 +80,10 @@ const pageLoading = ref(true)
 const available = computed(() => (stat.value[4] ?? 0) / 100)
 const commReady = computed(() => commConfig.value != null)
 const showCommissionFinance = computed(
-  () => commReady.value && !featureEnabled(commConfig.value?.withdraw_close, true),
+  () =>
+    commReady.value &&
+    featureEnabled(commConfig.value?.commission_enable, true) &&
+    !featureEnabled(commConfig.value?.withdraw_close, true),
 )
 
 const showCodesPagination = computed(() => codes.value.length > INVITE_PAGE_SIZE)
@@ -177,7 +180,12 @@ async function load() {
     const data = await fetchInvite()
     codes.value = data.codes ?? []
     stat.value = data.stat ?? [0, 0, 0, 0, 0]
-    await loadDetails()
+    if (featureEnabled(commConfig.value?.commission_enable, true)) {
+      await loadDetails()
+    } else {
+      details.value = []
+      detailsTotal.value = 0
+    }
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
   } finally {

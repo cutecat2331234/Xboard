@@ -220,6 +220,10 @@ async function submitLogin() {
 
 async function submitRegister() {
   errorText.value = ''
+  if (registerClosed.value) {
+    errorText.value = t('errors.registrationClosed')
+    return
+  }
   if (showTerms.value && !agreed.value) {
     errorText.value = t('termsRequired')
     return

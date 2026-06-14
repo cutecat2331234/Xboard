@@ -65,6 +65,10 @@ export function resolveTrafficWarnRate(config?: { traffic_warn_rate?: number } |
   return Number.isFinite(n) ? n : DEFAULT_TRAFFIC_WARN_RATE
 }
 
+export function resetCommCaches(): void {
+  cachedTryOutPlanId = null
+}
+
 let cachedTryOutPlanId: number | null = null
 
 export function cacheTryOutPlanId(id: number) {

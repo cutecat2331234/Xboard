@@ -3,7 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import AuthPage from '../pages/AuthPage.vue'
 
 import { getAuthData } from '@/api'
-import { fetchUserCommConfig } from '@/api/comm'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { featureEnabled } from '@/lib/feature-flags'
 import { useAuthStore } from '@/stores/auth'
 import { getSessionCache, invalidateSessionCache, setSessionCache } from '@/lib/session-cache'
@@ -107,7 +107,7 @@ router.beforeEach(async (to) => {
     }
     if (valid && (to.path === '/gift-card' || to.path === '/invite' || to.path === '/ticket' || to.path.startsWith('/ticket/'))) {
       try {
-        const comm = await fetchUserCommConfig()
+        const comm = await useUserCommConfig().load()
         if (to.path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) {
           return { path: '/dashboard' }
         }

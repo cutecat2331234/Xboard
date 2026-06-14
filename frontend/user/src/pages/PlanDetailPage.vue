@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, NTag, NSpin, useMessage, useDialog } from 'naive-ui'
 import { fetchPlanById, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
 import { saveOrder, cancelOrder, fetchOrders } from '@/api/order'
-import { resolveTryOutPlanId, fetchUserCommConfig } from '@/api/comm'
+import { resolveTryOutPlanId } from '@/api/comm'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { checkCoupon } from '@/api/coupon'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
@@ -20,7 +21,7 @@ const dialog = useDialog()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 const auth = useAuthStore()
-const commConfig = ref<{ plan_change_enable?: number; coupon_enable?: number } | null>(null)
+const { config: commConfig, load: loadComm } = useUserCommConfig()
 
 const plan = ref<PlanItem | null>(null)
 const tryOutPlanId = ref(0)
@@ -169,9 +170,9 @@ onMounted(async () => {
   await loadCurrency()
   await auth.loadUser()
   try {
-    commConfig.value = await fetchUserCommConfig()
+    await loadComm()
   } catch {
-    commConfig.value = { coupon_enable: 0, plan_change_enable: 0 }
+    /* leave commConfig null — features stay disabled until loaded */
   }
   await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })
