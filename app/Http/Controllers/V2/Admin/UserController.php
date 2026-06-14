@@ -92,27 +92,36 @@ class UserController extends Controller
             return;
         }
 
-        collect($request->input('filter'))->each(function ($filter) use ($builder) {
-            $field = $this->resolveFilterField(
+        $filters = collect($request->input('filter'))->filter(function ($filter) {
+            return (bool) $this->resolveFilterField(
                 (string) ($filter['id'] ?? ''),
                 self::FILTER_COLUMNS,
                 array_merge(self::SORT_ALIASES, self::FILTER_ALIASES)
             );
-            if (!$field) {
-                return;
-            }
-            $value = $filter['value'];
-            $logic = strtolower($filter['logic'] ?? 'and');
+        })->values();
 
-            if ($logic === 'or') {
-                $builder->orWhere(function ($query) use ($field, $value) {
-                    $this->buildFilterQuery($query, $field, $value);
-                });
-            } else {
-                $builder->where(function ($query) use ($field, $value) {
-                    $this->buildFilterQuery($query, $field, $value);
-                });
-            }
+        if ($filters->isEmpty()) {
+            return;
+        }
+
+        $builder->where(function ($query) use ($filters) {
+            $filters->each(function ($filter, $index) use ($query) {
+                $field = $this->resolveFilterField(
+                    (string) ($filter['id'] ?? ''),
+                    self::FILTER_COLUMNS,
+                    array_merge(self::SORT_ALIASES, self::FILTER_ALIASES)
+                );
+                $value = $filter['value'];
+                $logic = strtolower($filter['logic'] ?? 'and');
+                $apply = function ($q) use ($field, $value) {
+                    $this->buildFilterQuery($q, $field, $value);
+                };
+                if ($index === 0 || $logic !== 'or') {
+                    $query->where($apply);
+                } else {
+                    $query->orWhere($apply);
+                }
+            });
         });
     }
 

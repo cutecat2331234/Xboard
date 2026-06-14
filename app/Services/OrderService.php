@@ -87,6 +87,8 @@ class OrderService
 
             $orderService = new self($order);
 
+            $orderService->setOrderType($user);
+
             if ($couponCode) {
                 if (!\App\Support\AppFeature::couponEnabled()) {
                     throw new ApiException(__('Invalid coupon'));
@@ -95,7 +97,6 @@ class OrderService
             }
 
             $orderService->setVipDiscount($user);
-            $orderService->setOrderType($user);
 
             if ($user->balance && $order->total_amount > 0) {
                 $orderService->handleUserBalance($user, $userService);

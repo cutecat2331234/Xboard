@@ -27,7 +27,8 @@ const isClosed = computed(() => Boolean(ticket.value?.status))
 const isWithdraw = computed(() => (ticket.value ? isWithdrawTicket(ticket.value) : false))
 
 const mustWaitForAdmin = computed(() => {
-  if (!commReady.value || commConfig.value == null) return true
+  if (!commReady.value) return false
+  if (commConfig.value == null) return false
   if (!commConfig.value.ticket_must_wait_reply || !ticket.value?.message?.length) return false
   const last = ticket.value.message[ticket.value.message.length - 1]
   return Boolean(last?.is_me)

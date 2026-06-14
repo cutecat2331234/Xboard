@@ -73,6 +73,8 @@ const MESSAGE_MAP: Record<string, string> = {
   '支付方式不可用': 'errors.paymentMethodUnavailable',
   'Request failed, please try again later': 'errors.requestFailed',
   '请求失败，请稍后再试': 'errors.requestFailed',
+  'Feature is disabled': 'errors.featureDisabled',
+  '功能已关闭': 'errors.featureDisabled',
   '支付失败': 'errors.paymentFailed',
   'Invalid parameter': 'errors.invalidParameter',
   '参数错误': 'errors.invalidParameter',

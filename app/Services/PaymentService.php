@@ -80,6 +80,9 @@ class PaymentService
         if (!$this->payment) {
             throw new ApiException(__('Payment gateway is not configured'));
         }
+        if (!$this->config['enable']) {
+            throw new ApiException(__('Payment method is not available'));
+        }
         // custom notify domain name
         $notifyUrl = url("/api/v1/guest/payment/notify/{$this->method}/{$this->config['uuid']}");
         if ($this->config['notify_domain']) {

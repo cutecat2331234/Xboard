@@ -171,6 +171,8 @@ export default {
     paymentMethodUnavailable: 'Payment method is not available',
     paymentNotFound: 'Stripe payment method not found',
     requestFailed: 'Request failed. Please try again later.',
+    commConfigFailed: 'Failed to load site settings. Some features may be unavailable — refresh and try again.',
+    featureDisabled: 'This feature is disabled.',
     paymentFailed: 'Payment failed',
     invalidParameter: 'Invalid parameter',
     cancelPendingOnly: 'You can only cancel pending orders',
