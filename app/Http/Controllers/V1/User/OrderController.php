@@ -89,7 +89,7 @@ class OrderController extends Controller
 
     protected function applyCoupon(Order $order, string $couponCode): void
     {
-        $couponService = new CouponService($couponCode);
+        $couponService = CouponService::findByCode($couponCode);
         if (!$couponService->use($order)) {
             throw new ApiException(__('Coupon failed'));
         }

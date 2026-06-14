@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def run(cmd: list[str], cwd: Path) -> None:
     print(">", " ".join(cmd), f"(cwd={cwd})")
-    subprocess.run(cmd, cwd=str(cwd), check=True, shell=True)
+    subprocess.run(cmd, cwd=str(cwd), check=True)
 
 
 def upload_dir(sftp, local: Path, remote: str) -> None:

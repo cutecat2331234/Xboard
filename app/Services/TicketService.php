@@ -91,6 +91,9 @@ class TicketService
     private function sendEmailNotify(Ticket $ticket, TicketMessage $ticketMessage)
     {
         $user = User::find($ticket->user_id);
+        if (!$user) {
+            return;
+        }
         $cacheKey = 'ticket_sendEmailNotify_' . $ticket->user_id;
         if (!Cache::get($cacheKey)) {
             Cache::put($cacheKey, 1, 1800);

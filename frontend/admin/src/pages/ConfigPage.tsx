@@ -523,6 +523,13 @@ export default function ConfigPage() {
                         checked={Boolean(subscribe.surplus_enable)}
                         onChange={(v) => update('subscribe', 'surplus_enable', v)}
                       />
+                      <SwitchField
+                        flat
+                        label={t('settings.subscribe.surplus_traffic_ratio_enable.title')}
+                        description={t('settings.subscribe.surplus_traffic_ratio_enable.description')}
+                        checked={Boolean(subscribe.surplus_traffic_ratio_enable)}
+                        onChange={(v) => update('subscribe', 'surplus_traffic_ratio_enable', v)}
+                      />
                       <ConfigFormSelect
                         label={t('settings.subscribe.new_order_event.title')}
                         description={t('settings.subscribe.new_order_event.description')}

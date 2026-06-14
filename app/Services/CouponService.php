@@ -5,20 +5,27 @@ namespace App\Services;
 use App\Exceptions\ApiException;
 use App\Models\Coupon;
 use App\Models\Order;
-use Illuminate\Support\Facades\DB;
 
 class CouponService
 {
-    public $coupon;
+    public ?Coupon $coupon;
     public $planId;
     public $userId;
     public $period;
 
-    public function __construct($code)
+    public function __construct(?Coupon $coupon = null)
     {
-        $this->coupon = Coupon::where('code', $code)
-            ->lockForUpdate()
-            ->first();
+        $this->coupon = $coupon;
+    }
+
+    public static function findByCode(string $code): self
+    {
+        return new self(Coupon::where('code', $code)->first());
+    }
+
+    public static function lockByCode(string $code): self
+    {
+        return new self(Coupon::where('code', $code)->lockForUpdate()->first());
     }
 
     public function use(Order $order): bool
@@ -39,8 +46,9 @@ class CouponService
             $order->discount_amount = $order->total_amount;
         }
         if ($this->coupon->limit_use !== NULL) {
-            if ($this->coupon->limit_use <= 0)
+            if ($this->coupon->limit_use <= 0) {
                 return false;
+            }
             $this->coupon->limit_use = $this->coupon->limit_use - 1;
             if (!$this->coupon->save()) {
                 return false;
@@ -82,8 +90,9 @@ class CouponService
             ->where('user_id', $this->userId)
             ->whereNotIn('status', [0, 2])
             ->count();
-        if ($usedCount >= $this->coupon->limit_use_with_user)
+        if ($usedCount >= $this->coupon->limit_use_with_user) {
             return false;
+        }
         return true;
     }
 
