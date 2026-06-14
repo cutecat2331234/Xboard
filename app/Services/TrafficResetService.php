@@ -35,6 +35,12 @@ class TrafficResetService
   {
     try {
       return DB::transaction(function () use ($user, $triggerSource) {
+        $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+        if (!$lockedUser) {
+          return false;
+        }
+        $user = $lockedUser;
+
         $oldUpload = $user->u ?? 0;
         $oldDownload = $user->d ?? 0;
         $oldTotal = $oldUpload + $oldDownload;

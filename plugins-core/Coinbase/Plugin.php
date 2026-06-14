@@ -81,9 +81,7 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         $payload = trim(request()->getContent());
         $json_param = json_decode($payload, true);
 
-        $headerName = 'X-Cc-Webhook-Signature';
-        $headers = getallheaders();
-        $signatureHeader = isset($headers[$headerName]) ? $headers[$headerName] : '';
+        $signatureHeader = request()->header('X-Cc-Webhook-Signature', '');
         $computedSignature = \hash_hmac('sha256', $payload, $this->getConfig('coinbase_webhook_key'));
 
         if (!$this->hashEqual($signatureHeader, $computedSignature)) {
