@@ -357,36 +357,53 @@ class OrderService
 
     public function paid(string $callbackNo)
     {
-        return DB::transaction(function () use ($callbackNo) {
+        $order = DB::transaction(function () use ($callbackNo) {
             $order = Order::where('id', $this->order->id)->lockForUpdate()->first();
             if (!$order) {
-                return false;
+                throw new \RuntimeException('Order not found for payment callback');
             }
             $this->order = $order;
-            if ($order->status !== Order::STATUS_PENDING) {
-                return (int) $order->status === Order::STATUS_COMPLETED;
+            if ((int) $order->status !== Order::STATUS_PENDING) {
+                return $order;
             }
             $order->status = Order::STATUS_PROCESSING;
             $order->paid_at = time();
             $order->callback_no = $callbackNo;
             if (!$order->save()) {
-                return false;
+                throw new \RuntimeException('Failed to mark order as processing');
             }
-            try {
-                OrderHandleJob::dispatchSync($order->trade_no);
-                $order->refresh();
-                if ((int) $order->status === Order::STATUS_PROCESSING) {
-                    $this->failOpenAndRefund('Order remained in processing after open job');
-                    return false;
-                }
-            } catch (\Exception $e) {
-                Log::error($e);
-                $this->failOpenAndRefund($e->getMessage());
-                return false;
-            }
-            $order->refresh();
-            return (int) $order->status === Order::STATUS_COMPLETED;
+            return $order;
         });
+
+        if ((int) $order->status === Order::STATUS_COMPLETED) {
+            return true;
+        }
+        if ((int) $order->status !== Order::STATUS_PROCESSING) {
+            return false;
+        }
+
+        $this->order = $order->fresh() ?? $order;
+
+        try {
+            $this->open();
+            $this->order->refresh();
+            if ((int) $this->order->status === Order::STATUS_PROCESSING) {
+                if (!$this->failOpenAndRefund('Order remained in processing after open')) {
+                    throw new \RuntimeException('Order open failed and refund could not be completed');
+                }
+                return false;
+            }
+            return (int) $this->order->status === Order::STATUS_COMPLETED;
+        } catch (\Throwable $e) {
+            Log::error('Order open failed after payment', [
+                'trade_no' => $this->order->trade_no,
+                'error' => $e->getMessage(),
+            ]);
+            if (!$this->failOpenAndRefund($e->getMessage())) {
+                throw new \RuntimeException('Order open and refund both failed: ' . $e->getMessage(), 0, $e);
+            }
+            return false;
+        }
     }
 
     /**

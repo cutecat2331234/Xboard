@@ -78,7 +78,10 @@ const withdrawAccount = ref('')
 const pageLoading = ref(true)
 
 const available = computed(() => (stat.value[4] ?? 0) / 100)
-const showCommissionFinance = computed(() => !commConfig.value?.withdraw_close)
+const commReady = computed(() => commConfig.value != null)
+const showCommissionFinance = computed(
+  () => commReady.value && !featureEnabled(commConfig.value?.withdraw_close, true),
+)
 
 const showCodesPagination = computed(() => codes.value.length > INVITE_PAGE_SIZE)
 
@@ -305,13 +308,13 @@ const detailColumns = computed(() => [
 
 onMounted(async () => {
   await loadCurrency()
-  await loadGuest()
-  await load()
-  const cfg = await loadComm()
-  const methods = cfg.withdraw_methods
+  await Promise.all([loadGuest(), loadComm()])
+  const cfg = commConfig.value
+  const methods = cfg?.withdraw_methods
   if (Array.isArray(methods) && methods.length) {
     withdrawMethod.value = String(methods[0])
   }
+  await load()
 })
 </script>
 
@@ -334,13 +337,13 @@ onMounted(async () => {
     </div>
     <div class="text-gray-500">{{ t('invite.available') }}</div>
     <n-space class="invite-balance-actions mt-2.5" :size="[12, 8]">
-      <n-button v-if="!commConfig?.withdraw_close" size="small" type="primary" @click="transferOpen = true">
+      <n-button v-if="showCommissionFinance" size="small" type="primary" @click="transferOpen = true">
         <template #icon>
           <n-icon><TransferIcon /></n-icon>
         </template>
         {{ t('invite.transfer') }}
       </n-button>
-      <n-button v-if="!commConfig?.withdraw_close" size="small" type="primary" @click="withdrawOpen = true">
+      <n-button v-if="showCommissionFinance" size="small" type="primary" @click="withdrawOpen = true">
         <template #icon>
           <n-icon><WithdrawIcon /></n-icon>
         </template>

@@ -255,8 +255,15 @@ class GiftCardService
         if (isset($rewards['balance']) && $rewards['balance'] > 0) {
             $inviteBalance = intval($rewards['balance'] * $rate);
             if ($inviteBalance > 0) {
-                if (!$userService->addBalance($inviteUser->id, $inviteBalance)) {
-                    throw new \RuntimeException('Failed to add invite reward balance');
+                if ((int) admin_setting('withdraw_close_enable', 0)) {
+                    if (!$userService->addBalance($inviteUser->id, $inviteBalance)) {
+                        throw new \RuntimeException('Failed to add invite reward balance');
+                    }
+                } else {
+                    $inviteUser->increment('commission_balance', $inviteBalance);
+                    if (!$inviteUser->save()) {
+                        throw new \RuntimeException('Failed to add invite reward commission');
+                    }
                 }
                 $inviteRewards['balance'] = $inviteBalance;
                 CommissionLog::create([

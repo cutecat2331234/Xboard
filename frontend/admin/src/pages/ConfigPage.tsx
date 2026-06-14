@@ -237,7 +237,7 @@ export default function ConfigPage() {
       await saveConfig(payload)
       toast.success(t('common.success'))
     } catch (err) {
-      toast.error(resolveApiError(err, t, t('common.error')))
+      toastApiError(err, toast, t, t('common.error'))
     }
   }
 

@@ -75,7 +75,13 @@ class TicketService
         }
         $netCents = self::parseWithdrawNetCents($firstMessage);
         if ($netCents === null || $netCents <= 0) {
-            $netCents = self::parseWithdrawAmountCents($firstMessage);
+            $grossCents = self::parseWithdrawAmountCents($firstMessage);
+            if ($grossCents !== null && $grossCents > 0) {
+                $feeRate = max(0, min(1, (float) admin_setting('app_withdraw_fee_rate', 0)));
+                $netCents = $feeRate > 0
+                    ? $grossCents - (int) round($grossCents * $feeRate)
+                    : $grossCents;
+            }
         }
         if ($netCents === null || $netCents <= 0) {
             return false;

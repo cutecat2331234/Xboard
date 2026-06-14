@@ -43,6 +43,7 @@ class InviteController extends Controller
         $builder = CommissionLog::where('invite_user_id', $request->user()->id)
             ->where('get_amount', '>', 0)
             ->where('trade_no', 'not like', 'transfer:%')
+            ->where('trade_no', 'not like', 'withdraw:%')
             ->orderBy('created_at', 'DESC');
         $total = $builder->count();
         $details = $builder->forPage($current, $pageSize)
@@ -84,6 +85,7 @@ class InviteController extends Controller
             $validCommission = (int) CommissionLog::where('invite_user_id', $user->id)
                 ->where('get_amount', '>', 0)
                 ->where('trade_no', 'not like', 'transfer:%')
+                ->where('trade_no', 'not like', 'withdraw:%')
                 ->sum('get_amount');
             $commissionBalance = (int) $user->commission_balance;
         }

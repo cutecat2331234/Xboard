@@ -4,6 +4,7 @@ import AuthPage from '../pages/AuthPage.vue'
 
 import { getAuthData } from '@/api'
 import { fetchUserCommConfig } from '@/api/comm'
+import { featureEnabled } from '@/lib/feature-flags'
 import { useAuthStore } from '@/stores/auth'
 import { getSessionCache, invalidateSessionCache, setSessionCache } from '@/lib/session-cache'
 
@@ -107,13 +108,13 @@ router.beforeEach(async (to) => {
     if (valid && (to.path === '/gift-card' || to.path === '/invite' || to.path === '/ticket' || to.path.startsWith('/ticket/'))) {
       try {
         const comm = await fetchUserCommConfig()
-        if (to.path === '/gift-card' && Number(comm.gift_card_enable) === 0) {
+        if (to.path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) {
           return { path: '/dashboard' }
         }
-        if (to.path === '/invite' && Number(comm.invite_enable) === 0) {
+        if (to.path === '/invite' && !featureEnabled(comm.invite_enable, true)) {
           return { path: '/dashboard' }
         }
-        if ((to.path === '/ticket' || to.path.startsWith('/ticket/')) && Number(comm.ticket_enable) === 0) {
+        if ((to.path === '/ticket' || to.path.startsWith('/ticket/')) && !featureEnabled(comm.ticket_enable, true)) {
           return { path: '/dashboard' }
         }
       } catch {
