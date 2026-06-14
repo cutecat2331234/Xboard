@@ -2433,7 +2433,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "level": {
       "low": "Низкий",
       "medium": "Средний",
-      "high": "Высокий"
+      "high": "Высокий",
+      "withdraw": "Вывод средств"
     },
     "filter": {
       "placeholder": "Поиск {field}...",
@@ -2981,6 +2982,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "auto_resets": "Автоматические",
         "manual_resets": "Ручные",
         "cron_resets": "По расписанию/Cron",
+        "order_resets": "По заказам",
+        "gift_card_resets": "По подарочным картам",
         "in_period": "За последние {{days}} дн.",
         "breakdown": "Разбивка по типам",
         "breakdown_description": "Процентное соотношение различных типов операций сброса",

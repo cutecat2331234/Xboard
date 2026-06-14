@@ -80,6 +80,16 @@ function replyStatusLabel(
   return String(replyStatus ?? '—')
 }
 
+function levelLabel(t: (key: string) => string, level?: number, subject?: string) {
+  if (level === 2 && subject?.includes('[withdraw_ticket]')) {
+    return t('ticket.level.withdraw')
+  }
+  if (level === 0) return t('ticket.level.low')
+  if (level === 1) return t('ticket.level.medium')
+  if (level === 2) return t('ticket.level.high')
+  return String(level ?? '—')
+}
+
 export default function TicketPage() {
   const { t } = useTranslation()
   const [data, setData] = useState<TicketRow[]>([])
@@ -172,7 +182,7 @@ export default function TicketPage() {
     () => [
       { accessorKey: 'id', header: () => t('ticket.columns.id') },
       { accessorKey: 'subject', header: () => t('ticket.columns.subject') },
-      { accessorKey: 'level', header: () => t('ticket.columns.level') },
+      { accessorKey: 'level', header: () => t('ticket.columns.level'), cell: ({ row }) => levelLabel(t, row.original.level, row.original.subject) },
       {
         accessorKey: 'status',
         header: () => t('ticket.columns.status'),

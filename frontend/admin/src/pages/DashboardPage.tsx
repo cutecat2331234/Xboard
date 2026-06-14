@@ -10,6 +10,8 @@ import {
 
   Bell,
 
+  ChevronDown,
+
   Eye,
 
   MessageSquare,
@@ -234,7 +236,11 @@ export default function DashboardPage() {
     from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd'),
   }))
-  const [rankCustom, setRankCustom] = useState(() => ({
+  const [nodeRankCustom, setNodeRankCustom] = useState(() => ({
+    from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
+    to: format(new Date(), 'yyyy-MM-dd'),
+  }))
+  const [userRankCustom, setUserRankCustom] = useState(() => ({
     from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd'),
   }))
@@ -280,7 +286,7 @@ export default function DashboardPage() {
 
 
   const loadNodeRank = useCallback(() => {
-    const { start, end } = trafficRankWindow(nodeRankRange, rankCustom)
+    const { start, end } = trafficRankWindow(nodeRankRange, nodeRankCustom)
     setNodeRankLoading(true)
     fetchTrafficRank('node', start, end)
       .then(setNodeRank)
@@ -289,10 +295,10 @@ export default function DashboardPage() {
         toast.error(t('common.error'))
       })
       .finally(() => setNodeRankLoading(false))
-  }, [nodeRankRange, rankCustom, t])
+  }, [nodeRankRange, nodeRankCustom, t])
 
   const loadUserRank = useCallback(() => {
-    const { start, end } = trafficRankWindow(userRankRange, rankCustom)
+    const { start, end } = trafficRankWindow(userRankRange, userRankCustom)
     setUserRankLoading(true)
     fetchTrafficRank('user', start, end)
       .then(setUserRank)
@@ -301,7 +307,7 @@ export default function DashboardPage() {
         toast.error(t('common.error'))
       })
       .finally(() => setUserRankLoading(false))
-  }, [userRankRange, rankCustom, t])
+  }, [userRankRange, userRankCustom, t])
 
   useEffect(() => {
     loadNodeRank()
@@ -616,8 +622,8 @@ export default function DashboardPage() {
           loading={nodeRankLoading}
           range={nodeRankRange}
           onRangeChange={setNodeRankRange}
-          customRange={rankCustom}
-          onCustomRangeChange={setRankCustom}
+          customRange={nodeRankCustom}
+          onCustomRangeChange={setNodeRankCustom}
         />
 
         <RankCard
@@ -626,8 +632,8 @@ export default function DashboardPage() {
           loading={userRankLoading}
           range={userRankRange}
           onRangeChange={setUserRankRange}
-          customRange={rankCustom}
-          onCustomRangeChange={setRankCustom}
+          customRange={userRankCustom}
+          onCustomRangeChange={setUserRankCustom}
         />
 
       </div>

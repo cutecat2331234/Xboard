@@ -132,6 +132,12 @@ class TrafficResetController extends Controller
       'cron_resets' => TrafficResetLog::where('reset_time', '>=', $startDate)
         ->where('trigger_source', TrafficResetLog::SOURCE_CRON)
         ->count(),
+      'order_resets' => TrafficResetLog::where('reset_time', '>=', $startDate)
+        ->where('trigger_source', TrafficResetLog::SOURCE_ORDER)
+        ->count(),
+      'gift_card_resets' => TrafficResetLog::where('reset_time', '>=', $startDate)
+        ->where('trigger_source', TrafficResetLog::SOURCE_GIFT_CARD)
+        ->count(),
     ];
 
     return response()->json([
