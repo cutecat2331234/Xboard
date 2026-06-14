@@ -16,6 +16,7 @@ export function useCurrency() {
       .catch(() => {
         symbol.value = '¥'
         code.value = 'CNY'
+        loading = null
       })
     return loading
   }

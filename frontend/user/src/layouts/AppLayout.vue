@@ -155,12 +155,23 @@ function updateMobile() {
 
 let themeObserver: MutationObserver | undefined
 
+function refreshCommConfig() {
+  loadCommConfig({ force: true })
+    .then(() => {
+      commConfigLoaded.value = true
+    })
+    .catch(() => {
+      /* keep last known config */
+    })
+}
+
 onMounted(async () => {
   try {
     await loadCommConfig()
   } finally {
     commConfigLoaded.value = true
   }
+  window.addEventListener('focus', refreshCommConfig)
   updateMobile()
   mobileQuery.addEventListener('change', updateMobile)
   themeObserver = new MutationObserver(() => {
@@ -175,6 +186,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('focus', refreshCommConfig)
   mobileQuery.removeEventListener('change', updateMobile)
   themeObserver?.disconnect()
   removeMenuRouterGuard?.()

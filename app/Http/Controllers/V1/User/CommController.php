@@ -26,6 +26,7 @@ class CommController extends Controller
             'commission_distribution_l2' => admin_setting('commission_distribution_l2'),
             'commission_distribution_l3' => admin_setting('commission_distribution_l3'),
             'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
+            'try_out_enable' => (int) admin_setting('try_out_enable', 1),
             'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
             'ticket_must_wait_reply' => (int) admin_setting('ticket_must_wait_reply', 0),
             'plan_change_enable' => (int) admin_setting('plan_change_enable', 1),

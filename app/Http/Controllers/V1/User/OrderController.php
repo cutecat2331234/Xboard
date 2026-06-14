@@ -16,8 +16,10 @@ use App\Services\PaymentService;
 use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Utils\CacheKey;
 
 class OrderController extends Controller
 {
@@ -188,46 +190,55 @@ class OrderController extends Controller
         $order = $prepared['order'];
         /** @var Payment $payment */
         $payment = $prepared['payment'];
-        $paymentService = new PaymentService($payment->payment, $payment->id);
-        $result = $paymentService->pay([
-            'trade_no' => $tradeNo,
-            'total_amount' => $prepared['charge_amount'],
-            'user_id' => $order->user_id,
-            'stripe_token' => $request->input('token'),
-        ]);
-
-        if (($result['type'] ?? null) === 2 && !empty($result['data']) && !empty($result['callback_no'])) {
-            DB::transaction(function () use ($userId, $tradeNo, $result) {
-                $order = Order::where('trade_no', $tradeNo)
-                    ->where('user_id', $userId)
-                    ->lockForUpdate()
-                    ->first();
-                if (!$order) {
-                    throw new ApiException(__('Order does not exist or has been paid'));
-                }
-                if ((int) $order->status !== Order::STATUS_PENDING) {
-                    throw new ApiException(__('Order does not exist or has been paid'));
-                }
-                $orderService = new OrderService($order);
-                if (!$orderService->paid((string) $result['callback_no'])) {
-                    throw new ApiException(__('Payment failed. Please check your credit card information'));
-                }
-                $order->refresh();
-                if ((int) $order->status !== Order::STATUS_COMPLETED) {
-                    throw new ApiException(__('Payment failed. Please check your credit card information'));
-                }
-            });
-
-            return response([
-                'type' => -1,
-                'data' => true,
-            ]);
+        $checkoutLock = CacheKey::get('ORDER_CHECKOUT', $tradeNo);
+        if (!Cache::add($checkoutLock, 1, 120)) {
+            throw new ApiException(__('Request failed, please try again later'));
         }
 
-        return response([
-            'type' => $result['type'],
-            'data' => $result['data'],
-        ]);
+        try {
+            $paymentService = new PaymentService($payment->payment, $payment->id);
+            $result = $paymentService->pay([
+                'trade_no' => $tradeNo,
+                'total_amount' => $prepared['charge_amount'],
+                'user_id' => $order->user_id,
+                'stripe_token' => $request->input('token'),
+            ]);
+
+            if (($result['type'] ?? null) === 2 && !empty($result['data']) && !empty($result['callback_no'])) {
+                DB::transaction(function () use ($userId, $tradeNo, $result) {
+                    $order = Order::where('trade_no', $tradeNo)
+                        ->where('user_id', $userId)
+                        ->lockForUpdate()
+                        ->first();
+                    if (!$order) {
+                        throw new ApiException(__('Order does not exist or has been paid'));
+                    }
+                    if ((int) $order->status !== Order::STATUS_PENDING) {
+                        throw new ApiException(__('Order does not exist or has been paid'));
+                    }
+                    $orderService = new OrderService($order);
+                    if (!$orderService->paid((string) $result['callback_no'])) {
+                        throw new ApiException(__('Payment failed. Please check your credit card information'));
+                    }
+                    $order->refresh();
+                    if ((int) $order->status !== Order::STATUS_COMPLETED) {
+                        throw new ApiException(__('Payment failed. Please check your credit card information'));
+                    }
+                });
+
+                return response([
+                    'type' => -1,
+                    'data' => true,
+                ]);
+            }
+
+            return response([
+                'type' => $result['type'],
+                'data' => $result['data'],
+            ]);
+        } finally {
+            Cache::forget($checkoutLock);
+        }
     }
 
     public function check(Request $request)

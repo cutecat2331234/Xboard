@@ -1813,6 +1813,30 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "label": "停止新用户注册",
           "description": "开启后任何人都将无法进行注册。"
         },
+        "featureRegister": {
+          "label": "启用注册模块",
+          "description": "关闭后用户前台将隐藏注册入口（与「停止新用户注册」同时生效）。"
+        },
+        "featureCoupon": {
+          "label": "启用优惠券",
+          "description": "关闭后用户无法使用优惠券下单。"
+        },
+        "featureTicket": {
+          "label": "启用工单系统",
+          "description": "关闭后用户无法访问工单页面。"
+        },
+        "featureCommission": {
+          "label": "启用佣金系统",
+          "description": "关闭后邀请佣金相关功能对用户不可见。"
+        },
+        "featureInvite": {
+          "label": "启用邀请系统",
+          "description": "关闭后用户无法访问邀请页面。"
+        },
+        "featureGiftCard": {
+          "label": "启用礼品卡",
+          "description": "关闭后用户无法访问礼品卡页面。"
+        },
         "ticketMustWaitReply": {
           "label": "工单等待回复限制",
           "description": "开启后，用户在管理员回复前无法在同一工单内连续发送消息。"

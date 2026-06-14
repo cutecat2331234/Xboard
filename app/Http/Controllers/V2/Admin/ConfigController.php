@@ -122,6 +122,12 @@ class ConfigController extends Controller
                 'currency_symbol' => admin_setting('currency_symbol', '¥'),
                 'ticket_must_wait_reply' => (bool) admin_setting('ticket_must_wait_reply', 0),
                 'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
+                'app_enable_register' => (bool) admin_setting('app_enable_register', 1),
+                'app_enable_coupon_system' => (bool) admin_setting('app_enable_coupon_system', 1),
+                'app_enable_ticket_system' => (bool) admin_setting('app_enable_ticket_system', 1),
+                'app_enable_commission_system' => (bool) admin_setting('app_enable_commission_system', 1),
+                'app_enable_invite_system' => (bool) admin_setting('app_enable_invite_system', 1),
+                'app_enable_gift_card' => (bool) admin_setting('app_enable_gift_card', 1),
             ],
             'subscribe' => [
                 'plan_change_enable' => (bool) admin_setting('plan_change_enable', 1),

@@ -1887,6 +1887,30 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "label": "Stop New User Registration",
           "description": "When enabled, no one will be able to register."
         },
+        "featureRegister": {
+          "label": "Enable Registration Module",
+          "description": "When disabled, registration is hidden on the user site (works together with Stop Registration)."
+        },
+        "featureCoupon": {
+          "label": "Enable Coupon System",
+          "description": "When disabled, users cannot apply coupons at checkout."
+        },
+        "featureTicket": {
+          "label": "Enable Ticket System",
+          "description": "When disabled, users cannot access ticket pages."
+        },
+        "featureCommission": {
+          "label": "Enable Commission System",
+          "description": "When disabled, commission-related features are hidden from users."
+        },
+        "featureInvite": {
+          "label": "Enable Invite System",
+          "description": "When disabled, users cannot access the invite page."
+        },
+        "featureGiftCard": {
+          "label": "Enable Gift Card",
+          "description": "When disabled, users cannot access the gift card page."
+        },
         "ticketMustWaitReply": {
           "label": "Reply Wait Restriction",
           "description": "When enabled, users cannot continue sending messages in the same ticket until an administrator replies."
