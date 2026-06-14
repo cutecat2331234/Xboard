@@ -173,10 +173,9 @@ onMounted(async () => {
   await auth.loadUser()
   try {
     await loadComm()
-  } catch {
-    /* leave commConfig null — features stay disabled until loaded */
-  } finally {
     commReady.value = true
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
   await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })

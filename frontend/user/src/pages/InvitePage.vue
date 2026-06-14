@@ -316,7 +316,11 @@ const detailColumns = computed(() => [
 
 onMounted(async () => {
   await loadCurrency()
-  await Promise.all([loadGuest(), loadComm()])
+  try {
+    await Promise.all([loadGuest(), loadComm()])
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
   const cfg = commConfig.value
   const methods = cfg?.withdraw_methods
   if (Array.isArray(methods) && methods.length) {

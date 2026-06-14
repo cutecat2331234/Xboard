@@ -464,6 +464,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "forgotPassword": "Забыли пароль?",
       "submit": "Войти",
       "rememberMe": "Запомнить меня",
+      "invalidCredentials": "Неверный email или пароль",
+      "accountSuspended": "Ваша учётная запись заблокирована",
+      "notAdmin": "Эта учётная запись не является администратором",
       "resetPassword": {
         "title": "Сброс пароля",
         "description": "Выполните следующую команду в директории сайта, чтобы сбросить пароль",

@@ -118,7 +118,7 @@ router.beforeEach(async (to) => {
           return { path: '/dashboard' }
         }
       } catch {
-        return true
+        return { path: '/dashboard' }
       }
     }
     return true

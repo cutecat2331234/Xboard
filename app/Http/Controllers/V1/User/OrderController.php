@@ -17,6 +17,7 @@ use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -113,65 +114,105 @@ class OrderController extends Controller
 
     public function checkout(Request $request)
     {
-        $tradeNo = $request->input('trade_no');
-        $method = $request->input('method');
+        $request->validate([
+            'trade_no' => 'required|string',
+            'method' => 'required|integer',
+            'token' => 'nullable|string',
+        ]);
 
-        return DB::transaction(function () use ($request, $tradeNo, $method) {
+        $tradeNo = $request->input('trade_no');
+        $method = (int) $request->input('method');
+        $userId = $request->user()->id;
+
+        $prepared = DB::transaction(function () use ($userId, $tradeNo, $method) {
             $order = Order::where('trade_no', $tradeNo)
-                ->where('user_id', $request->user()->id)
+                ->where('user_id', $userId)
                 ->where('status', 0)
                 ->lockForUpdate()
                 ->first();
             if (!$order) {
-                return $this->fail([400, __('Order does not exist or has been paid')]);
+                throw new ApiException(__('Order does not exist or has been paid'));
             }
-            // free process
+
             if ($order->total_amount <= 0) {
                 $orderService = new OrderService($order);
                 if (!$orderService->paid('free:' . $order->trade_no)) {
-                    return $this->fail([400, __('Payment failed')]);
+                    throw new ApiException(__('Payment failed'));
                 }
-                return response([
-                    'type' => -1,
-                    'data' => true
-                ]);
+
+                return ['mode' => 'free'];
             }
+
             $payment = Payment::find($method);
             if (!$payment || !$payment->enable) {
-                return $this->fail([400, __('Payment method is not available')]);
+                throw new ApiException(__('Payment method is not available'));
             }
-            $paymentService = new PaymentService($payment->payment, $payment->id);
-            $order->handling_amount = NULL;
+
+            $order->handling_amount = null;
             if ($payment->handling_fee_fixed || $payment->handling_fee_percent) {
                 $order->handling_amount = (int) round(($order->total_amount * ($payment->handling_fee_percent / 100)) + $payment->handling_fee_fixed);
             }
             $order->payment_id = $method;
             if (!$order->save()) {
-                return $this->fail([400, __('Request failed, please try again later')]);
+                throw new ApiException(__('Request failed, please try again later'));
             }
-            $result = $paymentService->pay([
-                'trade_no' => $tradeNo,
-                'total_amount' => isset($order->handling_amount) ? ($order->total_amount + $order->handling_amount) : $order->total_amount,
-                'user_id' => $order->user_id,
-                'stripe_token' => $request->input('token')
-            ]);
 
-            if (($result['type'] ?? null) === 2 && !empty($result['data']) && !empty($result['callback_no'])) {
+            $chargeAmount = isset($order->handling_amount)
+                ? ($order->total_amount + $order->handling_amount)
+                : $order->total_amount;
+
+            return [
+                'mode' => 'pay',
+                'order' => $order->fresh(),
+                'payment' => $payment,
+                'charge_amount' => $chargeAmount,
+            ];
+        });
+
+        if (($prepared['mode'] ?? null) === 'free') {
+            return response([
+                'type' => -1,
+                'data' => true,
+            ]);
+        }
+
+        /** @var Order $order */
+        $order = $prepared['order'];
+        /** @var Payment $payment */
+        $payment = $prepared['payment'];
+        $paymentService = new PaymentService($payment->payment, $payment->id);
+        $result = $paymentService->pay([
+            'trade_no' => $tradeNo,
+            'total_amount' => $prepared['charge_amount'],
+            'user_id' => $order->user_id,
+            'stripe_token' => $request->input('token'),
+        ]);
+
+        if (($result['type'] ?? null) === 2 && !empty($result['data']) && !empty($result['callback_no'])) {
+            DB::transaction(function () use ($userId, $tradeNo, $result) {
+                $order = Order::where('trade_no', $tradeNo)
+                    ->where('user_id', $userId)
+                    ->lockForUpdate()
+                    ->first();
+                if (!$order) {
+                    throw new ApiException(__('Order does not exist or has been paid'));
+                }
                 $orderService = new OrderService($order);
                 if (!$orderService->paid((string) $result['callback_no'])) {
-                    return $this->fail([400, __('Payment failed. Please check your credit card information')]);
+                    throw new ApiException(__('Payment failed. Please check your credit card information'));
                 }
-                return response([
-                    'type' => -1,
-                    'data' => true,
-                ]);
-            }
+            });
 
             return response([
-                'type' => $result['type'],
-                'data' => $result['data']
+                'type' => -1,
+                'data' => true,
             ]);
-        });
+        }
+
+        return response([
+            'type' => $result['type'],
+            'data' => $result['data'],
+        ]);
     }
 
     public function check(Request $request)
@@ -205,9 +246,9 @@ class OrderController extends Controller
 
     public function cancel(Request $request)
     {
-        if (empty($request->input('trade_no'))) {
-            return $this->fail([422, __('Invalid parameter')]);
-        }
+        $request->validate([
+            'trade_no' => 'required|string',
+        ]);
         try {
             return DB::transaction(function () use ($request) {
                 $order = Order::where('trade_no', $request->input('trade_no'))
@@ -230,6 +271,11 @@ class OrderController extends Controller
                 return $this->success(true);
             });
         } catch (\Exception $e) {
+            Log::error('Order cancel failed', [
+                'trade_no' => $request->input('trade_no'),
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+            ]);
             return $this->fail([400, __('Cancel failed')]);
         }
     }

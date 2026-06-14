@@ -467,6 +467,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "forgotPassword": "忘记密码？",
       "submit": "登录",
       "rememberMe": "记住我",
+      "invalidCredentials": "邮箱或密码错误",
+      "accountSuspended": "该账户已被停止使用",
+      "notAdmin": "该账户不是管理员",
       "resetPassword": {
         "title": "重置密码",
         "description": "在站点目录下执行以下命令找回密码",

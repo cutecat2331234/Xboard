@@ -89,7 +89,9 @@ const mailLinkLoading = ref(false)
 const forgetLoading = ref(false)
 
 const showMailLink = computed(() => Boolean(config.value?.login_with_mail_link_enable))
-const registerClosed = computed(() => Number(config.value?.register_enable) === 0)
+const registerClosed = computed(
+  () => config.value == null || Number(config.value.register_enable) === 0,
+)
 const brandLogo = computed(() =>
   resolveAssetUrl(config.value?.logo || settings.value.logo || '', config.value?.app_url),
 )
@@ -142,7 +144,11 @@ async function tryTokenLogin() {
 }
 
 onMounted(async () => {
-  await loadGuest()
+  try {
+    await loadGuest({ force: true })
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
   if (registerClosed.value && isRegister.value) {
     msg.warning(t('errors.registrationClosed'))
     backToLoginTab()
