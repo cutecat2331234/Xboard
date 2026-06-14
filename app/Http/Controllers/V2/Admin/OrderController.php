@@ -274,7 +274,7 @@ class OrderController extends Controller
                 $order->user_id = $user->id;
                 $order->plan_id = $plan->id;
                 $order->period = $periodKey;
-                $order->trade_no = Helper::guid();
+                $order->trade_no = Helper::generateOrderNo();
                 $order->total_amount = $request->filled('total_amount')
                     ? (int) $request->input('total_amount')
                     : (int) ($price * 100);

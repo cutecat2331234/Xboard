@@ -297,6 +297,7 @@ export default {
     statusCompleted: "Hoàn tất",
     statusOffset: "Đã khấu trừ",
     empty: "Chưa có đơn hàng",
+    filterAll: "Tất cả trạng thái",
     createdAt: "Thời gian tạo",
     pay: "Thanh toán",
     view: "Xem",
@@ -367,7 +368,8 @@ export default {
     replyPh: "Nhập phản hồi của bạn…",
     closedReplyPh: "Phiếu đã đóng — không thể trả lời",
     closedHint: "Phiếu này đã đóng. Bạn không thể gửi thêm phản hồi.",
-    closeSuccess: "Ticket closed"
+    closeSuccess: "Ticket closed",
+    empty: "Chưa có phiếu hỗ trợ"
   },
   giftCard: {
     title: "Thẻ quà tặng",
@@ -397,7 +399,8 @@ export default {
     detailTitle: "Chi tiết đổi thưởng",
     description: "Mô tả",
     inviteRewards: "Phần thưởng người mời",
-    multiplier: "Hệ số"
+    multiplier: "Hệ số",
+    historyEmpty: "Chưa có lịch sử đổi thưởng"
   },
   profile: {
     telegramUnbindConfirm: "Hủy liên kết Telegram? Bạn cần gửi /bind cho bot để liên kết lại.",

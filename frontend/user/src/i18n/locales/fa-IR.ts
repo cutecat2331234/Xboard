@@ -296,6 +296,7 @@ export default {
     statusCompleted: "تکمیل شده",
     statusOffset: "تهاتر شده",
     empty: "هنوز سفارشی وجود ندارد",
+    filterAll: "همه وضعیت‌ها",
     createdAt: "زمان ایجاد",
     pay: "پرداخت",
     view: "مشاهده",
@@ -366,7 +367,8 @@ export default {
     replyPh: "پاسخ خود را وارد کنید…",
     closedReplyPh: "تیکت بسته شده — پاسخ غیرفعال است",
     closedHint: "این تیکت بسته شده است. نمی‌توانید پاسخ بیشتری ارسال کنید.",
-    closeSuccess: "تیکت بسته شد"
+    closeSuccess: "تیکت بسته شد",
+    empty: "هنوز تیکتی وجود ندارد"
   },
   giftCard: {
     title: "کارت هدیه",
@@ -396,7 +398,8 @@ export default {
     detailTitle: "جزئیات بازخرید",
     description: "توضیحات",
     inviteRewards: "پاداش دعوت‌کننده",
-    multiplier: "ضریب"
+    multiplier: "ضریب",
+    historyEmpty: "سابقه بازخریدی وجود ندارد"
   },
   profile: {
     telegramUnbindConfirm: "اتصال تلگرام قطع شود؟ برای اتصال مجدد باید /bind را به ربات بفرستید.",

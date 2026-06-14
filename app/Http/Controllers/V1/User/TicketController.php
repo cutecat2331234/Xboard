@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\TicketSave;
 use App\Http\Requests\User\TicketWithdraw;
 use App\Http\Resources\TicketResource;
+use App\Models\CommissionLog;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Models\User;
@@ -211,6 +212,14 @@ class TicketController extends Controller
                 if (!$user->save()) {
                     throw new \RuntimeException('Failed to update commission balance');
                 }
+
+                CommissionLog::create([
+                    'invite_user_id' => $user->id,
+                    'user_id' => $user->id,
+                    'trade_no' => 'withdraw:' . $ticket->id,
+                    'order_amount' => $withdrawAmount,
+                    'get_amount' => 0,
+                ]);
 
                 HookManager::call('ticket.create.after', $ticket);
 

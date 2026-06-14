@@ -231,7 +231,9 @@ onMounted(async () => {
   </n-card>
 
   <n-card :title="t('giftCard.historyTitle')" class="mt-4 rounded-md">
+    <n-empty v-if="!loadingHistory && history.length === 0" :description="t('giftCard.historyEmpty')" />
     <n-data-table
+      v-else
       :columns="columns"
       :data="history"
       :loading="loadingHistory"

@@ -302,6 +302,7 @@ export default {
     statusCompleted: "已完成",
     statusOffset: "已折抵",
     empty: "暫無訂單",
+    filterAll: "全部狀態",
     createdAt: "創建時間",
     pay: "支付",
     view: "檢視",
@@ -371,7 +372,8 @@ export default {
     replyPh: "輸入內容回覆工單",
     closedReplyPh: "工單已關閉，無法回覆",
     closedHint: "工單已關閉，無法繼續回覆。",
-    closeSuccess: "工單已關閉"
+    closeSuccess: "工單已關閉",
+    empty: "暫無工單"
   },
   giftCard: {
     mysteryPreview: "神秘獎勵（兌換後揭曉）",
@@ -402,7 +404,8 @@ export default {
     detailTitle: "兌換詳情",
     description: "描述",
     inviteRewards: "邀請人獎勵",
-    multiplier: "倍率"
+    multiplier: "倍率",
+    historyEmpty: "暫無兌換記錄"
   },
   profile: {
     telegramUnbindConfirm: "確定要解綁 Telegram 帳號嗎？解綁後需重新透過機器人 /bind 綁定。",

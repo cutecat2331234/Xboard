@@ -296,6 +296,7 @@ export default {
     statusCompleted: "完了",
     statusOffset: "相殺済み",
     empty: "注文がありません",
+    filterAll: "すべてのステータス",
     createdAt: "作成日時",
     pay: "支払う",
     view: "閲覧",
@@ -366,7 +367,8 @@ export default {
     replyPh: "返信を入力…",
     closedReplyPh: "チケットは終了済み — 返信できません",
     closedHint: "このチケットは終了しています。これ以上返信できません。",
-    closeSuccess: "チケットを終了しました"
+    closeSuccess: "チケットを終了しました",
+    empty: "チケットがありません"
   },
   giftCard: {
     title: "ギフトカード",
@@ -396,7 +398,8 @@ export default {
     detailTitle: "引き換え詳細",
     description: "説明",
     inviteRewards: "招待者特典",
-    multiplier: "倍率"
+    multiplier: "倍率",
+    historyEmpty: "引き換え履歴がありません"
   },
   profile: {
     telegramUnbindConfirm: "Telegram アカウントの連携を解除しますか？再度 /bind で連携してください。",

@@ -5,6 +5,7 @@ import {
   NButton,
   NCard,
   NDataTable,
+  NEmpty,
   NForm,
   NFormItem,
   NInput,
@@ -154,7 +155,8 @@ onMounted(load)
     <template #header-extra>
       <n-button type="primary" round size="small" @click="showCreate = true">{{ t('ticket.new') }}</n-button>
     </template>
-    <n-data-table :columns="columns" :data="rows" :loading="loading" :scroll-x="800" />
+    <n-empty v-if="!loading && rows.length === 0" :description="t('ticket.empty')" />
+    <n-data-table v-else :columns="columns" :data="rows" :loading="loading" :scroll-x="800" />
   </n-card>
 
   <n-modal v-model:show="showCreate" preset="card" :title="t('ticket.new')" style="width: 600px">
