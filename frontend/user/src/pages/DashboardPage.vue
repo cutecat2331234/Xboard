@@ -265,7 +265,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
         <n-skeleton text style="height: 20px; width: 100%" />
       </n-space>
     </template>
-    <template v-else-if="hasPlan && subscribeUrl">
+    <template v-else-if="hasPlan">
       <div v-if="subscribe?.plan?.name" class="sub-plan-name">{{ subscribe.plan.name }}</div>
       <div class="sub-meta">
         <span>{{ t('dashboard.expireAt') }}: {{ formatExpire(subscribe?.expired_at, locale) }}</span>
@@ -275,9 +275,12 @@ function onShortcut(item: { to?: string; action?: () => void }) {
         <span>{{ formatBytes(usedTraffic) }} / {{ formatBytes(totalTraffic) }}</span>
         <n-progress type="line" :percentage="trafficUsagePercent" :show-indicator="false" status="success" />
       </div>
+      <n-alert v-if="!subscribeUrl" class="mb-3" type="warning" :show-icon="true">
+        {{ t('dashboard.noSubscribeUrl') }}
+      </n-alert>
       <n-space>
-        <n-button type="primary" @click="copySubscribe">{{ t('dashboard.copyLink') }}</n-button>
-        <n-button @click="openClientImport">{{ t('dashboard.quickSub') }}</n-button>
+        <n-button type="primary" :disabled="!subscribeUrl" @click="copySubscribe">{{ t('dashboard.copyLink') }}</n-button>
+        <n-button :disabled="!subscribeUrl" @click="openClientImport">{{ t('dashboard.quickSub') }}</n-button>
       </n-space>
     </template>
     <template v-else>

@@ -41,7 +41,8 @@ class PaymentService
 
         $this->config = [];
         if (isset($payment)) {
-            $this->config = is_string($payment['config']) ? json_decode($payment['config'], true) : $payment['config'];
+            $decoded = is_string($payment['config']) ? json_decode($payment['config'], true) : $payment['config'];
+            $this->config = is_array($decoded) ? $decoded : [];
             $this->config['enable'] = $payment['enable'];
             $this->config['id'] = $payment['id'];
             $this->config['uuid'] = $payment['uuid'];
@@ -69,7 +70,7 @@ class PaymentService
         if (!$this->payment) {
             throw new ApiException(__('Payment gateway is not configured'));
         }
-        if (!$this->config['enable']) {
+        if (!($this->config['enable'] ?? 0)) {
             throw new ApiException(__('Payment method is not available'));
         }
         return $this->payment->notify($params);
@@ -80,7 +81,7 @@ class PaymentService
         if (!$this->payment) {
             throw new ApiException(__('Payment gateway is not configured'));
         }
-        if (!$this->config['enable']) {
+        if (!($this->config['enable'] ?? 0)) {
             throw new ApiException(__('Payment method is not available'));
         }
         // custom notify domain name

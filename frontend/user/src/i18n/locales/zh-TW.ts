@@ -280,7 +280,7 @@ export default {
     incomeAmount: "佣金",
     transferAmount: "劃轉金額（元）",
     transferAmountRequired: "請輸入劃轉金額",
-    transferAmountInvalid: "劃轉金額必須為正整數（元）",
+    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
     withdrawSuccess: "提現申請已提交，請前往工單查看進度。"
   },
   traffic: {

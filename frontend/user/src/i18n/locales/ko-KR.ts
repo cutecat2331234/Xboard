@@ -279,7 +279,7 @@ export default {
     incomeAmount: "수수료",
     transferAmount: "이체 금액(통화 단위)",
     transferAmountRequired: "이체 금액을 입력하세요",
-    transferAmountInvalid: "이체 금액은 양의 정수여야 합니다",
+    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
     withdrawSuccess: "출금 요청이 제출되었습니다. 티켓에서 진행 상황을 확인하세요."
   },
   traffic: {

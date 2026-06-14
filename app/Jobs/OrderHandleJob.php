@@ -62,13 +62,17 @@ class OrderHandleJob implements ShouldQueue, ShouldBeUnique
                 case Order::STATUS_PENDING:
                     $age = time() - (int) $order->created_at;
                     if (!$order->payment_id && $age >= 3600 * 2) {
-                        $orderService->cancel();
+                        if (!$orderService->cancel()) {
+                            throw new \RuntimeException('Failed to auto-cancel stale pending order');
+                        }
                     } elseif ($order->payment_id && $age >= 3600 * 24) {
                         Log::info('Auto-cancelling stale pending order with payment method selected', [
                             'trade_no' => $order->trade_no,
                             'payment_id' => $order->payment_id,
                         ]);
-                        $orderService->cancel();
+                        if (!$orderService->cancel()) {
+                            throw new \RuntimeException('Failed to auto-cancel stale pending order');
+                        }
                     }
                     break;
                 case Order::STATUS_PROCESSING:
@@ -76,17 +80,27 @@ class OrderHandleJob implements ShouldQueue, ShouldBeUnique
                         Log::warning('OrderHandleJob: cancelling processing order without paid_at', [
                             'trade_no' => $order->trade_no,
                         ]);
-                        $orderService->cancel();
+                        if (!$orderService->cancel()) {
+                            throw new \RuntimeException('Failed to cancel processing order without paid_at');
+                        }
                         break;
                     }
                     try {
                         $orderService->open();
+                        $order->refresh();
+                        if ((int) $order->status === Order::STATUS_PROCESSING) {
+                            if (!$orderService->failOpenAndRefund('Order remained in processing after open')) {
+                                throw new \RuntimeException('Order open failed and refund could not complete');
+                            }
+                        }
                     } catch (\Throwable $e) {
                         Log::error('Order open failed in OrderHandleJob', [
                             'trade_no' => $order->trade_no,
                             'error' => $e->getMessage(),
                         ]);
-                        $orderService->failOpenAndRefund($e->getMessage());
+                        if (!$orderService->failOpenAndRefund($e->getMessage())) {
+                            throw new \RuntimeException('Order open and refund both failed: ' . $e->getMessage(), 0, $e);
+                        }
                     }
                     break;
             }

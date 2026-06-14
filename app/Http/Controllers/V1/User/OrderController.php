@@ -228,6 +228,9 @@ class OrderController extends Controller
 
     public function check(Request $request)
     {
+        $request->validate([
+            'trade_no' => 'required|string|max:64',
+        ]);
         $tradeNo = $request->input('trade_no');
         $order = Order::where('trade_no', $tradeNo)
             ->where('user_id', $request->user()->id)

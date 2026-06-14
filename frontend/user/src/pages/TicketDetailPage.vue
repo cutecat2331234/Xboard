@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, NEmpty, useMessage } from 'naive-ui'
+import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, NEmpty, useDialog, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
@@ -11,6 +11,7 @@ import { useUserCommConfig } from '@/composables/useUserCommConfig'
 
 const route = useRoute()
 const msg = useMessage()
+const dialog = useDialog()
 const { t } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 
@@ -81,13 +82,21 @@ function onReplyKeydown(e: KeyboardEvent) {
 
 async function close() {
   if (!ticket.value) return
-  try {
-    await closeTicket(ticket.value.id)
-    msg.success(t('common.success'))
-    await load()
-  } catch (e: unknown) {
-    msg.error(resolveApiError(e, t))
-  }
+  dialog.warning({
+    title: t('ticket.close'),
+    content: t('ticket.closeConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        await closeTicket(ticket.value!.id)
+        msg.success(t('common.success'))
+        await load()
+      } catch (e: unknown) {
+        msg.error(resolveApiError(e, t))
+      }
+    },
+  })
 }
 
 function startPoll() {

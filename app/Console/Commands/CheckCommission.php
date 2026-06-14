@@ -94,8 +94,9 @@ class CheckCommission extends Command
                     }
                     $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
                     if ($payResult === 'invalid') {
-                        $order->commission_status = Order::COMMISSION_STATUS_INVALID;
-                        $order->save();
+                        DB::rollBack();
+                        Order::where('id', $orderId)->update(['commission_status' => Order::COMMISSION_STATUS_INVALID]);
+                        continue;
                     } elseif ($paidTotal >= $expectedTotal) {
                         $order->commission_status = 2;
                         $order->actual_commission_balance = $paidTotal;
@@ -107,9 +108,8 @@ class CheckCommission extends Command
 
                 $payResult = $this->payHandle($order->invite_user_id, $order);
                 if ($payResult === 'invalid') {
-                    $order->commission_status = Order::COMMISSION_STATUS_INVALID;
-                    $order->save();
-                    DB::commit();
+                    DB::rollBack();
+                    Order::where('id', $orderId)->update(['commission_status' => Order::COMMISSION_STATUS_INVALID]);
                     continue;
                 }
                 if ($payResult !== 'ok') {
@@ -130,8 +130,33 @@ class CheckCommission extends Command
         }
     }
 
+    private function validateCommissionChain(?int $inviteUserId): bool
+    {
+        if (!$inviteUserId) {
+            return false;
+        }
+
+        $currentId = $inviteUserId;
+        for ($l = 0; $l < 3; $l++) {
+            if (!$currentId) {
+                break;
+            }
+            $inviter = User::find($currentId);
+            if (!$inviter || $inviter->banned) {
+                return false;
+            }
+            $currentId = $inviter->invite_user_id;
+        }
+
+        return true;
+    }
+
     public function payHandle($inviteUserId, Order $order): string
     {
+        if (!$this->validateCommissionChain($inviteUserId)) {
+            return 'invalid';
+        }
+
         $level = 3;
         if ((int)admin_setting('commission_distribution_enable', 0)) {
             $commissionShareLevels = [
@@ -229,6 +254,10 @@ class CheckCommission extends Command
      */
     private function payHandleRemainder(int $inviteUserId, Order $order): string
     {
+        if (!$this->validateCommissionChain($inviteUserId)) {
+            return 'invalid';
+        }
+
         $expectedTotal = (int) $order->commission_balance;
         $paidByInviter = CommissionLog::where('trade_no', $order->trade_no)
             ->selectRaw('invite_user_id, SUM(get_amount) as total')

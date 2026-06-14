@@ -279,7 +279,7 @@ export default {
     incomeAmount: "کمیسیون",
     transferAmount: "مبلغ انتقال (واحد پول)",
     transferAmountRequired: "لطفاً مبلغ انتقال را وارد کنید",
-    transferAmountInvalid: "مبلغ انتقال باید یک عدد صحیح مثبت باشد",
+    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
     withdrawSuccess: "درخواست برداشت ارسال شد. برای پیگیری به تیکت‌ها بروید."
   },
   traffic: {
