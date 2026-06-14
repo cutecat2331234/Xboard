@@ -211,6 +211,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "toggleNavigation": "Переключить навигацию",
     "toggleSidebar": "Переключить боковую панель",
     "search": "Поиск...",
+    "select": "Выберите",
     "theme": {
       "light": "Светлая",
       "dark": "Темная",
@@ -228,8 +229,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "submit": "Отправить",
     "saving": "Сохранение...",
+    "none": "Нет",
     "days": "д",
     "table": {
+      "columns": {
+        "actions": "Действия"
+      },
       "noData": "Нет данных",
       "pagination": {
         "selected": "Выбрано {{selected}} из {{total}}",
@@ -1805,12 +1810,20 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "title": "Отключить вывод средств",
         "description": "Если включено, пользователи не могут запрашивать вывод, комиссия идет сразу на баланс."
       },
+      "withdraw_fee_rate": {
+        "title": "Комиссия за вывод / перевод",
+        "description": "Ставка комиссии при выводе или переводе на баланс. 0 — без комиссии.",
+        "placeholder": "0.05 означает 5%"
+      },
       "commission_distribution": {
         "title": "Трехуровневая система",
         "description": "Распределение комиссии по трем уровням пригласителей. Сумма не должна превышать 100%.",
         "l1": "Уровень 1 (%)",
+        "l1_description": "Доля комиссии для прямого пригласителя.",
         "l2": "Уровень 2 (%)",
+        "l2_description": "Доля комиссии для пригласителя 2-го уровня.",
         "l3": "Уровень 3 (%)",
+        "l3_description": "Доля комиссии для пригласителя 3-го уровня.",
         "placeholder": "Введите процент",
         "sum_error": "Сумма долей L1 + L2 + L3 должна быть равна 100%"
       },
@@ -1925,6 +1938,15 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "label": "Символ валюты",
           "placeholder": "₽",
           "description": "Отображаемый символ (влияет на весь интерфейс)."
+        },
+        "trafficWarnRate": {
+          "label": "Порог предупреждения о трафике (%)",
+          "placeholder": "70",
+          "description": "Показывать предупреждение, когда пользователь израсходовал указанный процент трафика."
+        },
+        "loginWithMailLink": {
+          "label": "Вход по ссылке из письма",
+          "description": "Позволяет входить по магической ссылке из email без пароля."
         }
       }
     },
@@ -2997,7 +3019,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "send_mail": {
         "success": "Email отправлен",
         "failed": "Ошибка отправки email",
-        "required_fields": "Пожалуйста, заполните обязательные поля"
+        "required_fields": "Пожалуйста, заполните обязательные поля",
+        "required_selected": "Выберите хотя бы одного пользователя",
+        "required_filtered": "Сначала задайте условия фильтра"
       }
     },
     "traffic_reset": {
@@ -3114,8 +3138,20 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "send_mail": {
       "title": "Отправить Email",
       "description": "Отправить сообщение выбранным или отфильтрованным пользователям",
+      "scope": "Область отправки",
+      "scope_selected": "Выбранные пользователи ({{count}})",
+      "scope_filtered": "Текущие результаты фильтра",
+      "scope_all": "Все пользователи",
       "subject": "Тема",
+      "subject_placeholder": "Тема письма, поддерживаются плейсхолдеры вроде {{name}}",
+      "subject_placeholder_hint": "В теме можно использовать плейсхолдеры",
       "content": "Содержимое",
+      "content_placeholder": "Текст письма (plain text)",
+      "content_plain_hint": "Только plain text, HTML не поддерживается",
+      "system_notice_subject": "Системное уведомление",
+      "system_notice_content": "Уважаемый пользователь!\\n\\nЭто системное уведомление.\\n\\n{{app.name}}",
+      "apply_system_notice": "Применить шаблон уведомления",
+      "available_vars": "Доступные переменные",
       "sending": "Отправка...",
       "send": "Отправить"
     },

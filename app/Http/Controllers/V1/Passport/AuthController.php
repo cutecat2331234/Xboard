@@ -11,6 +11,7 @@ use App\Services\Auth\LoginService;
 use App\Services\Auth\MailLinkService;
 use App\Services\Auth\RegisterService;
 use App\Services\AuthService;
+use App\Services\CaptchaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -72,6 +73,12 @@ class AuthController extends Controller
      */
     public function login(AuthLogin $request)
     {
+        $captchaService = app(CaptchaService::class);
+        [$captchaValid, $captchaError] = $captchaService->verify($request);
+        if (!$captchaValid) {
+            return $this->fail($captchaError);
+        }
+
         $email = $request->input('email');
         $password = $request->input('password');
 

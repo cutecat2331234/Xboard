@@ -63,7 +63,7 @@ class OrderHandleJob implements ShouldQueue, ShouldBeUnique
                     $age = time() - (int) $order->created_at;
                     if (!$order->payment_id && $age >= 3600 * 2) {
                         $orderService->cancel();
-                    } elseif ($order->payment_id && $age >= 3600 * 72) {
+                    } elseif ($order->payment_id && $age >= 3600 * 24) {
                         Log::info('Auto-cancelling stale pending order with payment method selected', [
                             'trade_no' => $order->trade_no,
                             'payment_id' => $order->payment_id,

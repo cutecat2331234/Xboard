@@ -209,6 +209,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "toggleNavigation": "切换导航",
     "toggleSidebar": "切换侧边栏",
     "search": "搜索...",
+    "select": "请选择",
     "theme": {
       "light": "浅色",
       "dark": "深色",
@@ -1880,6 +1881,15 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "label": "货币符号",
           "placeholder": "¥",
           "description": "仅用于展示使用，更改后系统中所有的货币单位都将发生变更。"
+        },
+        "trafficWarnRate": {
+          "label": "流量预警阈值 (%)",
+          "placeholder": "70",
+          "description": "用户已用流量达到套餐比例时显示预警提示。"
+        },
+        "loginWithMailLink": {
+          "label": "邮件链接登录",
+          "description": "开启后用户可通过邮件中的魔法链接登录，无需输入密码。"
         }
       }
     },
@@ -2374,12 +2384,20 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "title": "关闭提现",
         "description": "关闭后将禁止用户申请提现，且邀请佣金将会直接进入用户余额。"
       },
+      "withdraw_fee_rate": {
+        "title": "提现/划转手续费率",
+        "description": "用户提现或划转佣金到余额时扣除的比例，0 表示不收取手续费。",
+        "placeholder": "0.05 表示 5%"
+      },
       "commission_distribution": {
         "title": "三级分销",
         "description": "开启后将佣金将按照设置的3成比例进行分成，三成比例合计请不要大于100%。",
         "l1": "一级邀请人比例",
+        "l1_description": "直接邀请人获得的佣金比例。",
         "l2": "二级邀请人比例",
+        "l2_description": "二级邀请人获得的佣金比例。",
         "l3": "三级邀请人比例",
+        "l3_description": "三级邀请人获得的佣金比例。",
         "placeholder": "请输入比例，如：50",
         "sum_error": "三级分销比例合计必须等于 100%"
       },
@@ -3166,14 +3184,28 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "send_mail": {
         "success": "邮件发送成功",
         "failed": "邮件发送失败",
-        "required_fields": "请填写所有必填字段"
+        "required_fields": "请填写所有必填字段",
+        "required_selected": "请至少选择一名用户",
+        "required_filtered": "请先设置筛选条件"
       }
     },
     "send_mail": {
       "title": "发送邮件",
       "description": "向所选或已筛选的用户发送邮件",
+      "scope": "发送范围",
+      "scope_selected": "已选用户 ({{count}})",
+      "scope_filtered": "当前筛选结果",
+      "scope_all": "全部用户",
       "subject": "主题",
+      "subject_placeholder": "输入邮件主题，支持 {{name}} 等占位符",
+      "subject_placeholder_hint": "主题支持占位符，发送时将自动替换",
       "content": "内容",
+      "content_placeholder": "输入邮件正文（纯文本）",
+      "content_plain_hint": "正文为纯文本，不支持 HTML",
+      "system_notice_subject": "系统通知",
+      "system_notice_content": "尊敬的用户，您好！\\n\\n这是一条系统通知。\\n\\n{{app.name}}",
+      "apply_system_notice": "套用系统通知模板",
+      "available_vars": "可用变量",
       "sending": "发送中...",
       "send": "发送"
     },

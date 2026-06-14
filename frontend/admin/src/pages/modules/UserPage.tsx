@@ -528,6 +528,10 @@ export default function UserPage() {
           content,
         })
       } else if (mailScope === 'filtered') {
+        if (filters.length === 0) {
+          toast.error(t('user.messages.send_mail.required_filtered'))
+          return
+        }
         await postJson('/user/sendMail', {
           scope: 'filtered',
           filter: filters,

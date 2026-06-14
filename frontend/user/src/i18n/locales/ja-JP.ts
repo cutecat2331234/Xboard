@@ -162,6 +162,7 @@ export default {
     sessionExpired: "セッションの有効期限が切れました。再度ログインしてください",
     sessionKicked: "別のデバイスでログインされました。再度ログインしてください",
     loginFailed: "ログインに失敗しました",
+    commConfigFailed: "サイト設定の読み込みに失敗しました。一部の機能が利用できない場合があります。ページを更新して再度お試しください。",
     orderNotFound: "注文が見つかりません",
     orderNotFoundOrPaid: "注文が存在しないか、既に支払い済みです",
     planNotFound: "サブスクリプションプランが存在しません",

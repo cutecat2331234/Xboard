@@ -332,6 +332,13 @@ function submit() {
           </div>
 
           <div
+            v-if="(isRegister && config?.is_captcha) || (isForget && showCaptcha)"
+            class="auth-field"
+          >
+            <CaptchaWidget ref="captchaRef" :config="config" />
+          </div>
+
+          <div
             v-if="(isRegister && showEmailVerify) || isForget"
             class="auth-field auth-field--row"
           >
@@ -357,9 +364,6 @@ function submit() {
                 show-password-on="click"
               />
             </div>
-            <div v-if="showCaptcha" class="auth-field">
-              <CaptchaWidget ref="captchaRef" :config="config" />
-            </div>
           </template>
 
           <template v-else-if="isRegister">
@@ -378,10 +382,6 @@ function submit() {
                 :placeholder="inviteRequired ? t('inviteCodeRequiredPh') : t('inviteCode')"
                 :disabled="lockInvite"
               />
-            </div>
-
-            <div v-if="config?.is_captcha" class="auth-field">
-              <CaptchaWidget ref="captchaRef" :config="config" />
             </div>
 
             <div v-if="showTerms" class="auth-field auth-terms">

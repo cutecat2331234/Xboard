@@ -76,7 +76,7 @@ class CouponController extends Controller
             DB::beginTransaction();
             $coupon = Coupon::find($request->input('id'));
             if (!$coupon) {
-                throw new ApiException(400201, '优惠券不存在');
+                throw new ApiException('优惠券不存在', 400201);
             }
             $coupon->update($params);
             DB::commit();

@@ -46,6 +46,10 @@ const MESSAGE_MAP: Record<string, string> = {
   'Reset failed, Please try again later': 'errors.resetTooFrequent',
   '重置失败，请稍后再试': 'errors.resetTooFrequent',
 
+  'Too many attempts': 'errors.tooManyAttempts',
+  'Telegram login is not available': 'errors.telegramLoginUnavailable',
+  'Telegram 登录不可用': 'errors.telegramLoginUnavailable',
+
   // Auth — ResponseEnum
   '授权失败，请先登录': 'errors.unauthorized',
   '账号信息已过期，请重新登录': 'errors.sessionExpired',

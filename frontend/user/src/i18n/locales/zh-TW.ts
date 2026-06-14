@@ -163,6 +163,7 @@ export default {
     sessionExpired: "帳號資訊已過期，請重新登入",
     sessionKicked: "帳號在其他裝置登入，請重新登入",
     loginFailed: "登入失敗",
+    commConfigFailed: "站點配置載入失敗，部分功能可能不可用，請重新整理頁面後再試",
     orderNotFound: "訂單不存在",
     orderNotFoundOrPaid: "訂單不存在或已支付",
     planNotFound: "訂閱方案不存在",
