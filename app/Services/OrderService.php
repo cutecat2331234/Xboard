@@ -87,6 +87,9 @@ class OrderService
             $orderService = new self($order);
 
             if ($couponCode) {
+                if (!\App\Support\AppFeature::couponEnabled()) {
+                    throw new ApiException(__('Invalid coupon'));
+                }
                 $orderService->applyCoupon($couponCode);
             }
 

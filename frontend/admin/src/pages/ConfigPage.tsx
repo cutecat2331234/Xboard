@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { IconBuilding, IconRefresh } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
@@ -186,6 +186,11 @@ export default function ConfigPage() {
   const [plans, setPlans] = useState<Array<{ id?: number; name?: string }>>([])
   const [loading, setLoading] = useState(true)
   const [section, setSection] = useState<SectionId>(() => pathToSection(location.pathname))
+  const configRef = useRef<Record<string, Record<string, unknown>>>({})
+
+  useEffect(() => {
+    configRef.current = config
+  }, [config])
 
   useEffect(() => {
     setSection(pathToSection(location.pathname))
@@ -201,21 +206,32 @@ export default function ConfigPage() {
       .catch(() => setPlans([]))
   }, [t])
 
-  function update(sec: string, key: string, value: unknown) {
-    setConfig((prev) => ({ ...prev, [sec]: { ...prev[sec], [key]: value } }))
+  function update(sec: string, key: string, value: unknown, persist = false) {
+    setConfig((prev) => {
+      const next = { ...prev, [sec]: { ...prev[sec], [key]: value } }
+      configRef.current = next
+      return next
+    })
+    if (persist) {
+      queueMicrotask(() => void persistSection())
+    }
+  }
+
+  async function persistSection() {
+    try {
+      const sec = configRef.current[section] ?? {}
+      const payload = normalizeSectionPayload(section, sec)
+      await saveConfig(payload)
+      toast.success(t('common.success'))
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t('common.error'))
+    }
   }
 
   async function onBlurSave(e: React.FocusEvent<HTMLDivElement>) {
     const related = e.relatedTarget as Node | null
     if (related && e.currentTarget.contains(related)) return
-    try {
-      const sec = config[section] ?? {}
-      const payload = normalizeSectionPayload(section, sec)
-      await saveConfig(payload)
-      toast.success(t('common.success'))
-    } catch {
-      toast.error(t('common.error'))
-    }
+    await persistSection()
   }
 
   function normalizeSectionPayload(secId: string, sec: Record<string, unknown>): Record<string, unknown> {
@@ -336,7 +352,7 @@ export default function ConfigPage() {
                         label={t('settings.site.form.forceHttps.label')}
                         description={t('settings.site.form.forceHttps.description')}
                         checked={Boolean(site.force_https)}
-                        onChange={(v) => update('site', 'force_https', v)}
+                        onChange={(v) => update('site', 'force_https', v, true)}
                       />
                       <FormField
                         label={t('settings.site.form.logo.label')}
@@ -363,13 +379,13 @@ export default function ConfigPage() {
                         label={t('settings.site.form.stopRegister.label')}
                         description={t('settings.site.form.stopRegister.description')}
                         checked={Boolean(site.stop_register)}
-                        onChange={(v) => update('site', 'stop_register', v)}
+                        onChange={(v) => update('site', 'stop_register', v, true)}
                       />
                       <SwitchField
                         label={t('settings.site.form.ticketMustWaitReply.label')}
                         description={t('settings.site.form.ticketMustWaitReply.description')}
                         checked={Boolean(site.ticket_must_wait_reply)}
-                        onChange={(v) => update('site', 'ticket_must_wait_reply', v)}
+                        onChange={(v) => update('site', 'ticket_must_wait_reply', v, true)}
                       />
                       <FormField
                         type="number"
@@ -383,13 +399,13 @@ export default function ConfigPage() {
                         label={t('settings.site.form.loginWithMailLink.label')}
                         description={t('settings.site.form.loginWithMailLink.description')}
                         checked={Boolean(site.login_with_mail_link_enable)}
-                        onChange={(v) => update('site', 'login_with_mail_link_enable', v)}
+                        onChange={(v) => update('site', 'login_with_mail_link_enable', v, true)}
                       />
                       <SwitchField
                         label={t('settings.site.form.tryOutEnable.label')}
                         description={t('settings.site.form.tryOutEnable.description')}
                         checked={Boolean(site.try_out_enable ?? true)}
-                        onChange={(v) => update('site', 'try_out_enable', v)}
+                        onChange={(v) => update('site', 'try_out_enable', v, true)}
                       />
                       <ConfigFormSelect
                         label={t('settings.site.form.tryOut.label')}
@@ -435,7 +451,7 @@ export default function ConfigPage() {
                         label={t('settings.invite.invite_force.title')}
                         description={t('settings.invite.invite_force.description')}
                         checked={Boolean(invite.invite_force)}
-                        onChange={(v) => update('invite', 'invite_force', v)}
+                        onChange={(v) => update('invite', 'invite_force', v, true)}
                       />
                       <FormField
                         label={t('settings.invite.invite_commission.title')}
@@ -455,19 +471,19 @@ export default function ConfigPage() {
                         label={t('settings.invite.invite_never_expire.title')}
                         description={t('settings.invite.invite_never_expire.description')}
                         checked={Boolean(invite.invite_never_expire)}
-                        onChange={(v) => update('invite', 'invite_never_expire', v)}
+                        onChange={(v) => update('invite', 'invite_never_expire', v, true)}
                       />
                       <SwitchField
                         label={t('settings.invite.commission_first_time.title')}
                         description={t('settings.invite.commission_first_time.description')}
                         checked={Boolean(invite.commission_first_time_enable)}
-                        onChange={(v) => update('invite', 'commission_first_time_enable', v)}
+                        onChange={(v) => update('invite', 'commission_first_time_enable', v, true)}
                       />
                       <SwitchField
                         label={t('settings.invite.commission_auto_check.title')}
                         description={t('settings.invite.commission_auto_check.description')}
                         checked={Boolean(invite.commission_auto_check_enable)}
-                        onChange={(v) => update('invite', 'commission_auto_check_enable', v)}
+                        onChange={(v) => update('invite', 'commission_auto_check_enable', v, true)}
                       />
                       <FormField
                         label={t('settings.invite.commission_withdraw_limit.title')}
@@ -500,7 +516,7 @@ export default function ConfigPage() {
                         label={t('settings.invite.withdraw_close.title')}
                         description={t('settings.invite.withdraw_close.description')}
                         checked={Boolean(invite.withdraw_close_enable)}
-                        onChange={(v) => update('invite', 'withdraw_close_enable', v)}
+                        onChange={(v) => update('invite', 'withdraw_close_enable', v, true)}
                       />
                       <FormField
                         type="number"
@@ -514,7 +530,7 @@ export default function ConfigPage() {
                         label={t('settings.invite.commission_distribution.title')}
                         description={t('settings.invite.commission_distribution.description')}
                         checked={Boolean(invite.commission_distribution_enable)}
-                        onChange={(v) => update('invite', 'commission_distribution_enable', v)}
+                        onChange={(v) => update('invite', 'commission_distribution_enable', v, true)}
                       />
                       {invite.commission_distribution_enable ? (
                         <>
@@ -557,7 +573,7 @@ export default function ConfigPage() {
                         label={t('settings.subscribe.plan_change_enable.title')}
                         description={t('settings.subscribe.plan_change_enable.description')}
                         checked={Boolean(subscribe.plan_change_enable)}
-                        onChange={(v) => update('subscribe', 'plan_change_enable', v)}
+                        onChange={(v) => update('subscribe', 'plan_change_enable', v, true)}
                       />
                       <ConfigFormSelect
                         label={t('settings.subscribe.reset_traffic_method.title')}
@@ -577,14 +593,14 @@ export default function ConfigPage() {
                         label={t('settings.subscribe.surplus_enable.title')}
                         description={t('settings.subscribe.surplus_enable.description')}
                         checked={Boolean(subscribe.surplus_enable)}
-                        onChange={(v) => update('subscribe', 'surplus_enable', v)}
+                        onChange={(v) => update('subscribe', 'surplus_enable', v, true)}
                       />
                       <SwitchField
                         flat
                         label={t('settings.subscribe.surplus_traffic_ratio_enable.title')}
                         description={t('settings.subscribe.surplus_traffic_ratio_enable.description')}
                         checked={Boolean(subscribe.surplus_traffic_ratio_enable)}
-                        onChange={(v) => update('subscribe', 'surplus_traffic_ratio_enable', v)}
+                        onChange={(v) => update('subscribe', 'surplus_traffic_ratio_enable', v, true)}
                       />
                       <ConfigFormSelect
                         label={t('settings.subscribe.new_order_event.title')}
@@ -642,26 +658,26 @@ export default function ConfigPage() {
                         label={t('settings.subscribe.show_info_to_server.title')}
                         description={t('settings.subscribe.show_info_to_server.description')}
                         checked={Boolean(subscribe.show_info_to_server_enable)}
-                        onChange={(v) => update('subscribe', 'show_info_to_server_enable', v)}
+                        onChange={(v) => update('subscribe', 'show_info_to_server_enable', v, true)}
                       />
                       <SwitchField
                         flat
                         label={t('settings.subscribe.show_protocol_to_server.title')}
                         description={t('settings.subscribe.show_protocol_to_server.description')}
                         checked={Boolean(subscribe.show_protocol_to_server_enable)}
-                        onChange={(v) => update('subscribe', 'show_protocol_to_server_enable', v)}
+                        onChange={(v) => update('subscribe', 'show_protocol_to_server_enable', v, true)}
                       />
                       <SwitchField
                         label={t('settings.subscribe.default_remind_expire.title')}
                         description={t('settings.subscribe.default_remind_expire.description')}
                         checked={Boolean(subscribe.default_remind_expire)}
-                        onChange={(v) => update('subscribe', 'default_remind_expire', v)}
+                        onChange={(v) => update('subscribe', 'default_remind_expire', v, true)}
                       />
                       <SwitchField
                         label={t('settings.subscribe.default_remind_traffic.title')}
                         description={t('settings.subscribe.default_remind_traffic.description')}
                         checked={Boolean(subscribe.default_remind_traffic)}
-                        onChange={(v) => update('subscribe', 'default_remind_traffic', v)}
+                        onChange={(v) => update('subscribe', 'default_remind_traffic', v, true)}
                       />
                     </>
                   ) : null}
@@ -705,7 +721,7 @@ export default function ConfigPage() {
                         label={t('settings.server.server_ws_enable.title')}
                         description={t('settings.server.server_ws_enable.description')}
                         checked={Boolean(server.server_ws_enable)}
-                        onChange={(v) => update('server', 'server_ws_enable', v)}
+                        onChange={(v) => update('server', 'server_ws_enable', v, true)}
                       />
                       <FormField
                         label={t('settings.server.server_ws_url.title')}

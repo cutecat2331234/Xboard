@@ -14,6 +14,7 @@ use App\Services\Auth\LoginService;
 use App\Services\AuthService;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
+use App\Support\AppFeature;
 use App\Utils\CacheKey;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
@@ -199,6 +200,9 @@ class UserController extends Controller
 
     public function transfer(UserTransfer $request)
     {
+        if (!AppFeature::commissionEnabled()) {
+            return $this->fail([403, __('Unsupported withdraw')]);
+        }
         if ((int) admin_setting('withdraw_close_enable', 0)) {
             return $this->fail([400, 'Unsupported withdraw']);
         }

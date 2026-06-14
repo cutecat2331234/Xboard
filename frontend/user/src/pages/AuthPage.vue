@@ -206,6 +206,10 @@ async function submitRegister() {
     errorText.value = t('passwordMismatch')
     return
   }
+  if (password.value.length < 8) {
+    errorText.value = t('errors.passwordTooShort')
+    return
+  }
   if (inviteRequired.value && !inviteCode.value.trim()) {
     errorText.value = t('inviteCodeRequired')
     return
@@ -233,6 +237,10 @@ async function submitForget() {
   errorText.value = ''
   if (password.value !== confirmPassword.value) {
     errorText.value = t('passwordMismatch')
+    return
+  }
+  if (password.value.length < 8) {
+    errorText.value = t('errors.passwordTooShort')
     return
   }
   forgetLoading.value = true

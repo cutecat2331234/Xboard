@@ -70,7 +70,7 @@ class RegisterService
         }
 
         // 检查是否关闭注册
-        if ((int) admin_setting('stop_register', 0)) {
+        if (!\App\Support\AppFeature::registerEnabled()) {
             return [false, [400, __('Registration has closed')]];
         }
 

@@ -155,19 +155,23 @@ class OrderController extends Controller
 
     public function paid(Request $request)
     {
-        $order = Order::where('trade_no', $request->input('trade_no'))
-            ->first();
-        if (!$order) {
-            return $this->fail([400202, '订单不存在']);
-        }
-        if ($order->status !== 0)
-            return $this->fail([400, '只能对待支付的订单进行操作']);
+        return DB::transaction(function () use ($request) {
+            $order = Order::where('trade_no', $request->input('trade_no'))
+                ->lockForUpdate()
+                ->first();
+            if (!$order) {
+                return $this->fail([400202, '订单不存在']);
+            }
+            if ($order->status !== 0) {
+                return $this->fail([400, '只能对待支付的订单进行操作']);
+            }
 
-        $orderService = new OrderService($order);
-        if (!$orderService->paid('manual_operation')) {
-            return $this->fail([500, '更新失败']);
-        }
-        return $this->success(true);
+            $orderService = new OrderService($order);
+            if (!$orderService->paid('manual_operation')) {
+                return $this->fail([500, '更新失败']);
+            }
+            return $this->success(true);
+        });
     }
 
     public function cancel(Request $request)

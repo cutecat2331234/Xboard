@@ -94,6 +94,74 @@ const MESSAGE_MAP: Record<string, string> = {
   '目前不允许更改订阅，请联系客服或提交工单操作': 'errors.planChangeDisabled',
   'Unsupported withdrawal method': 'errors.withdrawMethodUnsupported',
   '不支持的提现方式': 'errors.withdrawMethodUnsupported',
+
+  // Coupon
+  'Invalid coupon': 'errors.invalidCoupon',
+  '优惠券无效': 'errors.invalidCoupon',
+  'Coupon cannot be empty': 'errors.couponEmpty',
+  '优惠券不能为空': 'errors.couponEmpty',
+  'This coupon has expired': 'errors.couponExpired',
+  '优惠券已过期': 'errors.couponExpired',
+  'The coupon code cannot be used for this period': 'errors.couponPeriodMismatch',
+  '优惠券不可用于该订阅周期': 'errors.couponPeriodMismatch',
+  'Coupon failed': 'errors.couponFailed',
+  '优惠券使用失败': 'errors.couponFailed',
+
+  // Plan / order
+  'Current product is sold out': 'errors.planSoldOut',
+  '当前商品已售罄': 'errors.planSoldOut',
+  'This payment period cannot be purchased, please choose another period': 'errors.planPeriodUnavailable',
+  '该订阅周期不可购买，请选择其他周期': 'errors.planPeriodUnavailable',
+  'This subscription cannot be renewed, please change to another subscription': 'errors.planRenewDisabled',
+  '该订阅不可续费，请更换其他订阅': 'errors.planRenewDisabled',
+  'Subscription has expired or no active subscription, unable to purchase Data Reset Package': 'errors.resetTrafficNoSub',
+  '订阅已过期或无有效订阅，无法购买流量重置包': 'errors.resetTrafficNoSub',
+  'Failed to create order': 'errors.orderCreateFailed',
+  '创建订单失败': 'errors.orderCreateFailed',
+
+  // Ticket
+  'Ticket does not exist': 'errors.ticketNotFound',
+  '工单不存在': 'errors.ticketNotFound',
+  'Message cannot be empty': 'errors.ticketMessageEmpty',
+  '消息不能为空': 'errors.ticketMessageEmpty',
+  'The ticket is closed': 'errors.ticketClosed',
+  '工单已关闭': 'errors.ticketClosed',
+  'The ticket is closed and cannot be replied': 'errors.ticketClosedReply',
+  '工单已关闭，无法回复': 'errors.ticketClosedReply',
+  'Ticket reply failed': 'errors.ticketReplyFailed',
+  '工单回复失败': 'errors.ticketReplyFailed',
+  'Close failed': 'errors.ticketCloseFailed',
+  '关闭失败': 'errors.ticketCloseFailed',
+  'Ticket subject cannot be empty': 'errors.ticketSubjectEmpty',
+  '工单主题不能为空': 'errors.ticketSubjectEmpty',
+
+  // Profile
+  'The old password is wrong': 'errors.oldPasswordWrong',
+  '旧密码有误': 'errors.oldPasswordWrong',
+  'Password must be greater than 8 digits': 'errors.passwordTooShort',
+  '密码必须大于8位': 'errors.passwordTooShort',
+  'Save failed': 'errors.saveFailed',
+  '保存失败': 'errors.saveFailed',
+  'Transfer failed': 'errors.transferFailed',
+  '划转失败': 'errors.transferFailed',
+  'Telegram account is not bound': 'errors.telegramNotBound',
+  '未绑定 Telegram 账号': 'errors.telegramNotBound',
+  'Failed to unbind Telegram account': 'errors.telegramUnbindFailed',
+  '解绑 Telegram 账号失败': 'errors.telegramUnbindFailed',
+
+  // Invite
+  'The maximum number of creations has been reached': 'errors.inviteCodeLimit',
+  '已达到最大创建数量': 'errors.inviteCodeLimit',
+
+  // Stripe
+  'payment is not found': 'errors.paymentNotFound',
+
+  // Gift card
+  '兑换码不存在': 'errors.giftCardNotFound',
+  '该礼品卡类型已停用': 'errors.giftCardDisabled',
+  '您不满足此礼品卡的使用条件': 'errors.giftCardIneligible',
+  '您已达到此礼品卡的使用限制': 'errors.giftCardLimitReached',
+  '查询失败，请稍后重试': 'errors.giftCardQueryFailed',
 }
 
 interface ErrorPattern {

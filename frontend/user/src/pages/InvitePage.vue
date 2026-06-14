@@ -317,7 +317,7 @@ onMounted(async () => {
     </div>
     <div class="text-gray-500">{{ t('invite.available') }}</div>
     <n-space class="invite-balance-actions mt-2.5" :size="[12, 8]">
-      <n-button size="small" type="primary" @click="transferOpen = true">
+      <n-button v-if="!commConfig?.withdraw_close" size="small" type="primary" @click="transferOpen = true">
         <template #icon>
           <n-icon><TransferIcon /></n-icon>
         </template>
@@ -379,6 +379,7 @@ onMounted(async () => {
   </n-card>
 
   <n-modal v-model:show="transferOpen" preset="card" :title="t('invite.transfer')" style="width: 400px">
+    <p v-if="withdrawLimitLabel" class="withdraw-hint">{{ withdrawLimitLabel }}</p>
     <n-input v-model:value="transferAmount" :placeholder="t('invite.transferAmount')" />
     <div class="modal-actions">
       <n-button @click="transferOpen = false">{{ t('common.cancel') }}</n-button>
@@ -389,6 +390,7 @@ onMounted(async () => {
   <n-modal v-model:show="withdrawOpen" preset="card" :title="t('invite.withdraw')" style="width: 400px">
     <p v-if="withdrawLimitLabel" class="withdraw-hint">{{ withdrawLimitLabel }}</p>
     <p v-if="withdrawFeeLabel" class="withdraw-hint">{{ withdrawFeeLabel }}</p>
+    <p class="withdraw-hint">{{ t('invite.withdrawFullBalanceHint') }}</p>
     <n-select
       v-if="commConfig?.withdraw_methods?.length"
       v-model:value="withdrawMethod"
