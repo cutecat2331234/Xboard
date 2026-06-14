@@ -80,6 +80,21 @@ function replyStatusLabel(
   return String(replyStatus ?? '—')
 }
 
+function isOfficialWithdrawTicket(row: TicketRow): boolean {
+  return Number(row.level) === 2 && Boolean(row.subject?.includes('[withdraw_ticket]'))
+}
+
+function isLegacyWithdrawTicket(row: TicketRow): boolean {
+  if (Number(row.level) !== 2 || isOfficialWithdrawTicket(row)) {
+    return false
+  }
+  const subject = row.subject ?? ''
+  return (
+    subject.includes('Commission Withdrawal Request')
+    || subject.includes('Commission withdrawal')
+    || subject.includes('佣金提现')
+  )
+}
 function levelLabel(t: (key: string) => string, level?: number, subject?: string) {
   if (level === 2 && subject?.includes('[withdraw_ticket]')) {
     return t('ticket.level.withdraw')
@@ -164,11 +179,17 @@ export default function TicketPage() {
     }
   }
 
-  async function closeTicket(row: TicketRow, options?: { withdrawPaid?: boolean }) {
+  async function closeTicket(
+    row: TicketRow,
+    options?: { withdrawPaid?: boolean; withdrawRejected?: boolean },
+  ) {
     try {
       const payload: Record<string, unknown> = { id: row.id }
-      if (Number(row.level) === 2 && options?.withdrawPaid) {
+      if (options?.withdrawPaid) {
         payload.withdraw_paid = true
+      }
+      if (options?.withdrawRejected) {
+        payload.withdraw_rejected = true
       }
       await postJson('/ticket/close', payload)
       toast.success(t('common.success'))
@@ -213,14 +234,27 @@ export default function TicketPage() {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {t('ticket.actions.reply')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawPaid: true })}>
-                {t('ticket.actions.close')}
-              </DropdownMenuItem>
-              {Number(row.original.level) === 2 ? (
-                <DropdownMenuItem onClick={() => closeTicket(row.original)}>
-                  {t('ticket.actions.close_reject_withdraw')}
-                </DropdownMenuItem>
-              ) : null}
+              {isOfficialWithdrawTicket(row.original) ? (
+                <>
+                  <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawPaid: true })}>
+                    {t('ticket.actions.close')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => closeTicket(row.original)}>
+                    {t('ticket.actions.close_reject_withdraw')}
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuItem onClick={() => closeTicket(row.original)}>
+                    {t('ticket.actions.close_ticket')}
+                  </DropdownMenuItem>
+                  {isLegacyWithdrawTicket(row.original) ? (
+                    <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawRejected: true })}>
+                      {t('ticket.actions.close_reject_withdraw')}
+                    </DropdownMenuItem>
+                  ) : null}
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ),

@@ -74,8 +74,12 @@ async function applyCoupon() {
 
 async function ensureNoPendingOrder() {
   const orders = await fetchOrders()
-  const pending = orders.find((o) => o.status === 0)
-  if (!pending) return true
+  const blocking = orders.find((o) => o.status === 0 || o.status === 1)
+  if (!blocking) return true
+  if (blocking.status === 1) {
+    msg.warning(t('plan.processingOrderDesc'))
+    return false
+  }
   return new Promise<boolean>((resolve) => {
     dialog.warning({
       title: t('plan.pendingOrderTitle'),
@@ -84,7 +88,7 @@ async function ensureNoPendingOrder() {
       negativeText: t('common.cancel'),
       onPositiveClick: async () => {
         try {
-          await cancelOrder(pending.trade_no)
+          await cancelOrder(blocking.trade_no)
           resolve(true)
         } catch (e: unknown) {
           msg.error(e instanceof Error ? e.message : t('common.error'))

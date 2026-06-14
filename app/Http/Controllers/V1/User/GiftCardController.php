@@ -143,7 +143,7 @@ class GiftCardController extends Controller
     public function detail(Request $request)
     {
         $request->validate([
-            'id' => 'required|integer|exists:v2_gift_card_usage,id',
+            'id' => 'required|integer|min:1',
         ]);
 
         $usage = GiftCardUsage::with(['template', 'code', 'inviteUser'])

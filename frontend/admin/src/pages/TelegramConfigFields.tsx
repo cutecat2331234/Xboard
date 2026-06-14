@@ -69,6 +69,13 @@ export function TelegramConfigFields({ t, telegram, update, FormField, SwitchFie
         placeholder={t('settings.telegram.discuss_link.placeholder')}
         onChange={(v) => update('telegram', 'telegram_discuss_link', v)}
       />
+      <FormField
+        label={t('settings.telegram.webhook_url.title')}
+        description={t('settings.telegram.webhook_url.description')}
+        value={String(telegram.telegram_webhook_url ?? '')}
+        placeholder={t('settings.telegram.webhook_url.placeholder')}
+        onChange={(v) => update('telegram', 'telegram_webhook_url', v)}
+      />
       <div className="xb-stack-2">
         <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">
           {t('settings.telegram.webhook.title')}

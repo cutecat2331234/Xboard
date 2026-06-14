@@ -136,16 +136,29 @@ class DeviceStateService
     public function getDeviceCount(int $userId): int
     {
         $data = Redis::hgetall(self::PREFIX . $userId);
+
+        return $this->countActiveDevices($data);
+    }
+
+    /**
+     * @param array<string, int|string> $data
+     */
+    private function countActiveDevices(array $data): int
+    {
         $now = time();
-        $ips = [];
+        $relaxedMode = (int) admin_setting('device_limit_mode', 0) === 1;
+        $entries = [];
 
         foreach ($data as $field => $timestamp) {
-            if ($now - $timestamp <= self::TTL) {
-                $ips[] = substr($field, strpos($field, ':') + 1);
+            if ($now - (int) $timestamp > self::TTL) {
+                continue;
             }
+            $entries[] = $relaxedMode
+                ? substr($field, strpos($field, ':') + 1)
+                : $field;
         }
 
-        return count(array_unique($ips));
+        return count(array_unique($entries));
     }
 
     /**
@@ -180,12 +193,12 @@ class DeviceStateService
             if (!empty($data)) {
                 $ips = [];
                 foreach ($data as $field => $timestamp) {
-                    if ($now - $timestamp <= self::TTL) {
+                    if ($now - (int) $timestamp <= self::TTL) {
                         $ips[] = substr($field, strpos($field, ':') + 1);
                     }
                 }
                 if (!empty($ips)) {
-                    $result[$userId] = array_unique($ips);
+                    $result[$userId] = array_values(array_unique($ips));
                 }
             }
         }

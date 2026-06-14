@@ -88,6 +88,7 @@ export default {
     noPeriod: '当前套餐无可购周期',
     pendingOrderTitle: '未完成订单',
     pendingOrderDesc: '您有一笔待支付订单，是否取消后继续？',
+    processingOrderDesc: '您有一笔订单正在开通中，请稍后再试或前往订单页查看。',
     cancelPending: '取消订单',
     periodMonth: '月付',
     periodQuarter: '季付',

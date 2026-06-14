@@ -422,6 +422,9 @@ class GiftCardController extends Controller
             if ($request->input('action') === 'disable') {
                 $code->markAsDisabled();
             } else {
+                if ($code->status === GiftCardCode::STATUS_USED) {
+                    return $this->fail([400, '兑换码已使用，无法启用']);
+                }
                 if ($code->status === GiftCardCode::STATUS_DISABLED) {
                     if ($code->expires_at && $code->expires_at < time()) {
                         return $this->fail([400, '兑换码已过期，无法启用']);
@@ -590,6 +593,16 @@ class GiftCardController extends Controller
 
             if (empty($updateData)) {
                 return $this->success($code);
+            }
+
+            if (isset($updateData['status']) && (int) $updateData['status'] === GiftCardCode::STATUS_UNUSED) {
+                if ((int) $code->usage_count > 0 || (int) $code->status === GiftCardCode::STATUS_USED) {
+                    return $this->fail([400, '该兑换码已有使用记录，无法改回未使用状态']);
+                }
+            }
+
+            if (isset($updateData['max_usage']) && (int) $updateData['max_usage'] < (int) $code->usage_count) {
+                return $this->fail([400, '最大使用次数不能小于已使用次数']);
             }
 
             $updateData['updated_at'] = time();

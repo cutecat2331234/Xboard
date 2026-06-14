@@ -49,10 +49,17 @@ class CheckCommission extends Command
     public function autoCheck()
     {
         if ((int)admin_setting('commission_auto_check_enable', 1)) {
+            $cutoff = strtotime('-3 day', time());
             Order::where('commission_status', 0)
                 ->where('invite_user_id', '!=', NULL)
                 ->where('status', Order::STATUS_COMPLETED)
-                ->where('updated_at', '<=', strtotime('-3 day', time()))
+                ->where(function ($query) use ($cutoff) {
+                    $query->where(function ($q) use ($cutoff) {
+                        $q->whereNotNull('paid_at')->where('paid_at', '<=', $cutoff);
+                    })->orWhere(function ($q) use ($cutoff) {
+                        $q->whereNull('paid_at')->where('updated_at', '<=', $cutoff);
+                    });
+                })
                 ->update([
                     'commission_status' => 1
                 ]);

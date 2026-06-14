@@ -88,6 +88,7 @@ export default {
     noPeriod: 'No purchasable period',
     pendingOrderTitle: 'Pending order',
     pendingOrderDesc: 'You have an unpaid order. Cancel it to continue?',
+    processingOrderDesc: 'You have an order being processed. Please wait or check your orders.',
     cancelPending: 'Cancel order',
     periodMonth: 'Monthly',
     periodQuarter: 'Quarterly',
