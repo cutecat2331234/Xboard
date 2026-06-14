@@ -12,6 +12,7 @@ use App\Services\UserService;
 use App\Utils\CacheKey;
 use App\Utils\Dict;
 use App\Utils\Helper;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -110,23 +111,26 @@ class RegisterService
      */
     public function handleInviteCode(string $inviteCode): int|null
     {
-        $inviteCodeModel = InviteCode::where('code', $inviteCode)
-            ->where('status', InviteCode::STATUS_UNUSED)
-            ->first();
+        return DB::transaction(function () use ($inviteCode) {
+            $inviteCodeModel = InviteCode::where('code', $inviteCode)
+                ->where('status', InviteCode::STATUS_UNUSED)
+                ->lockForUpdate()
+                ->first();
 
-        if (!$inviteCodeModel) {
-            if ((int) admin_setting('invite_force', 0)) {
-                throw new ApiException(__('Invalid invitation code'));
+            if (!$inviteCodeModel) {
+                if ((int) admin_setting('invite_force', 0)) {
+                    throw new ApiException(__('Invalid invitation code'));
+                }
+                return null;
             }
-            return null;
-        }
 
-        if (!(int) admin_setting('invite_never_expire', 0)) {
-            $inviteCodeModel->status = InviteCode::STATUS_USED;
-            $inviteCodeModel->save();
-        }
+            if (!(int) admin_setting('invite_never_expire', 0)) {
+                $inviteCodeModel->status = InviteCode::STATUS_USED;
+                $inviteCodeModel->save();
+            }
 
-        return $inviteCodeModel->user_id;
+            return $inviteCodeModel->user_id;
+        });
     }
 
 

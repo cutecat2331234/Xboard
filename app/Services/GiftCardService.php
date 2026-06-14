@@ -217,7 +217,9 @@ class GiftCardService
         if (isset($rewards['balance']) && $rewards['balance'] > 0) {
             $inviteBalance = intval($rewards['balance'] * $rate);
             if ($inviteBalance > 0) {
-                $userService->addBalance($inviteUser->id, $inviteBalance);
+                if (!$userService->addBalance($inviteUser->id, $inviteBalance)) {
+                    throw new \RuntimeException('Failed to add invite reward balance');
+                }
                 $inviteRewards['balance'] = $inviteBalance;
             }
         }

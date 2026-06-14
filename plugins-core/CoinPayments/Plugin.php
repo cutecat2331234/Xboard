@@ -82,13 +82,18 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         }
 
         $headers = getallheaders();
+        if (!is_array($headers)) {
+            $headers = [];
+        }
 
         ksort($params);
         reset($params);
         $request = stripslashes(http_build_query($params));
 
-        $headerName = 'Hmac';
-        $signHeader = isset($headers[$headerName]) ? $headers[$headerName] : '';
+        $signHeader = request()->header('Hmac', '');
+        if ($signHeader === '' && isset($headers['Hmac'])) {
+            $signHeader = $headers['Hmac'];
+        }
 
         $hmac = hash_hmac("sha512", $request, trim($this->getConfig('coinpayments_ipn_secret')));
 

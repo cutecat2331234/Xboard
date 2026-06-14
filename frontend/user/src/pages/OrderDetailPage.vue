@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
 
-import { NCard, NButton, NModal, NIcon, NAlert, NTag, useMessage, useDialog } from 'naive-ui'
+import { NCard, NButton, NModal, NIcon, NAlert, NTag, NSpin, useMessage, useDialog } from 'naive-ui'
 
 import { CheckmarkCircleOutline } from '@vicons/ionicons5'
 
@@ -107,6 +107,7 @@ const selectedMethod = ref<number | null>(null)
 const selectedMethodIndex = ref(0)
 
 const paying = ref(false)
+const pageLoading = ref(true)
 
 const qrOpen = ref(false)
 
@@ -224,6 +225,7 @@ const isTryOutPlan = computed(() => {
 async function load() {
 
   const tradeNo = String(route.params.trade_no)
+  pageLoading.value = true
 
   try {
 
@@ -249,6 +251,8 @@ async function load() {
 
     router.push('/order')
 
+  } finally {
+    pageLoading.value = false
   }
 
 }
@@ -477,6 +481,7 @@ onUnmounted(stopPoll)
 
 <template>
 
+  <n-spin :show="pageLoading">
   <div v-if="order" class="order-detail-page">
 
     <div class="order-detail-main">
@@ -778,6 +783,8 @@ onUnmounted(stopPoll)
     </div>
 
   </n-modal>
+
+  </n-spin>
 
 </template>
 

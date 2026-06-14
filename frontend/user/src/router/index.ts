@@ -75,6 +75,7 @@ router.beforeEach((to) => {
   const publicPaths = ['/login', '/register', '/forgetpassword']
 
   const authed = Boolean(getAuthData())
+  const hasTokenLogin = to.path === '/login' && typeof to.query.verify === 'string' && to.query.verify.length > 0
 
   if (!authed && !publicPaths.includes(to.path)) {
 
@@ -82,7 +83,7 @@ router.beforeEach((to) => {
 
   }
 
-  if (authed && publicPaths.includes(to.path)) {
+  if (authed && publicPaths.includes(to.path) && !hasTokenLogin) {
 
     return { path: '/dashboard' }
 

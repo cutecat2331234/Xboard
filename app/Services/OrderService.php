@@ -56,7 +56,11 @@ class OrderService
         HookManager::call('order.create.before', [$user, $plan, $period, $couponCode]);
 
         return DB::transaction(function () use ($user, $plan, $period, $couponCode, $userService) {
-            User::where('id', $user->id)->lockForUpdate()->first();
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                throw new ApiException(__('User not found'));
+            }
+            $user = $lockedUser;
             if ($userService->isNotCompleteOrderByUserId($user->id)) {
                 throw new ApiException(__('You have an unpaid or pending order, please try again later or cancel it'));
             }

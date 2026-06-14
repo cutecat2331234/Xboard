@@ -60,12 +60,18 @@ class CheckCommission extends Command
 
     public function autoPayCommission()
     {
-        $orders = Order::where('commission_status', 1)
+        $orderIds = Order::where('commission_status', 1)
             ->where('invite_user_id', '!=', NULL)
-            ->get();
-        foreach ($orders as $order) {
-            try{
+            ->pluck('id');
+
+        foreach ($orderIds as $orderId) {
+            try {
                 DB::beginTransaction();
+                $order = Order::where('id', $orderId)->lockForUpdate()->first();
+                if (!$order || (int) $order->commission_status !== 1 || !$order->invite_user_id) {
+                    DB::rollBack();
+                    continue;
+                }
                 if (!$this->payHandle($order->invite_user_id, $order)) {
                     DB::rollBack();
                     continue;
@@ -76,7 +82,7 @@ class CheckCommission extends Command
                     continue;
                 }
                 DB::commit();
-            } catch (\Exception $e){
+            } catch (\Exception $e) {
                 DB::rollBack();
                 throw $e;
             }
