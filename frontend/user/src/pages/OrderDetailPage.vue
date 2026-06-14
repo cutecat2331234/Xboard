@@ -353,6 +353,16 @@ async function handleCheckoutResult(res: { type: number; data: string | boolean 
 
   }
 
+  if (res.type === 2 && res.data === true) {
+
+    msg.success(t('order.paySuccess'))
+
+    await load()
+
+    return
+
+  }
+
   msg.info(String(res.data))
 
   startPoll(order.value.trade_no)

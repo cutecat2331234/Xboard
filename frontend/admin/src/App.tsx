@@ -1,5 +1,7 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { getAuthData } from '@/lib/api'
+import { ensureAdminSession } from '@/lib/admin-session'
 import { AdminShell } from '@/components/layout/AdminShell'
 import LoginPage from '@/pages/LoginPage'
 import DashboardPage from '@/pages/DashboardPage'
@@ -24,7 +26,29 @@ import NotFoundPage from '@/pages/NotFoundPage'
 import PluginAdminRoute from '@/pages/PluginAdminRoute'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  if (!getAuthData()) {
+  const [state, setState] = useState<'loading' | 'authed' | 'guest'>('loading')
+
+  useEffect(() => {
+    let active = true
+
+    async function verify() {
+      if (!getAuthData()) {
+        if (active) setState('guest')
+        return
+      }
+
+      const valid = await ensureAdminSession()
+      if (active) setState(valid ? 'authed' : 'guest')
+    }
+
+    void verify()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (state === 'loading') return null
+  if (state === 'guest') {
     return <Navigate to="/sign-in" replace />
   }
   return children
