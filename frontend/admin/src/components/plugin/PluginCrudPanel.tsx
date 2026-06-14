@@ -30,6 +30,7 @@ import {
 import type { PluginAdminCrudSchema, PluginRow } from '@/lib/plugin-types'
 import { toast } from 'sonner'
 
+import { toastApiError } from '@/lib/api-errors'
 type Props = {
   plugin: PluginRow
   subpath: string
@@ -77,7 +78,7 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
       setRows(result.data)
       setTotal(result.total)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
       setRows([])
       setTotal(0)
     } finally {
@@ -118,7 +119,7 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
         toast.success(t('common.success'))
         await loadRows()
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : t('common.error'))
+        toastApiError(e, toast, t, t('common.error'))
       }
     },
     [deletePath, idField, loadRows, t],
@@ -157,7 +158,7 @@ export function PluginCrudPanel({ plugin, subpath, schema }: Props) {
       closeEditor()
       await loadRows()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }

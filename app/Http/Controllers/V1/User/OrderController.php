@@ -23,7 +23,7 @@ class OrderController extends Controller
     public function fetch(Request $request)
     {
         $request->validate([
-            'status' => 'nullable|integer|in:0,1,2,3',
+            'status' => 'nullable|integer|in:0,1,2,3,4',
         ]);
         $orders = Order::with('plan')
             ->where('user_id', $request->user()->id)

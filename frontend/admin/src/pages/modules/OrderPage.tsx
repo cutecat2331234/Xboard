@@ -4,6 +4,7 @@ import { IconArrowsSort, IconDots, IconExternalLink } from '@tabler/icons-react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { adminApi, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
 import { formatAdminMoney, loadAdminCurrency } from '@/lib/currency'
 import { inputCls } from '@/lib/form-styles'
@@ -374,7 +375,7 @@ export default function OrderPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, search, userIdFilter, typeFilter, periodFilter, statusFilter, commissionFilter, commissionBalanceFilter, statusSortDesc, t])
 
@@ -403,7 +404,7 @@ export default function OrderPage() {
       setAssignOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -414,7 +415,7 @@ export default function OrderPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -425,7 +426,7 @@ export default function OrderPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -438,7 +439,7 @@ export default function OrderPage() {
       const data = await postJson<OrderDetail>('/order/detail', { id: row.id })
       setDetail(data)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
       setDetailOpen(false)
     } finally {
       setDetailLoading(false)
@@ -455,7 +456,7 @@ export default function OrderPage() {
       }
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

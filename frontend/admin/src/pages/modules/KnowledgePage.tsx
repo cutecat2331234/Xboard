@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { adminApi, buildQuery, fetchJsonList, postJson } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { useIdListSort } from '@/lib/use-id-list-sort'
@@ -61,7 +62,7 @@ export default function KnowledgePage() {
         setData(rows as KnowledgeRow[])
         setCategories(cats as string[])
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -85,7 +86,7 @@ export default function KnowledgePage() {
       setForm({ ...detail, show: detail.show ?? true })
       setDialogOpen(true)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -97,7 +98,7 @@ export default function KnowledgePage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -108,7 +109,7 @@ export default function KnowledgePage() {
       await postJson('/knowledge/show', { id: row.id })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -126,7 +127,7 @@ export default function KnowledgePage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

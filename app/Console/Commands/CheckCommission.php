@@ -15,6 +15,11 @@ class CheckCommission extends Command
 
     protected $description = '返佣服务';
 
+    private function orderAmount(Order $order): int
+    {
+        return (int) $order->total_amount + (int) ($order->balance_amount ?? 0);
+    }
+
     public function handle()
     {
         $this->autoCheck();
@@ -91,7 +96,7 @@ class CheckCommission extends Command
                                 'invite_user_id' => $order->invite_user_id,
                                 'user_id' => $order->user_id,
                                 'trade_no' => $order->trade_no,
-                                'order_amount' => $order->total_amount,
+                                'order_amount' => $this->orderAmount($order),
                                 'get_amount' => $remainder,
                             ]);
                             $paidTotal += $remainder;
@@ -169,7 +174,7 @@ class CheckCommission extends Command
                 'invite_user_id' => $inviteUserId,
                 'user_id' => $order->user_id,
                 'trade_no' => $order->trade_no,
-                'order_amount' => $order->total_amount,
+                'order_amount' => $this->orderAmount($order),
                 'get_amount' => $commissionBalance
             ]);
             $inviteUserId = $inviter->invite_user_id;
@@ -191,7 +196,7 @@ class CheckCommission extends Command
                     'invite_user_id' => $order->invite_user_id,
                     'user_id' => $order->user_id,
                     'trade_no' => $order->trade_no,
-                    'order_amount' => $order->total_amount,
+                    'order_amount' => $this->orderAmount($order),
                     'get_amount' => $remaining
                 ]);
                 $order->actual_commission_balance = (int) $order->actual_commission_balance + $remaining;
@@ -204,6 +209,8 @@ class CheckCommission extends Command
                 'remaining' => $remaining,
                 'expected' => (int) $order->commission_balance,
             ]);
+            $order->commission_status = Order::COMMISSION_STATUS_INVALID;
+            $order->save();
             return false;
         }
 

@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Copy, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { useNavigate } from 'react-router-dom'
 import { buildQuery, fetchJsonList, fetchJsonObject, postJson } from '@/lib/api'
 import { inputCls } from '@/lib/form-styles'
@@ -104,7 +105,7 @@ export default function ServerMachinePage() {
     setLoading(true)
     fetchJsonList('/server/machine/fetch')
       .then((rows) => setData(rows as MachineRow[]))
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -132,7 +133,7 @@ export default function ServerMachinePage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -182,7 +183,7 @@ export default function ServerMachinePage() {
         setInfoHistory((history as HistoryItem[]).slice(0, 20))
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
       setInfoOpen(false)
     } finally {
       setInfoLoading(false)
@@ -199,7 +200,7 @@ export default function ServerMachinePage() {
         toast.success(t('common.success'))
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -210,7 +211,7 @@ export default function ServerMachinePage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

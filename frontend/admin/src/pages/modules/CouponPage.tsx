@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { adminApi, downloadAdminFile, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
 import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import { inputCls } from '@/lib/form-styles'
@@ -119,7 +120,7 @@ export default function CouponPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, search, typeFilter, t])
 
@@ -184,7 +185,7 @@ export default function CouponPage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -195,7 +196,7 @@ export default function CouponPage() {
       await postJson('/coupon/show', { id: row.id })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -215,7 +216,7 @@ export default function CouponPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

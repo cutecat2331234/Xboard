@@ -159,34 +159,45 @@ class StatController extends Controller
         $dailyStats = [];
         foreach ($statistics as $statistic) {
             $date = date('Y-m-d', $statistic['record_at']);
+            $paidTotal = round($statistic['paid_total'] / 100, 2);
+            $commissionTotal = round($statistic['commission_total'] / 100, 2);
 
             // Update summary
-            $summary['paid_total'] += $statistic['paid_total'];
+            $summary['paid_total'] += $paidTotal;
             $summary['paid_count'] += $statistic['paid_count'];
-            $summary['commission_total'] += $statistic['commission_total'];
+            $summary['commission_total'] += $commissionTotal;
             $summary['commission_count'] += $statistic['commission_count'];
 
             // Calculate daily stats
             $dailyData = [
                 'date' => $date,
-                'paid_total' => $statistic['paid_total'],
+                'paid_total' => $paidTotal,
                 'paid_count' => $statistic['paid_count'],
-                'commission_total' => $statistic['commission_total'],
+                'commission_total' => $commissionTotal,
                 'commission_count' => $statistic['commission_count'],
-                'avg_order_amount' => $statistic['paid_count'] > 0 ? round($statistic['paid_total'] / $statistic['paid_count'], 2) : 0,
-                'avg_commission_amount' => $statistic['commission_count'] > 0 ? round($statistic['commission_total'] / $statistic['commission_count'], 2) : 0
+                'avg_order_amount' => $statistic['paid_count'] > 0 ? round($paidTotal / $statistic['paid_count'], 2) : 0,
+                'avg_commission_amount' => $statistic['commission_count'] > 0 ? round($commissionTotal / $statistic['commission_count'], 2) : 0
             ];
 
             if ($request->input('type')) {
+                $type = $request->input('type');
+                $value = $statistic[$type];
+                if (in_array($type, ['paid_total', 'commission_total'], true)) {
+                    $value = round($value / 100, 2);
+                }
                 $dailyStats[] = [
                     'date' => $date,
-                    'value' => $statistic[$request->input('type')],
-                    'type' => $this->getTypeLabel($request->input('type'))
+                    'value' => $value,
+                    'type' => $this->getTypeLabel($type)
                 ];
             } else {
                 $dailyStats[] = $dailyData;
             }
         }
+
+        // Round summary totals for display consistency
+        $summary['paid_total'] = round($summary['paid_total'], 2);
+        $summary['commission_total'] = round($summary['commission_total'], 2);
 
         // Calculate averages for summary
         if ($summary['paid_count'] > 0) {

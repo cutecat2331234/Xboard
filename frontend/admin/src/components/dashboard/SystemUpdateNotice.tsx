@@ -3,6 +3,7 @@ import { ArrowUpCircle, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
+import { toastApiError } from '@/lib/api-errors'
 import {
   executeSystemUpdate,
   fetchSystemUpdateStatus,
@@ -57,7 +58,7 @@ export function SystemUpdateNotice() {
       toast.success(t('common.update.updateSuccess'))
       dismiss()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.update.updateFailed'))
+      toastApiError(e, toast, t, t('common.update.updateFailed'))
     } finally {
       setUpdating(false)
     }

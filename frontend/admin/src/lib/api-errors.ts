@@ -20,3 +20,15 @@ export function resolveApiError(error: unknown, t: TranslateFn, fallback?: strin
   if (key) return t(key)
   return raw
 }
+
+type ToastLike = { error: (message: string) => void }
+
+/** Show a translated API error in admin toasts (maps known backend messages to i18n keys). */
+export function toastApiError(
+  error: unknown,
+  toast: ToastLike,
+  t: TranslateFn,
+  fallback?: string,
+): void {
+  toast.error(resolveApiError(error, t, fallback))
+}

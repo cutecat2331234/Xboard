@@ -262,8 +262,8 @@ class StatisticalService
 
     public static function getServerRank(...$times)
     {
-        $startAt = 0;
-        $endAt = Carbon::tomorrow()->endOfDay()->timestamp;
+        $startAt = Carbon::today()->startOfDay()->timestamp;
+        $endAt = Carbon::today()->endOfDay()->timestamp;
 
         if (count($times) == 1) {
             switch ($times[0]) {

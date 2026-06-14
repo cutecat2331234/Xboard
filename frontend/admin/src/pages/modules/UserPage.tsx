@@ -5,6 +5,7 @@ import { ArrowUpDown, Filter, Mail, Plus, Send, ShieldBan, SlidersHorizontal } f
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import {
   adminApi,
   downloadAdminFile,
@@ -371,7 +372,7 @@ export default function UserPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, filters, sorts, t])
 
@@ -397,7 +398,7 @@ export default function UserPage() {
         )
         setTrafficResetHistory(data)
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : t('common.error'))
+        toastApiError(e, toast, t, t('common.error'))
         setTrafficResetHistory(null)
       } finally {
         setTrafficResetHistoryLoading(false)
@@ -498,11 +499,7 @@ export default function UserPage() {
       setExportOpen(false)
       setExportIncludeSubscribe(false)
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.messages.export.failed'),
-      )
+      toastApiError(e, toast, t, t('user.messages.export.failed'))
     } finally {
       setExporting(false)
     }
@@ -548,11 +545,7 @@ export default function UserPage() {
       setMailSubject('')
       setMailContent('')
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.messages.send_mail.failed'),
-      )
+      toastApiError(e, toast, t, t('user.messages.send_mail.failed'))
     } finally {
       setMailSending(false)
     }
@@ -567,11 +560,7 @@ export default function UserPage() {
       setSelectedIds(new Set())
       load()
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.messages.batch_ban.failed'),
-      )
+      toastApiError(e, toast, t, t('user.messages.batch_ban.failed'))
     } finally {
       setBanning(false)
     }
@@ -644,11 +633,7 @@ export default function UserPage() {
       setTrafficResetReason('')
       load()
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.traffic_reset.reset_failed'),
-      )
+      toastApiError(e, toast, t, t('user.traffic_reset.reset_failed'))
     } finally {
       setTrafficResetting(false)
     }
@@ -673,7 +658,7 @@ export default function UserPage() {
       setAssignUser(null)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setAssigning(false)
     }
@@ -705,7 +690,7 @@ export default function UserPage() {
       setDialogMode(null)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -724,7 +709,7 @@ export default function UserPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -733,7 +718,7 @@ export default function UserPage() {
       await postJson('/user/resetSecret', { id: row.id })
       toast.success(t('common.success'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

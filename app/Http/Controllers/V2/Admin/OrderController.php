@@ -180,23 +180,26 @@ class OrderController extends Controller
 
     public function cancel(Request $request)
     {
-        $order = Order::where('trade_no', $request->input('trade_no'))
-            ->first();
-        if (!$order) {
-            return $this->fail([400202, '订单不存在']);
-        }
-        if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
-            return $this->fail([400, '只能对待支付或处理中的订单进行操作']);
-        }
-        if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
-            return $this->fail([400, '已支付订单不可取消，请先处理退款']);
-        }
+        return DB::transaction(function () use ($request) {
+            $order = Order::where('trade_no', $request->input('trade_no'))
+                ->lockForUpdate()
+                ->first();
+            if (!$order) {
+                return $this->fail([400202, '订单不存在']);
+            }
+            if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
+                return $this->fail([400, '只能对待支付或处理中的订单进行操作']);
+            }
+            if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
+                return $this->fail([400, '已支付订单不可取消，请先处理退款']);
+            }
 
-        $orderService = new OrderService($order);
-        if (!$orderService->cancel()) {
-            return $this->fail([400, '更新失败']);
-        }
-        return $this->success(true);
+            $orderService = new OrderService($order);
+            if (!$orderService->cancel()) {
+                return $this->fail([400, '更新失败']);
+            }
+            return $this->success(true);
+        });
     }
 
     public function update(OrderUpdate $request)
@@ -299,10 +302,17 @@ class OrderController extends Controller
 
         $orderService = new OrderService($order->fresh());
         if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
+            $order->refresh();
+            if (in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
+                $orderService->cancel();
+            }
             return $this->fail([500, '订单开通失败']);
         }
         $order->refresh();
         if ((int) $order->status !== Order::STATUS_COMPLETED) {
+            if (in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
+                $orderService->cancel();
+            }
             return $this->fail([500, '订单开通失败']);
         }
 

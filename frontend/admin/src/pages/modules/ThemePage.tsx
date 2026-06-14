@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Trash2, Upload } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import {
   adminApi,
   fetchThemes,
@@ -41,7 +42,7 @@ export default function ThemePage() {
         setThemes(list)
         setActive(current)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -58,7 +59,7 @@ export default function ThemePage() {
       load()
     } catch (e) {
       setActive(previous)
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -70,7 +71,7 @@ export default function ThemePage() {
       setConfigJson(JSON.stringify(result ?? {}, null, 2))
       setConfigOpen(true)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -82,7 +83,7 @@ export default function ThemePage() {
       toast.success(t('common.success'))
       setConfigOpen(false)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -96,7 +97,7 @@ export default function ThemePage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -117,7 +118,7 @@ export default function ThemePage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

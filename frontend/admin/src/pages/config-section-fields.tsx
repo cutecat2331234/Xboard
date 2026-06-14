@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { TFunction } from 'i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { postJson } from '@/lib/api'
 import { ConfigFormSelect } from '@/components/shared/ConfigFormSelect'
 import { inputCls } from '@/lib/form-styles'
@@ -310,7 +311,7 @@ export function ConfigSectionFields({
               onClick={() =>
                 postJson('/config/testSendMail')
                   .then(() => toast.success(t('settings.email.test.success')))
-                  .catch((e) => toast.error(e instanceof Error ? e.message : t('settings.email.test.error')))
+                  .catch((e) => toastApiError(e, toast, t, t('settings.email.test.error')))
               }
             >
               {t('settings.email.test.title')}

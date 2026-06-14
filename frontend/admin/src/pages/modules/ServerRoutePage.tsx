@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { fetchJsonList, postJson } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
@@ -50,7 +51,7 @@ export default function ServerRoutePage() {
     setLoading(true)
     fetchJsonList('/server/route/fetch')
       .then((rows) => setData(rows as RouteRow[]))
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -93,7 +94,7 @@ export default function ServerRoutePage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -113,7 +114,7 @@ export default function ServerRoutePage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
