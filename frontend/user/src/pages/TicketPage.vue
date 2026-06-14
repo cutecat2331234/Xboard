@@ -18,6 +18,7 @@ import { fetchTickets, saveTicket, closeTicket, type TicketItem } from '@/api/ti
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { isWithdrawTicket } from '@/lib/withdraw-ticket'
 
 const router = useRouter()
 const rows = ref<TicketItem[]>([])
@@ -142,7 +143,7 @@ const columns = computed<DataTableColumns<TicketItem>>(() => [
       h('div', { class: 'order-actions' }, [
         renderTextAction(t('ticket.view'), () => router.push(`/ticket/${row.id}`)),
         h('span', { class: 'order-actions-divider' }),
-        renderTextAction(t('ticket.close'), () => close(row), row.status === 1),
+        renderTextAction(t('ticket.close'), () => close(row), row.status === 1 || isWithdrawTicket(row)),
       ]),
   },
 ])

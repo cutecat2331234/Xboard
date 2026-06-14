@@ -32,6 +32,7 @@ class CommController extends Controller
             'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
             'commission_withdraw_limit' => admin_setting('commission_withdraw_limit', 100),
             'invite_enable' => (int) (AppFeature::inviteEnabled() && AppFeature::commissionEnabled()),
+            'commission_enable' => (int) AppFeature::commissionEnabled(),
             'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
             'coupon_enable' => (int) AppFeature::couponEnabled(),
             'register_enable' => (int) AppFeature::registerEnabled(),

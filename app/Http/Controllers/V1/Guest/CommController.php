@@ -41,6 +41,7 @@ class CommController extends Controller
             'telegram_bot_username' => admin_setting('telegram_bot_username'),
             'telegram_login_domain' => admin_setting('telegram_login_domain'),
             'invite_enable' => (int) (AppFeature::inviteEnabled() && AppFeature::commissionEnabled()),
+            'commission_enable' => (int) AppFeature::commissionEnabled(),
             'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
             'coupon_enable' => (int) AppFeature::couponEnabled(),
             'register_enable' => (int) AppFeature::registerEnabled(),

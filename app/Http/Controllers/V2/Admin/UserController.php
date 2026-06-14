@@ -19,6 +19,7 @@ use App\Services\AuthService;
 use App\Jobs\NodeUserSyncJob;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
+use App\Support\InviteChain;
 use App\Traits\QueryOperators;
 use App\Traits\SafeQueryColumns;
 use App\Utils\Helper;
@@ -316,6 +317,11 @@ class UserController extends Controller
         if ($request->exists('invite_user_email')) {
             $inviteEmail = trim((string) $request->input('invite_user_email'));
             if ($inviteEmail !== '' && ($inviteUser = User::byEmail($inviteEmail)->first())) {
+                try {
+                    InviteChain::assertValid((int) $user->id, (int) $inviteUser->id);
+                } catch (\InvalidArgumentException $e) {
+                    return $this->fail([400, $e->getMessage()]);
+                }
                 $params['invite_user_id'] = $inviteUser->id;
             } else {
                 $params['invite_user_id'] = null;
@@ -749,18 +755,10 @@ class UserController extends Controller
             return $this->fail([400, '不能将自己设为邀请人']);
         }
 
-        if ($inviteUserId) {
-            $visited = [(int) $user->id];
-            $current = (int) $inviteUserId;
-            $depth = 0;
-            while ($current && $depth < 20) {
-                if (in_array($current, $visited, true)) {
-                    return $this->fail([400, '邀请链存在循环，无法设置']);
-                }
-                $visited[] = $current;
-                $current = (int) User::where('id', $current)->value('invite_user_id');
-                $depth++;
-            }
+        try {
+            InviteChain::assertValid((int) $user->id, $inviteUserId ? (int) $inviteUserId : null);
+        } catch (\InvalidArgumentException $e) {
+            return $this->fail([400, $e->getMessage()]);
         }
 
         $user->invite_user_id = $inviteUserId ?: null;

@@ -259,6 +259,9 @@ onMounted(async () => {
     >
       {{ t('profile.telegramUnbind') }}
     </n-button>
+    <template v-else-if="telegramBotError">
+      <n-alert type="warning" :bordered="false">{{ t('profile.telegramBotUnavailable') }}</n-alert>
+    </template>
     <template v-else-if="botUsername">
       <p class="text-gray-500">{{ t('profile.telegramHint') }}</p>
       <a :href="`https://t.me/${botUsername}`" target="_blank" rel="noopener" class="tg-link">@{{ botUsername }}</a>

@@ -24,6 +24,7 @@ export interface GuestConfig {
   traffic_warn_rate?: number
   login_with_mail_link_enable?: number
   invite_enable?: number
+  commission_enable?: number
   gift_card_enable?: number
   coupon_enable?: number
   ticket_enable?: number
@@ -48,6 +49,7 @@ export interface UserCommConfig {
   withdraw_fee_rate?: number
   commission_withdraw_limit?: number | string
   invite_enable?: number
+  commission_enable?: number
   gift_card_enable?: number
   coupon_enable?: number
   register_enable?: number

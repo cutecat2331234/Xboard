@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
-import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NSpin, NTabs, NTabPane, useMessage } from 'naive-ui'
+import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NSpin, NTabs, NTabPane, NAlert, useMessage } from 'naive-ui'
 import { fetchKnowledge, fetchKnowledgeCategories, type KnowledgeItem } from '@/api/knowledge'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
@@ -28,6 +28,7 @@ const activeCategory = ref(ALL_CATEGORY)
 const keyword = ref('')
 const query = ref('')
 const loading = ref(true)
+const loadError = ref(false)
 const { t, locale } = useI18n()
 const msg = useMessage()
 
@@ -70,6 +71,7 @@ function resolveKnowledgeLang(loc: string): string {
 
 async function loadKnowledge() {
   loading.value = true
+  loadError.value = false
   try {
     const lang = resolveKnowledgeLang(locale.value)
     const [list, cats] = await Promise.all([
@@ -79,6 +81,9 @@ async function loadKnowledge() {
     items.value = list
     categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]
   } catch (e: unknown) {
+    items.value = []
+    categories.value = []
+    loadError.value = true
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
@@ -106,12 +111,13 @@ onMounted(() => {
       <n-tab-pane :name="ALL_CATEGORY" :tab="categoryTabLabel(ALL_CATEGORY)" />
       <n-tab-pane v-for="c in categories" :key="c" :name="c" :tab="categoryTabLabel(c)" />
     </n-tabs>
-    <n-collapse v-if="filtered.length">
+    <n-alert v-if="loadError" type="error" :bordered="false">{{ t('errors.requestFailed') }}</n-alert>
+    <n-collapse v-else-if="filtered.length">
       <n-collapse-item v-for="k in filtered" :key="k.id" :title="k.title" :name="String(k.id)">
         <div v-html="sanitizeHtml(k.body)" />
       </n-collapse-item>
     </n-collapse>
-    <n-empty v-else :description="t('knowledge.empty')" />
+    <n-empty v-else-if="!loadError" :description="t('knowledge.empty')" />
     </n-spin>
   </n-card>
 </template>

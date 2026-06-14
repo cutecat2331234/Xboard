@@ -1,6 +1,7 @@
 {
     "Article does not exist": "Article does not exist",
-    "Cancel failed": "Cancel failed",
+    "Cannot set yourself as inviter": "Cannot set yourself as inviter",
+    "Invite chain cycle detected": "Invite chain cycle detected",
     "Close failed": "Close failed",
     "Coupon cannot be empty": "Coupon cannot be empty",
     "Coupon failed": "Coupon failed",

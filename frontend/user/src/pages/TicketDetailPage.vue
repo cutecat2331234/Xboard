@@ -6,6 +6,7 @@ import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/ap
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { isWithdrawTicket } from '@/lib/withdraw-ticket'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 
 const route = useRoute()
@@ -22,7 +23,7 @@ const scrollContentRef = ref<HTMLElement | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const isClosed = computed(() => Boolean(ticket.value?.status))
-const isWithdrawTicket = computed(() => ticket.value?.level === 2)
+const isWithdraw = computed(() => (ticket.value ? isWithdrawTicket(ticket.value) : false))
 
 const mustWaitForAdmin = computed(() => {
   if (!commConfig.value?.ticket_must_wait_reply || !ticket.value?.message?.length) return false
@@ -112,7 +113,7 @@ onUnmounted(stopPoll)
 <template>
   <n-spin :show="pageLoading">
   <n-card v-if="ticket" :title="ticket.subject" class="ticket-detail-card rounded-md">
-    <template v-if="ticket.status === 0 && !isWithdrawTicket" #header-extra>
+    <template v-if="ticket.status === 0 && !isWithdraw" #header-extra>
       <n-button size="small" @click="close">{{ t('ticket.close') }}</n-button>
     </template>
     <div class="ticket-scroll-wrap">

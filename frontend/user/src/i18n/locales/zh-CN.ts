@@ -447,6 +447,7 @@ export default {
     telegramHint: '在 Telegram 搜索机器人并发送 /bind 绑定账号：',
     telegramBound: '已绑定 Telegram',
     telegramUnbind: '解绑 Telegram',
+    telegramBotUnavailable: 'Telegram 机器人暂不可用，请稍后再试。',
     telegramUnbindConfirm: '确定要解绑 Telegram 账号吗？解绑后需重新通过机器人 /bind 绑定。',
     telegramGroup: '加入 Telegram 讨论群',
   },

@@ -290,7 +290,7 @@ class PaymentController extends Controller
                 'credit_cents' => $creditCents,
                 'reason' => $reason,
             ]);
-            return;
+            throw new \RuntimeException('Failed to credit orphan payment to balance');
         }
 
         Log::warning('Payment notify: credited orphan payment to user balance', [
