@@ -4,10 +4,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, NTag, NSpin, useMessage, useDialog } from 'naive-ui'
 import { fetchPlanById, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
 import { saveOrder, cancelOrder, fetchOrders } from '@/api/order'
-import { resolveTryOutPlanId } from '@/api/comm'
+import { resolveTryOutPlanId, fetchUserCommConfig } from '@/api/comm'
 import { checkCoupon } from '@/api/coupon'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
+import { useAuthStore } from '@/stores/auth'
+import { resolveApiError } from '@/lib/api-errors'
 import DOMPurify from 'dompurify'
 
 const route = useRoute()
@@ -16,6 +18,8 @@ const msg = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
+const auth = useAuthStore()
+const commConfig = ref<{ plan_change_enable?: number } | null>(null)
 
 const plan = ref<PlanItem | null>(null)
 const tryOutPlanId = ref(0)
@@ -40,6 +44,17 @@ const sanitizedPlanContent = computed(() =>
   plan.value?.content ? DOMPurify.sanitize(plan.value.content) : '',
 )
 
+function isPlanChangeBlocked(): boolean {
+  if (commConfig.value?.plan_change_enable !== 0) return false
+  const user = auth.user
+  const p = plan.value
+  if (!user || !p) return false
+  const now = Math.floor(Date.now() / 1000)
+  const hasActiveSub = user.expired_at === null || user.expired_at > now
+  if (!hasActiveSub || !user.plan_id) return false
+  return user.plan_id !== p.id
+}
+
 async function load() {
   loading.value = true
   try {
@@ -48,7 +63,7 @@ async function load() {
     const first = availablePeriods.value[0]
     if (first) period.value = first.key
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
     router.push('/plan')
   } finally {
     loading.value = false
@@ -68,7 +83,7 @@ async function applyCoupon() {
     msg.success(t('plan.couponApplied'))
   } catch (e: unknown) {
     couponDiscount.value = ''
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -91,7 +106,7 @@ async function ensureNoPendingOrder() {
           await cancelOrder(blocking.trade_no)
           resolve(true)
         } catch (e: unknown) {
-          msg.error(e instanceof Error ? e.message : t('common.error'))
+          msg.error(resolveApiError(e, t))
           resolve(false)
         }
       },
@@ -102,6 +117,10 @@ async function ensureNoPendingOrder() {
 
 async function buy() {
   if (!plan.value) return
+  if (isPlanChangeBlocked()) {
+    msg.warning(t('errors.planChangeDisabled'))
+    return
+  }
   buying.value = true
   try {
     const ok = await ensureNoPendingOrder()
@@ -113,7 +132,7 @@ async function buy() {
     })
     router.push(`/order/${String(tradeNo)}`)
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     buying.value = false
   }
@@ -121,6 +140,12 @@ async function buy() {
 
 onMounted(async () => {
   await loadCurrency()
+  await auth.loadUser()
+  try {
+    commConfig.value = await fetchUserCommConfig()
+  } catch {
+    commConfig.value = null
+  }
   await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })
 </script>

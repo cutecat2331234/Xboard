@@ -6,10 +6,12 @@ import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/ap
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
 
 const route = useRoute()
 const msg = useMessage()
 const { t } = useI18n()
+const { config: commConfig, load: loadComm } = useUserCommConfig()
 
 const ticket = ref<TicketItem | null>(null)
 const pageLoading = ref(true)
@@ -20,6 +22,14 @@ const scrollContentRef = ref<HTMLElement | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const isClosed = computed(() => Boolean(ticket.value?.status))
+
+const mustWaitForAdmin = computed(() => {
+  if (!commConfig.value?.ticket_must_wait_reply || !ticket.value?.message?.length) return false
+  const last = ticket.value.message[ticket.value.message.length - 1]
+  return Boolean(last?.is_me)
+})
+
+const replyDisabled = computed(() => isClosed.value || mustWaitForAdmin.value)
 
 function scrollToBottom() {
   requestAnimationFrame(() => {
@@ -44,7 +54,7 @@ async function load(silent = false) {
 }
 
 async function sendReply() {
-  if (!ticket.value || isClosed.value || !replyText.value.trim()) return
+  if (!ticket.value || replyDisabled.value || !replyText.value.trim()) return
   sending.value = true
   try {
     await replyTicket({ id: ticket.value.id, message: replyText.value.trim() })
@@ -52,7 +62,7 @@ async function sendReply() {
     msg.success(t('common.success'))
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     sending.value = false
   }
@@ -71,7 +81,7 @@ async function close() {
     msg.success(t('common.success'))
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -91,12 +101,9 @@ function stopPoll() {
 }
 
 onMounted(async () => {
-  try {
-    await load()
-    if (ticket.value?.status === 0) startPoll()
-  } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
-  }
+  await loadComm()
+  await load()
+  if (ticket.value?.status === 0) startPoll()
 })
 onUnmounted(stopPoll)
 </script>
@@ -121,7 +128,10 @@ onUnmounted(stopPoll)
         </div>
       </n-scrollbar>
     </div>
-    <n-alert v-if="isClosed" class="closed-hint" type="warning" :show-icon="true">
+    <n-alert v-if="mustWaitForAdmin" class="closed-hint" type="info" :show-icon="true">
+      {{ t('errors.ticketWaitForReply') }}
+    </n-alert>
+    <n-alert v-else-if="isClosed" class="closed-hint" type="warning" :show-icon="true">
       {{ t('ticket.closedHint') }}
     </n-alert>
     <div class="reply-group mt-8">
@@ -130,7 +140,7 @@ onUnmounted(stopPoll)
         type="textarea"
         :rows="2"
         size="large"
-        :disabled="isClosed"
+        :disabled="replyDisabled"
         :placeholder="isClosed ? t('ticket.closedReplyPh') : t('ticket.replyPh')"
         @keydown="onReplyKeydown"
       />
@@ -139,7 +149,7 @@ onUnmounted(stopPoll)
         size="large"
         round
         :loading="sending"
-        :disabled="isClosed"
+        :disabled="replyDisabled"
         @click="sendReply"
       >
         {{ t('ticket.reply') }}

@@ -218,6 +218,15 @@ class ConfigController extends Controller
     {
         $data = $request->validated();
 
+        if (!empty($data['commission_distribution_enable'])) {
+            $l1 = (int) ($data['commission_distribution_l1'] ?? admin_setting('commission_distribution_l1', 0));
+            $l2 = (int) ($data['commission_distribution_l2'] ?? admin_setting('commission_distribution_l2', 0));
+            $l3 = (int) ($data['commission_distribution_l3'] ?? admin_setting('commission_distribution_l3', 0));
+            if ($l1 + $l2 + $l3 > 100) {
+                return $this->fail([422, '三级分销比例合计不能超过100%']);
+            }
+        }
+
         $templateKeys = [
             'subscribe_template_singbox' => 'singbox',
             'subscribe_template_clash' => 'clash',

@@ -29,6 +29,7 @@ import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useCurrency } from '@/composables/useCurrency'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const INVITE_PAGE_SIZE = 10
 
@@ -131,6 +132,20 @@ const commissionRateLabel = computed(() => {
   return `${base}%`
 })
 
+const withdrawLimitLabel = computed(() => {
+  const limit = Number(commConfig.value?.commission_withdraw_limit ?? 0)
+  if (!Number.isFinite(limit) || limit <= 0) return ''
+  return t('invite.withdrawLimitHint', { limit: formatPriceSpaced(limit * 100) })
+})
+
+const withdrawFeeLabel = computed(() => {
+  const rate = Number(commConfig.value?.withdraw_fee_rate ?? 0)
+  if (!Number.isFinite(rate) || rate <= 0) return ''
+  const percent = rate * 100
+  const display = Number.isInteger(percent) ? String(percent) : percent.toFixed(2).replace(/\.?0+$/, '')
+  return t('invite.withdrawFeeHint', { rate: display })
+})
+
 function inviteLink(code: string) {
   return `${window.location.protocol}//${window.location.host}/#/register?code=${code}`
 }
@@ -143,7 +158,7 @@ async function loadDetails() {
   } catch (e: unknown) {
     details.value = []
     detailsTotal.value = 0
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -155,7 +170,7 @@ async function load() {
     stat.value = data.stat ?? [0, 0, 0, 0, 0]
     await loadDetails()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     pageLoading.value = false
   }
@@ -167,7 +182,7 @@ async function generate() {
     msg.success(t('common.success'))
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -197,7 +212,7 @@ async function doTransfer() {
     transferAmount.value = ''
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -218,7 +233,7 @@ async function doWithdraw() {
     withdrawAccount.value = ''
     router.push('/ticket')
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -372,6 +387,8 @@ onMounted(async () => {
   </n-modal>
 
   <n-modal v-model:show="withdrawOpen" preset="card" :title="t('invite.withdraw')" style="width: 400px">
+    <p v-if="withdrawLimitLabel" class="withdraw-hint">{{ withdrawLimitLabel }}</p>
+    <p v-if="withdrawFeeLabel" class="withdraw-hint">{{ withdrawFeeLabel }}</p>
     <n-select
       v-if="commConfig?.withdraw_methods?.length"
       v-model:value="withdrawMethod"
@@ -398,5 +415,10 @@ onMounted(async () => {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+}
+.withdraw-hint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--xb-text-secondary, #666);
 }
 </style>

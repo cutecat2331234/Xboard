@@ -52,7 +52,7 @@ export default {
     problem: 'I have a problem',
     problemDesc: 'If you have any problems, you can contact us via ticket',
     copyLink: 'Copy Subscribe Link',
-    unpaidOrders: 'You have {count} unpaid order(s)',
+    unpaidOrders: 'You have {count} unpaid or processing order(s)',
     payNow: 'Pay now',
     openTickets: 'You have {count} open ticket(s)',
     goView: 'View',
@@ -186,6 +186,8 @@ export default {
     withdrawMinimum: 'Minimum withdrawal amount is {limit}',
     serverError: 'Something went wrong. We are working on it.',
     pageNotFound: 'Page not found',
+    planChangeDisabled: 'Plan changes are currently disabled. Please contact support or open a ticket.',
+    withdrawMethodUnsupported: 'Unsupported withdrawal method',
   },
   common: {
     loading: 'Loading...',
@@ -238,6 +240,8 @@ export default {
     withdrawAccountRequired: 'Please enter a withdrawal account',
     withdrawMethodRequired: 'Please select a withdrawal method',
     withdrawSuccess: 'Withdrawal request submitted. View your ticket for updates.',
+    withdrawLimitHint: 'Minimum withdrawal: {limit}',
+    withdrawFeeHint: 'Withdrawal fee: {rate}%',
   },
   traffic: {
     hint: 'Traffic logs are kept for the last month only.',

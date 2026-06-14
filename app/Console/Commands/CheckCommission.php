@@ -11,35 +11,10 @@ use Illuminate\Support\Facades\Log;
 
 class CheckCommission extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'check:commission';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = '返佣服务';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle()
     {
         $this->autoCheck();
@@ -81,12 +56,25 @@ class CheckCommission extends Command
                     DB::rollBack();
                     continue;
                 }
-                if (CommissionLog::where('trade_no', $order->trade_no)->exists()) {
+
+                $expectedTotal = (int) $order->commission_balance;
+                $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
+                if ($paidTotal >= $expectedTotal && $expectedTotal > 0) {
                     $order->commission_status = 2;
+                    $order->actual_commission_balance = $paidTotal;
                     $order->save();
                     DB::commit();
                     continue;
                 }
+                if ($paidTotal > 0 && $paidTotal < $expectedTotal) {
+                    Log::warning('Commission payout incomplete for order ' . $orderId, [
+                        'paid' => $paidTotal,
+                        'expected' => $expectedTotal,
+                    ]);
+                    DB::rollBack();
+                    continue;
+                }
+
                 if (!$this->payHandle($order->invite_user_id, $order)) {
                     DB::rollBack();
                     continue;
@@ -119,19 +107,33 @@ class CheckCommission extends Command
                 0 => 100
             ];
         }
+
+        $remaining = (int) $order->commission_balance;
         for ($l = 0; $l < $level; $l++) {
-            $inviter = User::find($inviteUserId);
-            if (!$inviter) continue;
-            if (!isset($commissionShareLevels[$l])) continue;
-            $commissionBalance = $order->commission_balance * ($commissionShareLevels[$l] / 100);
-            if (!$commissionBalance) continue;
+            if ($remaining <= 0) {
+                break;
+            }
+            $inviter = User::where('id', $inviteUserId)->lockForUpdate()->first();
+            if (!$inviter) {
+                break;
+            }
+            if (!isset($commissionShareLevels[$l])) {
+                continue;
+            }
+            $commissionBalance = (int) round($order->commission_balance * ($commissionShareLevels[$l] / 100));
+            if ($commissionBalance <= 0) {
+                $inviteUserId = $inviter->invite_user_id;
+                continue;
+            }
+            $commissionBalance = min($commissionBalance, $remaining);
+            $remaining -= $commissionBalance;
+
             if ((int)admin_setting('withdraw_close_enable', 0)) {
                 $inviter->increment('balance', $commissionBalance);
             } else {
                 $inviter->increment('commission_balance', $commissionBalance);
             }
             if (!$inviter->save()) {
-                DB::rollBack();
                 return false;
             }
             CommissionLog::create([
@@ -142,10 +144,9 @@ class CheckCommission extends Command
                 'get_amount' => $commissionBalance
             ]);
             $inviteUserId = $inviter->invite_user_id;
-            // update order actual commission balance
-            $order->actual_commission_balance = $order->actual_commission_balance + $commissionBalance;
+            $order->actual_commission_balance = (int) $order->actual_commission_balance + $commissionBalance;
         }
-        return true;
-    }
 
+        return (int) $order->actual_commission_balance > 0;
+    }
 }
