@@ -790,6 +790,21 @@ export default function GiftCardPage() {
 
 
   async function saveTemplate() {
+    if (!form.name.trim()) {
+      toast.error(t('giftCard.template.form.name.required'))
+      return
+    }
+    if (form.type === 2 && !form.rewards.plan_id) {
+      toast.error(t('giftCard.messages.formInvalid'))
+      return
+    }
+    if (form.type === 3) {
+      const pool = form.rewards.random_rewards ?? []
+      if (!pool.length || pool.every((item) => !item || (item.weight ?? 0) <= 0)) {
+        toast.error(t('giftCard.messages.formInvalid'))
+        return
+      }
+    }
 
     setSaving(true)
 
@@ -1113,7 +1128,9 @@ export default function GiftCardPage() {
 
       { accessorKey: 'type_name', header: () => t('giftCard.template.table.columns.type') },
 
-      { accessorKey: 'status', header: () => t('giftCard.template.table.columns.status') },
+      { accessorKey: 'status', header: () => t('giftCard.template.table.columns.status'), cell: ({ row }) => (
+        row.original.status ? t('giftCard.common.enabled') : t('giftCard.common.disabled')
+      ) },
 
       {
 

@@ -129,6 +129,17 @@ class PlanService
     }
 
     /**
+     * All period values accepted from API input (legacy + new keys).
+     */
+    public static function allowedPeriodInputs(): array
+    {
+        return array_values(array_unique(array_merge(
+            array_keys(Plan::LEGACY_PERIOD_MAPPING),
+            self::getNewPeriods()
+        )));
+    }
+
+    /**
      * 获取旧版周期格式
      *
      * @param string $period

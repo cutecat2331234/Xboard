@@ -244,6 +244,16 @@ class GiftCardTemplate extends Model
         $limits = $this->limits ?? [];
         $usageQuery = fn () => $this->usages()->where('user_id', $user->id);
 
+        if (isset($limits['max_total_uses']) && (int) $limits['max_total_uses'] > 0) {
+            $totalQuery = $this->usages();
+            if ($forUpdate) {
+                $totalQuery->lockForUpdate();
+            }
+            if ($totalQuery->count() >= (int) $limits['max_total_uses']) {
+                return false;
+            }
+        }
+
         // 检查每用户最大使用次数
         if (isset($limits['max_use_per_user'])) {
             $query = $usageQuery();

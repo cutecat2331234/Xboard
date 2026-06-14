@@ -248,12 +248,32 @@ class OrderController extends Controller
                 return $this->fail([400, '该用户还有待支付的订单，无法分配']);
             }
 
+            $periodKey = PlanService::getPeriodKey((string) $request->input('period'));
+            $price = $plan->prices[$periodKey] ?? null;
+            if ($price === null) {
+                DB::rollBack();
+                return $this->fail([400, '该订阅周期不可购买']);
+            }
+
+            $planService = new PlanService($plan);
+            if ($periodKey === Plan::PERIOD_RESET_TRAFFIC) {
+                try {
+                    $planService->validatePurchase($user, (string) $request->input('period'));
+                } catch (\App\Exceptions\ApiException $e) {
+                    DB::rollBack();
+                    return $this->fail([400, $e->getMessage()]);
+                }
+            } elseif ($user->plan_id !== $plan->id && !$planService->hasCapacity($plan)) {
+                DB::rollBack();
+                return $this->fail([400, __('Current product is sold out')]);
+            }
+
             $order = new Order();
             $orderService = new OrderService($order);
             $order->user_id = $user->id;
             $order->plan_id = $plan->id;
             $period = $request->input('period');
-            $order->period = PlanService::getPeriodKey((string) $period);
+            $order->period = $periodKey;
             $order->trade_no = Helper::guid();
             $order->total_amount = $request->input('total_amount');
 

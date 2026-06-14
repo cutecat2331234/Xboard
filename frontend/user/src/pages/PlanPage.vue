@@ -5,6 +5,7 @@ import { fetchPlans, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
 import { resolveTryOutPlanId } from '@/api/comm'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 import { useCurrency } from '@/composables/useCurrency'
 import { formatBytes } from '@/lib/format-traffic'
 
@@ -47,7 +48,10 @@ function showCapacity(p: PlanItem) {
 function capacityLabel(p: PlanItem) {
   const limit = p.capacity_limit
   if (limit === null || limit === undefined) return ''
-  if (typeof limit === 'string') return limit
+  if (typeof limit === 'string') {
+    if (/sold\s*out|售罄/i.test(limit)) return t('errors.planSoldOut')
+    return limit
+  }
   return t('plan.capacityRemaining', { count: limit })
 }
 
@@ -70,7 +74,7 @@ onMounted(async () => {
     plans.value = planList
     tryOutPlanId.value = trialPlanId
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('plan.loadFailed'))
+    msg.error(resolveApiError(e, t, t('plan.loadFailed')))
   } finally {
     loaded.value = true
   }

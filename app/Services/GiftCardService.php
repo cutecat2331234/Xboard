@@ -10,6 +10,7 @@ use App\Models\GiftCardUsage;
 use App\Models\Plan;
 use App\Models\TrafficResetLog;
 use App\Models\User;
+use App\Services\PlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -200,6 +201,9 @@ class GiftCardService
             $plan = Plan::find($rewards['plan_id']);
             if (!$plan) {
                 throw new ApiException('关联套餐不存在');
+            }
+            if (!(new PlanService($plan))->hasCapacity($plan)) {
+                throw new ApiException(__('Current product is sold out'));
             }
             $userService->assignPlan(
                 $this->user,

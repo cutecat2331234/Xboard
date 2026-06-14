@@ -55,6 +55,13 @@ const sanitizedPlanContent = computed(() =>
   plan.value?.content ? DOMPurify.sanitize(plan.value.content) : '',
 )
 
+function isSoldOut(): boolean {
+  const limit = plan.value?.capacity_limit
+  if (limit === null || limit === undefined) return false
+  if (typeof limit === 'string') return /sold\s*out|售罄/i.test(limit)
+  return limit <= 0
+}
+
 function isPlanChangeBlocked(): boolean {
   if (commConfig.value?.plan_change_enable !== 0) return false
   const user = auth.user
@@ -128,6 +135,10 @@ async function ensureNoPendingOrder() {
 
 async function buy() {
   if (!plan.value) return
+  if (isSoldOut()) {
+    msg.warning(t('errors.planSoldOut'))
+    return
+  }
   if (isPlanChangeBlocked()) {
     msg.warning(t('errors.planChangeDisabled'))
     return
@@ -171,6 +182,9 @@ onMounted(async () => {
         <n-tag v-if="isTryOutPlan" size="small" type="info" round>{{ t('plan.tryOutBadge') }}</n-tag>
       </div>
     </template>
+    <n-alert v-if="isSoldOut()" type="warning" :show-icon="true" class="try-out-alert">
+      {{ t('errors.planSoldOut') }}
+    </n-alert>
     <n-alert v-if="isTryOutPlan" type="info" :show-icon="true" class="try-out-alert">
       {{ t('plan.tryOutHint') }}
     </n-alert>
@@ -197,7 +211,7 @@ onMounted(async () => {
         <n-button @click="applyCoupon">{{ t('plan.applyCoupon') }}</n-button>
       </div>
       <p v-if="couponDiscount" class="coupon-hint">{{ t('plan.couponDiscount') }}: {{ couponDiscount }}</p>
-      <n-button type="primary" class="buy-btn" :loading="buying" @click="buy">{{ t('plan.buyNow') }}</n-button>
+      <n-button type="primary" class="buy-btn" :loading="buying" :disabled="isSoldOut()" @click="buy">{{ t('plan.buyNow') }}</n-button>
     </template>
   </n-card>
   <p v-else class="muted">—</p>

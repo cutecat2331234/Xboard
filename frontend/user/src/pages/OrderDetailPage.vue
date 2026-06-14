@@ -494,7 +494,7 @@ function confirmClose() {
         msg.success(t('order.closeSuccess'))
         await load()
       } catch (e: unknown) {
-        msg.error(e instanceof Error ? e.message : t('common.error'))
+        msg.error(resolveApiError(e, t))
       }
     },
 
@@ -679,6 +679,8 @@ onUnmounted(stopPoll)
 
       >
 
+        <n-empty v-if="!methods.length" class="pay-empty" :description="t('order.noPaymentMethods')" />
+
         <div
 
           v-for="(m, index) in methods"
@@ -786,6 +788,7 @@ onUnmounted(stopPoll)
           strong
 
           :loading="paying"
+          :disabled="payTotal > 0 && !methods.length"
 
           icon-placement="left"
 

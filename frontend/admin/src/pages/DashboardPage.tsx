@@ -78,6 +78,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { getLocale } from '@/lib/i18n'
 
 import {
 
@@ -127,7 +128,7 @@ function formatFailedAt(value?: string | number) {
 
   const date = ts.toString().length === 10 ? new Date(ts * 1000) : new Date(ts)
 
-  return date.toLocaleString('zh-CN', {
+  return date.toLocaleString(getLocale(), {
 
     year: 'numeric',
 

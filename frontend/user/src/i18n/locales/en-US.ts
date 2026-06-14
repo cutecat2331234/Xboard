@@ -304,6 +304,7 @@ export default {
     detailTitle: 'Order details',
     selectPayment: 'Select payment method',
     paymentMethod: 'Payment method',
+    noPaymentMethods: 'No payment methods are available. Please contact support or try again later.',
     totalTitle: 'Order total',
     checkout: 'Checkout',
     notice: 'Attention',

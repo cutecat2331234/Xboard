@@ -82,8 +82,11 @@ class TicketService
                 return false;
             }
 
-            $cacheKey = 'ticket_withdraw_restored:' . $ticket->id;
-            if (Cache::get($cacheKey)) {
+            $alreadyRestored = TicketMessage::where('ticket_id', $ticket->id)
+                ->where('message', '[withdraw_restored]')
+                ->lockForUpdate()
+                ->exists();
+            if ($alreadyRestored) {
                 return false;
             }
 
@@ -110,7 +113,11 @@ class TicketService
                 return false;
             }
 
-            Cache::forever($cacheKey, 1);
+            TicketMessage::create([
+                'user_id' => $ticket->user_id,
+                'ticket_id' => $ticket->id,
+                'message' => '[withdraw_restored]',
+            ]);
 
             return true;
         });
@@ -120,6 +127,11 @@ class TicketService
     {
         try {
             DB::beginTransaction();
+            $ticket = Ticket::where('id', $ticket->id)->lockForUpdate()->first();
+            if (!$ticket || (int) $ticket->status !== Ticket::STATUS_OPENING) {
+                DB::rollBack();
+                return false;
+            }
             $ticketMessage = TicketMessage::create([
                 'user_id' => $userId,
                 'ticket_id' => $ticket->id,

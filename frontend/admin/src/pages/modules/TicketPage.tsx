@@ -196,6 +196,11 @@ export default function TicketPage() {
       if (!(await confirm(title, description, { destructive: !options?.withdrawPaid }))) {
         return
       }
+    } else if (!(await confirm(
+      t('ticket.actions.close_confirm_title'),
+      t('ticket.actions.close_confirm_description'),
+    ))) {
+      return
     }
     try {
       const payload: Record<string, unknown> = { id: row.id }
