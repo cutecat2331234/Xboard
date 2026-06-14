@@ -140,10 +140,12 @@ class GiftCardCode extends Model
      */
     public function markAsUsed(User $user): bool
     {
-        $this->status = self::STATUS_USED;
-        $this->user_id = $user->id;
-        $this->used_at = time();
         $this->usage_count += 1;
+        $this->user_id = $user->id;
+        if ($this->usage_count >= $this->max_usage) {
+            $this->status = self::STATUS_USED;
+            $this->used_at = time();
+        }
 
         return $this->save();
     }

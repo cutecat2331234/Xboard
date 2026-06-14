@@ -220,7 +220,11 @@ class UserController extends Controller
         ], [
             'id.required' => '用户ID不能为空'
         ]);
-        $user = User::find($request->input('id'))->load('invite_user');
+        $user = User::find($request->input('id'));
+        if (!$user) {
+            return $this->fail([400202, '用户不存在']);
+        }
+        $user->load('invite_user');
         $user = HookManager::filter('admin.user.detail', $user, $request);
         return $this->success($user);
     }

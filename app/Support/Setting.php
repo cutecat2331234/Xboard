@@ -16,7 +16,8 @@ class Setting
 
     public function __construct()
     {
-        $this->cache = Cache::store('redis');
+        $store = app()->environment('testing') ? config('cache.default', 'array') : 'redis';
+        $this->cache = Cache::store($store);
     }
 
     /**
@@ -124,7 +125,12 @@ class Setting
             }
             
             $this->loadedSettings = $settings;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            if (!app()->environment('testing')) {
+                \Illuminate\Support\Facades\Log::error('Failed to load admin settings cache', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
             $this->loadedSettings = [];
         }
     }
