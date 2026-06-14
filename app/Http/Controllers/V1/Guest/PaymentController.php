@@ -11,6 +11,8 @@ use App\Services\PaymentService;
 use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use App\Utils\CacheKey;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\Plugin\HookManager;
@@ -58,7 +60,7 @@ class PaymentController extends Controller
             }
 
             if (in_array((int) $order->status, [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED], true)) {
-                return true;
+                return $this->handleTerminalOrderNotify($order, $verify, $callbackNo);
             }
 
             if ($order->status === Order::STATUS_CANCELLED) {
@@ -107,18 +109,7 @@ class PaymentController extends Controller
             }
 
             if ($order->status !== Order::STATUS_PENDING) {
-                Log::warning('Payment notify: order not pending for new payment', [
-                    'trade_no' => $tradeNo,
-                    'status' => $order->status,
-                ]);
-                if (isset($verify['amount']) && $this->verifyAmount($order, (int) $verify['amount'])) {
-                    $this->creditOrphanPayment(
-                        $order,
-                        $callbackNo,
-                        'terminal order status ' . $order->status
-                    );
-                }
-                return true;
+                return $this->handleTerminalOrderNotify($order, $verify, $callbackNo);
             }
 
             if (!isset($verify['amount'])) {
@@ -157,7 +148,7 @@ class PaymentController extends Controller
         if ((int) $order->type === Order::TYPE_NEW_PURCHASE) {
             $plan = Plan::find($order->plan_id);
             if ($plan && !(new PlanService($plan))->hasCapacity($plan)) {
-                $this->creditOrphanPayment($order, $callbackNo, 'cancelled order reactivation blocked by sold out plan');
+                $this->creditOrphanPaymentOnce($order, $callbackNo, 'cancelled order reactivation blocked by sold out plan');
                 return true;
             }
         }
@@ -165,11 +156,16 @@ class PaymentController extends Controller
         if ($order->balance_amount) {
             $userService = new UserService();
             if (!$userService->addBalance($order->user_id, -((int) $order->balance_amount))) {
-                Log::error('Payment notify: cannot re-deduct balance for cancelled order', [
+                Log::warning('Payment notify: cannot re-deduct balance for cancelled order, crediting orphan payment', [
                     'trade_no' => $order->trade_no,
                     'balance_amount' => $order->balance_amount,
                 ]);
-                return false;
+                $this->creditOrphanPaymentOnce(
+                    $order,
+                    $callbackNo,
+                    'cancelled order reactivation balance re-deduct failed'
+                );
+                return true;
             }
         }
         if ($order->coupon_id) {
@@ -199,6 +195,59 @@ class PaymentController extends Controller
         }
 
         return true;
+    }
+
+    private function handleTerminalOrderNotify(Order $order, array $verify, string $callbackNo): bool
+    {
+        if ($order->callback_no && $order->callback_no === $callbackNo) {
+            return true;
+        }
+
+        Log::warning('Payment notify: duplicate or late payment for terminal order', [
+            'trade_no' => $order->trade_no,
+            'status' => $order->status,
+            'callback_no' => $callbackNo,
+            'stored_callback_no' => $order->callback_no,
+        ]);
+
+        if (isset($verify['amount']) && $this->verifyAmount($order, (int) $verify['amount'])) {
+            $this->creditOrphanPaymentOnce(
+                $order,
+                $callbackNo,
+                'terminal order status ' . $order->status
+            );
+        }
+
+        return true;
+    }
+
+    private function creditOrphanPaymentOnce(Order $order, string $callbackNo, string $reason): void
+    {
+        if ($this->isOrphanCreditProcessed($order->trade_no, $callbackNo)) {
+            Log::info('Payment notify: orphan credit already processed', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+            ]);
+            return;
+        }
+
+        $this->creditOrphanPayment($order, $callbackNo, $reason);
+        $this->markOrphanCreditProcessed($order->trade_no, $callbackNo);
+    }
+
+    private function isOrphanCreditProcessed(string $tradeNo, string $callbackNo): bool
+    {
+        return Cache::has($this->orphanCreditCacheKey($tradeNo, $callbackNo));
+    }
+
+    private function markOrphanCreditProcessed(string $tradeNo, string $callbackNo): void
+    {
+        Cache::forever($this->orphanCreditCacheKey($tradeNo, $callbackNo), 1);
+    }
+
+    private function orphanCreditCacheKey(string $tradeNo, string $callbackNo): string
+    {
+        return CacheKey::get('PAYMENT_ORPHAN_CREDIT', $tradeNo . ':' . $callbackNo);
     }
 
     private function creditOrphanPayment(Order $order, string $callbackNo, string $reason): void

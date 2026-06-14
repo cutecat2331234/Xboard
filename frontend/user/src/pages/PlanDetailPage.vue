@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, NTag, NSpin, useMessage, useDialog } from 'naive-ui'
 import { fetchPlanById, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
@@ -104,6 +104,10 @@ async function applyCoupon() {
     msg.error(resolveApiError(e, t))
   }
 }
+
+watch(period, () => {
+  couponDiscount.value = ''
+})
 
 async function ensureNoPendingOrder() {
   const orders = await fetchOrders()

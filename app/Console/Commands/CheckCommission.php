@@ -17,7 +17,9 @@ class CheckCommission extends Command
 
     private function orderAmount(Order $order): int
     {
-        return (int) $order->total_amount + (int) ($order->balance_amount ?? 0);
+        return (int) $order->total_amount
+            + (int) ($order->balance_amount ?? 0)
+            + (int) ($order->surplus_amount ?? 0);
     }
 
     public function handle()
@@ -109,13 +111,15 @@ class CheckCommission extends Command
                     continue;
                 }
 
-                if (!$this->payHandle($order->invite_user_id, $order)) {
-                    $order->refresh();
-                    if ((int) $order->commission_status === 1) {
-                        $order->commission_status = Order::COMMISSION_STATUS_INVALID;
-                        $order->save();
-                    }
+                $payResult = $this->payHandle($order->invite_user_id, $order);
+                if ($payResult === 'invalid') {
+                    $order->commission_status = Order::COMMISSION_STATUS_INVALID;
+                    $order->save();
                     DB::commit();
+                    continue;
+                }
+                if ($payResult !== 'ok') {
+                    DB::rollBack();
                     continue;
                 }
                 $order->commission_status = 2;
@@ -132,7 +136,7 @@ class CheckCommission extends Command
         }
     }
 
-    public function payHandle($inviteUserId, Order $order)
+    public function payHandle($inviteUserId, Order $order): string
     {
         $level = 3;
         if ((int)admin_setting('commission_distribution_enable', 0)) {
@@ -173,7 +177,7 @@ class CheckCommission extends Command
                 $inviter->increment('commission_balance', $commissionBalance);
             }
             if (!$inviter->save()) {
-                return false;
+                return 'retry';
             }
             CommissionLog::create([
                 'invite_user_id' => $inviteUserId,
@@ -195,7 +199,7 @@ class CheckCommission extends Command
                     $directInviter->increment('commission_balance', $remaining);
                 }
                 if (!$directInviter->save()) {
-                    return false;
+                    return 'retry';
                 }
                 CommissionLog::create([
                     'invite_user_id' => $order->invite_user_id,
@@ -214,9 +218,9 @@ class CheckCommission extends Command
                 'remaining' => $remaining,
                 'expected' => (int) $order->commission_balance,
             ]);
-            return false;
+            return 'invalid';
         }
 
-        return (int) $order->actual_commission_balance > 0;
+        return 'ok';
     }
 }

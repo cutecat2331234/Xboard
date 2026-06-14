@@ -143,12 +143,20 @@ class OrderService
                 throw new \RuntimeException('用户不存在');
             }
 
+            if ((int) $order->type === Order::TYPE_UPGRADE) {
+                if ($this->user->expired_at !== null && (int) $this->user->expired_at > 0 && (int) $this->user->expired_at <= time()) {
+                    throw new \RuntimeException(__('This subscription has expired, please change to another subscription'));
+                }
+            }
+
             if ($order->surplus_credit) {
                 $this->user->balance += $order->surplus_credit;
             }
 
             if ($order->surplus_order_ids) {
                 Order::whereIn('id', $order->surplus_order_ids)
+                    ->where('user_id', $order->user_id)
+                    ->where('status', Order::STATUS_COMPLETED)
                     ->update(['status' => Order::STATUS_DISCOUNTED]);
             }
 
@@ -220,10 +228,12 @@ class OrderService
     public function setVipDiscount(User $user)
     {
         $order = $this->order;
+        $discountAmount = (int) ($order->discount_amount ?? 0);
         if ($user->discount) {
-            $order->discount_amount = $order->discount_amount + ($order->total_amount * ($user->discount / 100));
+            $discountAmount += (int) ($order->total_amount * ($user->discount / 100));
         }
-        $order->total_amount = max(0, $order->total_amount - $order->discount_amount);
+        $order->discount_amount = $discountAmount;
+        $order->total_amount = max(0, $order->total_amount - $discountAmount);
     }
 
     public function setInvite(User $user): void

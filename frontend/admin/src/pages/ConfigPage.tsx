@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { IconBuilding, IconRefresh } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { resolveApiError } from '@/lib/api-errors'
+import { resolveApiError, toastApiError } from '@/lib/api-errors'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
 import { configFieldLabelCls, configSubFieldLabelCls, inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
@@ -200,7 +200,7 @@ export default function ConfigPage() {
   useEffect(() => {
     fetchConfig()
       .then((data) => setConfig(data as Record<string, Record<string, unknown>>))
-      .catch(() => toast.error(t('common.error')))
+      .catch((err) => toastApiError(err, toast, t, t('common.error')))
       .finally(() => setLoading(false))
     fetchJsonList('/plan/fetch')
       .then((rows) => setPlans(rows as Array<{ id?: number; name?: string }>))

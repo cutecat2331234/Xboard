@@ -170,6 +170,10 @@ class RegisterService
             return DB::transaction(function () use ($request, $email, $password, $inviteCode) {
                 HookManager::call('user.register.before', $request);
 
+                if (User::byEmail($email)->lockForUpdate()->exists()) {
+                    throw new ApiException(__('Email already exists'), 400201);
+                }
+
                 $inviteUserId = null;
                 if ($inviteCode) {
                     $inviteUserId = $this->handleInviteCode($inviteCode);
@@ -207,7 +211,8 @@ class RegisterService
                 return [true, $user];
             });
         } catch (ApiException $e) {
-            return [false, [400, $e->getMessage()]];
+            $code = (int) $e->getCode();
+            return [false, [$code > 0 ? $code : 400, $e->getMessage()]];
         } catch (\Throwable $e) {
             return [false, [500, __('Register failed')]];
         }
