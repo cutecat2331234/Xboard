@@ -7,6 +7,7 @@ import { PERIOD_OPTIONS } from '@/api/plan'
 import { orderStatusLabel } from '@/lib/order-status'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
@@ -45,9 +46,13 @@ function confirmCancel(tradeNo: string) {
     positiveText: t('common.confirm'),
     negativeText: t('common.cancel'),
     onPositiveClick: async () => {
-      await cancelOrder(tradeNo)
-      msg.success(t('order.closeSuccess'))
-      rows.value = await fetchOrders()
+      try {
+        await cancelOrder(tradeNo)
+        msg.success(t('order.closeSuccess'))
+        rows.value = await fetchOrders()
+      } catch (e: unknown) {
+        msg.error(resolveApiError(e, t, t('order.cancelFailed')))
+      }
     },
   })
 }
@@ -118,6 +123,8 @@ onMounted(async () => {
   loading.value = true
   try {
     rows.value = await fetchOrders()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
   }

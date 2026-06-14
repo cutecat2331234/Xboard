@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
-import { NAlert, NCard, NDataTable, NEmpty, NIcon, NPopover, NTag } from 'naive-ui'
+import { NAlert, NCard, NDataTable, NEmpty, NIcon, NPopover, NTag, useMessage } from 'naive-ui'
 import { HelpCircleOutline } from '@vicons/ionicons5'
 import { fetchTrafficLog } from '@/api/traffic'
 import { formatBytes } from '@/lib/format-traffic'
 import { formatFixedDate } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 interface TrafficRow {
   record_at: number
@@ -16,6 +17,8 @@ interface TrafficRow {
 }
 
 const rows = ref<TrafficRow[]>([])
+const loading = ref(true)
+const msg = useMessage()
 const { t } = useI18n()
 
 function serverRate(row: TrafficRow): number {
@@ -67,7 +70,14 @@ const columns = computed(() => [
 ])
 
 onMounted(async () => {
-  rows.value = await fetchTrafficLog()
+  loading.value = true
+  try {
+    rows.value = await fetchTrafficLog()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
@@ -76,8 +86,8 @@ onMounted(async () => {
     <n-alert type="info" :bordered="false" class="traffic-alert">
       {{ t('traffic.hint') }}
     </n-alert>
-    <n-empty v-if="rows.length === 0" :description="t('traffic.empty')" />
-    <n-data-table v-else :columns="columns" :data="rows" :scroll-x="600" />
+    <n-empty v-if="!loading && rows.length === 0" :description="t('traffic.empty')" />
+    <n-data-table v-else :loading="loading" :columns="columns" :data="rows" :scroll-x="600" />
   </n-card>
 </template>
 

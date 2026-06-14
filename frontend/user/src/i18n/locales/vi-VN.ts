@@ -172,7 +172,8 @@ export default {
     insufficientBalance: "Số dư không đủ",
     paymentCardFailed: "Thanh toán thất bại. Vui lòng kiểm tra thông tin thẻ.",
     paymentGatewayFailed: "Yêu cầu cổng thanh toán thất bại",
-    serverError: "Đã xảy ra lỗi. Chúng tôi đang xử lý."
+    serverError: "Đã xảy ra lỗi. Chúng tôi đang xử lý.",
+    pageNotFound: 'Không tìm thấy trang',
   },
   common: {
     loading: "Đang tải...",

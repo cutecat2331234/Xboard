@@ -171,7 +171,8 @@ export default {
     insufficientBalance: "موجودی کافی نیست",
     paymentCardFailed: "پرداخت ناموفق بود. لطفاً اطلاعات کارت خود را بررسی کنید.",
     paymentGatewayFailed: "درخواست درگاه پرداخت ناموفق بود",
-    serverError: "مشکلی پیش آمد. در حال بررسی هستیم."
+    serverError: "مشکلی پیش آمد. در حال بررسی هستیم.",
+    pageNotFound: 'صفحه یافت نشد',
   },
   common: {
     loading: "در حال بارگذاری...",

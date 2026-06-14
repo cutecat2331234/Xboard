@@ -172,6 +172,7 @@ export default {
     paymentCardFailed: '扣款失败，请检查信用卡信息',
     paymentGatewayFailed: '支付网关请求失败',
     serverError: '遇到了些问题，我们正在进行处理',
+    pageNotFound: '页面不存在',
   },
   common: {
     loading: '加载中...',

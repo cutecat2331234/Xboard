@@ -16,6 +16,7 @@ import {
 import { fetchTickets, saveTicket, closeTicket, type TicketItem } from '@/api/ticket'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const router = useRouter()
 const rows = ref<TicketItem[]>([])
@@ -49,7 +50,11 @@ function ticketStatusLabel(row: TicketItem) {
 }
 
 async function load() {
-  rows.value = await fetchTickets()
+  try {
+    rows.value = await fetchTickets()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
 }
 
 async function create() {
