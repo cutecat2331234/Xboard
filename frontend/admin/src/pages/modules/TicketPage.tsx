@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type TicketRow = {
@@ -107,6 +108,7 @@ function levelLabel(t: (key: string) => string, level?: number, subject?: string
 
 export default function TicketPage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<TicketRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -183,6 +185,18 @@ export default function TicketPage() {
     row: TicketRow,
     options?: { withdrawPaid?: boolean; withdrawRejected?: boolean },
   ) {
+    const needsConfirm = isOfficialWithdrawTicket(row) || isLegacyWithdrawTicket(row)
+    if (needsConfirm) {
+      const title = options?.withdrawPaid
+        ? t('ticket.actions.approve_withdraw_confirm_title')
+        : t('ticket.actions.reject_withdraw_confirm_title')
+      const description = options?.withdrawPaid
+        ? t('ticket.actions.approve_withdraw_confirm_description')
+        : t('ticket.actions.reject_withdraw_confirm_description')
+      if (!(await confirm(title, description, { destructive: !options?.withdrawPaid }))) {
+        return
+      }
+    }
     try {
       const payload: Record<string, unknown> = { id: row.id }
       if (options?.withdrawPaid) {
@@ -237,7 +251,7 @@ export default function TicketPage() {
               {isOfficialWithdrawTicket(row.original) ? (
                 <>
                   <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawPaid: true })}>
-                    {t('ticket.actions.close')}
+                    {t('ticket.actions.approve_withdraw')}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => closeTicket(row.original)}>
                     {t('ticket.actions.close_reject_withdraw')}
@@ -371,6 +385,7 @@ export default function TicketPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

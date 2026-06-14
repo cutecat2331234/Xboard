@@ -294,6 +294,9 @@ class UserService
      */
     private function setTryOutPlan(User $user): void
     {
+        if (!(int) admin_setting('try_out_enable', 1)) {
+            return;
+        }
         if (!(int) admin_setting('try_out_plan_id', 0))
             return;
 

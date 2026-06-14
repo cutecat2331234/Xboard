@@ -26,6 +26,10 @@ class CommController extends Controller
             'commission_distribution_l3' => admin_setting('commission_distribution_l3'),
             'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
             'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
+            'ticket_must_wait_reply' => (int) admin_setting('ticket_must_wait_reply', 0),
+            'plan_change_enable' => (int) admin_setting('plan_change_enable', 1),
+            'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
+            'commission_withdraw_limit' => admin_setting('commission_withdraw_limit', 100),
         ];
         return $this->success($data);
     }

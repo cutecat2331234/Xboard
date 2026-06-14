@@ -1833,11 +1833,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "label": "货币符号",
           "placeholder": "¥",
           "description": "仅用于展示使用，更改后系统中所有的货币单位都将发生变更。"
-        },
-        "trafficWarnRate": {
-          "label": "流量预警阈值 (%)",
-          "placeholder": "70",
-          "description": "用户使用流量超过套餐配额的该百分比时显示预警。"
         }
       }
     },
@@ -1982,18 +1977,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "surplus_enable": {
         "title": "开启折抵方案",
         "description": "开启后用户更换订阅将会由系统对原有订阅进行折抵，方案参考文档。"
-      },
-      "surplus_traffic_ratio_enable": {
-        "title": "折抵考虑剩余流量比例",
-        "description": "开启后变更订阅折抵将取剩余时间比例与剩余流量比例中的较小值。"
-      },
-      "default_remind_expire": {
-        "title": "默认开启到期提醒",
-        "description": "开启后新用户默认接收订阅到期提醒。"
-      },
-      "default_remind_traffic": {
-        "title": "默认开启流量提醒",
-        "description": "开启后新用户默认接收流量使用提醒。"
       },
       "new_order_event": {
         "title": "当订阅新购时触发事件",
@@ -2344,11 +2327,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "title": "关闭提现",
         "description": "关闭后将禁止用户申请提现，且邀请佣金将会直接进入用户余额。"
       },
-      "withdraw_fee_rate": {
-        "title": "提现手续费率",
-        "description": "用户提现时扣除的手续费比例（0–1，如 0.01 表示 1%），会在客户端展示并在提交提现工单时生效。",
-        "placeholder": "0.01"
-      },
       "commission_distribution": {
         "title": "三级分销",
         "description": "开启后将佣金将按照设置的3成比例进行分成，三成比例合计请不要大于100%。",
@@ -2494,7 +2472,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "subject": "主题",
       "level": "优先级",
       "status": "状态",
-      "reply_status": "回复状态",
       "updated_at": "最后更新",
       "created_at": "创建时间",
       "actions": "操作"
@@ -2508,8 +2485,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "level": {
       "low": "低优先",
       "medium": "中优先",
-      "high": "高优先",
-      "withdraw": "提现"
+      "high": "高优先"
     },
     "filter": {
       "placeholder": "搜索{field}...",
@@ -3502,26 +3478,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "2": "套餐礼品卡",
       "3": "盲盒礼品卡",
       "4": "任务礼品卡"
-    },
-    "statistics": {
-      "title": "统计数据",
-      "description": "查看礼品卡统计与使用分析。",
-      "total": {
-        "templates_count": "模板总数",
-        "active_templates_count": "启用模板",
-        "codes_count": "兑换码总数",
-        "used_codes_count": "已使用兑换码",
-        "usages_count": "使用记录"
-      },
-      "daily": {
-        "title": "每日使用",
-        "chart": "使用趋势"
-      },
-      "type": {
-        "title": "类型分布",
-        "chart": "类型分布图"
-      },
-      "noData": "暂无数据"
     },
     "common": {
       "search": "搜索礼品卡...",

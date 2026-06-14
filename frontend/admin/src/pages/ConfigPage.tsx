@@ -379,6 +379,18 @@ export default function ConfigPage() {
                         placeholder={t('settings.site.form.trafficWarnRate.placeholder')}
                         onChange={(v) => update('site', 'traffic_warn_rate', Number(v))}
                       />
+                      <SwitchField
+                        label={t('settings.site.form.loginWithMailLink.label')}
+                        description={t('settings.site.form.loginWithMailLink.description')}
+                        checked={Boolean(site.login_with_mail_link_enable)}
+                        onChange={(v) => update('site', 'login_with_mail_link_enable', v)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.tryOutEnable.label')}
+                        description={t('settings.site.form.tryOutEnable.description')}
+                        checked={Boolean(site.try_out_enable ?? true)}
+                        onChange={(v) => update('site', 'try_out_enable', v)}
+                      />
                       <ConfigFormSelect
                         label={t('settings.site.form.tryOut.label')}
                         description={t('settings.site.form.tryOut.description')}

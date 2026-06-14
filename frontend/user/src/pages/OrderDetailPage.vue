@@ -290,9 +290,23 @@ function startPoll(tradeNo: string) {
 
         qrOpen.value = false
 
-        msg.success(t('order.paySuccess'))
+        if (status === 2) {
 
-        await load()
+          msg.warning(t('order.cancelledDuringPay'))
+
+          await load()
+
+          return
+
+        }
+
+        if (status === 1 || status === 3 || status === 4) {
+
+          msg.success(t('order.paySuccess'))
+
+          await load()
+
+        }
 
       }
 

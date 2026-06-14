@@ -76,6 +76,10 @@ class CommController extends Controller
         }
         Cache::put($rateKey, 1, 300);
 
+        if (!InviteCode::where('code', $code)->exists()) {
+            return $this->success(true);
+        }
+
         InviteCode::where('code', $code)->increment('pv');
 
         return $this->success(true);
