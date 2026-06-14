@@ -11,6 +11,7 @@ import {
   NInput,
   NModal,
   NSelect,
+  useDialog,
   useMessage,
   type DataTableColumns,
 } from 'naive-ui'
@@ -21,6 +22,7 @@ import { resolveApiError } from '@/lib/api-errors'
 import { isWithdrawTicket } from '@/lib/withdraw-ticket'
 
 const router = useRouter()
+const dialog = useDialog()
 const rows = ref<TicketItem[]>([])
 const loading = ref(false)
 const creating = ref(false)
@@ -87,13 +89,21 @@ async function create() {
 }
 
 async function close(row: TicketItem) {
-  try {
-    await closeTicket(row.id)
-    msg.success(t('ticket.closeSuccess'))
-    await load()
-  } catch (e: unknown) {
-    msg.error(resolveApiError(e, t))
-  }
+  dialog.warning({
+    title: t('ticket.close'),
+    content: t('ticket.closeConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        await closeTicket(row.id)
+        msg.success(t('ticket.closeSuccess'))
+        await load()
+      } catch (e: unknown) {
+        msg.error(resolveApiError(e, t))
+      }
+    },
+  })
 }
 
 function renderTextAction(label: string, onClick: () => void, disabled = false) {

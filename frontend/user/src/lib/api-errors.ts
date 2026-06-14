@@ -149,8 +149,8 @@ const MESSAGE_MAP: Record<string, string> = {
   'Checkout failed': 'errors.checkoutFailed',
   '结算失败': 'errors.checkoutFailed',
 
-  // Ticket
-  'Ticket does not exist': 'errors.ticketNotFound',
+  '存在未关闭的工单': 'errors.openTicketExists',
+  'Open ticket already exists': 'errors.openTicketExists',
   '工单不存在': 'errors.ticketNotFound',
   'Message cannot be empty': 'errors.ticketMessageEmpty',
   '消息不能为空': 'errors.ticketMessageEmpty',

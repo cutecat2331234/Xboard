@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $total_amount
  * @property int|null $handling_amount
  * @property int|null $balance_amount
+ * @property bool $balance_deducted
  * @property int|null $surplus_credit
  * @property int|null $surplus_amount
  * @property int $type
@@ -50,7 +51,8 @@ class Order extends Model
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'surplus_order_ids' => 'array',
-        'handling_amount' => 'integer'
+        'handling_amount' => 'integer',
+        'balance_deducted' => 'boolean',
     ];
 
     const STATUS_PENDING = 0; // 待支付

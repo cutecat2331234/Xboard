@@ -111,8 +111,17 @@ class OrderController extends Controller
                 throw new ApiException(__('Please cancel the order and create a new one to change payment method'));
             }
 
+            $user = User::where('id', $userId)->lockForUpdate()->first();
+            if (!$user) {
+                throw new ApiException(__('User not found'));
+            }
+
+            $orderService = new OrderService($order);
+            $userService = app(UserService::class);
+            $orderService->deductOrderBalance($user, $userService);
+            $order->refresh();
+
             if ($order->total_amount <= 0) {
-                $orderService = new OrderService($order);
                 if (!$orderService->paid('free:' . $order->trade_no)) {
                     throw new ApiException(__('Payment failed'));
                 }

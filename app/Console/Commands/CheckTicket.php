@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Ticket;
+use App\Services\TicketService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -40,11 +41,13 @@ class CheckTicket extends Command
     public function handle()
     {
         Ticket::where('status', 0)
-            ->where('level', '!=', 2)
             ->where('updated_at', '<=', time() - 24 * 3600)
             ->where('reply_status', Ticket::REPLY_STATUS_REPLIED)
             ->lazyById(200)
             ->each(function ($ticket) {
+                if (TicketService::isWithdrawTicket($ticket)) {
+                    return;
+                }
                 if ($ticket->user_id === $ticket->last_reply_user_id) return;
                 $ticket->status = Ticket::STATUS_CLOSED;
                 if (!$ticket->save()) {

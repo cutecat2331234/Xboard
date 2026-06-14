@@ -2988,6 +2988,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "speed_limit_placeholder": "Оставьте пустым для безлимита",
         "device_limit": "Лимит устройств",
         "device_limit_placeholder": "Оставьте пустым для безлимита",
+        "device_limit_unit": "устр.",
         "is_admin": "Админ",
         "is_staff": "Персонал",
         "remarks": "Примечания",
