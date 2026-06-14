@@ -51,6 +51,16 @@ const MESSAGE_MAP: Record<string, string> = {
   '账号信息已过期，请重新登录': 'errors.sessionExpired',
   '账号在其他设备登录，请重新登录': 'errors.sessionKicked',
   '登录失败': 'errors.loginFailed',
+  '未登录或登陆已过期': 'errors.sessionExpired',
+  '账号已被封禁': 'errors.accountSuspended',
+  'The user does not exist': 'errors.userNotFound',
+  'User does not exist': 'errors.userNotFound',
+  'The transfer amount cannot be empty': 'errors.invalidParameter',
+  'The transfer amount parameter is wrong': 'errors.invalidParameter',
+  'Ticket level cannot be empty': 'errors.ticketSubjectEmpty',
+  'Incorrect ticket level format': 'errors.invalidParameter',
+  'Article does not exist': 'errors.pageNotFound',
+  '兑换码状态更新失败': 'errors.giftCardRedeemFailed',
 
   // Order
   'Order does not exist': 'errors.orderNotFound',

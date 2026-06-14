@@ -181,12 +181,12 @@ export default {
     paymentNotFound: 'Stripe 支払い方法が見つかりません',
     paymentInProgress: 'この注文は支払い処理中です。キャンセルできません。',
     ticketWaitForReply: 'スタッフの返信をお待ちください。',
-    withdrawUnsupported: 'Withdrawals are not supported',
+    withdrawUnsupported: '出金はサポートされていません',
     insufficientCommission: 'コミッション残高が不足しています',
-    pendingWithdrawTicket: 'You already have a pending withdrawal request',
-    withdrawMinimum: 'Minimum withdrawal amount is {limit}',
-    planChangeDisabled: 'Plan changes are currently disabled. Please contact support or open a ticket.',
-    withdrawMethodUnsupported: 'Unsupported withdrawal method',
+    pendingWithdrawTicket: '処理中の出金申請が既にあります',
+    withdrawMinimum: '最低出金額は {limit} です',
+    planChangeDisabled: '現在プラン変更はできません。サポートまたはチケットでお問い合わせください',
+    withdrawMethodUnsupported: 'サポートされていない出金方法です',
     invalidCoupon: '無効なクーポンです',
     couponEmpty: 'クーポンコードを入力してください',
     couponExpired: 'クーポンの有効期限が切れています',
@@ -215,7 +215,7 @@ export default {
     transferFailed: "振替に失敗しました",
     telegramNotBound: "Telegram アカウントが連携されていません",
     telegramUnbindFailed: "Telegram の連携解除に失敗しました",
-    inviteCodeLimit: 'Maximum number of invite codes reached',
+    inviteCodeLimit: '招待コードの作成上限に達しました',
     giftCardNotFound: '引き換えコードが見つかりません',
     giftCardDisabled: 'このギフトカードは無効です',
     giftCardIneligible: 'このギフトカードの利用条件を満たしていません',
@@ -377,6 +377,7 @@ export default {
     closedReplyPh: "チケットは終了済み — 返信できません",
     closedHint: "このチケットは終了しています。これ以上返信できません。",
     closeSuccess: "チケットを終了しました",
+    fillRequired: "件名とメッセージを入力してください",
     empty: "チケットがありません"
   },
   giftCard: {
@@ -395,6 +396,7 @@ export default {
     codeMasked: "コード",
     rewards: "特典",
     rewardPreview: "特典プレビュー",
+    mysteryPreview: "ランダム特典（プール {count} 件 — 引き換え後に表示）",
     rewardBalance: "残高",
     rewardTraffic: "トラフィック",
     rewardExpireDays: "有効期限延長（日）",
@@ -445,6 +447,7 @@ export default {
     telegram: "Telegram",
     telegramHint: "Telegram でこのボットを検索し、/bind を送信してください：",
     telegramBound: "Telegram 連携済み",
+    telegramBotUnavailable: "Telegram ボットは現在利用できません。後でもう一度お試しください。",
     telegramGroup: "Telegram グループに参加"
   }
 } as const

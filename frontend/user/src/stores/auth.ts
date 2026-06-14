@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { checkLogin as apiCheckLogin } from '@/api/user'
 import { clearAuthData, getAuthData } from '@/api'
 import { invalidateSessionCache } from '@/lib/session-cache'
+import { invalidateAppConfigCaches } from '@/lib/invalidate-app-config'
 import { login as apiLogin, logout as apiLogout, register as apiRegister } from '@/api/auth'
 import type { AuthFormPayload, LoginForm, RegisterForm } from '@/api/auth'
 import type { UserInfo } from '@/api/user'
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await apiLogin(form)
       isAuthenticated.value = true
+      invalidateAppConfigCaches()
       await loadUser()
     } finally {
       loading.value = false
@@ -34,6 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await apiRegister(form)
       isAuthenticated.value = true
+      invalidateAppConfigCaches()
       await loadUser()
     } finally {
       loading.value = false
@@ -53,6 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       clearAuthData()
       invalidateSessionCache()
+      invalidateAppConfigCaches()
       user.value = null
       isAuthenticated.value = false
     }
@@ -76,6 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       clearAuthData()
       invalidateSessionCache()
+      invalidateAppConfigCaches()
       isAuthenticated.value = false
       return false
     }
@@ -84,6 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     await apiLogout()
     invalidateSessionCache()
+    invalidateAppConfigCaches()
     user.value = null
     isAuthenticated.value = false
   }

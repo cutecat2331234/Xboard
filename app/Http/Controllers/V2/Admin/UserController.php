@@ -12,12 +12,14 @@ use App\Models\GiftCardCode;
 use App\Models\GiftCardUsage;
 use App\Models\Order;
 use App\Models\Plan;
+use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Models\TrafficResetLog;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Jobs\NodeUserSyncJob;
 use App\Services\Plugin\HookManager;
+use App\Services\TicketService;
 use App\Services\UserService;
 use App\Support\InviteChain;
 use App\Traits\QueryOperators;
@@ -787,6 +789,15 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
             $userId = (int) $user->id;
+            Ticket::where('user_id', $userId)
+                ->where('status', Ticket::STATUS_OPENING)
+                ->where('level', 2)
+                ->get()
+                ->each(function (Ticket $ticket) {
+                    if (TicketService::isWithdrawTicket($ticket)) {
+                        TicketService::restoreWithdrawCommission($ticket);
+                    }
+                });
             $ticketIds = $user->tickets()->pluck('id');
             if ($ticketIds->isNotEmpty()) {
                 TicketMessage::whereIn('ticket_id', $ticketIds)->delete();

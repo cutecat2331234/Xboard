@@ -476,6 +476,10 @@ class OrderService
                     return $lockedOrder && $lockedOrder->status === Order::STATUS_CANCELLED;
                 }
 
+                if ($lockedOrder->paid_at) {
+                    throw new \RuntimeException(__('You can only cancel pending orders'));
+                }
+
                 $lockedOrder->status = Order::STATUS_CANCELLED;
                 if (!$lockedOrder->save()) {
                     throw new \Exception('Failed to save order status.');

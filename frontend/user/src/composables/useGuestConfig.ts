@@ -8,13 +8,23 @@ export function useGuestConfig() {
   async function load() {
     if (config.value) return config.value
     if (!loading) {
-      loading = fetchGuestConfig().then((data) => {
-        config.value = data
-        return data
-      })
+      loading = fetchGuestConfig()
+        .then((data) => {
+          config.value = data
+          return data
+        })
+        .catch((error) => {
+          loading = null
+          throw error
+        })
     }
     return loading
   }
 
-  return { config, load }
+  function reset() {
+    config.value = null
+    loading = null
+  }
+
+  return { config, load, reset }
 }

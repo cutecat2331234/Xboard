@@ -181,12 +181,12 @@ export default {
     paymentNotFound: 'Stripe 결제 수단을 찾을 수 없습니다',
     paymentInProgress: '이 주문은 결제 처리 중입니다. 취소할 수 없습니다.',
     ticketWaitForReply: '직원의 답변을 기다려 주세요.',
-    withdrawUnsupported: 'Withdrawals are not supported',
+    withdrawUnsupported: '출금은 지원되지 않습니다',
     insufficientCommission: '커미션 잔액이 부족합니다',
-    pendingWithdrawTicket: 'You already have a pending withdrawal request',
-    withdrawMinimum: 'Minimum withdrawal amount is {limit}',
-    planChangeDisabled: 'Plan changes are currently disabled. Please contact support or open a ticket.',
-    withdrawMethodUnsupported: 'Unsupported withdrawal method',
+    pendingWithdrawTicket: '처리 중인 출금 신청이 이미 있습니다',
+    withdrawMinimum: '최소 출금 금액은 {limit}입니다',
+    planChangeDisabled: '현재 구독 변경이 허용되지 않습니다. 고객센터 또는 티켓으로 문의하세요',
+    withdrawMethodUnsupported: '지원되지 않는 출금 방식입니다',
     invalidCoupon: '유효하지 않은 쿠폰입니다',
     couponEmpty: '쿠폰 코드를 입력하세요',
     couponExpired: '쿠폰이 만료되었습니다',
@@ -215,7 +215,7 @@ export default {
     transferFailed: "이체에 실패했습니다",
     telegramNotBound: "Telegram 계정이 연결되어 있지 않습니다",
     telegramUnbindFailed: "Telegram 연동 해제에 실패했습니다",
-    inviteCodeLimit: 'Maximum number of invite codes reached',
+    inviteCodeLimit: '초대 코드 생성 한도에 도달했습니다',
     giftCardNotFound: '교환 코드를 찾을 수 없습니다',
     giftCardDisabled: '이 기프트 카드는 비활성화되었습니다',
     giftCardIneligible: '이 기프트 카드 사용 조건을 충족하지 않습니다',
@@ -377,6 +377,7 @@ export default {
     closedReplyPh: "티켓이 닫혔습니다 — 답장할 수 없습니다",
     closedHint: "이 티켓은 닫혔습니다. 더 이상 답장할 수 없습니다.",
     closeSuccess: "티켓이 닫혔습니다",
+    fillRequired: "제목과 메시지를 입력하세요",
     empty: "티켓이 없습니다"
   },
   giftCard: {
@@ -395,6 +396,7 @@ export default {
     codeMasked: "코드",
     rewards: "보상",
     rewardPreview: "보상 미리보기",
+    mysteryPreview: "랜덤 보상 (풀 {count}개 — 교환 후 공개)",
     rewardBalance: "잔액",
     rewardTraffic: "트래픽",
     rewardExpireDays: "유효 기간 연장(일)",
@@ -445,6 +447,7 @@ export default {
     telegram: "Telegram",
     telegramHint: "Telegram에서 이 봇을 검색하고 /bind를 보내세요:",
     telegramBound: "Telegram 연동됨",
+    telegramBotUnavailable: "Telegram 봇을 사용할 수 없습니다. 나중에 다시 시도하세요.",
     telegramGroup: "Telegram 그룹 참여"
   }
 } as const

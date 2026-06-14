@@ -93,10 +93,9 @@ class CheckCommission extends Command
                         continue;
                     }
                     $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
-                    if ($payResult === 'invalid' || ($paidTotal > 0 && $paidTotal < $expectedTotal)) {
-                        $order->commission_status = Order::COMMISSION_STATUS_INVALID;
-                        $order->save();
-                        Log::warning('Commission payout still incomplete after remainder attempt for order ' . $orderId, [
+                    if ($payResult === 'invalid') {
+                        Log::warning('Commission remainder payout invalid, keeping order pending', [
+                            'order_id' => $orderId,
                             'paid' => $paidTotal,
                             'expected' => $expectedTotal,
                         ]);
@@ -111,9 +110,10 @@ class CheckCommission extends Command
 
                 $payResult = $this->payHandle($order->invite_user_id, $order);
                 if ($payResult === 'invalid') {
-                    $order->commission_status = Order::COMMISSION_STATUS_INVALID;
-                    $order->save();
-                    DB::commit();
+                    Log::warning('Commission payout invalid, keeping order pending for retry', [
+                        'order_id' => $orderId,
+                    ]);
+                    DB::rollBack();
                     continue;
                 }
                 if ($payResult !== 'ok') {

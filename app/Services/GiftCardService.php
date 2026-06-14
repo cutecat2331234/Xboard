@@ -156,7 +156,9 @@ class GiftCardService
                 $inviteRewards = $this->giveInviteRewards($actualRewards);
             }
 
-            $code->markAsUsed($this->user);
+            if (!$code->markAsUsed($this->user)) {
+                throw new ApiException('兑换码状态更新失败');
+            }
 
             GiftCardUsage::createRecord(
                 $code,
@@ -214,10 +216,13 @@ class GiftCardService
             }
             app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_GIFT_CARD);
             $validityDays = (int) ($rewards['plan_validity_days'] ?? 0);
+            if ($validityDays <= 0) {
+                $validityDays = 30;
+            }
             $userService->assignPlan(
                 $this->user,
                 $plan,
-                max(0, $validityDays)
+                $validityDays
             );
         } else {
             // 只有在不是套餐卡的情况下，才处理独立的有效期奖励
@@ -281,7 +286,9 @@ class GiftCardService
             $inviteTransfer = intval($rewards['transfer_enable'] * $rate);
             if ($inviteTransfer > 0) {
                 $inviteUser->transfer_enable = ($inviteUser->transfer_enable ?? 0) + $inviteTransfer;
-                $inviteUser->save();
+                if (!$inviteUser->save()) {
+                    throw new \RuntimeException('Failed to add invite reward traffic');
+                }
                 $inviteRewards['transfer_enable'] = $inviteTransfer;
             }
         }
