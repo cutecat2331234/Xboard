@@ -224,6 +224,9 @@ class ConfigController extends Controller
         ];
 
         foreach ($data as $k => $v) {
+            if ($k === 'commission_withdraw_method') {
+                $v = $this->normalizeWithdrawMethods($v);
+            }
             if (isset($templateKeys[$k])) {
                 SubscribeTemplate::setContent($templateKeys[$k], $v);
                 continue;
@@ -236,6 +239,22 @@ class ConfigController extends Controller
         }
 
         return $this->success(true);
+    }
+
+    /**
+     * @param mixed $value
+     * @return list<string>
+     */
+    private function normalizeWithdrawMethods(mixed $value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map(static fn ($item) => trim((string) $item), $value)));
+        }
+        if (is_string($value)) {
+            return array_values(array_filter(array_map('trim', preg_split('/[,，]/', $value) ?: [])));
+        }
+
+        return [];
     }
 
     /**

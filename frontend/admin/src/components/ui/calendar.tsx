@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -7,9 +8,11 @@ import {
   isSameDay,
   isSameMonth,
   startOfMonth,
+  startOfWeek,
   subMonths,
 } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { enUS, ru, zhCN } from 'date-fns/locale'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '@/lib/utils'
 
@@ -21,14 +24,24 @@ type Props = {
   className?: string
 }
 
-const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
+function resolveDateFnsLocale(language: string) {
+  if (language.startsWith('zh')) return zhCN
+  if (language.startsWith('ru')) return ru
+  return enUS
+}
 
-/** Compact month grid for 7001-style expire date popover. */
+/** Compact month grid for expire date popover. */
 export function Calendar({ month, onMonthChange, selected, onSelect, className }: Props) {
+  const { i18n } = useTranslation()
+  const locale = resolveDateFnsLocale(i18n.language)
   const monthStart = startOfMonth(month)
   const monthEnd = endOfMonth(month)
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
   const leading = monthStart.getDay()
+  const weekStart = startOfWeek(new Date(), { locale, weekStartsOn: 0 })
+  const weekdays = Array.from({ length: 7 }, (_, i) =>
+    format(addDays(weekStart, i), 'EEEEE', { locale }),
+  )
 
   return (
     <div className={cn('p-3', className)}>
@@ -41,7 +54,7 @@ export function Calendar({ month, onMonthChange, selected, onSelect, className }
           <ChevronLeft className="h-4 w-4" />
         </button>
         <span className="font-mono text-xs font-medium">
-          {format(month, 'yyyy年 M月', { locale: zhCN })}
+          {format(month, 'LLLL yyyy', { locale })}
         </span>
         <button
           type="button"
@@ -52,7 +65,7 @@ export function Calendar({ month, onMonthChange, selected, onSelect, className }
         </button>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center font-mono text-[11px] text-muted-foreground">
-        {WEEKDAYS.map((d) => (
+        {weekdays.map((d) => (
           <div key={d} className="h-7 leading-7">
             {d}
           </div>
