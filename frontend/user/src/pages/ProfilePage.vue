@@ -77,12 +77,20 @@ async function submitPassword() {
 }
 
 async function reset() {
-  try {
-    await resetSecurity()
-    msg.success(t('common.success'))
-  } catch (e: unknown) {
-    msg.error(resolveApiError(e, t))
-  }
+  dialog.warning({
+    title: t('profile.resetSubscribe'),
+    content: t('profile.resetConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        await resetSecurity()
+        msg.success(t('common.success'))
+      } catch (e: unknown) {
+        msg.error(resolveApiError(e, t))
+      }
+    },
+  })
 }
 
 async function saveNotify() {

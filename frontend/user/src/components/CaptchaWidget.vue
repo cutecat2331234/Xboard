@@ -39,7 +39,7 @@ async function mountWidget() {
     if (turnstile) {
       widgetId = turnstile.render(`#${containerId}`, {
         sitekey: props.config.turnstile_site_key,
-        theme: 'light',
+        theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
       })
       ready.value = true
     }

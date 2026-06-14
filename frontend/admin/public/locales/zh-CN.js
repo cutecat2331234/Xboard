@@ -3043,6 +3043,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "speed_limit_placeholder": "留空则不限速",
         "device_limit": "设备限制",
         "device_limit_placeholder": "留空则不限制",
+        "device_limit_unit": "台",
         "is_admin": "是否管理员",
         "is_staff": "是否员工",
         "remarks": "备注",

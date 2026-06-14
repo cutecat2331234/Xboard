@@ -94,7 +94,10 @@ function copySubscribe() {
 }
 
 function openClientImport() {
-  if (!subscribeUrl.value) return
+  if (!subscribeUrl.value) {
+    msg.warning(t('dashboard.noSubscribeUrl'))
+    return
+  }
   clientModalOpen.value = true
 }
 

@@ -99,7 +99,7 @@ class OrderService
             $orderService->setVipDiscount($user);
 
             if ($user->balance && $order->total_amount > 0) {
-                $orderService->handleUserBalance($user, $userService);
+                $orderService->applyBalanceToOrder($user);
             }
 
             $orderService->setInvite(user: $user);
@@ -111,6 +111,8 @@ class OrderService
             HookManager::call('order.create.after', $order);
             // 兼容旧钩子
             HookManager::call('order.after_create', $order);
+
+            OrderHandleJob::dispatch($order->trade_no);
 
             return $order;
         });
@@ -509,7 +511,7 @@ class OrderService
                 if (!$lockedOrder->save()) {
                     throw new \Exception('Failed to save order status.');
                 }
-                if ($lockedOrder->balance_amount) {
+                if ($lockedOrder->balance_amount && $lockedOrder->balance_deducted) {
                     $userService = new UserService();
                     if (!$userService->addBalance($lockedOrder->user_id, $lockedOrder->balance_amount)) {
                         throw new \Exception('Failed to add balance.');
@@ -579,7 +581,7 @@ class OrderService
      */
     private function getTime(string $periodKey, ?int $timestamp = null): int
     {
-        $timestamp = $timestamp < time() ? time() : $timestamp;
+        $timestamp = ($timestamp === null || $timestamp < time()) ? time() : $timestamp;
         $periodKey = PlanService::getPeriodKey($periodKey);
 
         if (isset(self::STR_TO_TIME[$periodKey])) {
@@ -611,27 +613,41 @@ class OrderService
     }
 
     /**
-     * Summary of handleUserBalance
-     * @param User $user
-     * @param UserService $userService
-     * @return void
+     * Reserve balance on the order without debiting the user wallet until checkout.
      */
-    protected function handleUserBalance(User $user, UserService $userService): void
+    protected function applyBalanceToOrder(User $user): void
     {
         $remainingBalance = $user->balance - $this->order->total_amount;
 
         if ($remainingBalance >= 0) {
-            if (!$userService->addBalance($this->order->user_id, -$this->order->total_amount)) {
-                throw new ApiException(__('Insufficient balance'));
-            }
             $this->order->balance_amount = $this->order->total_amount;
             $this->order->total_amount = 0;
         } else {
-            if (!$userService->addBalance($this->order->user_id, -$user->balance)) {
-                throw new ApiException(__('Insufficient balance'));
-            }
             $this->order->balance_amount = $user->balance;
             $this->order->total_amount = $this->order->total_amount - $user->balance;
+        }
+        $this->order->balance_deducted = false;
+    }
+
+    /**
+     * Debit wallet balance at checkout (idempotent).
+     */
+    public function deductOrderBalance(User $user, UserService $userService): void
+    {
+        if ($this->order->balance_deducted || !(int) $this->order->balance_amount) {
+            return;
+        }
+
+        $amount = (int) $this->order->balance_amount;
+        if ($user->balance < $amount) {
+            throw new ApiException(__('Insufficient balance'));
+        }
+        if (!$userService->addBalance($this->order->user_id, -$amount)) {
+            throw new ApiException(__('Insufficient balance'));
+        }
+        $this->order->balance_deducted = true;
+        if (!$this->order->save()) {
+            throw new ApiException(__('Request failed, please try again later'));
         }
     }
 }

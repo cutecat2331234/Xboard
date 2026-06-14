@@ -1685,7 +1685,7 @@ export default function UserPage() {
                   {t('user.edit.form.device_limit')}
                 </Label>
                 <SuffixInput
-                  suffix="台"
+                  suffix={t('user.edit.form.device_limit_unit')}
                   type="number"
                   value={form.device_limit != null ? Number(form.device_limit) : ''}
                   onChange={(e) =>

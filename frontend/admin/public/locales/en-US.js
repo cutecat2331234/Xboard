@@ -3017,6 +3017,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "speed_limit_placeholder": "Leave empty for no speed limit",
         "device_limit": "Device Limit",
         "device_limit_placeholder": "Leave empty for no device limit",
+        "device_limit_unit": "devices",
         "is_admin": "Is Admin",
         "is_staff": "Is Staff",
         "remarks": "Remarks",

@@ -127,20 +127,6 @@ const isStripe = computed(() => selectedPayment.value?.payment === 'StripeCredit
 
 const stripeFormRef = ref<InstanceType<typeof StripeCardForm> | null>(null)
 
-let lastStripeMountError = ''
-
-watch(
-  () => (isStripe.value ? stripeFormRef.value?.mountError : null),
-  (err) => {
-    const message = err ? String(err) : ''
-    if (!message || message === lastStripeMountError) return
-    lastStripeMountError = message
-    msg.error(message)
-  },
-)
-
-
-
 const periodLabel = computed(() => {
 
   const p = order.value?.period

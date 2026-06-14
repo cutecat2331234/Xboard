@@ -267,6 +267,9 @@ export default function DashboardPage() {
       fetchDashboardStats()
         .then(setStats)
         .catch((e) => toastApiError(e, toast, t, t('common.error')))
+      fetchQueueStats()
+        .then(setQueueStats)
+        .catch((e) => toastApiError(e, toast, t, t('common.error')))
     }, 60_000)
 
     return () => window.clearInterval(timer)
@@ -664,7 +667,10 @@ export default function DashboardPage() {
       <FailedJobsDialog
         open={failedJobsOpen}
         onOpenChange={setFailedJobsOpen}
-        onViewDetail={setFailedJobDetail}
+        onViewDetail={(job) => {
+          setFailedJobsOpen(false)
+          setFailedJobDetail(job)
+        }}
       />
 
       <FailedJobDetailDialog job={failedJobDetail} onOpenChange={(open) => !open && setFailedJobDetail(null)} />
@@ -947,11 +953,7 @@ function QueueDetailsCard({
 
             <span className="text-muted-foreground">{t('dashboard.queue.details.activeProcesses')}</span>
 
-            <span>
-
-              {processes} / {processes}
-
-            </span>
+            <span>{processes}</span>
 
           </div>
 
@@ -1017,13 +1019,16 @@ function FailedJobsDialog({
 
       .finally(() => setLoading(false))
 
-  }, [page, pageSize])
+  }, [page, pageSize, t])
 
 
 
   useEffect(() => {
 
-    if (!open) return
+    if (!open) {
+      setPage(1)
+      return
+    }
 
     load()
 

@@ -133,8 +133,9 @@ watch([detailsPage, detailsPageSize], () => {
 function parseTransferAmount(raw: string): number | null {
   const trimmed = raw.trim()
   if (!trimmed) return null
+  if (!/^\d+(\.\d{1,2})?$/.test(trimmed)) return null
   const amount = Number(trimmed)
-  if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) return null
+  if (!Number.isFinite(amount) || amount <= 0) return null
   return amount
 }
 
@@ -145,7 +146,7 @@ const commissionRateLabel = computed(() => {
     const l1 = Math.floor((Number(cfg.commission_distribution_l1) || 0) * base / 100)
     const l2 = Math.floor((Number(cfg.commission_distribution_l2) || 0) * base / 100)
     const l3 = Math.floor((Number(cfg.commission_distribution_l3) || 0) * base / 100)
-    return `${l1}%,${l2}%,${l3}%`
+    return t('invite.commissionTiers', { l1, l2, l3 })
   }
   return `${base}%`
 })
@@ -191,7 +192,7 @@ const transferNetPreview = computed(() => {
 function inviteLink(code: string) {
   const appUrl = guestConfig.value?.app_url?.trim().replace(/\/+$/, '')
   const base = appUrl || `${window.location.protocol}//${window.location.host}`
-  return `${base}/#/register?code=${code}`
+  return `${base}/#/login?tab=register&code=${code}`
 }
 
 async function loadDetails() {
@@ -246,7 +247,7 @@ async function doTransfer() {
     msg.error(t('invite.transferAmountInvalid'))
     return
   }
-  if (amount > available.value) {
+  if (Math.round(amount * 100) > Math.round(available.value * 100)) {
     msg.error(t('errors.insufficientCommission'))
     return
   }
