@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { IconChevronDown, IconMenu2 } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
@@ -15,10 +15,13 @@ import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 const groupKeys = ['system', 'node', 'subscription', 'user']
 
 const navLinkCls =
-  'inline-flex h-12 w-full items-center whitespace-nowrap rounded-none px-6 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
+  'inline-flex h-12 w-full items-center whitespace-nowrap rounded-none px-6 text-xs font-medium transition-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
 
 const subLinkCls =
-  'inline-flex items-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-xs justify-start text-wrap rounded-none h-10 w-full border-l border-l-slate-500 px-2'
+  'inline-flex items-center whitespace-nowrap font-medium transition-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-xs justify-start text-wrap rounded-none h-10 w-full border-l border-l-slate-500 px-2'
+
+const activeNavCls = 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+const inactiveNavCls = 'hover:bg-accent hover:text-accent-foreground'
 
 type SidebarNavProps = {
   openGroups: Record<string, boolean>
@@ -29,7 +32,7 @@ type SidebarNavProps = {
   onNavigate?: () => void
 }
 
-function SidebarNav({
+const SidebarNav = memo(function SidebarNav({
   openGroups,
   setOpenGroups,
   openPluginGroups,
@@ -41,7 +44,7 @@ function SidebarNav({
   const location = useLocation()
 
   return (
-    <nav className="grid flex-1 gap-1 overflow-auto overscroll-contain py-2">
+    <nav className="grid flex-1 gap-1 overflow-auto overscroll-contain py-2 [contain:paint]">
       {NAV_GROUPS.map((group, gi) => {
         const groupKey = groupKeys[gi - 1]
         const isDashboardOnly = !group.labelKey
@@ -57,12 +60,7 @@ function SidebarNav({
                 to={item.path}
                 end={item.end}
                 onClick={onNavigate}
-                className={cn(
-                  navLinkCls,
-                  active
-                    ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
-                    : 'hover:bg-accent hover:text-accent-foreground',
-                )}
+                className={cn(navLinkCls, active ? activeNavCls : inactiveNavCls)}
               >
                 <div className="mr-2">
                   <NavIcon path={item.path} className="h-[18px] w-[18px]" />
@@ -104,12 +102,7 @@ function SidebarNav({
                         to={item.path}
                         onClick={onNavigate}
                         className={({ isActive }) =>
-                          cn(
-                            subLinkCls,
-                            isActive
-                              ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
-                              : 'hover:bg-accent hover:text-accent-foreground',
-                          )
+                          cn(subLinkCls, isActive ? activeNavCls : inactiveNavCls)
                         }
                       >
                         <div className="mr-2">
@@ -167,8 +160,8 @@ function SidebarNav({
                         cn(
                           subLinkCls,
                           isActive
-                            ? 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80'
-                            : 'hover:bg-accent hover:text-accent-foreground',
+                            ? activeNavCls
+                            : inactiveNavCls,
                         )
                       }
                     >
@@ -191,9 +184,9 @@ function SidebarNav({
       })}
     </nav>
   )
-}
+})
 
-export function Sidebar() {
+export const Sidebar = memo(function Sidebar() {
   const { title, logo, version } = getSettings()
   const { plugins } = usePluginList()
   const pluginGroups = useMemo(() => buildPluginNavGroups(plugins), [plugins])
@@ -207,7 +200,7 @@ export function Sidebar() {
   const [openPluginGroups, setOpenPluginGroups] = useState<Record<string, boolean>>({})
 
   return (
-    <aside className="fixed left-0 right-0 top-0 z-50 flex h-auto flex-col border-r-2 border-r-muted transition-[width] md:bottom-0 md:right-auto md:h-svh md:w-64">
+    <aside className="fixed left-0 right-0 top-0 z-50 flex h-auto flex-col border-r-2 border-r-muted transition-none md:bottom-0 md:right-auto md:h-svh md:w-64">
       <div className="relative flex h-full w-full flex-col">
         <div className="sticky top-0 flex h-[var(--header-height)] flex-none items-center justify-between gap-4 bg-background px-4 py-3 shadow">
           <button
@@ -248,7 +241,7 @@ export function Sidebar() {
           <div className="border-t border-border/50 bg-background px-4 py-2.5 text-xs text-muted-foreground hidden md:block text-left">
             <div className="flex items-center gap-1.5 justify-start">
               <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-              <span className="whitespace-nowrap tracking-wide transition-opacity duration-200">
+              <span className="whitespace-nowrap tracking-wide">
                 v{version}
               </span>
             </div>
@@ -273,4 +266,4 @@ export function Sidebar() {
       </Sheet>
     </aside>
   )
-}
+})

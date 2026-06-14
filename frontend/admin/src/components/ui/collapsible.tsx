@@ -11,7 +11,7 @@ export function CollapsibleContent({
   return (
     <CollapsiblePrimitive.CollapsibleContent
       className={cn(
-        'overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
+        'overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none',
         className,
       )}
       {...props}
