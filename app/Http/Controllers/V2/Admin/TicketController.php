@@ -141,6 +141,7 @@ class TicketController extends Controller
         $request->validate([
             'id' => 'required|numeric',
             'withdraw_rejected' => 'nullable|boolean',
+            'withdraw_paid' => 'nullable|boolean',
         ], [
             'id.required' => '工单ID不能为空'
         ]);
@@ -150,7 +151,11 @@ class TicketController extends Controller
                 if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
                     throw new \RuntimeException('Already closed');
                 }
-                if ((int) $ticket->level === 2 && $request->boolean('withdraw_rejected')) {
+                if (TicketService::isOfficialWithdrawTicket($ticket)) {
+                    if (!$request->boolean('withdraw_paid')) {
+                        TicketService::restoreWithdrawCommission($ticket);
+                    }
+                } elseif ((int) $ticket->level === 2 && $request->boolean('withdraw_rejected')) {
                     TicketService::restoreWithdrawCommission($ticket);
                 }
                 $ticket->status = Ticket::STATUS_CLOSED;

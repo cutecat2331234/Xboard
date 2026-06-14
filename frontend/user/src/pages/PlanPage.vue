@@ -6,6 +6,7 @@ import { resolveTryOutPlanId } from '@/api/comm'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
+import { formatBytes } from '@/lib/format-traffic'
 
 const plans = ref<PlanItem[]>([])
 const tryOutPlanId = ref(0)
@@ -36,7 +37,7 @@ function priceLabel(p: PlanItem) {
 }
 
 function transferGb(p: PlanItem) {
-  return String(p.transfer_enable ?? 0)
+  return formatBytes(p.transfer_enable ?? 0)
 }
 
 function showCapacity(p: PlanItem) {

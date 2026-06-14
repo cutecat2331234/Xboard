@@ -273,4 +273,48 @@ class GiftCardTemplate extends Model
 
         return true;
     }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public static function assertRewardsValid(int $type, array $rewards): void
+    {
+        if ($type === self::TYPE_MYSTERY) {
+            $pool = $rewards['random_rewards'] ?? [];
+            if (!is_array($pool) || count($pool) === 0) {
+                throw new \InvalidArgumentException('盲盒奖池不能为空');
+            }
+            $totalWeight = 0;
+            foreach ($pool as $index => $item) {
+                if (!is_array($item)) {
+                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项格式无效');
+                }
+                $weight = (int) ($item['weight'] ?? 0);
+                if ($weight <= 0) {
+                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项权重必须大于 0');
+                }
+                $totalWeight += $weight;
+                $hasReward = (!empty($item['balance']) && (int) $item['balance'] > 0)
+                    || (!empty($item['transfer_enable']) && (int) $item['transfer_enable'] > 0)
+                    || !empty($item['plan_id'])
+                    || !empty($item['expire_days'])
+                    || !empty($item['device_limit'])
+                    || !empty($item['reset_package']);
+                if (!$hasReward) {
+                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项至少配置一种奖励');
+                }
+            }
+            if ($totalWeight <= 0) {
+                throw new \InvalidArgumentException('盲盒奖池总权重必须大于 0');
+            }
+            return;
+        }
+
+        if ($type === self::TYPE_PLAN) {
+            $planId = $rewards['plan_id'] ?? null;
+            if (!$planId || !Plan::find($planId)) {
+                throw new \InvalidArgumentException('套餐礼品卡必须选择有效套餐');
+            }
+        }
+    }
 }
