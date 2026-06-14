@@ -211,6 +211,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "toggleNavigation": "Toggle Navigation",
     "toggleSidebar": "Toggle Sidebar",
     "search": "Search...",
+    "select": "Please select",
     "theme": {
       "light": "Light",
       "dark": "Dark",
@@ -228,8 +229,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "submit": "Submit",
     "saving": "Saving...",
+    "none": "None",
     "days": "d",
     "table": {
+      "columns": {
+        "actions": "Actions"
+      },
       "noData": "No data available",
       "pagination": {
         "selected": "{{selected}} of {{total}} items selected",
@@ -1834,12 +1839,20 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Disable Withdrawals",
         "description": "When enabled, users will be prohibited from requesting withdrawals, and invitation commissions will go directly to user balance."
       },
+      "withdraw_fee_rate": {
+        "title": "Withdrawal / Transfer Fee Rate",
+        "description": "Fee rate deducted when users withdraw or transfer commission to balance. 0 means no fee.",
+        "placeholder": "0.05 means 5%"
+      },
       "commission_distribution": {
         "title": "Three-level Distribution",
         "description": "When enabled, commission will be split according to the three set ratios, total should not exceed 100%.",
         "l1": "Level 1 Inviter Ratio",
+        "l1_description": "Commission ratio for the direct inviter.",
         "l2": "Level 2 Inviter Ratio",
+        "l2_description": "Commission ratio for the level-2 inviter.",
         "l3": "Level 3 Inviter Ratio",
+        "l3_description": "Commission ratio for the level-3 inviter.",
         "placeholder": "Enter ratio e.g. 50",
         "sum_error": "Level 1 + Level 2 + Level 3 ratios must equal 100%"
       },
@@ -1954,6 +1967,15 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "label": "Currency Symbol",
           "placeholder": "¥",
           "description": "For display only, changing this will affect all currency symbols in the system."
+        },
+        "trafficWarnRate": {
+          "label": "Traffic Warning Threshold (%)",
+          "placeholder": "70",
+          "description": "Show a warning when the user has consumed this percentage of their plan traffic."
+        },
+        "loginWithMailLink": {
+          "label": "Mail Link Login",
+          "description": "When enabled, users can sign in via a magic link sent by email without entering a password."
         }
       }
     },
@@ -3032,7 +3054,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "send_mail": {
         "success": "Email sent successfully",
         "failed": "Failed to send email",
-        "required_fields": "Please fill in all required fields"
+        "required_fields": "Please fill in all required fields",
+        "required_selected": "Please select at least one user",
+        "required_filtered": "Please set filter conditions first"
       }
     },
     "traffic_reset": {
@@ -3149,8 +3173,20 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "send_mail": {
       "title": "Send Email",
       "description": "Send email to selected or filtered users",
+      "scope": "Send scope",
+      "scope_selected": "Selected users ({{count}})",
+      "scope_filtered": "Current filter results",
+      "scope_all": "All users",
       "subject": "Subject",
+      "subject_placeholder": "Email subject, supports placeholders like {{name}}",
+      "subject_placeholder_hint": "Subject supports placeholders replaced on send",
       "content": "Content",
+      "content_placeholder": "Email body (plain text)",
+      "content_plain_hint": "Plain text only, HTML is not supported",
+      "system_notice_subject": "System Notice",
+      "system_notice_content": "Dear user,\\n\\nThis is a system notice.\\n\\n{{app.name}}",
+      "apply_system_notice": "Apply system notice template",
+      "available_vars": "Available variables",
       "sending": "Sending...",
       "send": "Send"
     },

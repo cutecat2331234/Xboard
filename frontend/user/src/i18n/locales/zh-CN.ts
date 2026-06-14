@@ -171,6 +171,8 @@ export default {
     paymentNotFound: '未找到可用的 Stripe 支付方式',
     requestFailed: '请求失败，请稍后再试',
     commConfigFailed: '站点配置加载失败，部分功能可能不可用，请刷新页面重试',
+    tooManyAttempts: '尝试次数过多，请稍后再试',
+    telegramLoginUnavailable: 'Telegram 登录不可用',
     featureDisabled: '该功能已关闭',
     paymentFailed: '支付失败',
     invalidParameter: '参数错误',
@@ -279,6 +281,8 @@ export default {
     withdrawSuccess: '提现申请已提交，请前往工单查看进度。',
     withdrawLimitHint: '最低提现金额：{limit}',
     withdrawFeeHint: '提现手续费：{rate}%',
+    transferMinHint: '最低划转金额：{limit}',
+    transferNetHint: '手续费 {fee}，实际到账 {net}',
     withdrawFullBalanceHint: '将提现全部可用佣金（扣除手续费后到账）',
   },
   traffic: {

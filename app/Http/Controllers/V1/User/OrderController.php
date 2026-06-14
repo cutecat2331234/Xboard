@@ -118,12 +118,12 @@ class OrderController extends Controller
     {
         $request->validate([
             'trade_no' => 'required|string',
-            'method' => 'required|integer',
+            'method' => 'nullable|integer',
             'token' => 'nullable|string',
         ]);
 
         $tradeNo = $request->input('trade_no');
-        $method = (int) $request->input('method');
+        $method = $request->input('method');
         $userId = $request->user()->id;
 
         $prepared = DB::transaction(function () use ($userId, $tradeNo, $method) {
@@ -152,6 +152,11 @@ class OrderController extends Controller
 
                 return ['mode' => 'free'];
             }
+
+            if ($method === null || $method === '') {
+                throw new ApiException(__('Payment method is not available'));
+            }
+            $method = (int) $method;
 
             $payment = Payment::find($method);
             if (!$payment || !$payment->enable) {

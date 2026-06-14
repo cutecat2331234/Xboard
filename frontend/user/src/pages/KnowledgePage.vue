@@ -92,6 +92,8 @@ async function loadKnowledge() {
 
 watch(locale, () => {
   activeCategory.value = ALL_CATEGORY
+  keyword.value = ''
+  query.value = ''
   void loadKnowledge()
 })
 

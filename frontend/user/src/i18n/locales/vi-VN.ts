@@ -163,6 +163,7 @@ export default {
     sessionExpired: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
     sessionKicked: "Tài khoản đã đăng nhập ở thiết bị khác. Vui lòng đăng nhập lại.",
     loginFailed: "Đăng nhập thất bại",
+    commConfigFailed: "Không tải được cấu hình trang. Một số tính năng có thể không khả dụng — hãy làm mới trang và thử lại.",
     orderNotFound: "Không tìm thấy đơn hàng",
     orderNotFoundOrPaid: "Đơn hàng không tồn tại hoặc đã được thanh toán",
     planNotFound: "Gói đăng ký không tồn tại",

@@ -130,6 +130,14 @@ watch([detailsPage, detailsPageSize], () => {
   void loadDetails()
 })
 
+function parseTransferAmount(raw: string): number | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  const amount = Number(trimmed)
+  if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) return null
+  return amount
+}
+
 const commissionRateLabel = computed(() => {
   const base = stat.value[3] ?? 0
   const cfg = commConfig.value
@@ -154,6 +162,30 @@ const withdrawFeeLabel = computed(() => {
   const percent = rate * 100
   const display = Number.isInteger(percent) ? String(percent) : percent.toFixed(2).replace(/\.?0+$/, '')
   return t('invite.withdrawFeeHint', { rate: display })
+})
+
+const transferMinLimit = computed(() => {
+  const limit = Number(commConfig.value?.commission_withdraw_limit ?? 0)
+  return Number.isFinite(limit) && limit > 0 ? limit : 0
+})
+
+const transferMinLabel = computed(() => {
+  if (!transferMinLimit.value) return ''
+  return t('invite.transferMinHint', { limit: formatPriceSpaced(transferMinLimit.value * 100) })
+})
+
+const transferNetPreview = computed(() => {
+  const amount = parseTransferAmount(transferAmount.value)
+  if (amount === null) return null
+  const rate = Number(commConfig.value?.withdraw_fee_rate ?? 0)
+  if (!Number.isFinite(rate) || rate <= 0) return null
+  const fee = amount * rate
+  const net = amount - fee
+  if (net <= 0) return null
+  return t('invite.transferNetHint', {
+    fee: formatPriceSpaced(Math.round(fee * 100)),
+    net: formatPriceSpaced(Math.round(net * 100)),
+  })
 })
 
 function inviteLink(code: string) {
@@ -203,14 +235,6 @@ async function generate() {
   }
 }
 
-function parseTransferAmount(raw: string): number | null {
-  const trimmed = raw.trim()
-  if (!trimmed) return null
-  const amount = Number(trimmed)
-  if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) return null
-  return amount
-}
-
 async function doTransfer() {
   const trimmed = transferAmount.value.trim()
   if (!trimmed) {
@@ -224,6 +248,10 @@ async function doTransfer() {
   }
   if (amount > available.value) {
     msg.error(t('errors.insufficientCommission'))
+    return
+  }
+  if (transferMinLimit.value > 0 && amount < transferMinLimit.value) {
+    msg.error(t('errors.withdrawMinimum', { limit: transferMinLimit.value }))
     return
   }
   try {
@@ -411,8 +439,10 @@ onMounted(async () => {
   </n-card>
 
   <n-modal v-model:show="transferOpen" preset="card" :title="t('invite.transfer')" style="width: 400px">
-    <p v-if="withdrawLimitLabel" class="withdraw-hint">{{ withdrawLimitLabel }}</p>
+    <p v-if="transferMinLabel" class="withdraw-hint">{{ transferMinLabel }}</p>
+    <p v-if="withdrawFeeLabel" class="withdraw-hint">{{ withdrawFeeLabel }}</p>
     <n-input v-model:value="transferAmount" :placeholder="t('invite.transferAmount')" />
+    <p v-if="transferNetPreview" class="withdraw-hint">{{ transferNetPreview }}</p>
     <div class="modal-actions">
       <n-button @click="transferOpen = false">{{ t('common.cancel') }}</n-button>
       <n-button type="primary" @click="doTransfer">{{ t('common.confirm') }}</n-button>

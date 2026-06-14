@@ -172,6 +172,8 @@ export default {
     paymentNotFound: 'Stripe payment method not found',
     requestFailed: 'Request failed. Please try again later.',
     commConfigFailed: 'Failed to load site settings. Some features may be unavailable — refresh and try again.',
+    tooManyAttempts: 'Too many attempts. Please try again later.',
+    telegramLoginUnavailable: 'Telegram login is not available.',
     featureDisabled: 'This feature is disabled.',
     paymentFailed: 'Payment failed',
     invalidParameter: 'Invalid parameter',
@@ -280,6 +282,8 @@ export default {
     withdrawSuccess: 'Withdrawal request submitted. View your ticket for updates.',
     withdrawLimitHint: 'Minimum withdrawal: {limit}',
     withdrawFeeHint: 'Withdrawal fee: {rate}%',
+    transferMinHint: 'Minimum transfer amount: {limit}',
+    transferNetHint: 'Fee {fee}, net to balance: {net}',
     withdrawFullBalanceHint: 'The full available commission will be withdrawn (net of fees).',
   },
   traffic: {

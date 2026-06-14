@@ -71,6 +71,10 @@ class LoginService
         $user->last_login_at = time();
         $user->save();
 
+        if ((int) admin_setting('password_limit_enable', true)) {
+            Cache::forget(CacheKey::get('PASSWORD_ERROR_LIMIT', $email));
+        }
+
         HookManager::call('user.login.after', $user);
         return [true, $user];
     }

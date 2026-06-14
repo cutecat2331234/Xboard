@@ -162,6 +162,7 @@ export default {
     sessionExpired: "세션이 만료되었습니다. 다시 로그인해 주세요",
     sessionKicked: "다른 기기에서 로그인되었습니다. 다시 로그인해 주세요",
     loginFailed: "로그인에 실패했습니다",
+    commConfigFailed: "사이트 설정을 불러오지 못했습니다. 일부 기능을 사용할 수 없을 수 있습니다. 페이지를 새로고침한 후 다시 시도해 주세요.",
     orderNotFound: "주문을 찾을 수 없습니다",
     orderNotFoundOrPaid: "주문이 존재하지 않거나 이미 결제되었습니다",
     planNotFound: "구독 플랜이 존재하지 않습니다",
