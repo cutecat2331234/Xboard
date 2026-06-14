@@ -37,7 +37,7 @@ type KnowledgeRow = {
   show?: boolean | number
 }
 
-const LANGUAGES = ['zh-CN', 'en-US', 'ja-JP', 'vi-VN', 'ko-KR'] as const
+const LANGUAGES = ['zh-CN', 'en-US', 'ja-JP', 'vi-VN', 'ko-KR', 'zh-TW', 'ru-RU', 'fa-IR'] as const
 
 export default function KnowledgePage() {
   const { t } = useTranslation()

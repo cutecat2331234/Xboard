@@ -518,14 +518,12 @@ export default function UserPage() {
           toast.error(t('user.messages.send_mail.required_selected'))
           return
         }
-        for (const id of selectedIds) {
-          await postJson('/user/sendMail', {
-            scope: 'filtered',
-            filter: [{ id: 'id', value: `eq:${id}` }],
-            subject,
-            content,
-          })
-        }
+        await postJson('/user/sendMail', {
+          scope: 'selected',
+          user_ids: Array.from(selectedIds),
+          subject,
+          content,
+        })
       } else if (mailScope === 'filtered') {
         await postJson('/user/sendMail', {
           scope: 'filtered',

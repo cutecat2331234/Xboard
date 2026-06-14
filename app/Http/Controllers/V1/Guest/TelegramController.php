@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\Plugin\HookManager;
 use App\Services\TelegramService;
 use App\Services\UserService;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 
 class TelegramController extends Controller
@@ -24,8 +25,7 @@ class TelegramController extends Controller
 
     public function webhook(Request $request): void
     {
-        $expectedToken = md5(admin_setting('telegram_bot_token'));
-        if ($request->input('access_token') !== $expectedToken) {
+        if (!Helper::verifyTelegramWebhookAccessToken($request->input('access_token'))) {
             throw new ApiException('access_token is error', 401);
         }
 

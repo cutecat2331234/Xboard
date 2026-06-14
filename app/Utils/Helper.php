@@ -289,6 +289,43 @@ class Helper
     }
 
     /**
+     * Telegram Webhook URL access_token（HMAC，替代弱 MD5）
+     */
+    public static function telegramWebhookAccessToken(?string $botToken = null): string
+    {
+        $token = (string) ($botToken ?? admin_setting('telegram_bot_token', ''));
+        return hash_hmac('sha256', $token, (string) config('app.key'));
+    }
+
+    /**
+     * 校验 Telegram Webhook access_token（兼容旧 MD5 链接）
+     */
+    public static function verifyTelegramWebhookAccessToken(?string $provided, ?string $botToken = null): bool
+    {
+        if ($provided === null || $provided === '') {
+            return false;
+        }
+
+        $token = (string) ($botToken ?? admin_setting('telegram_bot_token', ''));
+        if ($token === '') {
+            return false;
+        }
+
+        $candidates = [
+            self::telegramWebhookAccessToken($token),
+            md5($token),
+        ];
+
+        foreach ($candidates as $expected) {
+            if (hash_equals($expected, $provided)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Allow only in-app hash-router paths for post-login redirect.
      */
     public static function sanitizeAppRedirect(?string $redirect, string $default = 'dashboard'): string

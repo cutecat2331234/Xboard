@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
 
@@ -122,6 +122,18 @@ const selectedPayment = computed(() => methods.value.find((m) => m.id === select
 const isStripe = computed(() => selectedPayment.value?.payment === 'StripeCredit')
 
 const stripeFormRef = ref<InstanceType<typeof StripeCardForm> | null>(null)
+
+let lastStripeMountError = ''
+
+watch(
+  () => (isStripe.value ? stripeFormRef.value?.mountError : null),
+  (err) => {
+    const message = err ? String(err) : ''
+    if (!message || message === lastStripeMountError) return
+    lastStripeMountError = message
+    msg.error(message)
+  },
+)
 
 
 

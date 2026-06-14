@@ -55,8 +55,9 @@ class ConfigController extends Controller
         if (blank($hookUrl)) {
             return $this->fail([422, 'Telegram Webhook地址未配置']);
         }
+        $botToken = admin_setting('telegram_bot_token', $request->input('telegram_bot_token'));
         $hookUrl .= '?' . http_build_query([
-            'access_token' => md5(admin_setting('telegram_bot_token', $request->input('telegram_bot_token')))
+            'access_token' => \App\Utils\Helper::telegramWebhookAccessToken($botToken),
         ]);
         $telegramService = new TelegramService($request->input('telegram_bot_token'));
         $telegramService->getMe();
