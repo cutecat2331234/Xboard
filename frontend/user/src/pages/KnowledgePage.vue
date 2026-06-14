@@ -53,10 +53,25 @@ function search() {
   query.value = keyword.value
 }
 
+const KNOWLEDGE_LOCALES = ['zh-CN', 'en-US', 'ja-JP', 'ko-KR', 'zh-TW', 'vi-VN', 'fa-IR', 'ru-RU'] as const
+
+function resolveKnowledgeLang(loc: string): string {
+  if ((KNOWLEDGE_LOCALES as readonly string[]).includes(loc)) return loc
+  if (loc.startsWith('zh')) {
+    return loc.includes('TW') || loc.includes('Hant') ? 'zh-TW' : 'zh-CN'
+  }
+  if (loc.startsWith('ja')) return 'ja-JP'
+  if (loc.startsWith('ko')) return 'ko-KR'
+  if (loc.startsWith('vi')) return 'vi-VN'
+  if (loc.startsWith('fa')) return 'fa-IR'
+  if (loc.startsWith('ru')) return 'ru-RU'
+  return 'en-US'
+}
+
 onMounted(async () => {
   loading.value = true
   try {
-    const lang = locale.value.startsWith('zh') ? 'zh-CN' : locale.value.startsWith('ru') ? 'ru-RU' : 'en-US'
+    const lang = resolveKnowledgeLang(locale.value)
     const [list, cats] = await Promise.all([
       fetchKnowledge(lang),
       fetchKnowledgeCategories(lang).catch(() => []),

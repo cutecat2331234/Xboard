@@ -88,7 +88,7 @@ class CouponService
     {
         $usedCount = Order::where('coupon_id', $this->coupon->id)
             ->where('user_id', $this->userId)
-            ->whereNotIn('status', [0, 2])
+            ->whereNotIn('status', [Order::STATUS_CANCELLED])
             ->count();
         if ($usedCount >= $this->coupon->limit_use_with_user) {
             return false;
@@ -116,7 +116,7 @@ class CouponService
             }
         }
         if ($this->coupon->limit_period && $this->period) {
-            if (!in_array($this->period, $this->coupon->limit_period)) {
+            if (!$this->periodAllowed($this->coupon->limit_period, $this->period)) {
                 throw new ApiException(__('The coupon code cannot be used for this period'));
             }
         }
@@ -127,5 +127,17 @@ class CouponService
                 ]));
             }
         }
+    }
+
+    private function periodAllowed(array $limitPeriod, string $period): bool
+    {
+        $normalizedPeriod = PlanService::getPeriodKey($period);
+        foreach ($limitPeriod as $allowed) {
+            if (PlanService::getPeriodKey((string) $allowed) === $normalizedPeriod) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

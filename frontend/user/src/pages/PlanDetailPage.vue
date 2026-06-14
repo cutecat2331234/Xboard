@@ -64,7 +64,7 @@ async function applyCoupon() {
       period: period.value,
     })
     couponDiscount.value =
-      info.type === 1 ? `${info.value}%` : formatPrice(info.value)
+      info.type === 2 ? `${info.value}%` : formatPrice(info.value)
     msg.success(t('plan.couponApplied'))
   } catch (e: unknown) {
     couponDiscount.value = ''

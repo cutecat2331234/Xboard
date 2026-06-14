@@ -15,7 +15,7 @@ class TicketSave extends FormRequest
     {
         return [
             'subject' => 'required',
-            'level' => 'required|in:0,1,2',
+            'level' => 'required|in:0,1',
             'message' => 'required'
         ];
     }

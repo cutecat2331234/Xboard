@@ -199,6 +199,14 @@ class OrderController extends Controller
             return $this->fail([400202, '订单不存在']);
         }
 
+        if (
+            (int) $order->commission_status === 2
+            && isset($params['commission_status'])
+            && (int) $params['commission_status'] !== 2
+        ) {
+            return $this->fail([400, '已结算的佣金不可回退']);
+        }
+
         try {
             $order->update($params);
         } catch (\Exception $e) {

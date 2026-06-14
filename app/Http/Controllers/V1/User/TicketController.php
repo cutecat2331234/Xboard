@@ -68,7 +68,7 @@ class TicketController extends Controller
         if (!$ticket) {
             return $this->fail([400, __('Ticket does not exist')]);
         }
-        if ($ticket->status) {
+        if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
             return $this->fail([400, __('The ticket is closed and cannot be replied')]);
         }
         if ((int) admin_setting('ticket_must_wait_reply', 0)) {
@@ -103,13 +103,23 @@ class TicketController extends Controller
         if (!$ticket) {
             return $this->fail([400, __('Ticket does not exist')]);
         }
+        if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
+            return $this->fail([400, __('The ticket is closed')]);
+        }
         try {
             DB::transaction(function () use ($ticket) {
-                if ((int) $ticket->level === 2) {
-                    TicketService::restoreWithdrawCommission($ticket);
+                $locked = Ticket::where('id', $ticket->id)->lockForUpdate()->first();
+                if (!$locked || (int) $locked->status !== Ticket::STATUS_OPENING) {
+                    throw new \RuntimeException('Already closed');
                 }
-                $ticket->status = Ticket::STATUS_CLOSED;
-                if (!$ticket->save()) {
+                if (
+                    (int) $locked->level === 2
+                    && (int) $locked->reply_status === Ticket::REPLY_STATUS_WAITING
+                ) {
+                    TicketService::restoreWithdrawCommission($locked);
+                }
+                $locked->status = Ticket::STATUS_CLOSED;
+                if (!$locked->save()) {
                     throw new \RuntimeException('Close failed');
                 }
             });
@@ -163,16 +173,15 @@ class TicketController extends Controller
                 }
 
                 $ticketService = new TicketService();
-                $subject = __('[Commission Withdrawal Request] This ticket is opened by the system');
+                $subject = TicketService::withdrawSubject();
                 $message = TicketService::buildWithdrawMessage(
                     $withdrawAmount,
                     $request->input('withdraw_method'),
                     $request->input('withdraw_account')
                 );
-                $ticket = $ticketService->createTicket(
+                $ticket = $ticketService->createWithdrawTicket(
                     $request->user()->id,
                     $subject,
-                    2,
                     $message
                 );
 

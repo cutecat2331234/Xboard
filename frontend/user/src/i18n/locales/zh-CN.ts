@@ -303,6 +303,7 @@ export default {
     lastReply: '最后回复时间',
     message: '消息',
     messagePh: '请描述你遇到的问题',
+    fillRequired: '请填写主题和消息',
     levelLow: '低',
     levelMedium: '中',
     levelHigh: '高',

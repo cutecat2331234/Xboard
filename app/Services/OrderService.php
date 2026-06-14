@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\ApiException;
 use App\Jobs\OrderHandleJob;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\TrafficResetLog;
@@ -219,8 +220,10 @@ class OrderService
     public function setInvite(User $user): void
     {
         $order = $this->order;
-        if ($user->invite_user_id && ($order->total_amount <= 0))
+        $commissionBase = (int) $order->total_amount + (int) ($order->surplus_amount ?? 0);
+        if (!$user->invite_user_id || $commissionBase <= 0) {
             return;
+        }
         $order->invite_user_id = $user->invite_user_id;
         $inviter = User::find($user->invite_user_id);
         if (!$inviter)
@@ -242,9 +245,9 @@ class OrderService
         if (!$isCommission)
             return;
         if ($inviter->commission_rate) {
-            $order->commission_balance = $order->total_amount * ($inviter->commission_rate / 100);
+            $order->commission_balance = $commissionBase * ($inviter->commission_rate / 100);
         } else {
-            $order->commission_balance = $order->total_amount * (admin_setting('invite_commission', 10) / 100);
+            $order->commission_balance = $commissionBase * (admin_setting('invite_commission', 10) / 100);
         }
     }
 
@@ -369,6 +372,11 @@ class OrderService
                     if (!$userService->addBalance($lockedOrder->user_id, $lockedOrder->balance_amount)) {
                         throw new \Exception('Failed to add balance.');
                     }
+                }
+                if ($lockedOrder->coupon_id) {
+                    Coupon::where('id', $lockedOrder->coupon_id)
+                        ->whereNotNull('limit_use')
+                        ->increment('limit_use');
                 }
                 $this->order = $lockedOrder;
                 HookManager::call('order.cancel.after', $lockedOrder);

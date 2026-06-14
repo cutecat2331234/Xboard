@@ -36,7 +36,11 @@ class SendEmailJob implements ShouldQueue
     {
         $mailLog = MailService::sendEmail($this->params);
         if ($mailLog['error']) {
-            $this->release(30);
+            if ($this->attempts() < $this->tries) {
+                $this->release(30);
+                return;
+            }
+            $this->fail(new \RuntimeException((string) ($mailLog['error'] ?? 'mail failed')));
         }
     }
 }

@@ -74,6 +74,12 @@ class CheckCommission extends Command
                     DB::rollBack();
                     continue;
                 }
+                if (CommissionLog::where('trade_no', $order->trade_no)->exists()) {
+                    $order->commission_status = 2;
+                    $order->save();
+                    DB::commit();
+                    continue;
+                }
                 if (!$this->payHandle($order->invite_user_id, $order)) {
                     DB::rollBack();
                     continue;

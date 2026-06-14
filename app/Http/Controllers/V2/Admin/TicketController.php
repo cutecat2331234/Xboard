@@ -147,6 +147,9 @@ class TicketController extends Controller
         try {
             DB::transaction(function () use ($request) {
                 $ticket = Ticket::where('id', $request->input('id'))->lockForUpdate()->firstOrFail();
+                if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
+                    throw new \RuntimeException('Already closed');
+                }
                 if ((int) $ticket->level === 2 && $request->boolean('withdraw_rejected')) {
                     TicketService::restoreWithdrawCommission($ticket);
                 }

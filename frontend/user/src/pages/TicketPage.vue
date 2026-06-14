@@ -21,6 +21,7 @@ import { resolveApiError } from '@/lib/api-errors'
 const router = useRouter()
 const rows = ref<TicketItem[]>([])
 const loading = ref(false)
+const creating = ref(false)
 const showCreate = ref(false)
 const subject = ref('')
 const message = ref('')
@@ -31,7 +32,6 @@ const { t } = useI18n()
 const levelOptions = computed(() => [
   { label: t('ticket.levelLow'), value: 0 },
   { label: t('ticket.levelMedium'), value: 1 },
-  { label: t('ticket.levelHigh'), value: 2 },
 ])
 
 function levelLabel(value: number) {
@@ -62,8 +62,13 @@ async function load() {
 }
 
 async function create() {
+  if (!subject.value.trim() || !message.value.trim()) {
+    msg.warning(t('ticket.fillRequired'))
+    return
+  }
+  creating.value = true
   try {
-    await saveTicket({ subject: subject.value, level: level.value, message: message.value })
+    await saveTicket({ subject: subject.value.trim(), level: level.value, message: message.value.trim() })
     showCreate.value = false
     subject.value = ''
     message.value = ''
@@ -73,6 +78,8 @@ async function create() {
     if (created?.id) router.push(`/ticket/${created.id}`)
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
+  } finally {
+    creating.value = false
   }
 }
 
@@ -162,7 +169,7 @@ onMounted(load)
       </n-form-item>
       <div class="ticket-modal-actions">
         <n-button @click="showCreate = false">{{ t('common.cancel') }}</n-button>
-        <n-button type="primary" @click="create">{{ t('common.confirm') }}</n-button>
+        <n-button type="primary" :loading="creating" @click="create">{{ t('common.confirm') }}</n-button>
       </div>
     </n-form>
   </n-modal>

@@ -57,7 +57,7 @@ const hasActiveSubscription = computed(() => {
 const trafficWarnThreshold = computed(() => resolveTrafficWarnRate(commConfig.value))
 
 const showTrafficAlert = computed(
-  () => !hasActiveSubscription.value && trafficPercent.value >= trafficWarnThreshold.value,
+  () => hasActiveSubscription.value && trafficPercent.value >= trafficWarnThreshold.value,
 )
 
 async function load() {
