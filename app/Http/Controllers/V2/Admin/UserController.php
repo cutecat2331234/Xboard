@@ -789,15 +789,15 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
             $userId = (int) $user->id;
-            Ticket::where('user_id', $userId)
+            $pendingWithdraw = Ticket::where('user_id', $userId)
                 ->where('status', Ticket::STATUS_OPENING)
                 ->where('level', 2)
                 ->get()
-                ->each(function (Ticket $ticket) {
-                    if (TicketService::isWithdrawTicket($ticket)) {
-                        TicketService::restoreWithdrawCommission($ticket);
-                    }
-                });
+                ->contains(fn (Ticket $ticket) => TicketService::isWithdrawTicket($ticket));
+            if ($pendingWithdraw) {
+                DB::rollBack();
+                return $this->fail([400, '用户存在待处理的提现工单，请先处理后再删除']);
+            }
             $ticketIds = $user->tickets()->pluck('id');
             if ($ticketIds->isNotEmpty()) {
                 TicketMessage::whereIn('ticket_id', $ticketIds)->delete();

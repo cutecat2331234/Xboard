@@ -185,6 +185,9 @@ class GiftCardService
     protected function giveRewards(array $rewards): void
     {
         $userService = app(UserService::class);
+        $bonusTransfer = (int) ($rewards['transfer_enable'] ?? 0);
+        $bonusDevice = (int) ($rewards['device_limit'] ?? 0);
+        $hasPlanReward = isset($rewards['plan_id']);
 
         if (isset($rewards['balance']) && $rewards['balance'] > 0) {
             if (!$userService->addBalance($this->user->id, $rewards['balance'])) {
@@ -192,21 +195,24 @@ class GiftCardService
             }
         }
 
-        if (isset($rewards['transfer_enable']) && $rewards['transfer_enable'] > 0) {
-            $this->user->transfer_enable = ($this->user->transfer_enable ?? 0) + $rewards['transfer_enable'];
-        }
+        if (!$hasPlanReward) {
+            if ($bonusTransfer > 0) {
+                $this->user->transfer_enable = ($this->user->transfer_enable ?? 0) + $bonusTransfer;
+            }
 
-        if (isset($rewards['device_limit']) && $rewards['device_limit'] > 0) {
-            $this->user->device_limit = ($this->user->device_limit ?? 0) + $rewards['device_limit'];
+            if ($bonusDevice > 0) {
+                $this->user->device_limit = ($this->user->device_limit ?? 0) + $bonusDevice;
+            }
         }
 
         if (isset($rewards['reset_package']) && $rewards['reset_package']) {
             if ($this->user->plan_id) {
                 app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_GIFT_CARD);
+                $this->user->refresh();
             }
         }
 
-        if (isset($rewards['plan_id'])) {
+        if ($hasPlanReward) {
             $plan = Plan::where('id', $rewards['plan_id'])->lockForUpdate()->first();
             if (!$plan) {
                 throw new ApiException('关联套餐不存在');
@@ -215,6 +221,7 @@ class GiftCardService
                 throw new ApiException(__('Current product is sold out'));
             }
             app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_GIFT_CARD);
+            $this->user->refresh();
             $validityDays = (int) ($rewards['plan_validity_days'] ?? 0);
             if ($validityDays <= 0) {
                 $validityDays = 30;
@@ -224,6 +231,12 @@ class GiftCardService
                 $plan,
                 $validityDays
             );
+            if ($bonusTransfer > 0) {
+                $this->user->transfer_enable = ($this->user->transfer_enable ?? 0) + $bonusTransfer;
+            }
+            if ($bonusDevice > 0) {
+                $this->user->device_limit = ($this->user->device_limit ?? 0) + $bonusDevice;
+            }
         } else {
             // 只有在不是套餐卡的情况下，才处理独立的有效期奖励
             if (isset($rewards['expire_days']) && $rewards['expire_days'] > 0) {

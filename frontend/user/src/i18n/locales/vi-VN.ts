@@ -319,7 +319,7 @@ export default {
     notice: "Lưu ý",
     closeOrder: "Đóng đơn hàng",
     closeConfirm: "Nếu bạn đã thanh toán, việc hủy đơn có thể khiến thanh toán thất bại. Bạn có chắc muốn hủy?",
-    closeSuccess: "Đã đóng phiếu",
+    closeSuccess: "Đã hủy đơn hàng",
     discount: "Số tiền giảm giá",
     discountLabel: "Giảm giá",
     surplus: "Giảm giá",
@@ -377,7 +377,8 @@ export default {
     replyPh: "Nhập phản hồi của bạn…",
     closedReplyPh: "Phiếu đã đóng — không thể trả lời",
     closedHint: "Phiếu này đã đóng. Bạn không thể gửi thêm phản hồi.",
-    closeSuccess: "Ticket closed",
+    closeSuccess: "Đã đóng phiếu",
+    fillRequired: "Vui lòng nhập chủ đề và nội dung",
     empty: "Chưa có phiếu hỗ trợ"
   },
   giftCard: {
@@ -396,6 +397,7 @@ export default {
     codeMasked: "Mã",
     rewards: "Phần thưởng",
     rewardPreview: "Xem trước phần thưởng",
+    mysteryPreview: "Phần thưởng ngẫu nhiên ({count} mục trong pool — hiển thị sau khi đổi)",
     rewardBalance: "Số dư",
     rewardTraffic: "Lưu lượng",
     rewardExpireDays: "Gia hạn hiệu lực (ngày)",
@@ -446,6 +448,7 @@ export default {
     telegram: "Telegram",
     telegramHint: "Tìm bot này trên Telegram và gửi /bind:",
     telegramBound: "Đã liên kết Telegram",
+    telegramBotUnavailable: "Bot Telegram hiện không khả dụng. Vui lòng thử lại sau.",
     telegramGroup: "Tham gia nhóm Telegram"
   }
 } as const

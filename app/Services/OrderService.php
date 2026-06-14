@@ -166,7 +166,7 @@ class OrderService
 
             match ((string) $order->period) {
                 Plan::PERIOD_ONETIME => $this->buyByOneTime($plan),
-                Plan::PERIOD_RESET_TRAFFIC => app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_ORDER),
+                Plan::PERIOD_RESET_TRAFFIC => $this->resetUserTraffic(TrafficResetLog::SOURCE_ORDER),
                 default => $this->buyByPeriod($order, $plan),
             };
 
@@ -505,6 +505,12 @@ class OrderService
         }
     }
 
+    private function resetUserTraffic(string $source): void
+    {
+        app(TrafficResetService::class)->performReset($this->user, $source);
+        $this->user->refresh();
+    }
+
     private function setSpeedLimit($speedLimit)
     {
         $this->user->speed_limit = $speedLimit;
@@ -524,7 +530,7 @@ class OrderService
         $this->user->transfer_enable = $plan->transfer_enable * 1073741824;
         // 从一次性转换到循环或者新购的时候，重置流量
         if ($this->user->expired_at === NULL || $order->type === Order::TYPE_NEW_PURCHASE)
-            app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_ORDER);
+            $this->resetUserTraffic(TrafficResetLog::SOURCE_ORDER);
         $this->user->plan_id = $plan->id;
         $this->user->group_id = $plan->group_id;
         $this->user->expired_at = $this->getTime($order->period, $this->user->expired_at);
@@ -532,7 +538,7 @@ class OrderService
 
     private function buyByOneTime(Plan $plan)
     {
-        app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_ORDER);
+        $this->resetUserTraffic(TrafficResetLog::SOURCE_ORDER);
         $this->user->transfer_enable = $plan->transfer_enable * 1073741824;
         $this->user->plan_id = $plan->id;
         $this->user->group_id = $plan->group_id;
@@ -565,7 +571,7 @@ class OrderService
             case 0:
                 break;
             case 1:
-                app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_ORDER);
+                $this->resetUserTraffic(TrafficResetLog::SOURCE_ORDER);
                 break;
         }
     }
