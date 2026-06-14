@@ -129,11 +129,20 @@ class UserService
                         'user_id' => $userId,
                         'error' => $e->getMessage(),
                     ]);
+                    (new OrderService($order))->failOpenAndRefund($e->getMessage());
+                    $order->refresh();
+                    if ((int) $order->status === Order::STATUS_CANCELLED) {
+                        return false;
+                    }
                 }
             }
         }
 
-        return true;
+        $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+            ->where('user_id', $userId)
+            ->first();
+
+        return $order !== null;
     }
 
     public function trafficFetch(Server $server, string $protocol, array $data)

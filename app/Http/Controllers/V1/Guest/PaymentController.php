@@ -90,6 +90,10 @@ class PaymentController extends Controller
                         'trade_no' => $tradeNo,
                         'error' => $e->getMessage(),
                     ]);
+                    $orderService = new OrderService($order->fresh());
+                    if ($orderService->failOpenAndRefund($e->getMessage())) {
+                        return true;
+                    }
                     return false;
                 }
             }

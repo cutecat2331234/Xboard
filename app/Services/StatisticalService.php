@@ -59,14 +59,13 @@ class StatisticalService
         $data['order_total'] = Order::where('created_at', '>=', $startAt)
             ->where('created_at', '<', $endAt)
             ->sum('total_amount');
-        $data['paid_count'] = Order::where('paid_at', '>=', $startAt)
+        $paidOrderQuery = Order::where('paid_at', '>=', $startAt)
             ->where('paid_at', '<', $endAt)
-            ->whereNotIn('status', [0, 2])
-            ->count();
-        $data['paid_total'] = Order::where('paid_at', '>=', $startAt)
-            ->where('paid_at', '<', $endAt)
-            ->whereNotIn('status', [0, 2])
-            ->sum('total_amount');
+            ->where('status', Order::STATUS_COMPLETED);
+        $data['paid_count'] = (clone $paidOrderQuery)->count();
+        $data['paid_total'] = (clone $paidOrderQuery)
+            ->selectRaw('SUM(total_amount + balance_amount) as total')
+            ->value('total') ?? 0;
         $commissionLogBuilder = CommissionLog::where('created_at', '>=', $startAt)
             ->where('created_at', '<', $endAt);
         $data['commission_count'] = $commissionLogBuilder->count();

@@ -1837,7 +1837,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "l1": "Level 1 Inviter Ratio",
         "l2": "Level 2 Inviter Ratio",
         "l3": "Level 3 Inviter Ratio",
-        "placeholder": "Enter ratio e.g. 50"
+        "placeholder": "Enter ratio e.g. 50",
+        "sum_error": "Level 1 + Level 2 + Level 3 ratios must equal 100%"
       },
       "saving": "Saving..."
     },

@@ -7,8 +7,13 @@ export interface OrderItem {
   period: string
   total_amount: number
   status: number
+  payment_id?: number | null
   created_at: number
   plan?: { name: string }
+}
+
+export function canCancelOrder(row: OrderItem) {
+  return row.status === 0 && (row.payment_id == null || row.payment_id === 0)
 }
 
 export async function fetchOrders() {

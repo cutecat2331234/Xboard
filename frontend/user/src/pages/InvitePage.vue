@@ -205,6 +205,10 @@ async function doTransfer() {
     msg.error(t('invite.transferAmountInvalid'))
     return
   }
+  if (amount > available.value) {
+    msg.error(t('errors.insufficientCommission'))
+    return
+  }
   try {
     await transferCommission(amount * 100)
     msg.success(t('common.success'))

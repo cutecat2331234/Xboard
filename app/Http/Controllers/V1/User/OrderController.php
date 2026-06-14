@@ -217,9 +217,6 @@ class OrderController extends Controller
         if ($order->status !== 0) {
             return $this->fail([400, __('You can only cancel pending orders')]);
         }
-        if ($order->payment_id !== null) {
-            return $this->fail([400, __('Payment is in progress for this order, cannot cancel')]);
-        }
         $orderService = new OrderService($order);
         if (!$orderService->cancel()) {
             return $this->fail([400, __('Cancel failed')]);
