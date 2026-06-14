@@ -48,6 +48,10 @@ class UserController extends Controller
 
     public function resetSecret(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer|exists:v2_user,id',
+        ]);
+
         $user = User::find($request->input('id'));
         if (!$user)
             return $this->fail([400202, '用户不存在']);

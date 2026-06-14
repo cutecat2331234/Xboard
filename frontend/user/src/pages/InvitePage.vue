@@ -268,7 +268,7 @@ const detailColumns = computed(() => [
     key: 'get_amount',
     fixed: 'right',
     align: 'right',
-    render: (r: { get_amount?: number }) => formatAmount(r.get_amount ?? 0),
+    render: (r: { get_amount?: number }) => formatPriceSpaced(r.get_amount ?? 0),
   },
 ])
 

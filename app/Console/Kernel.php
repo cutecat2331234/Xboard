@@ -7,6 +7,7 @@ use App\Utils\CacheKey;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -64,6 +65,7 @@ class Kernel extends ConsoleKernel
         try {
             app(PluginManager::class)->initializeEnabledPlugins();
         } catch (\Exception $e) {
+            Log::error('Plugin boot failed in console: ' . $e->getMessage());
         }
         require base_path('routes/console.php');
     }

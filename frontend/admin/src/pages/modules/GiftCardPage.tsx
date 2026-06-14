@@ -98,6 +98,14 @@ type GiftCardRewards = {
 
   plan_validity_days?: number | null
 
+  random_rewards?: RandomRewardItem[]
+
+}
+
+type RandomRewardItem = {
+  weight: number
+  balance?: number
+  transfer_enable?: number
 }
 
 
@@ -247,6 +255,18 @@ function parseRewards(raw: unknown): GiftCardRewards {
     plan_id: r.plan_id != null ? Number(r.plan_id) : null,
 
     plan_validity_days: r.plan_validity_days != null ? Number(r.plan_validity_days) : null,
+
+    random_rewards: Array.isArray(r.random_rewards)
+      ? (r.random_rewards as RandomRewardItem[]).map((item) => ({
+          weight: Number(item.weight) || 1,
+          balance:
+            item.balance != null ? Number(item.balance) / BALANCE_CENTS_PER_UNIT : undefined,
+          transfer_enable:
+            item.transfer_enable != null
+              ? Number(item.transfer_enable) / TRAFFIC_BYTES_PER_GB
+              : undefined,
+        }))
+      : [{ weight: 100, balance: 1 }],
 
   }
 
@@ -603,7 +623,26 @@ export default function GiftCardPage() {
       rewards.transfer_enable = Math.round(Number(rewards.transfer_enable) * TRAFFIC_BYTES_PER_GB)
     }
 
-    if (form.type === 2) {
+    if (form.type === 3) {
+      const pool = (form.rewards.random_rewards ?? []).map((item) => {
+        const entry: Record<string, number> = { weight: Number(item.weight) || 1 }
+        if (item.balance != null && item.balance > 0) {
+          entry.balance = Math.round(Number(item.balance) * BALANCE_CENTS_PER_UNIT)
+        }
+        if (item.transfer_enable != null && item.transfer_enable > 0) {
+          entry.transfer_enable = Math.round(Number(item.transfer_enable) * TRAFFIC_BYTES_PER_GB)
+        }
+        return entry
+      })
+      rewards.random_rewards = pool
+      delete rewards.balance
+      delete rewards.transfer_enable
+      delete rewards.expire_days
+      delete rewards.device_limit
+      delete rewards.reset_package
+      delete rewards.plan_id
+      delete rewards.plan_validity_days
+    } else if (form.type === 2) {
 
       delete rewards.balance
 
@@ -1142,7 +1181,7 @@ export default function GiftCardPage() {
 
       { accessorKey: 'template_name', header: () => t('giftCard.code.table.columns.template_name') },
 
-      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.id') },
+      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.batch_id', 'Batch') },
 
       {
 
@@ -1511,7 +1550,16 @@ export default function GiftCardPage() {
                     <FormSelect
                       className={giftDialogSelectCls}
                       value={String(form.type)}
-                      onChange={(v) => setForm((f) => ({ ...f, type: Number(v) }))}
+                      onChange={(v) =>
+                        setForm((f) => {
+                          const nextType = Number(v)
+                          const rewards =
+                            nextType === 3 && !f.rewards.random_rewards?.length
+                              ? { ...f.rewards, random_rewards: [{ weight: 100, balance: 1 }] }
+                              : f.rewards
+                          return { ...f, type: nextType, rewards }
+                        })
+                      }
                       options={giftTypeOptions.map(({ id, label }) => ({
                         value: String(id),
                         label,
@@ -1663,6 +1711,198 @@ export default function GiftCardPage() {
                       />
 
                     </div>
+
+                  </div>
+
+                ) : form.type === 3 ? (
+
+                  <div className="space-y-3">
+
+                    <Label className={dialogFieldLabelCls}>
+                      {t('giftCard.template.form.rewards.random_rewards.label')}
+                    </Label>
+
+                    {(form.rewards.random_rewards ?? []).map((item, idx) => (
+
+                      <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_auto] items-end gap-2 rounded-md border p-3">
+
+                        <div className="space-y-1">
+
+                          <Label className="text-xs">{t('giftCard.template.form.rewards.random_rewards.weight')}</Label>
+
+                          <Input
+
+                            type="number"
+
+                            min={1}
+
+                            value={item.weight}
+
+                            onChange={(e) =>
+
+                              setForm((f) => {
+
+                                const pool = [...(f.rewards.random_rewards ?? [])]
+
+                                pool[idx] = { ...pool[idx], weight: Number(e.target.value) || 1 }
+
+                                return { ...f, rewards: { ...f.rewards, random_rewards: pool } }
+
+                              })
+
+                            }
+
+                          />
+
+                        </div>
+
+                        <div className="space-y-1">
+
+                          <Label className="text-xs">{t('giftCard.template.form.rewards.balance.label')}</Label>
+
+                          <SuffixInput
+
+                            suffix={currencySymbol}
+
+                            type="number"
+
+                            value={item.balance ?? ''}
+
+                            onChange={(e) =>
+
+                              setForm((f) => {
+
+                                const pool = [...(f.rewards.random_rewards ?? [])]
+
+                                pool[idx] = {
+
+                                  ...pool[idx],
+
+                                  balance: e.target.value ? Number(e.target.value) : undefined,
+
+                                }
+
+                                return { ...f, rewards: { ...f.rewards, random_rewards: pool } }
+
+                              })
+
+                            }
+
+                          />
+
+                        </div>
+
+                        <div className="space-y-1">
+
+                          <Label className="text-xs">{t('giftCard.template.form.rewards.transfer_enable.label')}</Label>
+
+                          <SuffixInput
+
+                            suffix="GB"
+
+                            type="number"
+
+                            value={item.transfer_enable ?? ''}
+
+                            onChange={(e) =>
+
+                              setForm((f) => {
+
+                                const pool = [...(f.rewards.random_rewards ?? [])]
+
+                                pool[idx] = {
+
+                                  ...pool[idx],
+
+                                  transfer_enable: e.target.value ? Number(e.target.value) : undefined,
+
+                                }
+
+                                return { ...f, rewards: { ...f.rewards, random_rewards: pool } }
+
+                              })
+
+                            }
+
+                          />
+
+                        </div>
+
+                        <Button
+
+                          type="button"
+
+                          variant="ghost"
+
+                          size="sm"
+
+                          className="text-destructive"
+
+                          onClick={() =>
+
+                            setForm((f) => ({
+
+                              ...f,
+
+                              rewards: {
+
+                                ...f.rewards,
+
+                                random_rewards: (f.rewards.random_rewards ?? []).filter((_, i) => i !== idx),
+
+                              },
+
+                            }))
+
+                          }
+
+                        >
+
+                          {t('common.delete')}
+
+                        </Button>
+
+                      </div>
+
+                    ))}
+
+                    <Button
+
+                      type="button"
+
+                      variant="outline"
+
+                      size="sm"
+
+                      onClick={() =>
+
+                        setForm((f) => ({
+
+                          ...f,
+
+                          rewards: {
+
+                            ...f.rewards,
+
+                            random_rewards: [
+
+                              ...(f.rewards.random_rewards ?? []),
+
+                              { weight: 10, balance: 1 },
+
+                            ],
+
+                          },
+
+                        }))
+
+                      }
+
+                    >
+
+                      {t('giftCard.template.form.rewards.random_rewards.add')}
+
+                    </Button>
 
                   </div>
 

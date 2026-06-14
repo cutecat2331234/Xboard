@@ -97,7 +97,11 @@ export function ConfigSectionFields({
           <FormTextarea
             label={t('settings.safe.form.emailWhitelist.suffixes.label')}
             description={t('settings.safe.form.emailWhitelist.suffixes.description')}
-            value={String(safe.email_whitelist_suffix ?? '')}
+            value={
+              Array.isArray(safe.email_whitelist_suffix)
+                ? safe.email_whitelist_suffix.join('\n')
+                : String(safe.email_whitelist_suffix ?? '')
+            }
             placeholder={t('settings.safe.form.emailWhitelist.suffixes.placeholder')}
             onChange={(v) => update('safe', 'email_whitelist_suffix', v)}
           />

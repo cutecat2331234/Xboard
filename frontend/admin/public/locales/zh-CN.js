@@ -2485,8 +2485,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "level": {
       "low": "低优先",
       "medium": "中优先",
-      "high": "高优先",
-      "withdraw": "提现工单"
+      "high": "高优先"
     },
     "filter": {
       "placeholder": "搜索{field}...",
@@ -3026,8 +3025,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "auto_resets": "自动重置",
         "manual_resets": "手动重置",
         "cron_resets": "定时重置",
-        "order_resets": "订单触发",
-        "gift_card_resets": "礼品卡触发",
         "in_period": "最近 {{days}} 天",
         "breakdown": "重置类型分布",
         "breakdown_description": "各类型重置操作的百分比分布",

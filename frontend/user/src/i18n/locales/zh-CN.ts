@@ -345,6 +345,7 @@ export default {
     codeMasked: '兑换码',
     rewards: '获得奖励',
     rewardPreview: '奖励预览',
+    mysteryPreview: '随机奖励（奖池 {count} 项，兑换后揭晓）',
     rewardBalance: '余额',
     rewardTraffic: '流量',
     rewardExpireDays: '延长有效期(天)',

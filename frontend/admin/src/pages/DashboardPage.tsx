@@ -766,7 +766,7 @@ function RankCard({
                     >
                       <span>{i + 1}</span>
                       <span className="truncate">{String(r.name ?? r.email ?? r.server_name ?? '-')}</span>
-                      <span className="text-right">{formatBytes(Number(r.total ?? r.traffic ?? 0))}</span>
+                      <span className="text-right">{formatBytes(Number(r.value ?? r.total ?? r.traffic ?? 0))}</span>
                     </div>
                   )
                 })}
