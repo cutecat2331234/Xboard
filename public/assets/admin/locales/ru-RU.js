@@ -2327,7 +2327,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "bot_token": {
         "title": "Токен бота",
         "description": "Получите у @BotFather.",
-        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx"
+        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx",
+        "required": "Сначала укажите Telegram Bot Token"
       },
       "webhook_url": {
         "title": "Webhook Base URL",
@@ -3020,7 +3021,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       },
       "batch_ban": {
         "success": "Пакетный бан выполнен",
-        "failed": "Ошибка пакетного бана"
+        "failed": "Ошибка пакетного бана",
+        "required_scope": "Выберите пользователей или задайте фильтр перед пакетным баном"
       },
       "send_mail": {
         "success": "Email отправлен",

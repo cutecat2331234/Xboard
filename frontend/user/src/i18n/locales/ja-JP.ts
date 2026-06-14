@@ -181,6 +181,7 @@ export default {
   
     paymentNotFound: 'Stripe 支払い方法が見つかりません',
     paymentInProgress: 'この注文は支払い処理中です。キャンセルできません。',
+    paymentMethodLocked: '支払い方法を変更するには、注文をキャンセルして新規作成してください',
     ticketWaitForReply: 'スタッフの返信をお待ちください。',
     withdrawUnsupported: '出金はサポートされていません',
     insufficientCommission: 'コミッション残高が不足しています',
@@ -312,6 +313,7 @@ export default {
     viewDetail: "詳細を表示",
     detailTitle: "ご注文詳細",
     selectPayment: "支払い方法を選択",
+    paymentLocked: "この注文は支払い方法が固定されています。変更するには注文をキャンセルしてください",
     paymentMethod: "支払い方法",
     totalTitle: "注文合計",
     checkout: "お支払い",

@@ -330,20 +330,30 @@ class OrderService
             }
 
             $orderAmountSum = $orders->sum(fn($item) => $item->total_amount + $item->balance_amount + $item->surplus_amount - $item->surplus_credit);
-            $orderMonthSum = $orders->sum(fn($item) => self::STR_TO_TIME[PlanService::getPeriodKey($item->period)] ?? 0);
-            $firstOrderAt = $orders->min('created_at');
+            $latestOrder = $orders->sortByDesc('created_at')->first();
+            $periodSeconds = $latestOrder
+                ? (self::STR_TO_TIME[PlanService::getPeriodKey($latestOrder->period)] ?? 0)
+                : 0;
             $expiredAt = Carbon::createFromTimestamp((int) $user->expired_at);
-
             $now = now();
-            $totalSeconds = max(1, $expiredAt->timestamp - $firstOrderAt);
+            if ($periodSeconds <= 0) {
+                $firstOrderAt = $orders->min('created_at');
+                $periodSeconds = max(1, $expiredAt->timestamp - (int) $firstOrderAt);
+            }
+            $totalSeconds = max(1, $periodSeconds);
             $remainSeconds = max(0, $expiredAt->timestamp - $now->timestamp);
-            $cycleRatio = $totalSeconds > 0 ? $remainSeconds / $totalSeconds : 0;
+            $cycleRatio = min(1.0, max(0.0, $remainSeconds / $totalSeconds));
 
             $plan = Plan::find($user->plan_id);
-            $totalTraffic = $plan?->transfer_enable * $orderMonthSum;
+            $currentQuotaGB = Helper::transferToGB($user->transfer_enable);
+            if ($currentQuotaGB <= 0 && $plan) {
+                $currentQuotaGB = (float) $plan->transfer_enable;
+            }
             $usedTraffic = Helper::transferToGB($user->u + $user->d);
-            $remainTraffic = max(0, $totalTraffic - $usedTraffic);
-            $trafficRatio = $totalTraffic > 0 ? $remainTraffic / $totalTraffic : 0;
+            $remainTraffic = max(0, $currentQuotaGB - $usedTraffic);
+            $trafficRatio = $currentQuotaGB > 0
+                ? min(1.0, max(0.0, $remainTraffic / $currentQuotaGB))
+                : 0;
 
             $ratio = $cycleRatio;
             $useTrafficRatio = (int) admin_setting('surplus_traffic_ratio_enable', 0) === 1;

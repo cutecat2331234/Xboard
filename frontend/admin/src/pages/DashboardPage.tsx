@@ -620,6 +620,7 @@ export default function DashboardPage() {
 
         <RankCard
           title={t('dashboard.trafficRank.nodeTrafficRank')}
+          variant="node"
           rows={nodeRank}
           loading={nodeRankLoading}
           range={nodeRankRange}
@@ -630,6 +631,7 @@ export default function DashboardPage() {
 
         <RankCard
           title={t('dashboard.trafficRank.userTrafficRank')}
+          variant="user"
           rows={userRank}
           loading={userRankLoading}
           range={userRankRange}
@@ -677,6 +679,7 @@ export default function DashboardPage() {
 
 function RankCard({
   title,
+  variant = 'node',
   rows,
   loading,
   range,
@@ -685,6 +688,7 @@ function RankCard({
   onCustomRangeChange,
 }: {
   title: string
+  variant?: 'node' | 'user'
   rows: unknown[]
   loading?: boolean
   range: TrafficRankRange
@@ -745,8 +749,8 @@ function RankCard({
         <div className="flex h-[400px] flex-col">
           <div className="grid grid-cols-[48px_1fr_auto] gap-2 border-b px-2 pb-2 text-xs font-medium text-muted-foreground">
             <span>{t('dashboard.traffic.rank')}</span>
-            <span>{t('dashboard.traffic.domain')}</span>
-            <span>{t('dashboard.traffic.todayTraffic')}</span>
+            <span>{variant === 'user' ? t('user.columns.email') : t('dashboard.traffic.domain')}</span>
+            <span>{t('dashboard.trafficRank.currentTraffic')}</span>
           </div>
           <div className="flex-1 overflow-auto">
             {loading ? (

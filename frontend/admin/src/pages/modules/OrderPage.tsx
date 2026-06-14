@@ -678,7 +678,7 @@ export default function OrderPage() {
         ),
       },
     ],
-    [t],
+    [t, load],
   )
 
   return (

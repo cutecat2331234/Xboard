@@ -51,15 +51,24 @@ class ConfigController extends Controller
     }
     public function setTelegramWebhook(Request $request)
     {
-        $hookUrl = $this->resolveTelegramWebhookUrl();
+        $request->validate([
+            'telegram_bot_token' => 'nullable|string|max:255',
+            'telegram_webhook_url' => 'nullable|string|max:512',
+        ]);
+        $baseOverride = trim((string) $request->input('telegram_webhook_url', ''));
+        $hookUrl = $this->resolveTelegramWebhookUrl($baseOverride !== '' ? $baseOverride : null);
         if (blank($hookUrl)) {
             return $this->fail([422, 'Telegram Webhook地址未配置']);
         }
-        $botToken = admin_setting('telegram_bot_token', $request->input('telegram_bot_token'));
+        $botToken = trim((string) $request->input('telegram_bot_token', ''))
+            ?: admin_setting('telegram_bot_token');
+        if (blank($botToken)) {
+            return $this->fail([422, 'Telegram Bot Token 未配置']);
+        }
         $hookUrl .= '?' . http_build_query([
             'access_token' => \App\Utils\Helper::telegramWebhookAccessToken($botToken),
         ]);
-        $telegramService = new TelegramService($request->input('telegram_bot_token'));
+        $telegramService = new TelegramService($botToken);
         $telegramService->getMe();
         $telegramService->setWebhook(url: $hookUrl);
         $telegramService->registerBotCommands();
@@ -355,9 +364,11 @@ class ConfigController extends Controller
         return null;
     }
 
-    private function resolveTelegramWebhookUrl(): ?string
+    private function resolveTelegramWebhookUrl(?string $baseOverride = null): ?string
     {
-        $baseUrl = $this->getTelegramWebhookBaseUrl();
+        $baseUrl = $baseOverride !== null && $baseOverride !== ''
+            ? rtrim($baseOverride, '/')
+            : $this->getTelegramWebhookBaseUrl();
         if (!$baseUrl) {
             return null;
         }

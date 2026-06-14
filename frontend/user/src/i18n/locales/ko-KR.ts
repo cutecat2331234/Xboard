@@ -181,6 +181,7 @@ export default {
   
     paymentNotFound: 'Stripe 결제 수단을 찾을 수 없습니다',
     paymentInProgress: '이 주문은 결제 처리 중입니다. 취소할 수 없습니다.',
+    paymentMethodLocked: '결제 수단을 변경하려면 주문을 취소하고 새로 생성하세요',
     ticketWaitForReply: '직원의 답변을 기다려 주세요.',
     withdrawUnsupported: '출금은 지원되지 않습니다',
     insufficientCommission: '커미션 잔액이 부족합니다',
@@ -312,6 +313,7 @@ export default {
     viewDetail: "세부사항 보기",
     detailTitle: "주문 세부사항",
     selectPayment: "결제 수단 선택",
+    paymentLocked: "이 주문은 결제 수단이 고정되었습니다. 변경하려면 주문을 취소하세요",
     paymentMethod: "결제 수단",
     totalTitle: "주문 합계",
     checkout: "결제하기",

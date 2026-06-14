@@ -556,9 +556,22 @@ export default function UserPage() {
   }
 
   async function batchBan() {
+    const body = buildBulkBody()
+    if (body.scope === 'all') {
+      toast.error(t('user.messages.batch_ban.required_scope'))
+      return
+    }
+    if (body.scope === 'selected' && selectedIds.size === 0) {
+      toast.error(t('user.messages.send_mail.required_selected'))
+      return
+    }
+    if (body.scope === 'filtered' && filters.length === 0) {
+      toast.error(t('user.messages.send_mail.required_filtered'))
+      return
+    }
     setBanning(true)
     try {
-      await postJson('/user/ban', buildBulkBody())
+      await postJson('/user/ban', body)
       toast.success(t('user.messages.batch_ban.success'))
       setBanOpen(false)
       setSelectedIds(new Set())
@@ -930,7 +943,7 @@ export default function UserPage() {
         ),
       },
     ],
-    [t, plans, selectedIds, allPageSelected, sorts],
+    [t, plans, selectedIds, allPageSelected, sorts, data, load],
   )
 
   const trafficResetHistoryColumns = useMemo<ColumnDef<TrafficResetHistoryRow, unknown>[]>(

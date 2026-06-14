@@ -58,6 +58,8 @@ const sanitizedPlanContent = computed(() =>
   plan.value?.content ? DOMPurify.sanitize(plan.value.content) : '',
 )
 
+const showPlanChangeBlockedAlert = computed(() => isPlanChangeBlocked())
+
 function isSoldOut(): boolean {
   const limit = plan.value?.capacity_limit
   if (limit === null || limit === undefined) return false
@@ -202,6 +204,9 @@ onMounted(async () => {
     </n-alert>
     <n-alert v-if="isTryOutPlan" type="info" :show-icon="true" class="try-out-alert">
       {{ t('plan.tryOutHint') }}
+    </n-alert>
+    <n-alert v-if="showPlanChangeBlockedAlert" type="warning" :show-icon="true" class="try-out-alert">
+      {{ t('errors.planChangeDisabled') }}
     </n-alert>
     <div v-if="plan.content" class="plan-content" v-html="sanitizedPlanContent" />
     <n-alert v-if="availablePeriods.length === 0" type="warning" :show-icon="true">

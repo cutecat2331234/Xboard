@@ -4,6 +4,7 @@ import { NCard, NGrid, NGi, NButton, NTag, NEmpty, NSkeleton, useMessage } from 
 import { fetchPlans, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
 import { resolveTryOutPlanId, fetchUserCommConfig } from '@/api/comm'
 import { getAuthData } from '@/api'
+import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
@@ -17,6 +18,7 @@ const commLoadFailed = ref(false)
 const loaded = ref(false)
 const msg = useMessage()
 const router = useRouter()
+const auth = useAuthStore()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 
@@ -70,8 +72,18 @@ function openPlan(planId: number) {
   router.push(`/plan/${planId}`)
 }
 
+function hasActiveSubscription() {
+  const user = auth.user
+  if (!user?.plan_id) return false
+  const now = Math.floor(Date.now() / 1000)
+  return user.expired_at === null || user.expired_at > now
+}
+
 onMounted(async () => {
   await loadCurrency()
+  if (getAuthData()) {
+    await auth.loadUser()
+  }
   try {
     const [planList, trialPlanId] = await Promise.all([fetchPlans(), resolveTryOutPlanId()])
     plans.value = planList
@@ -79,10 +91,9 @@ onMounted(async () => {
     if (getAuthData()) {
       try {
         const comm = await fetchUserCommConfig()
-        planChangeDisabled.value = comm.plan_change_enable === 0
+        planChangeDisabled.value = comm.plan_change_enable === 0 && hasActiveSubscription()
       } catch {
         commLoadFailed.value = true
-        planChangeDisabled.value = true
       }
     }
   } catch (e: unknown) {
