@@ -170,6 +170,8 @@ export default {
     paymentMethodUnavailable: '支付方式不可用',
     paymentNotFound: '未找到可用的 Stripe 支付方式',
     requestFailed: '请求失败，请稍后再试',
+    commConfigFailed: '站点配置加载失败，部分功能可能不可用，请刷新页面重试',
+    featureDisabled: '该功能已关闭',
     paymentFailed: '支付失败',
     invalidParameter: '参数错误',
     cancelPendingOnly: '只可以取消待支付订单',

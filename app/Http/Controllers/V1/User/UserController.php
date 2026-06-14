@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Plan;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Services\Auth\LoginService;
 use App\Services\AuthService;
 use App\Services\Plugin\HookManager;
@@ -124,13 +125,14 @@ class UserController extends Controller
 
     public function getStat(Request $request)
     {
+        $openTickets = AppFeature::ticketEnabled()
+            ? Ticket::where('status', 0)->where('user_id', $request->user()->id)->count()
+            : 0;
         $stat = [
             Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
                 ->where('user_id', $request->user()->id)
                 ->count(),
-            Ticket::where('status', 0)
-                ->where('user_id', $request->user()->id)
-                ->count(),
+            $openTickets,
             User::where('invite_user_id', $request->user()->id)
                 ->count()
         ];

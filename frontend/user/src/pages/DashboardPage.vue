@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { NAlert, NCard, NButton, NCarousel, NList, NListItem, NModal, NProgress, NSkeleton, NSpace, useMessage } from 'naive-ui'
 import ClientImportModal from '@/components/ClientImportModal.vue'
 import { renderCarbonIcon } from '@/utils/carbon-icon'
@@ -21,6 +21,7 @@ const auth = useAuthStore()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 const msg = useMessage()
 const router = useRouter()
+const route = useRoute()
 const { t, locale } = useI18n()
 const subscribe = ref<SubscribeInfo | null>(null)
 const subscribeUrl = ref('')
@@ -117,6 +118,10 @@ async function loadNotices() {
 }
 
 onMounted(async () => {
+  if (route.query.comm_error === '1') {
+    msg.warning(t('errors.commConfigFailed'))
+    router.replace({ path: route.path, query: {} })
+  }
   await auth.loadUser()
   try {
     await loadComm()

@@ -67,7 +67,7 @@ function isSoldOut(): boolean {
 
 function isPlanChangeBlocked(): boolean {
   if (!commReady.value) return true
-  if (commConfig.value == null) return false
+  if (commConfig.value == null) return true
   if (commConfig.value.plan_change_enable !== 0) return false
   const user = auth.user
   const p = plan.value

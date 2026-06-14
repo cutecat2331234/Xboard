@@ -199,6 +199,12 @@ function refreshCommConfig() {
 onMounted(async () => {
   try {
     await loadCommConfig()
+  } catch {
+    setTimeout(() => {
+      void loadCommConfig().catch(() => {
+        /* keep last known config */
+      })
+    }, 3000)
   } finally {
     commConfigLoaded.value = true
   }

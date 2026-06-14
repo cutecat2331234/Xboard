@@ -86,13 +86,18 @@ async function reset() {
 }
 
 async function saveNotify() {
+  const prevExpire = remindExpire.value
+  const prevTraffic = remindTraffic.value
   try {
     await updateUser({
       remind_expire: remindExpire.value ? 1 : 0,
       remind_traffic: remindTraffic.value ? 1 : 0,
     })
     msg.success(t('common.success'))
+    await auth.loadUser()
   } catch (e: unknown) {
+    remindExpire.value = Boolean(auth.user?.remind_expire ?? prevExpire)
+    remindTraffic.value = Boolean(auth.user?.remind_traffic ?? prevTraffic)
     msg.error(resolveApiError(e, t))
   }
 }

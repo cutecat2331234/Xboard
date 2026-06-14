@@ -18,10 +18,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use App\Traits\SafeQueryColumns;
+use App\Traits\QueryOperators;
 
 class OrderController extends Controller
 {
     use SafeQueryColumns;
+    use QueryOperators;
 
     private const QUERY_COLUMNS = [
         'id', 'trade_no', 'user_id', 'plan_id', 'period', 'type', 'status',
@@ -119,23 +121,7 @@ class OrderController extends Controller
                 : (int) $filterValue;
         }
 
-        // Apply operator
-        $query->where($field, match (strtolower($operator)) {
-            'eq' => '=',
-            'gt' => '>',
-            'gte' => '>=',
-            'lt' => '<',
-            'lte' => '<=',
-            'like' => 'like',
-            'notlike' => 'not like',
-            'null' => static fn($q) => $q->whereNull($field),
-            'notnull' => static fn($q) => $q->whereNotNull($field),
-            default => 'like'
-        }, match (strtolower($operator)) {
-            'like', 'notlike' => "%{$filterValue}%",
-            'null', 'notnull' => null,
-            default => $filterValue
-        });
+        $this->applyQueryCondition($query, $field, $operator, $filterValue);
     }
 
     private function applySorting(Request $request, Builder $builder): void
@@ -292,10 +278,9 @@ class OrderController extends Controller
                     ? (int) $request->input('total_amount')
                     : (int) ($price * 100);
                 $order->total_amount = $adminTotal;
+                $order->discount_amount = 0;
 
-                $orderService->setVipDiscount($user);
                 $orderService->setOrderType($user);
-                $order->total_amount = $adminTotal;
                 $order->surplus_amount = 0;
                 $order->surplus_credit = 0;
                 $order->surplus_order_ids = null;
