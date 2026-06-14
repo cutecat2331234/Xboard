@@ -84,6 +84,7 @@ class Plugin extends AbstractPlugin implements PaymentInterface
                 'metadata' => [
                     'user_id' => (string) $order['user_id'],
                     'out_trade_no' => $order['trade_no'],
+                    'expected_cny_cents' => (string) $order['total_amount'],
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -146,10 +147,13 @@ class Plugin extends AbstractPlugin implements PaymentInterface
                     }
                 }
 
-                return [
+                return array_filter([
                     'trade_no' => $metaData->out_trade_no,
                     'callback_no' => $object->id,
-                ];
+                    'amount' => isset($metaData->expected_cny_cents)
+                        ? (int) $metaData->expected_cny_cents
+                        : null,
+                ], static fn ($v) => $v !== null);
 
             default:
                 return 'success';

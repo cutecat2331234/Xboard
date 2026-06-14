@@ -90,8 +90,15 @@ export async function redeemGiftCard(code: string) {
 }
 
 export async function fetchGiftCardHistory(params?: { page?: number; per_page?: number }) {
-  const { data } = await api.get<GiftCardHistoryResult>('/user/gift-card/history', { params })
-  return data
+  const response = await api.get('/user/gift-card/history', { params })
+  const payload = response.data as GiftCardHistoryResult & { status?: string; message?: string }
+  if (payload.status === 'fail') {
+    throw new Error(payload.message || 'Request failed')
+  }
+  if (Array.isArray(payload.data) && payload.pagination) {
+    return { data: payload.data, pagination: payload.pagination }
+  }
+  throw new Error('Invalid gift card history response')
 }
 
 export async function fetchGiftCardDetail(id: number) {

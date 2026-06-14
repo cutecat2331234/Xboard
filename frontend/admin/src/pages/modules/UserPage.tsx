@@ -240,11 +240,20 @@ function formatDateTime(value?: string | number | null) {
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
 }
 
+const GB_FILTER_FIELDS = new Set(['transfer_enable', 'total_used'])
+
 function filterValueForApi(cond: FilterCondition): string | number {
   const raw = cond.value.trim()
   if (!raw) return ''
   if (cond.operator === 'contains') return raw
-  return `${cond.operator}:${raw}`
+  let numeric = raw
+  if (GB_FILTER_FIELDS.has(cond.field)) {
+    const gb = parseFloat(raw)
+    if (!Number.isNaN(gb)) {
+      numeric = String(Math.round(gb * 1024 * 1024 * 1024))
+    }
+  }
+  return `${cond.operator}:${numeric}`
 }
 
 function buildFilterArray(
@@ -833,6 +842,7 @@ export default function UserPage() {
       {
         accessorKey: 'balance',
         header: () => sortHeader('balance', t('user.columns.balance')),
+        cell: ({ row }) => Number(row.original.balance ?? 0).toFixed(2),
       },
       {
         accessorKey: 'expired_at',
@@ -843,7 +853,7 @@ export default function UserPage() {
         id: 'commission',
         accessorKey: 'commission_balance',
         header: () => sortHeader('commission_balance', t('user.columns.commission')),
-        cell: ({ row }) => row.original.commission_balance ?? 0,
+        cell: ({ row }) => Number(row.original.commission_balance ?? 0).toFixed(2),
       },
       {
         accessorKey: 'created_at',

@@ -51,7 +51,7 @@ class CheckCommission extends Command
         if ((int)admin_setting('commission_auto_check_enable', 1)) {
             Order::where('commission_status', 0)
                 ->where('invite_user_id', '!=', NULL)
-                ->where('status', 3)
+                ->where('status', Order::STATUS_COMPLETED)
                 ->where('updated_at', '<=', strtotime('-3 day', time()))
                 ->update([
                     'commission_status' => 1
@@ -63,6 +63,7 @@ class CheckCommission extends Command
     {
         $orderIds = Order::where('commission_status', 1)
             ->where('invite_user_id', '!=', NULL)
+            ->where('status', Order::STATUS_COMPLETED)
             ->pluck('id');
 
         foreach ($orderIds as $orderId) {

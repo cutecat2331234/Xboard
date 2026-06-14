@@ -12,6 +12,7 @@ use App\Services\Auth\MailLinkService;
 use App\Services\Auth\RegisterService;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -102,6 +103,14 @@ class AuthController extends Controller
 
         // 处理通过验证码登录
         if ($verify = $request->input('verify')) {
+            $rateKey = 'token2login:' . $request->ip();
+            if (RateLimiter::tooManyAttempts($rateKey, 30)) {
+                return response()->json([
+                    'message' => __('Too many attempts')
+                ], 429);
+            }
+            RateLimiter::hit($rateKey, 60);
+
             $userId = $this->mailLinkService->handleTokenLogin($verify);
 
             if (!$userId) {

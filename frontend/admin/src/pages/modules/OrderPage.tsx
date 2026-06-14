@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { adminApi, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
+import { formatAdminMoney, loadAdminCurrency } from '@/lib/currency'
 import { inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { DataTable } from '@/components/shared/DataTable'
@@ -104,7 +105,7 @@ const COMMISSION_I18N: Record<number, string> = {
 }
 
 function formatMoney(cents?: number | null) {
-  return `¥${((cents ?? 0) / 100).toFixed(2)}`
+  return formatAdminMoney(cents ?? 0)
 }
 
 function formatTs(ts?: number | null) {
@@ -303,6 +304,10 @@ export default function OrderPage() {
   const [commissionBalanceFilter, setCommissionBalanceFilter] = useState<string | null>(null)
   const [statusSortDesc, setStatusSortDesc] = useState<boolean | null>(null)
   const [userIdFilter, setUserIdFilter] = useState<number | null>(null)
+
+  useEffect(() => {
+    void loadAdminCurrency()
+  }, [])
 
   useEffect(() => {
     const commissionStatus = searchParams.get('commission_status')
