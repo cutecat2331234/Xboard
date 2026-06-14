@@ -3,6 +3,7 @@ import type { ApiResponse } from '@/types/settings'
 import { getRouterBase } from '@/utils/settings'
 import { shouldForceLogoutOn403 } from '@/lib/auth-forbidden'
 import { invalidateSessionCache } from '@/lib/session-cache'
+import { invalidateAppConfigCaches } from '@/lib/invalidate-app-config'
 
 const AUTH_STORAGE_KEY = 'xboard_auth_data'
 
@@ -31,6 +32,7 @@ api.interceptors.response.use(
       if (shouldForceLogoutOn403(message)) {
         clearAuthData()
         invalidateSessionCache()
+        invalidateAppConfigCaches()
         const loginPath = `${getRouterBase()}#/login`
         if (!window.location.hash.includes('/login')) {
           window.location.href = loginPath

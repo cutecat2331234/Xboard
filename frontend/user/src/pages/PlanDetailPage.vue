@@ -30,6 +30,7 @@ const couponCode = ref('')
 const couponDiscount = ref('')
 const loading = ref(false)
 const buying = ref(false)
+const commReady = ref(false)
 
 const availablePeriods = computed(() =>
   PERIOD_OPTIONS.filter((p) => {
@@ -65,6 +66,7 @@ function isSoldOut(): boolean {
 }
 
 function isPlanChangeBlocked(): boolean {
+  if (!commReady.value) return true
   if (commConfig.value?.plan_change_enable !== 0) return false
   const user = auth.user
   const p = plan.value
@@ -173,6 +175,8 @@ onMounted(async () => {
     await loadComm()
   } catch {
     /* leave commConfig null — features stay disabled until loaded */
+  } finally {
+    commReady.value = true
   }
   await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })
@@ -217,7 +221,7 @@ onMounted(async () => {
         <n-button @click="applyCoupon">{{ t('plan.applyCoupon') }}</n-button>
       </div>
       <p v-if="featureEnabled(commConfig?.coupon_enable, commConfig != null) && couponDiscount" class="coupon-hint">{{ t('plan.couponDiscount') }}: {{ couponDiscount }}</p>
-      <n-button type="primary" class="buy-btn" :loading="buying" :disabled="isSoldOut()" @click="buy">{{ t('plan.buyNow') }}</n-button>
+      <n-button type="primary" class="buy-btn" :loading="buying" :disabled="!commReady || isSoldOut()" @click="buy">{{ t('plan.buyNow') }}</n-button>
     </template>
   </n-card>
   <p v-else class="muted">—</p>

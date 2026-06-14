@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Ticket;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CheckTicket extends Command
 {
@@ -46,7 +47,9 @@ class CheckTicket extends Command
             ->each(function ($ticket) {
                 if ($ticket->user_id === $ticket->last_reply_user_id) return;
                 $ticket->status = Ticket::STATUS_CLOSED;
-                $ticket->save();
+                if (!$ticket->save()) {
+                    Log::warning('check:ticket failed to auto-close ticket', ['ticket_id' => $ticket->id]);
+                }
             });
     }
 }

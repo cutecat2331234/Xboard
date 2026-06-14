@@ -45,7 +45,7 @@ watch(
 function onClientClick(client: ReturnType<typeof buildImportClients>[number]) {
   if (client.action === 'copy') {
     navigator.clipboard.writeText(filteredUrl.value)
-    msg.success(t('dashboard.copyLink'))
+    msg.success(t('profile.copied'))
     return
   }
   if (client.url) window.location.href = client.url

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\ApiException;
 use App\Jobs\SendEmailJob;
+use App\Models\CommissionLog;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Models\User;
@@ -65,6 +66,26 @@ class TicketService
         return null;
     }
 
+    /**
+     * Gross withdraw amount from message body, or CommissionLog.order_amount for legacy tickets.
+     */
+    public static function resolveWithdrawGrossCents(Ticket $ticket, ?string $firstMessage): ?int
+    {
+        if (is_string($firstMessage)) {
+            $parsed = self::parseWithdrawAmountCents($firstMessage);
+            if ($parsed !== null && $parsed > 0) {
+                return $parsed;
+            }
+        }
+
+        $logAmount = CommissionLog::where('trade_no', 'withdraw:' . $ticket->id)->value('order_amount');
+        if ($logAmount !== null && (int) $logAmount > 0) {
+            return (int) $logAmount;
+        }
+
+        return null;
+    }
+
     public static function finalizeWithdrawPayout(Ticket $ticket): bool
     {
         $firstMessage = TicketMessage::where('ticket_id', $ticket->id)
@@ -87,9 +108,19 @@ class TicketService
             return false;
         }
 
-        $log = \App\Models\CommissionLog::where('trade_no', 'withdraw:' . $ticket->id)->first();
+        $log = CommissionLog::where('trade_no', 'withdraw:' . $ticket->id)->first();
         if (!$log) {
-            return false;
+            $grossCents = self::resolveWithdrawGrossCents($ticket, $firstMessage);
+            if ($grossCents === null || $grossCents <= 0) {
+                return false;
+            }
+            $log = CommissionLog::create([
+                'invite_user_id' => $ticket->user_id,
+                'user_id' => $ticket->user_id,
+                'trade_no' => 'withdraw:' . $ticket->id,
+                'order_amount' => $grossCents,
+                'get_amount' => 0,
+            ]);
         }
         if ((int) $log->get_amount > 0) {
             return true;
@@ -171,7 +202,7 @@ class TicketService
                 return false;
             }
 
-            $amountCents = self::parseWithdrawAmountCents($firstMessage);
+            $amountCents = self::resolveWithdrawGrossCents($ticket, is_string($firstMessage) ? $firstMessage : null);
             if ($amountCents === null || $amountCents <= 0) {
                 return false;
             }

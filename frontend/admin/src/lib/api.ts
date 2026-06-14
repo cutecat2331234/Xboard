@@ -274,8 +274,17 @@ export async function downloadAdminFile(
   })
 
   if (response.status === 403) {
-    clearAuthData()
-    window.location.hash = '#/sign-in'
+    let message: string | undefined
+    try {
+      const payload = (await response.clone().json()) as ApiResponse
+      message = payload.message
+    } catch {
+      // ignore
+    }
+    if (shouldForceAdminLogoutOn403(message)) {
+      clearAuthData()
+      window.location.hash = '#/sign-in'
+    }
   }
 
   if (!response.ok) {

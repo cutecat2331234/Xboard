@@ -82,7 +82,7 @@ const trafficUsagePercent = computed(() => {
 function copySubscribe() {
   if (!subscribeUrl.value) return
   navigator.clipboard.writeText(subscribeUrl.value)
-  msg.success(t('dashboard.copyLink'))
+  msg.success(t('profile.copied'))
 }
 
 function openClientImport() {
