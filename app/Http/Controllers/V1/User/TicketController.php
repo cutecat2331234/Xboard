@@ -160,8 +160,16 @@ class TicketController extends Controller
                     return $this->fail([422, __('Insufficient commission balance')]);
                 }
 
+                $feeRate = max(0, min(1, (float) admin_setting('app_withdraw_fee_rate', 0)));
+                $feeAmount = $feeRate > 0 ? (int) round($withdrawAmount * $feeRate) : 0;
+                $netAmount = $withdrawAmount - $feeAmount;
+
                 if ($limit > ($withdrawAmount / 100)) {
                     return $this->fail([422, __('The current required minimum withdrawal commission is :limit', ['limit' => $limit])]);
+                }
+
+                if ($netAmount <= 0) {
+                    return $this->fail([422, __('Insufficient commission balance')]);
                 }
 
                 $hasOpenWithdraw = Ticket::where('user_id', $user->id)
@@ -179,6 +187,10 @@ class TicketController extends Controller
                     $request->input('withdraw_method'),
                     $request->input('withdraw_account')
                 );
+                if ($feeAmount > 0) {
+                    $message .= "\r\n" . __('Withdrawal fee') . '：' . number_format($feeAmount / 100, 2);
+                    $message .= "\r\n" . __('Net payout') . '：' . number_format($netAmount / 100, 2);
+                }
                 $ticket = $ticketService->createWithdrawTicket(
                     $request->user()->id,
                     $subject,

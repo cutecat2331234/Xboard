@@ -102,7 +102,8 @@ class ConfigController extends Controller
                 'commission_distribution_enable' => (bool) admin_setting('commission_distribution_enable', 0),
                 'commission_distribution_l1' => admin_setting('commission_distribution_l1'),
                 'commission_distribution_l2' => admin_setting('commission_distribution_l2'),
-                'commission_distribution_l3' => admin_setting('commission_distribution_l3')
+                'commission_distribution_l3' => admin_setting('commission_distribution_l3'),
+                'app_withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
             ],
             'site' => [
                 'logo' => admin_setting('logo'),
@@ -118,6 +119,7 @@ class ConfigController extends Controller
                 'currency' => admin_setting('currency', 'CNY'),
                 'currency_symbol' => admin_setting('currency_symbol', '¥'),
                 'ticket_must_wait_reply' => (bool) admin_setting('ticket_must_wait_reply', 0),
+                'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
             ],
             'subscribe' => [
                 'plan_change_enable' => (bool) admin_setting('plan_change_enable', 1),

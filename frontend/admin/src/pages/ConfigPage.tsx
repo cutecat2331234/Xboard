@@ -371,6 +371,14 @@ export default function ConfigPage() {
                         checked={Boolean(site.ticket_must_wait_reply)}
                         onChange={(v) => update('site', 'ticket_must_wait_reply', v)}
                       />
+                      <FormField
+                        type="number"
+                        label={t('settings.site.form.trafficWarnRate.label')}
+                        description={t('settings.site.form.trafficWarnRate.description')}
+                        value={String(site.traffic_warn_rate ?? 70)}
+                        placeholder={t('settings.site.form.trafficWarnRate.placeholder')}
+                        onChange={(v) => update('site', 'traffic_warn_rate', Number(v))}
+                      />
                       <ConfigFormSelect
                         label={t('settings.site.form.tryOut.label')}
                         description={t('settings.site.form.tryOut.description')}
@@ -481,6 +489,14 @@ export default function ConfigPage() {
                         description={t('settings.invite.withdraw_close.description')}
                         checked={Boolean(invite.withdraw_close_enable)}
                         onChange={(v) => update('invite', 'withdraw_close_enable', v)}
+                      />
+                      <FormField
+                        type="number"
+                        label={t('settings.invite.withdraw_fee_rate.title')}
+                        description={t('settings.invite.withdraw_fee_rate.description')}
+                        value={String(invite.app_withdraw_fee_rate ?? 0)}
+                        placeholder={t('settings.invite.withdraw_fee_rate.placeholder')}
+                        onChange={(v) => update('invite', 'app_withdraw_fee_rate', v)}
                       />
                       <SwitchField
                         label={t('settings.invite.commission_distribution.title')}
@@ -623,6 +639,18 @@ export default function ConfigPage() {
                         checked={Boolean(subscribe.show_protocol_to_server_enable)}
                         onChange={(v) => update('subscribe', 'show_protocol_to_server_enable', v)}
                       />
+                      <SwitchField
+                        label={t('settings.subscribe.default_remind_expire.title')}
+                        description={t('settings.subscribe.default_remind_expire.description')}
+                        checked={Boolean(subscribe.default_remind_expire)}
+                        onChange={(v) => update('subscribe', 'default_remind_expire', v)}
+                      />
+                      <SwitchField
+                        label={t('settings.subscribe.default_remind_traffic.title')}
+                        description={t('settings.subscribe.default_remind_traffic.description')}
+                        checked={Boolean(subscribe.default_remind_traffic)}
+                        onChange={(v) => update('subscribe', 'default_remind_traffic', v)}
+                      />
                     </>
                   ) : null}
 
@@ -650,6 +678,16 @@ export default function ConfigPage() {
                         value={String(server.server_push_interval ?? '')}
                         placeholder={t('settings.server.server_push_interval.placeholder')}
                         onChange={(v) => update('server', 'server_push_interval', v)}
+                      />
+                      <ConfigFormSelect
+                        label={t('settings.server.device_limit_mode.title')}
+                        description={t('settings.server.device_limit_mode.description')}
+                        value={String(server.device_limit_mode ?? 0)}
+                        onChange={(v) => update('server', 'device_limit_mode', Number(v))}
+                        options={[
+                          { value: '0', label: t('settings.server.device_limit_mode.strict') },
+                          { value: '1', label: t('settings.server.device_limit_mode.relaxed') },
+                        ]}
                       />
                       <ServerWsSwitchCard
                         label={t('settings.server.server_ws_enable.title')}

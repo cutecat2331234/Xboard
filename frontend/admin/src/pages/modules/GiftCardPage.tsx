@@ -29,6 +29,15 @@ import { FormSelect } from '@/components/shared/FormSelect'
 import { SuffixInput } from '@/components/shared/SuffixInput'
 
 import { Button } from '@/components/ui/button'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 import {
 
@@ -361,6 +370,8 @@ export default function GiftCardPage() {
   const [usagesTotal, setUsagesTotal] = useState(0)
 
   const [stats, setStats] = useState<Record<string, unknown>>({})
+  const [dailyUsages, setDailyUsages] = useState<Array<{ date?: string; count?: number }>>([])
+  const [typeStats, setTypeStats] = useState<Array<{ template_name?: string; type_name?: string; count?: number }>>([])
 
   const [plans, setPlans] = useState<PlanRow[]>([])
 
@@ -509,9 +520,17 @@ export default function GiftCardPage() {
 
     setLoading(true)
 
-    fetchJsonObject<{ total_stats?: Record<string, unknown> }>('/gift-card/statistics')
+    fetchJsonObject<{
+      total_stats?: Record<string, unknown>
+      daily_usages?: Array<{ date?: string; count?: number }>
+      type_stats?: Array<{ template_name?: string; type_name?: string; count?: number }>
+    }>('/gift-card/statistics')
 
-      .then((res) => setStats(res.total_stats ?? {}))
+      .then((res) => {
+        setStats(res.total_stats ?? {})
+        setDailyUsages(Array.isArray(res.daily_usages) ? res.daily_usages : [])
+        setTypeStats(Array.isArray(res.type_stats) ? res.type_stats : [])
+      })
 
       .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
 
@@ -1461,21 +1480,108 @@ export default function GiftCardPage() {
 
           ) : (
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-6">
 
-              {Object.entries(stats).map(([key, value]) => (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-                <div key={key} className="rounded-lg border p-4">
+                {Object.entries(stats).map(([key, value]) => (
 
-                  <p className="text-sm text-muted-foreground">
-                    {t(`giftCard.statistics.total.${key}`, key)}
-                  </p>
+                  <div key={key} className="rounded-lg border p-4">
 
-                  <p className="text-2xl font-semibold">{String(value)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t(`giftCard.statistics.total.${key}`, key)}
+                    </p>
+
+                    <p className="text-2xl font-semibold">{String(value)}</p>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-2">
+
+                <div className="rounded-lg border p-4">
+
+                  <h3 className="mb-4 text-sm font-semibold">{t('giftCard.statistics.daily.chart')}</h3>
+
+                  {dailyUsages.length === 0 ? (
+
+                    <p className="text-sm text-muted-foreground">{t('giftCard.statistics.noData')}</p>
+
+                  ) : (
+
+                    <div className="h-64">
+
+                      <ResponsiveContainer width="100%" height="100%">
+
+                        <BarChart data={dailyUsages.map((row) => ({ date: row.date ?? '', count: Number(row.count ?? 0) }))}>
+
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
+                          <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+
+                          <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+
+                          <Tooltip />
+
+                          <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+
+                        </BarChart>
+
+                      </ResponsiveContainer>
+
+                    </div>
+
+                  )}
 
                 </div>
 
-              ))}
+                <div className="rounded-lg border p-4">
+
+                  <h3 className="mb-4 text-sm font-semibold">{t('giftCard.statistics.type.chart')}</h3>
+
+                  {typeStats.length === 0 ? (
+
+                    <p className="text-sm text-muted-foreground">{t('giftCard.statistics.noData')}</p>
+
+                  ) : (
+
+                    <div className="h-64">
+
+                      <ResponsiveContainer width="100%" height="100%">
+
+                        <BarChart
+                          data={typeStats.map((row) => ({
+                            name: row.template_name || row.type_name || '—',
+                            count: Number(row.count ?? 0),
+                          }))}
+                          layout="vertical"
+                          margin={{ left: 8, right: 16 }}
+                        >
+
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+
+                          <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+
+                          <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
+
+                          <Tooltip />
+
+                          <Bar dataKey="count" fill="hsl(var(--chart-2, var(--primary)))" radius={[0, 4, 4, 0]} />
+
+                        </BarChart>
+
+                      </ResponsiveContainer>
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              </div>
 
             </div>
 

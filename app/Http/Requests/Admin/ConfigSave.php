@@ -21,6 +21,7 @@ class ConfigSave extends FormRequest
         'commission_distribution_l1' => 'nullable|numeric',
         'commission_distribution_l2' => 'nullable|numeric',
         'commission_distribution_l3' => 'nullable|numeric',
+        'app_withdraw_fee_rate' => 'nullable|numeric|min:0|max:1',
         // site
         'logo' => 'nullable|url',
         'force_https' => '',
@@ -36,6 +37,7 @@ class ConfigSave extends FormRequest
         'currency' => '',
         'currency_symbol' => '',
         'ticket_must_wait_reply' => '',
+        'traffic_warn_rate' => 'integer|min:1|max:100',
         // subscribe
         'plan_change_enable' => '',
         'reset_traffic_method' => 'in:0,1,2,3,4',

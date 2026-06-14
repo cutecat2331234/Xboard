@@ -1831,6 +1831,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Disable Withdrawals",
         "description": "When enabled, users will be prohibited from requesting withdrawals, and invitation commissions will go directly to user balance."
       },
+      "withdraw_fee_rate": {
+        "title": "Withdrawal Fee Rate",
+        "description": "Fee rate deducted from withdrawal requests (0–1, e.g. 0.01 = 1%). Shown in the client app and applied when users submit withdrawal tickets.",
+        "placeholder": "0.01"
+      },
       "commission_distribution": {
         "title": "Three-level Distribution",
         "description": "When enabled, commission will be split according to the three set ratios, total should not exceed 100%.",
@@ -1906,6 +1911,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "label": "Currency Symbol",
           "placeholder": "¥",
           "description": "For display only, changing this will affect all currency symbols in the system."
+        },
+        "trafficWarnRate": {
+          "label": "Traffic Warning Threshold (%)",
+          "placeholder": "70",
+          "description": "Show traffic warning when usage exceeds this percentage of the plan limit."
         }
       }
     },
@@ -2050,6 +2060,18 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "surplus_enable": {
         "title": "Enable Deduction Plan",
         "description": "When enabled, the system will deduct from the original subscription when users change subscriptions, refer to documentation for details."
+      },
+      "surplus_traffic_ratio_enable": {
+        "title": "Use Traffic Ratio in Deduction",
+        "description": "When enabled, plan change deduction uses the minimum of remaining time ratio and remaining traffic ratio."
+      },
+      "default_remind_expire": {
+        "title": "Default Expiry Reminder",
+        "description": "When enabled, new users receive subscription expiry reminders by default."
+      },
+      "default_remind_traffic": {
+        "title": "Default Traffic Reminder",
+        "description": "When enabled, new users receive traffic usage reminders by default."
       },
       "new_order_event": {
         "title": "Trigger Event on New Subscription",
@@ -2449,6 +2471,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "subject": "Subject",
       "level": "Priority",
       "status": "Status",
+      "reply_status": "Reply Status",
       "updated_at": "Last Updated",
       "created_at": "Created At",
       "actions": "Actions"
@@ -2462,7 +2485,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "level": {
       "low": "Low Priority",
       "medium": "Medium Priority",
-      "high": "High Priority"
+      "high": "High Priority",
+      "withdraw": "Withdrawal"
     },
     "filter": {
       "placeholder": "Search {field}...",
@@ -3444,6 +3468,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Type Statistics",
         "chart": "Type Distribution Chart"
       },
+      "noData": "No Data",
       "dateRange": {
         "label": "Date Range",
         "start": "Start Date",

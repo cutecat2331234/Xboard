@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\Plugin\HookManager;
 
@@ -45,73 +46,79 @@ class PaymentController extends Controller
             return false;
         }
 
-        $order = Order::where('trade_no', $tradeNo)->first();
-        if (!$order) {
-            Log::warning('Payment notify: order not found', ['trade_no' => $tradeNo]);
-            return false;
-        }
-        if ($order->status === Order::STATUS_COMPLETED) {
-            return true;
-        }
-
-        if ($order->status === Order::STATUS_PROCESSING) {
-            try {
-                (new OrderService($order->fresh()))->open();
-                HookManager::call('payment.notify.success', $order);
-                return true;
-            } catch (\Throwable $e) {
-                Log::warning('Payment notify: retry open failed for processing order', [
-                    'trade_no' => $tradeNo,
-                    'error' => $e->getMessage(),
-                ]);
+        return DB::transaction(function () use ($verify, $tradeNo, $callbackNo) {
+            $order = Order::where('trade_no', $tradeNo)->lockForUpdate()->first();
+            if (!$order) {
+                Log::warning('Payment notify: order not found', ['trade_no' => $tradeNo]);
                 return false;
             }
-        }
 
-        if ($order->status === Order::STATUS_CANCELLED) {
-            if (!isset($verify['amount']) || !$this->verifyAmount($order, (int) $verify['amount'])) {
-                Log::warning('Payment notify: cancelled order with invalid amount', [
+            if ($order->status === Order::STATUS_COMPLETED) {
+                return true;
+            }
+
+            if ($order->status === Order::STATUS_CANCELLED) {
+                Log::warning('Payment notify: ignored for cancelled order (manual refund may be required)', [
+                    'trade_no' => $tradeNo,
+                    'callback_no' => $callbackNo,
+                ]);
+                return true;
+            }
+
+            if ($order->status === Order::STATUS_PROCESSING) {
+                try {
+                    $statusBeforeOpen = (int) $order->status;
+                    (new OrderService($order->fresh()))->open();
+                    $order->refresh();
+                    if (
+                        $statusBeforeOpen === Order::STATUS_PROCESSING
+                        && (int) $order->status === Order::STATUS_COMPLETED
+                    ) {
+                        HookManager::call('payment.notify.success', $order);
+                    }
+                    return true;
+                } catch (\Throwable $e) {
+                    Log::warning('Payment notify: retry open failed for processing order', [
+                        'trade_no' => $tradeNo,
+                        'error' => $e->getMessage(),
+                    ]);
+                    return false;
+                }
+            }
+
+            if ($order->status !== Order::STATUS_PENDING) {
+                return true;
+            }
+
+            if (!isset($verify['amount'])) {
+                Log::warning('Payment notify: missing amount', [
                     'trade_no' => $tradeNo,
                     'expected' => $this->expectedAmountCents($order),
-                    'received' => $verify['amount'] ?? null,
                 ]);
                 return false;
             }
-            Log::warning('Payment notify: reactivating cancelled order', ['trade_no' => $tradeNo]);
-            $order->status = Order::STATUS_PENDING;
-            if (!$order->save()) {
+
+            if (!$this->verifyAmount($order, (int) $verify['amount'])) {
+                Log::warning('Payment notify: amount mismatch', [
+                    'trade_no' => $tradeNo,
+                    'expected' => $this->expectedAmountCents($order),
+                    'received' => (int) $verify['amount'],
+                ]);
                 return false;
             }
-        }
 
-        if ($order->status !== Order::STATUS_PENDING) {
+            $orderService = new OrderService($order);
+            if (!$orderService->paid($callbackNo)) {
+                return false;
+            }
+
+            $order->refresh();
+            if ((int) $order->status === Order::STATUS_COMPLETED) {
+                HookManager::call('payment.notify.success', $order);
+            }
+
             return true;
-        }
-
-        if (!isset($verify['amount'])) {
-            Log::warning('Payment notify: missing amount', [
-                'trade_no' => $tradeNo,
-                'expected' => $this->expectedAmountCents($order),
-            ]);
-            return false;
-        }
-
-        if (!$this->verifyAmount($order, (int) $verify['amount'])) {
-            Log::warning('Payment notify: amount mismatch', [
-                'trade_no' => $tradeNo,
-                'expected' => $this->expectedAmountCents($order),
-                'received' => (int) $verify['amount'],
-            ]);
-            return false;
-        }
-
-        $orderService = new OrderService($order);
-        if (!$orderService->paid($callbackNo)) {
-            return false;
-        }
-
-        HookManager::call('payment.notify.success', $order);
-        return true;
+        });
     }
 
     private function expectedAmountCents(Order $order): int
