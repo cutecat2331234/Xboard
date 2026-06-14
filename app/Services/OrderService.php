@@ -150,7 +150,10 @@ class OrderService
             }
 
             if ($order->surplus_credit) {
-                $this->user->balance += $order->surplus_credit;
+                $userService = new UserService();
+                if (!$userService->addBalance($this->user->id, (int) $order->surplus_credit)) {
+                    throw new \RuntimeException('Failed to apply surplus credit to balance.');
+                }
             }
 
             if ($order->surplus_order_ids) {
@@ -239,7 +242,7 @@ class OrderService
     public function setInvite(User $user): void
     {
         $order = $this->order;
-        $commissionBase = (int) $order->total_amount + (int) ($order->surplus_amount ?? 0);
+        $commissionBase = (int) $order->total_amount + (int) ($order->balance_amount ?? 0);
         if (!$user->invite_user_id || $commissionBase <= 0) {
             return;
         }
@@ -297,11 +300,7 @@ class OrderService
             $notUsedTraffic = $nowUserTraffic - Helper::transferToGB($user->u + $user->d);
             $result = $trafficUnitPrice * $notUsedTraffic;
             $order->surplus_amount = (int) ($result > 0 ? $result : 0);
-            $order->surplus_order_ids = Order::where('user_id', $user->id)
-                ->where('period', '!=', Plan::PERIOD_RESET_TRAFFIC)
-                ->where('status', Order::STATUS_COMPLETED)
-                ->pluck('id')
-                ->all();
+            $order->surplus_order_ids = [$lastOneTimeOrder->id];
         } else {
             $orders = Order::query()
                 ->where('user_id', $user->id)
