@@ -231,12 +231,14 @@ class OrderService
     public function setVipDiscount(User $user)
     {
         $order = $this->order;
-        $discountAmount = (int) ($order->discount_amount ?? 0);
+        $couponDiscount = (int) ($order->discount_amount ?? 0);
+        $afterCoupon = max(0, (int) $order->total_amount - $couponDiscount);
+        $vipDiscount = 0;
         if ($user->discount) {
-            $discountAmount += (int) ($order->total_amount * ($user->discount / 100));
+            $vipDiscount = (int) ($afterCoupon * ($user->discount / 100));
         }
-        $order->discount_amount = $discountAmount;
-        $order->total_amount = max(0, $order->total_amount - $discountAmount);
+        $order->discount_amount = $couponDiscount + $vipDiscount;
+        $order->total_amount = max(0, (int) $order->total_amount - $order->discount_amount);
     }
 
     public function setInvite(User $user): void

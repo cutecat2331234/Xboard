@@ -5,13 +5,18 @@ const config = ref<UserCommConfig | null>(null)
 let loading: Promise<UserCommConfig> | null = null
 
 export function useUserCommConfig() {
-  async function load() {
+  async function load(): Promise<UserCommConfig> {
     if (config.value) return config.value
     if (!loading) {
-      loading = fetchUserCommConfig().then((data) => {
-        config.value = data
-        return data
-      })
+      loading = fetchUserCommConfig()
+        .then((data) => {
+          config.value = data
+          return data
+        })
+        .catch((error) => {
+          loading = null
+          throw error
+        })
     }
     return loading
   }

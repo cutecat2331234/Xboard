@@ -126,6 +126,8 @@ const MESSAGE_MAP: Record<string, string> = {
   '订阅已过期或无有效订阅，无法购买流量重置包': 'errors.resetTrafficNoSub',
   'Failed to create order': 'errors.orderCreateFailed',
   '创建订单失败': 'errors.orderCreateFailed',
+  'Checkout failed': 'errors.checkoutFailed',
+  '结算失败': 'errors.checkoutFailed',
 
   // Ticket
   'Ticket does not exist': 'errors.ticketNotFound',

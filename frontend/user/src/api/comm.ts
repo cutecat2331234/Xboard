@@ -23,6 +23,10 @@ export interface GuestConfig {
   try_out_enable?: number
   traffic_warn_rate?: number
   login_with_mail_link_enable?: number
+  invite_enable?: number
+  gift_card_enable?: number
+  coupon_enable?: number
+  register_enable?: number
 }
 
 export interface UserCommConfig {

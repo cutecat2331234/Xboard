@@ -279,6 +279,7 @@ class OrderController extends Controller
                     ? (int) $request->input('total_amount')
                     : (int) ($price * 100);
 
+                $orderService->setVipDiscount($user);
                 $orderService->setOrderType($user);
                 $orderService->setInvite($user);
 

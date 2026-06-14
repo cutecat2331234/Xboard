@@ -105,6 +105,7 @@ const showCaptcha = computed(() => Boolean(config.value?.is_captcha) && !isRegis
 const showTerms = computed(() => Boolean(config.value?.tos_url))
 const showEmailVerify = computed(() => Boolean(config.value?.is_email_verify))
 const inviteRequired = computed(() => Boolean(config.value?.is_invite_force))
+const inviteVisible = computed(() => config.value?.invite_enable !== 0)
 
 const pageTitle = computed(() => {
   if (isForget.value) return t('forgotPassword')
@@ -357,7 +358,7 @@ function submit() {
               />
             </div>
 
-            <div class="auth-field">
+            <div v-if="inviteVisible" class="auth-field">
               <n-input
                 v-model:value="inviteCode"
                 :placeholder="inviteRequired ? t('inviteCodeRequiredPh') : t('inviteCode')"
