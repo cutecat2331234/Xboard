@@ -287,4 +287,27 @@ class Helper
     {
         return str_replace(['_', '*', '`', '['], ['\_', '\*', '\`', '\['], $text);
     }
+
+    /**
+     * Allow only in-app hash-router paths for post-login redirect.
+     */
+    public static function sanitizeAppRedirect(?string $redirect, string $default = 'dashboard'): string
+    {
+        if ($redirect === null || $redirect === '') {
+            return $default;
+        }
+
+        $redirect = trim($redirect);
+        if (
+            str_contains($redirect, '://')
+            || str_starts_with($redirect, '//')
+            || str_starts_with($redirect, '/')
+            || str_contains($redirect, '..')
+            || !preg_match('/^[a-zA-Z0-9_\-\/]+$/', $redirect)
+        ) {
+            return $default;
+        }
+
+        return $redirect;
+    }
 }

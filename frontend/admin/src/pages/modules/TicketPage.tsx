@@ -39,12 +39,25 @@ type TicketMessage = {
   id?: number
   message?: string
   is_me?: boolean
+  is_from_user?: boolean
+  is_from_admin?: boolean
   created_at?: number
 }
 
 type TicketDetail = TicketRow & {
   messages?: TicketMessage[]
   user?: { email?: string }
+}
+
+function normalizeTicketDetail(raw: TicketDetail | null | undefined): TicketDetail | null {
+  if (!raw) return null
+  return {
+    ...raw,
+    messages: (raw.messages ?? []).map((msg) => ({
+      ...msg,
+      is_me: Boolean(msg.is_from_admin ?? !msg.is_from_user),
+    })),
+  }
 }
 
 function formatTs(ts?: number) {
@@ -114,7 +127,7 @@ export default function TicketPage() {
       const result = await adminApi<{ data?: TicketDetail }>(
         `/ticket/fetch${buildQuery({ id: row.id })}`,
       )
-      setDetail(result.data ?? null)
+      setDetail(normalizeTicketDetail(result.data ?? null))
       setReply('')
       setDetailOpen(true)
     } catch (e) {
@@ -131,7 +144,7 @@ export default function TicketPage() {
       const result = await adminApi<{ data?: TicketDetail }>(
         `/ticket/fetch${buildQuery({ id: detail.id })}`,
       )
-      setDetail(result.data ?? null)
+      setDetail(normalizeTicketDetail(result.data ?? null))
       setReply('')
       load()
     } catch (e) {

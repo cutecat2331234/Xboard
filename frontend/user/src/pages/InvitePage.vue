@@ -202,8 +202,17 @@ async function doTransfer() {
 }
 
 async function doWithdraw() {
+  const account = withdrawAccount.value.trim()
+  if (!account) {
+    msg.error(t('invite.withdrawAccountRequired'))
+    return
+  }
+  if (!withdrawMethod.value.trim()) {
+    msg.error(t('invite.withdrawMethodRequired'))
+    return
+  }
   try {
-    await withdrawCommission({ withdraw_method: withdrawMethod.value, withdraw_account: withdrawAccount.value })
+    await withdrawCommission({ withdraw_method: withdrawMethod.value.trim(), withdraw_account: account })
     msg.success(t('invite.withdrawSuccess'))
     withdrawOpen.value = false
     withdrawAccount.value = ''

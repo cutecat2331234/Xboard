@@ -118,6 +118,18 @@ class ThemeService
                 throw new Exception('Theme config file not found');
             }
 
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $entry = $zip->getNameIndex($i);
+                if ($entry === false) {
+                    continue;
+                }
+                $normalized = str_replace('\\', '/', $entry);
+                if (str_starts_with($normalized, '/') || str_contains($normalized, '../')) {
+                    $zip->close();
+                    throw new Exception('Theme package contains illegal paths');
+                }
+            }
+
             $zip->extractTo($tmpPath);
             $zip->close();
 

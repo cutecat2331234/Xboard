@@ -144,7 +144,7 @@ const FILTER_FIELDS = [
   'uuid',
   'token',
   'banned',
-  'remark',
+  'remarks',
   'inviter_email',
   'invite_user_id',
   'is_admin',

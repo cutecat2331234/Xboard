@@ -219,9 +219,11 @@ export default {
     incomeRecord: '佣金发放记录',
     incomeTime: '发放时间',
     incomeAmount: '佣金',
-    transferAmount: '划转金额（分）',
+    transferAmount: '划转金额（元）',
     transferAmountRequired: '请输入划转金额',
-    transferAmountInvalid: '划转金额必须为正整数（分）',
+    transferAmountInvalid: '划转金额必须为正整数（元）',
+    withdrawAccountRequired: '请输入提现账号',
+    withdrawMethodRequired: '请选择提现方式',
     withdrawSuccess: '提现申请已提交，请前往工单查看进度。',
   },
   traffic: {

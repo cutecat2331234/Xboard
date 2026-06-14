@@ -195,9 +195,14 @@ class ServerService
         $cacheTime = max(300, (int) admin_setting('server_push_interval', 60) * 3);
         $nodeType = $node->type;
         $nodeId = $node->id;
+        $allowedIds = array_flip(self::filterUserIdsByNodeGroups($node, array_keys($online)));
 
         foreach ($online as $uid => $conn) {
-            $cacheKey = CacheKey::get("USER_ONLINE_CONN_{$nodeType}_{$nodeId}", $uid);
+            $userId = (int) $uid;
+            if (!isset($allowedIds[$userId])) {
+                continue;
+            }
+            $cacheKey = CacheKey::get("USER_ONLINE_CONN_{$nodeType}_{$nodeId}", $userId);
             Cache::put($cacheKey, (int) $conn, $cacheTime);
         }
     }

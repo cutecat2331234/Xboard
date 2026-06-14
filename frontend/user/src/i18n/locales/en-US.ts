@@ -220,9 +220,11 @@ export default {
     incomeRecord: 'Commission Income Record',
     incomeTime: 'Commission Time',
     incomeAmount: 'Commission',
-    transferAmount: 'Transfer amount (cents)',
+    transferAmount: 'Transfer amount (currency units)',
     transferAmountRequired: 'Please enter a transfer amount',
-    transferAmountInvalid: 'Transfer amount must be a positive integer (cents)',
+    transferAmountInvalid: 'Transfer amount must be a positive integer',
+    withdrawAccountRequired: 'Please enter a withdrawal account',
+    withdrawMethodRequired: 'Please select a withdrawal method',
     withdrawSuccess: 'Withdrawal request submitted. View your ticket for updates.',
   },
   traffic: {

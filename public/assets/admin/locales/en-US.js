@@ -527,6 +527,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "show": {
           "label": "Display"
         },
+        "popup": {
+          "label": "Popup notice"
+        },
         "tags": {
           "label": "Tags",
           "placeholder": "Press Enter to add tags"
