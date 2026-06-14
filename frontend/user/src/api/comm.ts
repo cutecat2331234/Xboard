@@ -14,6 +14,7 @@ export interface GuestConfig {
   app_description?: string
   app_name?: string
   stop_register?: number
+  register_enable?: number
   app_url?: string
   logo?: string
   telegram_login_enable?: number

@@ -13,6 +13,7 @@ import { formatBytes } from '@/lib/format-traffic'
 const plans = ref<PlanItem[]>([])
 const tryOutPlanId = ref(0)
 const planChangeDisabled = ref(false)
+const commLoadFailed = ref(false)
 const loaded = ref(false)
 const msg = useMessage()
 const router = useRouter()
@@ -80,7 +81,8 @@ onMounted(async () => {
         const comm = await fetchUserCommConfig()
         planChangeDisabled.value = comm.plan_change_enable === 0
       } catch {
-        /* ignore */
+        commLoadFailed.value = true
+        planChangeDisabled.value = true
       }
     }
   } catch (e: unknown) {
@@ -93,7 +95,8 @@ onMounted(async () => {
 
 <template>
   <h2 v-if="loaded && plans.length > 0" class="plan-list-title">{{ t('plan.chooseTitle') }}</h2>
-  <p v-if="loaded && planChangeDisabled" class="plan-change-hint">{{ t('errors.planChangeDisabled') }}</p>
+  <p v-if="loaded && commLoadFailed" class="plan-change-hint plan-change-hint--error">{{ t('errors.requestFailed') }}</p>
+  <p v-else-if="loaded && planChangeDisabled" class="plan-change-hint">{{ t('errors.planChangeDisabled') }}</p>
   <n-grid v-if="!loaded" :cols="gridCols" :x-gap="12" :y-gap="12">
     <n-gi v-for="i in 2" :key="i">
       <n-card>

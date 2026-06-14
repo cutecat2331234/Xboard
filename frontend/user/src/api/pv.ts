@@ -9,9 +9,18 @@ export function storeInviteCode(code: string) {
   }
 }
 
+function readCodeFromSearch(search: string): string {
+  if (!search) return ''
+  const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
+  return params.get('code')?.trim() ?? ''
+}
+
 export function resolveInviteCodeFromUrl(): string {
-  const params = new URLSearchParams(window.location.search)
-  const code = params.get('code')?.trim() ?? ''
+  let code = readCodeFromSearch(window.location.search)
+  if (!code && window.location.hash.includes('?')) {
+    const hashQuery = window.location.hash.split('?')[1] ?? ''
+    code = readCodeFromSearch('?' + hashQuery)
+  }
   if (code) {
     storeInviteCode(code)
   }

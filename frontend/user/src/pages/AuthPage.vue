@@ -24,11 +24,12 @@ import CaptchaWidget from '@/components/CaptchaWidget.vue'
 import TelegramLoginWidget from '@/components/TelegramLoginWidget.vue'
 import { forgetPassword, loginWithMailLink, token2Login } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
+import { invalidateAppConfigCaches } from '@/lib/invalidate-app-config'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { featureEnabled } from '@/lib/feature-flags'
 import { resolveAssetUrl } from '@/lib/asset-url'
-import { storeInviteCode } from '@/api/pv'
+import { storeInviteCode, recordPageView } from '@/api/pv'
 
 const LoginIcon = {
   render() {
@@ -134,6 +135,7 @@ async function tryTokenLogin() {
   tokenLoading.value = true
   try {
     await token2Login(verify)
+    invalidateAppConfigCaches()
     await auth.loadUser()
     router.replace(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
@@ -154,6 +156,7 @@ onMounted(async () => {
     backToLoginTab()
   }
   applyInviteFromQuery()
+  recordPageView()
   await tryTokenLogin()
 })
 
