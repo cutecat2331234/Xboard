@@ -248,7 +248,7 @@ type ServerForm = {
   rate_time_enable: boolean
 }
 
-function defaultCreatePayload(form: ServerForm) {
+function defaultCreatePayload(form: ServerForm, show = 1) {
 
   const type = form.type || 'shadowsocks'
 
@@ -268,7 +268,7 @@ function defaultCreatePayload(form: ServerForm) {
 
     rate: Number(form.rate) || 1,
 
-    show: 1,
+    show,
 
     group_ids: form.group_ids,
 
@@ -530,9 +530,11 @@ export default function ServerManagePage() {
 
             ...editing,
 
-            ...defaultCreatePayload(form),
+            ...defaultCreatePayload(form, Number(editing.show ?? 1)),
 
             id: editing.id,
+
+            show: Number(editing.show ?? 1),
 
             protocol_settings,
 

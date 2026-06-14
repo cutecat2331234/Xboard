@@ -20,6 +20,10 @@ export default {
   termsPrefix: '我已阅读并同意',
   termsLink: '服务条款',
   termsRequired: '请先同意服务条款',
+  auth: {
+    defaultTitle: 'Xboard',
+    defaultDescription: '专业的网络加速服务',
+  },
   nav: {
     dashboard: '仪表盘',
     knowledge: '使用文档',

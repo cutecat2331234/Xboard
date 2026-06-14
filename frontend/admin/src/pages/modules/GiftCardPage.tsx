@@ -1134,7 +1134,9 @@ export default function GiftCardPage() {
 
       { accessorKey: 'code', header: () => t('giftCard.code.table.columns.code') },
 
-      { accessorKey: 'status', header: () => t('giftCard.code.table.columns.status') },
+      { accessorKey: 'status', header: () => t('giftCard.code.table.columns.status'), cell: ({ row }) => (
+        <span>{t(`giftCard.code.status.${row.original.status ?? 0}`, String(row.original.status ?? ''))}</span>
+      ) },
 
       { accessorKey: 'template_name', header: () => t('giftCard.code.table.columns.template_name') },
 
@@ -1433,7 +1435,7 @@ export default function GiftCardPage() {
                 <div key={key} className="rounded-lg border p-4">
 
                   <p className="text-sm text-muted-foreground">
-                    {t(`giftCard.statistics.${key}`, key)}
+                    {t(`giftCard.statistics.total.${key}`, key)}
                   </p>
 
                   <p className="text-2xl font-semibold">{String(value)}</p>

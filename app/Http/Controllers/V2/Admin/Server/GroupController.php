@@ -35,6 +35,9 @@ class GroupController extends Controller
 
         if ($request->input('id')) {
             $serverGroup = ServerGroup::find($request->input('id'));
+            if (!$serverGroup) {
+                return $this->fail([404, '组不存在']);
+            }
         } else {
             $serverGroup = new ServerGroup();
         }

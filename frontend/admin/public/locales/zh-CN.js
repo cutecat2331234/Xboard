@@ -285,7 +285,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "type": {
       "placeholder": "选择插件类型",
-      "all": "全部类型"
+      "all": "全部类型",
+      "feature": "功能插件",
+      "payment": "支付插件"
     },
     "tabs": {
       "all": "所有插件",

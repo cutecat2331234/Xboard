@@ -43,12 +43,6 @@ const popupNoticeTags = computed(() =>
 const sanitizedPopupContent = computed(() =>
   popupNotice.value?.content ? DOMPurify.sanitize(popupNotice.value.content) : '',
 )
-const trafficPercent = computed(() => {
-  const u = auth.user
-  if (!u?.transfer_enable) return 0
-  return ((u.u + u.d) / u.transfer_enable) * 100
-})
-
 const hasActiveSubscription = computed(() => {
   const expiredAt = subscribe.value?.expired_at
   return Boolean(expiredAt && expiredAt > Date.now() / 1000)
@@ -57,7 +51,7 @@ const hasActiveSubscription = computed(() => {
 const trafficWarnThreshold = computed(() => resolveTrafficWarnRate(commConfig.value))
 
 const showTrafficAlert = computed(
-  () => hasActiveSubscription.value && trafficPercent.value >= trafficWarnThreshold.value,
+  () => hasActiveSubscription.value && trafficUsagePercent.value >= trafficWarnThreshold.value,
 )
 
 async function load() {
@@ -202,7 +196,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       closable
       class="mb-1"
     >
-      {{ t('dashboard.trafficWarning', { percent: trafficPercent.toFixed(0) }) }}
+      {{ t('dashboard.trafficWarning', { percent: trafficUsagePercent.toFixed(0) }) }}
       <n-button text @click="router.push('/plan')">
         <span class="dash-traffic-link">{{ t('dashboard.learnAndBuy') }}</span>
       </n-button>

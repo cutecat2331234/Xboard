@@ -20,6 +20,10 @@ export default {
   termsPrefix: 'I have read and agree to',
   termsLink: 'Terms of Service',
   termsRequired: 'Please agree to the terms',
+  auth: {
+    defaultTitle: 'Xboard',
+    defaultDescription: 'Professional network acceleration service',
+  },
   nav: {
     dashboard: 'Dashboard',
     knowledge: 'Knowledge Base',

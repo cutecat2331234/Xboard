@@ -205,7 +205,9 @@ export default function ConfigPage() {
     setConfig((prev) => ({ ...prev, [sec]: { ...prev[sec], [key]: value } }))
   }
 
-  async function onBlurSave() {
+  async function onBlurSave(e: React.FocusEvent<HTMLDivElement>) {
+    const related = e.relatedTarget as Node | null
+    if (related && e.currentTarget.contains(related)) return
     try {
       const flat: Record<string, unknown> = {}
       for (const sec of Object.values(config)) {

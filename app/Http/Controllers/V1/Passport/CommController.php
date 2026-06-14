@@ -64,11 +64,19 @@ class CommController extends Controller
 
     public function pv(Request $request)
     {
-        $inviteCode = InviteCode::where('code', $request->input('invite_code'))->first();
-        if ($inviteCode) {
-            $inviteCode->pv = $inviteCode->pv + 1;
-            $inviteCode->save();
+        $code = trim((string) $request->input('invite_code', ''));
+        if ($code === '') {
+            return $this->success(true);
         }
+
+        $ip = (string) $request->ip();
+        $rateKey = CacheKey::get('INVITE_PV_RATE', md5($ip . ':' . $code));
+        if (Cache::get($rateKey)) {
+            return $this->success(true);
+        }
+        Cache::put($rateKey, 1, 300);
+
+        InviteCode::where('code', $code)->increment('pv');
 
         return $this->success(true);
     }
