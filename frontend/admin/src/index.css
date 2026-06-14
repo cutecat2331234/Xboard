@@ -154,6 +154,12 @@ body {
   animation: fade-in 0.2s ease-out;
 }
 
+/** Sidebar: instant active-state paint, no delayed highlight flash. */
+.sidebar-nav a,
+.sidebar-nav button {
+  transition: none !important;
+}
+
 /** 7001 sign-in inputs: lighter shadow-sm (0.05 opacity). */
 .xb-auth-input {
   box-shadow: var(--xb-shadow-input);
