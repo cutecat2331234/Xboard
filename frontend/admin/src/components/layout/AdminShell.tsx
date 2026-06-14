@@ -4,14 +4,12 @@ import { Sidebar } from './Sidebar'
 
 export function AdminShell() {
   return (
-    <div className="relative h-full overflow-hidden bg-background">
+    <div className="relative flex h-full min-h-0 overflow-hidden bg-background">
       <Sidebar />
-      <main className="h-full overflow-x-hidden pt-16 transition-[margin] md:ml-64 md:overflow-y-hidden md:pt-0">
-        <div className="relative flex h-full w-full flex-col">
-          <PageToolbar />
-          <div className="flex-1 overflow-hidden px-4 py-6 md:px-8">
-            <Outlet />
-          </div>
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden pt-16 md:ml-64 md:pt-0">
+        <PageToolbar />
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-6 [scrollbar-gutter:stable] md:px-8">
+          <Outlet />
         </div>
       </main>
     </div>

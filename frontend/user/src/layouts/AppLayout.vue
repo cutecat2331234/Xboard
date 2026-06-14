@@ -222,6 +222,7 @@ const MenuToggleIcon = {
         <h2 v-show="!collapsed" class="app-brand__title">{{ s.title || 'Xboard' }}</h2>
       </div>
       <n-menu
+        v-memo="[menuActiveKey, collapsed, locale]"
         :value="menuActiveKey"
         :collapsed="collapsed"
         :collapsed-width="64"
@@ -246,6 +247,7 @@ const MenuToggleIcon = {
           <h2 class="app-brand__title">{{ s.title || 'Xboard' }}</h2>
         </div>
         <n-menu
+          v-memo="[menuActiveKey, locale]"
           :value="menuActiveKey"
           :options="menuOptions"
           :indent="18"
@@ -255,7 +257,7 @@ const MenuToggleIcon = {
       </n-drawer-content>
     </n-drawer>
 
-    <n-layout>
+    <n-layout class="app-layout-inner">
       <header class="app-header flex items-center px-4">
         <div class="app-header-left">
           <n-icon :size="20" class="app-menu-icon" @click="onMenuToggle"><MenuToggleIcon /></n-icon>
@@ -317,6 +319,12 @@ const MenuToggleIcon = {
   height: 100vh;
   height: 100dvh;
 }
+.app-layout-inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
 .app-sider { background: var(--xb-surface); }
 .app-sider :deep(.n-menu-item-content--selected::before) {
   content: '';
@@ -327,7 +335,7 @@ const MenuToggleIcon = {
   width: 3px;
   background: var(--xb-primary);
 }
-.app-sider :deep(.n-menu-item-content) { position: relative; }
+.app-sider :deep(.n-menu-item-content) { position: relative; transition: none !important; }
 .app-sider :deep(.n-menu-item-group-title) {
   font-size: 13.02px;
   text-transform: none;
@@ -343,7 +351,7 @@ const MenuToggleIcon = {
   width: 3px;
   background: var(--xb-primary);
 }
-.app-mobile-drawer :deep(.n-menu-item-content) { position: relative; }
+.app-mobile-drawer :deep(.n-menu-item-content) { position: relative; transition: none !important; }
 .app-mobile-drawer :deep(.n-menu-item-group-title) {
   font-size: 13.02px;
   text-transform: none;
@@ -427,15 +435,31 @@ const MenuToggleIcon = {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.app-main-outer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
 .app-main-outer :deep(.n-layout-scroll-container) {
   padding: 0 !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .app-scroll-main {
-  min-height: calc(100vh - 60px);
+  flex: 1;
+  min-height: 0;
+  width: 100%;
   background: var(--xb-page-bg);
   padding: 4px;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 @media (min-width: 768px) {
   .app-scroll-main {
@@ -458,8 +482,6 @@ const MenuToggleIcon = {
     height: calc(60px + var(--xb-safe-area-inset-top));
   }
   .app-scroll-main {
-    min-height: calc(100vh - 60px - var(--xb-safe-area-inset-top));
-    min-height: calc(100dvh - 60px - var(--xb-safe-area-inset-top));
     padding-bottom: calc(4px + var(--xb-safe-area-inset-bottom));
     padding-left: calc(4px + var(--xb-safe-area-inset-left));
     padding-right: calc(4px + var(--xb-safe-area-inset-right));

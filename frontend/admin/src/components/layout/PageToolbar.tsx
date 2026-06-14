@@ -69,7 +69,7 @@ export function PageToolbar() {
         <button
           type="button"
           onClick={toggle}
-          className="inline-flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-full text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+          className="inline-flex h-9 w-9 items-center justify-center whitespace-nowrap rounded-full text-sm font-medium transition-none hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           aria-label={theme === 'dark' ? t('common.theme.light') : t('common.theme.dark')}
         >
           {theme === 'dark' ? <IconSun size={20} stroke={2} /> : <IconMoon size={20} stroke={2} />}
