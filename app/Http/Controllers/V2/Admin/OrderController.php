@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\OrderUpdate;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
+use App\Models\CommissionLog;
 use App\Services\OrderService;
 use App\Services\PlanService;
 use App\Services\UserService;
@@ -228,6 +229,14 @@ class OrderController extends Controller
             && (int) $params['commission_status'] !== 2
         ) {
             return $this->fail([400, '已结算的佣金不可回退']);
+        }
+
+        if (
+            isset($params['commission_status'])
+            && (int) $params['commission_status'] === 1
+            && CommissionLog::where('trade_no', $order->trade_no)->exists()
+        ) {
+            return $this->fail([400, '该订单已有佣金记录，不可重新标记为待确认']);
         }
 
         try {

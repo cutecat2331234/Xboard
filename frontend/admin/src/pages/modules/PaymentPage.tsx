@@ -254,7 +254,7 @@ export default function PaymentPage() {
                 onClick={openCreate}
               >
                 <Plus className="h-4 w-4" />
-                <span>{t('payment.form.add')}</span>
+                <span>{t('payment.form.add.button')}</span>
               </Button>
             ) : null}
             <SortToolbar
@@ -290,7 +290,7 @@ export default function PaymentPage() {
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.name')}</Label>
+              <Label>{t('payment.form.fields.name.label')}</Label>
               <input
                 className={inputCls}
                 value={form.name ?? ''}
@@ -298,7 +298,7 @@ export default function PaymentPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.payment')}</Label>
+              <Label>{t('payment.form.fields.payment.label')}</Label>
               <select
                 className={inputCls}
                 value={form.payment ?? ''}
@@ -317,7 +317,7 @@ export default function PaymentPage() {
               </select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.icon')}</Label>
+              <Label>{t('payment.form.fields.icon.label')}</Label>
               <input
                 className={inputCls}
                 value={form.icon ?? ''}
@@ -356,7 +356,7 @@ export default function PaymentPage() {
               )
             })}
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.notify_domain')}</Label>
+              <Label>{t('payment.form.fields.notify_domain.label')}</Label>
               <input
                 className={inputCls}
                 value={form.notify_domain ?? ''}

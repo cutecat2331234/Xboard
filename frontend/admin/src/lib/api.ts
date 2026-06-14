@@ -1,4 +1,5 @@
 import { shouldForceAdminLogoutOn403 } from '@/lib/auth-forbidden'
+import { invalidateAdminSessionCache } from '@/lib/session-cache'
 import { getAdminApiPrefix, getPassportApiPrefix, getSettings } from '@/lib/settings'
 
 const AUTH_STORAGE_KEY = 'xboard_admin_auth_data'
@@ -68,6 +69,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     }
     if (shouldForceAdminLogoutOn403(message)) {
       clearAuthData()
+      invalidateAdminSessionCache()
       window.location.hash = '#/sign-in'
     }
   }
@@ -283,6 +285,7 @@ export async function downloadAdminFile(
     }
     if (shouldForceAdminLogoutOn403(message)) {
       clearAuthData()
+      invalidateAdminSessionCache()
       window.location.hash = '#/sign-in'
     }
   }

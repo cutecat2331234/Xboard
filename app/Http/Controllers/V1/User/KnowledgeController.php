@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\V1\User;
 
-use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\KnowledgeResource;
 use App\Models\Knowledge;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
 use App\Utils\Helper;
@@ -23,6 +23,10 @@ class KnowledgeController extends Controller
 
     public function fetch(Request $request)
     {
+        if (!AppFeature::knowledgeEnabled()) {
+            return $this->fail([403, __('Feature is disabled')]);
+        }
+
         $request->validate([
             'id' => 'nullable|sometimes|integer|min:1',
             'language' => 'nullable|sometimes|string|max:10',
@@ -36,6 +40,10 @@ class KnowledgeController extends Controller
 
     public function getCategory(Request $request)
     {
+        if (!AppFeature::knowledgeEnabled()) {
+            return $this->fail([403, __('Feature is disabled')]);
+        }
+
         $request->validate([
             'language' => 'nullable|sometimes|string|max:10',
         ]);
