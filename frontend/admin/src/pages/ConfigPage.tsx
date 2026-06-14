@@ -257,7 +257,7 @@ export default function ConfigPage() {
             </button>
           </div>
           <div className="hidden w-full overflow-x-auto bg-background px-1 py-2 md:block">
-            <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
+            <nav className="config-nav flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
               {SECTIONS.map((item) => {
                 const isActive = section === item.id
                 const href = `#${sectionToPath(item.id)}`
@@ -267,10 +267,11 @@ export default function ConfigPage() {
                     href={href}
                     onClick={(e) => {
                       e.preventDefault()
+                      setSection(item.id)
                       navigate(sectionToPath(item.id))
                     }}
                     className={cn(
-                      'inline-flex items-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-9 px-4 py-2 justify-start',
+                      'inline-flex items-center whitespace-nowrap rounded-md text-sm font-medium transition-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-9 px-4 py-2 justify-start',
                       isActive ? 'bg-muted hover:bg-muted' : 'hover:bg-transparent hover:underline',
                     )}
                   >

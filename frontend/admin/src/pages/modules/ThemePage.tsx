@@ -50,12 +50,14 @@ export default function ThemePage() {
   }, [load])
 
   async function switchTheme(name: string) {
+    const previous = active
+    setActive(name)
     try {
       await saveConfig({ frontend_theme: name })
       toast.success(t('common.success'))
-      setActive(name)
       load()
     } catch (e) {
+      setActive(previous)
       toast.error(e instanceof Error ? e.message : t('common.error'))
     }
   }

@@ -91,29 +91,6 @@ const collapsed = ref(false)
 const mobileDrawerOpen = ref(false)
 const isMobile = ref(false)
 
-const mobileQuery = window.matchMedia('(max-width: 767px)')
-
-function updateMobile() {
-  isMobile.value = mobileQuery.matches
-  if (!isMobile.value) mobileDrawerOpen.value = false
-}
-
-let themeObserver: MutationObserver | undefined
-
-onMounted(() => {
-  updateMobile()
-  mobileQuery.addEventListener('change', updateMobile)
-  themeObserver = new MutationObserver(() => {
-    isDark.value = document.documentElement.classList.contains('dark')
-  })
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-})
-
-onUnmounted(() => {
-  mobileQuery.removeEventListener('change', updateMobile)
-  themeObserver?.disconnect()
-})
-
 const NAV_PATH_KEYS: Record<string, string> = {
   '/dashboard': 'nav.dashboard',
   '/knowledge': 'nav.knowledge',
@@ -147,6 +124,42 @@ const menuActiveKey = computed(() => {
 const menuValue = ref(menuActiveKey.value)
 watch(menuActiveKey, (key) => {
   menuValue.value = key
+})
+
+let removeMenuRouterGuard: (() => void) | undefined
+
+function syncMenuValueFromRoute(path: string, menuKey?: string) {
+  menuValue.value = menuKey ?? resolveMenuKey(path)
+}
+
+const mobileQuery = window.matchMedia('(max-width: 767px)')
+
+function updateMobile() {
+  isMobile.value = mobileQuery.matches
+  if (!isMobile.value) mobileDrawerOpen.value = false
+}
+
+let themeObserver: MutationObserver | undefined
+
+onMounted(() => {
+  updateMobile()
+  mobileQuery.addEventListener('change', updateMobile)
+  themeObserver = new MutationObserver(() => {
+    isDark.value = document.documentElement.classList.contains('dark')
+  })
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  removeMenuRouterGuard = router.beforeEach((to) => {
+    if (typeof to.path === 'string' && to.path.startsWith('/')) {
+      syncMenuValueFromRoute(to.path, to.meta.menuKey as string | undefined)
+    }
+  })
+})
+
+onUnmounted(() => {
+  mobileQuery.removeEventListener('change', updateMobile)
+  themeObserver?.disconnect()
+  removeMenuRouterGuard?.()
+  removeMenuRouterGuard = undefined
 })
 
 type BreadcrumbItem = { label: string; to?: string }
