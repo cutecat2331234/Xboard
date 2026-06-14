@@ -155,6 +155,18 @@ class OrderController extends Controller
                 'user_id' => $order->user_id,
                 'stripe_token' => $request->input('token')
             ]);
+
+            if (($result['type'] ?? null) === 2 && !empty($result['data']) && !empty($result['callback_no'])) {
+                $orderService = new OrderService($order);
+                if (!$orderService->paid((string) $result['callback_no'])) {
+                    return $this->fail([400, __('Payment failed. Please check your credit card information')]);
+                }
+                return response([
+                    'type' => -1,
+                    'data' => true,
+                ]);
+            }
+
             return response([
                 'type' => $result['type'],
                 'data' => $result['data']

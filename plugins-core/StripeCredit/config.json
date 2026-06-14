@@ -1,0 +1,8 @@
+{
+    "name": "Stripe Credit",
+    "code": "stripe_credit",
+    "type": "payment",
+    "version": "1.0.0",
+    "description": "Stripe credit card payment plugin",
+    "author": "XBoard Team"
+}
