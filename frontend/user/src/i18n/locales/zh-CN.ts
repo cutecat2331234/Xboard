@@ -52,7 +52,7 @@ export default {
     problem: '遇到问题',
     problemDesc: '遇到问题可以通过工单与我们沟通',
     copyLink: '复制订阅链接',
-    unpaidOrders: '您有 {count} 笔待支付订单',
+    unpaidOrders: '您有 {count} 笔待支付或开通中的订单',
     payNow: '立即支付',
     openTickets: '您有 {count} 个待处理工单',
     goView: '前往查看',
@@ -185,6 +185,8 @@ export default {
     withdrawMinimum: '当前最低提现金额为 {limit}',
     serverError: '遇到了些问题，我们正在进行处理',
     pageNotFound: '页面不存在',
+    planChangeDisabled: '当前不允许更改订阅，请联系客服或提交工单',
+    withdrawMethodUnsupported: '不支持的提现方式',
   },
   common: {
     loading: '加载中...',
@@ -237,6 +239,8 @@ export default {
     withdrawAccountRequired: '请输入提现账号',
     withdrawMethodRequired: '请选择提现方式',
     withdrawSuccess: '提现申请已提交，请前往工单查看进度。',
+    withdrawLimitHint: '最低提现金额：{limit}',
+    withdrawFeeHint: '提现手续费：{rate}%',
   },
   traffic: {
     hint: '流量明细仅保留近月数据以供查询。',

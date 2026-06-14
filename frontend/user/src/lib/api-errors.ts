@@ -91,6 +91,9 @@ const MESSAGE_MAP: Record<string, string> = {
   'Uh-oh, we\'ve had some problems, we\'re working on it.': 'errors.serverError',
   '遇到了些问题，我们正在进行处理': 'errors.serverError',
   'Request failed': 'errors.requestFailed',
+  '目前不允许更改订阅，请联系客服或提交工单操作': 'errors.planChangeDisabled',
+  'Unsupported withdrawal method': 'errors.withdrawMethodUnsupported',
+  '不支持的提现方式': 'errors.withdrawMethodUnsupported',
 }
 
 interface ErrorPattern {

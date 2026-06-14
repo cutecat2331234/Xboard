@@ -180,6 +180,9 @@ class OrderController extends Controller
         if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
             return $this->fail([400, '只能对待支付或处理中的订单进行操作']);
         }
+        if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
+            return $this->fail([400, '已支付订单不可取消，请先处理退款']);
+        }
 
         $orderService = new OrderService($order);
         if (!$orderService->cancel()) {

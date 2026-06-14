@@ -254,7 +254,7 @@ class OrderService
     private function haveValidOrder(User $user): Order|null
     {
         return Order::where('user_id', $user->id)
-            ->whereNotIn('status', [Order::STATUS_PENDING, Order::STATUS_CANCELLED])
+            ->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
             ->first();
     }
 

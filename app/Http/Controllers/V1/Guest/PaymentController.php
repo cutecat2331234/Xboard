@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\V1\Guest;
 
 use App\Http\Controllers\Controller;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Services\OrderService;
 use App\Services\PaymentService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -58,11 +60,15 @@ class PaymentController extends Controller
             }
 
             if ($order->status === Order::STATUS_CANCELLED) {
-                Log::warning('Payment notify: ignored for cancelled order (manual refund may be required)', [
-                    'trade_no' => $tradeNo,
-                    'callback_no' => $callbackNo,
-                ]);
-                return true;
+                if (!isset($verify['amount']) || !$this->verifyAmount($order, (int) $verify['amount'])) {
+                    Log::warning('Payment notify: cancelled order with invalid amount', [
+                        'trade_no' => $tradeNo,
+                        'expected' => $this->expectedAmountCents($order),
+                        'received' => $verify['amount'] ?? null,
+                    ]);
+                    return false;
+                }
+                return $this->reactivateCancelledOrder($order, $callbackNo);
             }
 
             if ($order->status === Order::STATUS_PROCESSING) {
@@ -119,6 +125,47 @@ class PaymentController extends Controller
 
             return true;
         });
+    }
+
+    private function reactivateCancelledOrder(Order $order, string $callbackNo): bool
+    {
+        if ($order->balance_amount) {
+            $userService = new UserService();
+            if (!$userService->addBalance($order->user_id, -((int) $order->balance_amount))) {
+                Log::error('Payment notify: cannot re-deduct balance for cancelled order', [
+                    'trade_no' => $order->trade_no,
+                    'balance_amount' => $order->balance_amount,
+                ]);
+                return false;
+            }
+        }
+        if ($order->coupon_id) {
+            Coupon::where('id', $order->coupon_id)
+                ->whereNotNull('limit_use')
+                ->decrement('limit_use');
+        }
+
+        Log::info('Payment notify: reactivating cancelled order after verified payment', [
+            'trade_no' => $order->trade_no,
+            'callback_no' => $callbackNo,
+        ]);
+
+        $order->status = Order::STATUS_PENDING;
+        if (!$order->save()) {
+            return false;
+        }
+
+        $orderService = new OrderService($order);
+        if (!$orderService->paid($callbackNo)) {
+            return false;
+        }
+
+        $order->refresh();
+        if ((int) $order->status === Order::STATUS_COMPLETED) {
+            HookManager::call('payment.notify.success', $order);
+        }
+
+        return true;
     }
 
     private function expectedAmountCents(Order $order): int
