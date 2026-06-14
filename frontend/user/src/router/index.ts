@@ -3,8 +3,29 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import AuthPage from '../pages/AuthPage.vue'
 
 import { getAuthData } from '@/api'
+import { useAuthStore } from '@/stores/auth'
+import { getSessionCache, invalidateSessionCache, setSessionCache } from '@/lib/session-cache'
 
+export { invalidateSessionCache }
 
+const publicPaths = ['/login', '/register', '/forgetpassword']
+
+async function ensureValidSession(): Promise<boolean> {
+  if (!getAuthData()) {
+    invalidateSessionCache()
+    return false
+  }
+
+  const { lastSessionCheckAt, lastSessionValid, SESSION_CHECK_TTL_MS } = getSessionCache()
+  const now = Date.now()
+  if (now - lastSessionCheckAt < SESSION_CHECK_TTL_MS) {
+    return lastSessionValid
+  }
+
+  const valid = await useAuthStore().checkSession()
+  setSessionCache(valid, now)
+  return valid
+}
 
 const routes = [
 
@@ -70,22 +91,24 @@ const router = createRouter({ history: createWebHashHistory(), routes })
 
 
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
 
-  const publicPaths = ['/login', '/register', '/forgetpassword']
-
-  const authed = Boolean(getAuthData())
   const hasTokenLogin = to.path === '/login' && typeof to.query.verify === 'string' && to.query.verify.length > 0
 
-  if (!authed && !publicPaths.includes(to.path)) {
-
-    return { path: '/login', query: { redirect: to.fullPath } }
-
+  if (getAuthData()) {
+    const valid = await ensureValidSession()
+    if (!valid && !publicPaths.includes(to.path)) {
+      return { path: '/login', query: { redirect: to.fullPath } }
+    }
+    if (valid && publicPaths.includes(to.path) && !hasTokenLogin) {
+      return { path: '/dashboard' }
+    }
+    return true
   }
 
-  if (authed && publicPaths.includes(to.path) && !hasTokenLogin) {
+  if (!publicPaths.includes(to.path)) {
 
-    return { path: '/dashboard' }
+    return { path: '/login', query: { redirect: to.fullPath } }
 
   }
 
@@ -96,4 +119,3 @@ router.beforeEach((to) => {
 
 
 export default router
-

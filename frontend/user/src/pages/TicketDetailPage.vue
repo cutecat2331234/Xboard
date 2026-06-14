@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { NCard, NButton, NInput, NScrollbar, NAlert, useMessage } from 'naive-ui'
+import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
@@ -12,6 +12,7 @@ const msg = useMessage()
 const { t } = useI18n()
 
 const ticket = ref<TicketItem | null>(null)
+const pageLoading = ref(true)
 const replyText = ref('')
 const sending = ref(false)
 const scrollRef = ref<InstanceType<typeof NScrollbar> | null>(null)
@@ -27,6 +28,7 @@ function scrollToBottom() {
 }
 
 async function load() {
+  pageLoading.value = true
   try {
     const id = Number(route.params.id)
     ticket.value = await fetchTicketById(id)
@@ -36,6 +38,8 @@ async function load() {
     scrollToBottom()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  } finally {
+    pageLoading.value = false
   }
 }
 
@@ -98,6 +102,7 @@ onUnmounted(stopPoll)
 </script>
 
 <template>
+  <n-spin :show="pageLoading">
   <n-card v-if="ticket" :title="ticket.subject" class="ticket-detail-card rounded-md">
     <template v-if="ticket.status === 0" #header-extra>
       <n-button size="small" @click="close">{{ t('ticket.close') }}</n-button>
@@ -141,6 +146,7 @@ onUnmounted(stopPoll)
       </n-button>
     </div>
   </n-card>
+  </n-spin>
 </template>
 
 <style scoped>

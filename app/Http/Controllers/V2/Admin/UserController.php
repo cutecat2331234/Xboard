@@ -10,7 +10,7 @@ use App\Jobs\SendEmailJob;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\AuthService;
-use App\Services\NodeSyncService;
+use App\Jobs\NodeUserSyncJob;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
 use App\Traits\QueryOperators;
@@ -679,9 +679,13 @@ class UserController extends Controller
         } // all: ignore filter/sort
 
         try {
+            $userIds = (clone $builder)->pluck('id');
             $builder->update([
                 'banned' => 1
             ]);
+            foreach ($userIds as $userId) {
+                NodeUserSyncJob::dispatch($userId, 'updated');
+            }
         } catch (\Exception $e) {
             Log::error($e);
             return $this->fail([500, '处理失败']);

@@ -12,6 +12,7 @@ import { fetchUserStat } from '@/api/user'
 import { resolveTrafficWarnRate } from '@/api/comm'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 import { resolvePopupNoticeTags } from '@/utils/settings'
 import DOMPurify from 'dompurify'
 
@@ -66,9 +67,10 @@ async function load() {
     subscribe.value = sub
     hasPlan.value = Boolean(sub.plan)
     subscribeUrl.value = hasPlan.value ? sub.subscribe_url : ''
-  } catch {
+  } catch (e: unknown) {
     subscribeUrl.value = ''
     hasPlan.value = false
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
   }
@@ -100,8 +102,9 @@ async function loadNotices() {
       n.tags?.some((tag) => needles.some((needle) => tag.includes(needle))),
     )
     if (popup) popupNotice.value = popup
-  } catch {
+  } catch (e: unknown) {
     notices.value = []
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
 }
 
@@ -112,8 +115,8 @@ onMounted(async () => {
     const stat = await fetchUserStat()
     unpaidOrders.value = stat[0] ?? 0
     openTickets.value = stat[1] ?? 0
-  } catch {
-    /* ignore */
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
 })
 
