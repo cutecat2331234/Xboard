@@ -79,14 +79,16 @@ export default function PaymentPage() {
         id,
       })
       setDynamicFields(Array.isArray(fields) ? fields : [])
-      const config: Record<string, unknown> = { ...(form.config ?? {}) }
-      for (const field of Array.isArray(fields) ? fields : []) {
-        const key = field.name ?? field.key
-        if (key && field.value !== undefined && config[key] === undefined) {
-          config[key] = field.value
+      setForm((f) => {
+        const config: Record<string, unknown> = {}
+        for (const field of Array.isArray(fields) ? fields : []) {
+          const key = field.name ?? field.key
+          if (key && field.value !== undefined) {
+            config[key] = field.value
+          }
         }
-      }
-      setForm((f) => ({ ...f, config }))
+        return { ...f, config }
+      })
     } catch (e) {
       setDynamicFields([])
       toastApiError(e, toast, t, t('common.error'))

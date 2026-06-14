@@ -701,6 +701,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "changeRate": "变化率",
       "recordTime": "记录时间"
     },
+    "traffic": {
+      "title": "流量排行",
+      "rank": "排名",
+      "domain": "域名",
+      "todayTraffic": "今日流量",
+      "monthlyTraffic": "月流量"
+    },
     "overview": {
       "title": "收入概览",
       "thisMonth": "本月",
@@ -2270,7 +2277,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "bot_token": {
         "title": "机器人令牌",
         "description": "请输入从Botfather获取的令牌。",
-        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx"
+        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx",
+        "required": "请先填写 Telegram Bot Token"
       },
       "webhook_url": {
         "title": "Webhook Base URL",
@@ -3185,7 +3193,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       },
       "batch_ban": {
         "success": "批量封禁成功",
-        "failed": "批量封禁失败"
+        "failed": "批量封禁失败",
+        "required_scope": "批量封禁前请先选择用户或设置筛选条件，不能直接封禁全部用户"
       },
       "send_mail": {
         "success": "邮件发送成功",

@@ -2356,7 +2356,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "bot_token": {
         "title": "Bot Token",
         "description": "Please enter the token provided by Botfather.",
-        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx"
+        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx",
+        "required": "Please enter the Telegram Bot Token first"
       },
       "webhook_url": {
         "title": "Webhook Base URL",
@@ -3055,7 +3056,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       },
       "batch_ban": {
         "success": "Batch ban successful",
-        "failed": "Batch ban failed"
+        "failed": "Batch ban failed",
+        "required_scope": "Select users or set filters before batch ban. Banning all users requires an explicit filter."
       },
       "send_mail": {
         "success": "Email sent successfully",

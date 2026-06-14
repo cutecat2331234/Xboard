@@ -33,12 +33,15 @@ export function TelegramConfigFields({ t, telegram, update, FormField, SwitchFie
   const handleSetWebhook = async () => {
     const token = String(telegram.telegram_bot_token ?? '').trim()
     if (!token) {
-      toast.error(t('settings.telegram.bot_token.description'))
+      toast.error(t('settings.telegram.bot_token.required'))
       return
     }
     setWebhookLoading(true)
     try {
-      await setTelegramWebhook(token)
+      await setTelegramWebhook(
+        token,
+        String(telegram.telegram_webhook_url ?? '').trim() || undefined,
+      )
       toast.success(t('settings.telegram.webhook.success'))
     } catch (e) {
       toastApiError(e, toast, t, t('common.error'))

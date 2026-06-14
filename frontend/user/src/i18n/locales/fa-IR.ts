@@ -181,6 +181,7 @@ export default {
   
     paymentNotFound: 'روش پرداخت Stripe یافت نشد',
     paymentInProgress: 'این سفارش در حال پرداخت است و قابل لغو نیست.',
+    paymentMethodLocked: 'برای تغییر روش پرداخت، سفارش را لغو کرده و دوباره ایجاد کنید',
     ticketWaitForReply: 'لطفاً منتظر پاسخ پشتیبانی بمانید.',
     withdrawUnsupported: 'برداشت پشتیبانی نمی‌شود',
     insufficientCommission: 'موجودی کمیسیون کافی نیست',
@@ -312,6 +313,7 @@ export default {
     viewDetail: "مشاهده جزئیات",
     detailTitle: "جزئیات سفارش",
     selectPayment: "انتخاب روش پرداخت",
+    paymentLocked: "روش پرداخت این سفارش قفل شده است. برای تغییر، سفارش را لغو کنید",
     paymentMethod: "روش پرداخت",
     totalTitle: "جمع سفارش",
     checkout: "تسویه حساب",

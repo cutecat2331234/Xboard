@@ -182,6 +182,7 @@ export default {
   
     paymentNotFound: '未找到可用的 Stripe 支付方式',
     paymentInProgress: '訂單支付進行中，無法取消',
+    paymentMethodLocked: '請取消訂單並重新建立以更換支付方式',
     ticketWaitForReply: '請等待客服回覆後再傳送訊息',
     withdrawUnsupported: '不支援提現',
     insufficientCommission: '佣金餘額不足',
@@ -318,6 +319,7 @@ export default {
     viewDetail: "查看詳情",
     detailTitle: "訂單詳情",
     selectPayment: "請選擇支付方式",
+    paymentLocked: "該訂單已鎖定支付方式，如需更換請先取消訂單",
     paymentMethod: "支付方式",
     totalTitle: "訂單總額",
     checkout: "結帳",

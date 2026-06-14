@@ -443,9 +443,13 @@ export interface TelegramWebhookResult {
   webhook_base_url?: string
 }
 
-export async function setTelegramWebhook(telegramBotToken?: string): Promise<TelegramWebhookResult> {
+export async function setTelegramWebhook(
+  telegramBotToken?: string,
+  telegramWebhookUrl?: string,
+): Promise<TelegramWebhookResult> {
   return postJson<TelegramWebhookResult>('/config/setTelegramWebhook', {
     telegram_bot_token: telegramBotToken,
+    telegram_webhook_url: telegramWebhookUrl,
   })
 }
 
