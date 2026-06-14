@@ -240,6 +240,7 @@ export default {
     }
   },
   invite: {
+    peopleCount: "{number} 人",
     title: "我的邀請",
     available: "当前剩余佣金",
     transfer: "劃轉",
@@ -387,6 +388,8 @@ export default {
     multiplier: "倍率"
   },
   profile: {
+    telegramUnbindConfirm: "確定要解綁 Telegram 帳號嗎？解綁後需重新透過機器人 /bind 綁定。",
+    telegramUnbind: "解綁 Telegram",
     wallet: "我的錢包",
     balanceHint: "賬戶餘額(僅消費)",
     email: "郵箱",

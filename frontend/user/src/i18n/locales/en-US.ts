@@ -134,6 +134,9 @@ export default {
     catNotice: 'Notice',
   },
   errors: {
+    giftCardRedeemFailed: "Redemption failed. Please try again later.",
+    couponPerUserLimit: "This coupon can only be used {limit} time(s) per person",
+    couponNotStarted: "This coupon has not yet started",
     incorrectCredentials: 'Incorrect email or password',
     accountSuspended: 'Your account has been suspended',
     passwordTooManyAttempts:

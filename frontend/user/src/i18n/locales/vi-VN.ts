@@ -72,20 +72,20 @@ export default {
   },
   plan: {
     chooseTitle: "Chọn gói phù hợp với bạn",
-    name: "Plan",
+    name: "Gói",
     viewDetail: "Xem chi tiết",
-    selectPeriod: "Select period",
-    coupon: "Coupon",
-    couponPh: "Enter coupon code",
+    selectPeriod: "Chọn chu kỳ",
+    coupon: "Mã giảm giá",
+    couponPh: "Nhập mã giảm giá",
     applyCoupon: "Xác minh",
-    couponApplied: "Coupon applied",
-    couponDiscount: "Discount",
-    buyNow: "Buy now",
-    noPeriod: "No purchasable period",
-    pendingOrderTitle: "Pending order",
-    pendingOrderDesc: "You have an unpaid order. Cancel it to continue?",
+    couponApplied: "Đã áp dụng mã",
+    couponDiscount: "Giảm giá",
+    buyNow: "Mua ngay",
+    noPeriod: "Không có chu kỳ mua được",
+    pendingOrderTitle: "Đơn hàng chờ thanh toán",
+    pendingOrderDesc: "Bạn có đơn chưa thanh toán. Hủy để tiếp tục?",
     processingOrderDesc: "Bạn có đơn hàng đang được xử lý. Vui lòng đợi hoặc kiểm tra trang đơn hàng.",
-    cancelPending: "Cancel order",
+    cancelPending: "Hủy đơn",
     periodMonth: "Tháng",
     periodQuarter: "Hàng Quý",
     periodHalfYear: "6 Tháng",
@@ -94,12 +94,12 @@ export default {
     periodThreeYear: "Ba Năm",
     periodOnetime: "Dài Hạn",
     periodReset: "Gói Reset Dữ liệu",
-    empty: "No plans available",
-    loadFailed: "Failed to load plans",
-    periodPricesHint: "Period prices",
-    capacityRemaining: "{count} slots remaining",
-    tryOutBadge: "Trial plan",
-    tryOutHint: "This is the registration trial plan. New users receive a trial automatically; you can also purchase it here."
+    empty: "Không có dữ liệu lưu lượng",
+    loadFailed: "Tải gói thất bại",
+    periodPricesHint: "Giá theo chu kỳ",
+    capacityRemaining: "Còn {count} suất",
+    tryOutBadge: "Gói dùng thử",
+    tryOutHint: "Gói dùng thử đăng ký. Người dùng mới nhận dùng thử tự động; bạn cũng có thể mua tại đây."
   },
   node: {
     alert: "No access points are available. If you have not subscribed or the subscription has expired, please",
@@ -132,6 +132,9 @@ export default {
     registerFailed: "Đăng ký thất bại"
   },
   errors: {
+    giftCardRedeemFailed: "Quy đổi thất bại. Vui lòng thử lại sau.",
+    couponPerUserLimit: "Mỗi người chỉ được dùng mã này {limit} lần",
+    couponNotStarted: "Mã giảm giá chưa có hiệu lực",
     incorrectCredentials: "Email hoặc mật khẩu không đúng",
     accountSuspended: "Tài khoản của bạn đã bị đình chỉ",
     passwordTooManyAttempts:
@@ -179,11 +182,11 @@ export default {
     paymentNotFound: 'Không tìm thấy phương thức thanh toán Stripe',
     paymentInProgress: 'Đơn hàng đang thanh toán, không thể hủy.',
     ticketWaitForReply: 'Vui lòng đợi nhân viên phản hồi.',
-    withdrawUnsupported: 'Withdrawals are not supported',
-    insufficientCommission: 'Insufficient commission balance',
-    pendingWithdrawTicket: 'You already have a pending withdrawal request',
-    withdrawMinimum: 'Minimum withdrawal amount is {limit}',
-    planChangeDisabled: 'Plan changes are currently disabled. Please contact support or open a ticket.',
+    withdrawUnsupported: "Không hỗ trợ rút tiền",
+    insufficientCommission: "Số dư hoa hồng không đủ",
+    pendingWithdrawTicket: "Bạn đã có yêu cầu rút tiền đang chờ",
+    withdrawMinimum: "Số tiền rút tối thiểu là {limit}",
+    planChangeDisabled: "Hiện không cho đổi gói. Vui lòng liên hệ hỗ trợ hoặc mở phiếu.",
     withdrawMethodUnsupported: 'Unsupported withdrawal method',
     invalidCoupon: 'Mã giảm giá không hợp lệ',
     couponEmpty: 'Vui lòng nhập mã giảm giá',
@@ -242,6 +245,7 @@ export default {
     }
   },
   invite: {
+    peopleCount: "{number} người",
     title: "Lời Mời Của Tôi",
     available: "Số dư hoa hồng hiện tại",
     transfer: "Chuyển khoản",
@@ -252,7 +256,7 @@ export default {
     createdAt: "Thời gian tạo",
     copyLink: "Sao chép đường dẫn",
     registered: "Số người dùng đã đăng ký",
-    people: "people",
+    people: "người",
     commissionRate: "Tỷ lệ hoa hồng",
     pendingCommission: "Hoa hồng đang xác nhận",
     totalCommission: "Tổng hoa hồng đã nhận",
@@ -265,7 +269,7 @@ export default {
     withdrawSuccess: "Yêu cầu rút tiền đã được gửi. Vui lòng xem vé hỗ trợ để cập nhật."
   },
   traffic: {
-    hint: "Traffic logs are kept for the last month only.",
+    hint: "Nhật ký lưu lượng chỉ giữ trong tháng qua.",
     empty: "No traffic records",
     recordAt: "Thời gian ghi",
     upload: "Upload thực tế",
@@ -300,7 +304,7 @@ export default {
     notice: "Lưu ý",
     closeOrder: "Đóng đơn hàng",
     closeConfirm: "Nếu bạn đã thanh toán, việc hủy đơn có thể khiến thanh toán thất bại. Bạn có chắc muốn hủy?",
-    closeSuccess: "Đã hủy đơn hàng",
+    closeSuccess: "Đã đóng phiếu",
     discount: "Số tiền giảm giá",
     discountLabel: "Giảm giá",
     surplus: "Giảm giá",
@@ -353,11 +357,11 @@ export default {
     closed: "Đã đóng",
     replied: "Đã trả lời",
     pendingReply: "Chờ trả lời",
-    open: "Open",
+    open: "Mở",
     reply: "Trả lời",
-    replyPh: "Enter your reply…",
-    closedReplyPh: "Ticket closed — replies disabled",
-    closedHint: "This ticket is closed. You cannot send more replies.",
+    replyPh: "Nhập phản hồi của bạn…",
+    closedReplyPh: "Phiếu đã đóng — không thể trả lời",
+    closedHint: "Phiếu này đã đóng. Bạn không thể gửi thêm phản hồi.",
     closeSuccess: "Ticket closed"
   },
   giftCard: {
@@ -391,6 +395,8 @@ export default {
     multiplier: "Hệ số"
   },
   profile: {
+    telegramUnbindConfirm: "Hủy liên kết Telegram? Bạn cần gửi /bind cho bot để liên kết lại.",
+    telegramUnbind: "Hủy liên kết Telegram",
     wallet: "Ví tiền của tôi",
     balanceHint: "Số dư tài khoản (Chỉ tiêu dùng)",
     email: "E-mail",
@@ -421,8 +427,8 @@ export default {
     quickLoginCopied: "Đã sao chép liên kết đăng nhập nhanh vào clipboard",
     copied: "Đã sao chép vào clipboard",
     telegram: "Telegram",
-    telegramHint: "Search this bot on Telegram and send /bind:",
-    telegramBound: "Telegram linked",
-    telegramGroup: "Join Telegram group"
+    telegramHint: "Tìm bot này trên Telegram và gửi /bind:",
+    telegramBound: "Đã liên kết Telegram",
+    telegramGroup: "Tham gia nhóm Telegram"
   }
 } as const

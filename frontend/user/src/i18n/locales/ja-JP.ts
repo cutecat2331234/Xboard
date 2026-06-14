@@ -132,6 +132,9 @@ export default {
     registerFailed: "登録に失敗しました"
   },
   errors: {
+    giftCardRedeemFailed: "引き換えに失敗しました。後でもう一度お試しください。",
+    couponPerUserLimit: "このクーポンはお一人様 {limit} 回までです",
+    couponNotStarted: "クーポンはまだ有効になっていません",
     incorrectCredentials: "メールアドレスまたはパスワードが正しくありません",
     accountSuspended: "このアカウントは利用停止されています",
     passwordTooManyAttempts: "パスワードの誤入力が多すぎます。{minute} 分後に再度お試しください",
@@ -201,12 +204,12 @@ export default {
     ticketReplyFailed: '返信に失敗しました',
     ticketCloseFailed: 'クローズに失敗しました',
     ticketSubjectEmpty: '件名を入力してください',
-    oldPasswordWrong: 'Current password is incorrect',
-    passwordTooShort: 'Password must be at least 8 characters',
-    saveFailed: 'Save failed',
-    transferFailed: 'Transfer failed',
-    telegramNotBound: 'Telegram account is not linked',
-    telegramUnbindFailed: 'Failed to unlink Telegram',
+    oldPasswordWrong: "現在のパスワードが正しくありません",
+    passwordTooShort: "パスワードは8文字以上必要です",
+    saveFailed: "保存に失敗しました",
+    transferFailed: "振替に失敗しました",
+    telegramNotBound: "Telegram アカウントが連携されていません",
+    telegramUnbindFailed: "Telegram の連携解除に失敗しました",
     inviteCodeLimit: 'Maximum number of invite codes reached',
     giftCardNotFound: '引き換えコードが見つかりません',
     giftCardDisabled: 'このギフトカードは無効です',
@@ -241,6 +244,7 @@ export default {
     }
   },
   invite: {
+    peopleCount: "{number} 人",
     title: "招待リスト",
     available: "コミッション残高",
     transfer: "お振替",
@@ -390,6 +394,8 @@ export default {
     multiplier: "倍率"
   },
   profile: {
+    telegramUnbindConfirm: "Telegram アカウントの連携を解除しますか？再度 /bind で連携してください。",
+    telegramUnbind: "Telegram の連携を解除",
     wallet: "マイウォレット",
     balanceHint: "残高(サービスの購入のみ)",
     email: "E-mail アドレス",

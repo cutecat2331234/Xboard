@@ -239,6 +239,13 @@ class UserController extends Controller
                 if (!$user->save()) {
                     throw new \Exception(__('Transfer failed'));
                 }
+                \App\Models\CommissionLog::create([
+                    'invite_user_id' => $user->id,
+                    'user_id' => $user->id,
+                    'trade_no' => 'transfer:' . \App\Utils\Helper::guid(),
+                    'order_amount' => $amount,
+                    'get_amount' => $netAmount,
+                ]);
             });
         } catch (\Exception $e) {
             return $this->fail([400, $e->getMessage()]);

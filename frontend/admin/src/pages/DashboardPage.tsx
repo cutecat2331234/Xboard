@@ -266,7 +266,7 @@ export default function DashboardPage() {
     const timer = window.setInterval(() => {
       fetchDashboardStats()
         .then(setStats)
-        .catch(() => {})
+        .catch((e) => toastApiError(e, toast, t, t('common.error')))
     }, 60_000)
 
     return () => window.clearInterval(timer)

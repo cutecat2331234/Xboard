@@ -134,6 +134,9 @@ export default {
     catNotice: '公告',
   },
   errors: {
+    giftCardRedeemFailed: "兑换失败，请稍后重试",
+    couponPerUserLimit: "每人只能使用此优惠券 {limit} 次",
+    couponNotStarted: "优惠券尚未开始",
     incorrectCredentials: '邮箱或密码错误',
     accountSuspended: '该账户已被停止使用',
     passwordTooManyAttempts: '密码错误次数过多，请 {minute} 分钟后再试',
