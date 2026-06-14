@@ -213,7 +213,7 @@ export default function ConfigPage() {
       }
       await saveConfig(flat)
     } catch {
-      // auto-save silent
+      toast.error(t('common.error'))
     }
   }
 
@@ -287,6 +287,9 @@ export default function ConfigPage() {
         </aside>
 
         <div className="flex-1 w-full p-1 pr-4">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+          ) : (
           <div className="pb-16">
             <div className="space-y-6">
               <div>
@@ -680,6 +683,7 @@ export default function ConfigPage() {
                 </div>
             </div>
           </div>
+          )}
         </div>
       </div>
     </>

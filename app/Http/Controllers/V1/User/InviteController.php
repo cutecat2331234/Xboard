@@ -36,9 +36,11 @@ class InviteController extends Controller
         $total = $builder->count();
         $details = $builder->forPage($current, $pageSize)
             ->get();
-        return response([
+        return $this->success([
             'data' => ComissionLogResource::collection($details),
-            'total' => $total
+            'total' => $total,
+            'current_page' => (int) $current,
+            'page_size' => (int) $pageSize,
         ]);
     }
 

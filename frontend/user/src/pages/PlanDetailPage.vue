@@ -8,6 +8,7 @@ import { resolveTryOutPlanId } from '@/api/comm'
 import { checkCoupon } from '@/api/coupon'
 import { useI18n } from '@/i18n'
 import { useCurrency } from '@/composables/useCurrency'
+import DOMPurify from 'dompurify'
 
 const route = useRoute()
 const router = useRouter()
@@ -33,6 +34,10 @@ const availablePeriods = computed(() =>
 
 const isTryOutPlan = computed(
   () => tryOutPlanId.value > 0 && plan.value?.id === tryOutPlanId.value,
+)
+
+const sanitizedPlanContent = computed(() =>
+  plan.value?.content ? DOMPurify.sanitize(plan.value.content) : '',
 )
 
 async function load() {
@@ -123,7 +128,7 @@ onMounted(async () => {
     <n-alert v-if="isTryOutPlan" type="info" :show-icon="true" class="try-out-alert">
       {{ t('plan.tryOutHint') }}
     </n-alert>
-    <div v-if="plan.content" class="plan-content" v-html="plan.content" />
+    <div v-if="plan.content" class="plan-content" v-html="sanitizedPlanContent" />
     <n-alert v-if="availablePeriods.length === 0" type="warning" :show-icon="true">
       {{ t('plan.noPeriod') }}
     </n-alert>

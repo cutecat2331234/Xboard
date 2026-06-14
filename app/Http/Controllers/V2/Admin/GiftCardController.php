@@ -36,11 +36,12 @@ class GiftCardController extends Controller
         }
 
         $perPage = $request->input('per_page', 15);
-        $templates = $query->orderBy('sort', 'asc')
+        $templates = $query->withCount(['codes', 'usages'])
+            ->orderBy('sort', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
-        $data = $templates->getCollection()->map(function ($template) {
+        $templates->getCollection()->transform(function ($template) {
             return [
                 'id' => $template->id,
                 'name' => $template->name,
@@ -59,13 +60,12 @@ class GiftCardController extends Controller
                 'admin_id' => $template->admin_id,
                 'created_at' => $template->created_at,
                 'updated_at' => $template->updated_at,
-                // 统计信息
-                'codes_count' => $template->codes()->count(),
-                'used_count' => $template->usages()->count(),
+                'codes_count' => $template->codes_count,
+                'used_count' => $template->usages_count,
             ];
-        })->values();
+        });
 
-        return $this->paginate( $templates);
+        return $this->paginate($templates);
     }
 
     /**

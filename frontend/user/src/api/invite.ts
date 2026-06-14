@@ -28,8 +28,11 @@ export async function withdrawCommission(payload: { withdraw_method: string; wit
   return request<null>(api.post('/user/ticket/withdraw', payload))
 }
 
-export async function fetchInviteDetails() {
-  return request<{ data?: Array<{ created_at?: number; get_amount?: number }> }>(
-    api.get('/user/invite/details'),
-  )
+export async function fetchInviteDetails(current = 1, pageSize = 10) {
+  return request<{
+    data: Array<{ created_at?: number; get_amount?: number }>
+    total: number
+    current_page?: number
+    page_size?: number
+  }>(api.get('/user/invite/details', { params: { current, page_size: pageSize } }))
 }
