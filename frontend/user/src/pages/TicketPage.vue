@@ -77,7 +77,7 @@ async function create() {
     const created = rows.value[0]
     if (created?.id) router.push(`/ticket/${created.id}`)
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     creating.value = false
   }
@@ -89,7 +89,7 @@ async function close(row: TicketItem) {
     msg.success(t('ticket.closeSuccess'))
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 

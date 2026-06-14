@@ -1864,7 +1864,7 @@ export default function UserPage() {
                 value={assignForm.plan_id}
                 onChange={(e) => setAssignForm((f) => ({ ...f, plan_id: e.target.value }))}
               >
-                <option value="">{t('common.none')}</option>
+                <option value="">{t('order.dialog.fields.subscriptionPlan')}</option>
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -1873,7 +1873,7 @@ export default function UserPage() {
               </select>
             </div>
                   <div className="space-y-2">
-              <Label>{t('order.form.period')}</Label>
+              <Label>{t('order.dialog.fields.orderPeriod')}</Label>
               <select
                 className={inputCls}
                 value={assignForm.period}
@@ -1881,13 +1881,13 @@ export default function UserPage() {
               >
                 {ORDER_PERIODS.map((period) => (
                   <option key={period} value={period}>
-                    {period}
+                    {t(`order.period.${period}`)}
                   </option>
                 ))}
               </select>
             </div>
                   <div className="space-y-2">
-              <Label>{t('order.form.total_amount')}</Label>
+              <Label>{t('order.dialog.fields.paymentAmount')}</Label>
               <input
                 type="number"
                 className={inputCls}

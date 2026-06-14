@@ -228,8 +228,14 @@ class UserController extends Controller
                 if ($limit > 0 && $limit > ($amount / 100)) {
                     throw new \Exception(__('The current required minimum withdrawal commission is :limit', ['limit' => $limit]));
                 }
+                $feeRate = max(0, min(1, (float) admin_setting('app_withdraw_fee_rate', 0)));
+                $feeAmount = $feeRate > 0 ? (int) round($amount * $feeRate) : 0;
+                $netAmount = $amount - $feeAmount;
+                if ($netAmount <= 0) {
+                    throw new \Exception(__('Insufficient commission balance'));
+                }
                 $user->commission_balance -= $amount;
-                $user->balance += $amount;
+                $user->balance += $netAmount;
                 if (!$user->save()) {
                     throw new \Exception(__('Transfer failed'));
                 }

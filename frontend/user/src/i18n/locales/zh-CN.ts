@@ -303,6 +303,7 @@ export default {
     detailTitle: '订单详情',
     selectPayment: '请选择支付方式',
     paymentMethod: '支付方式',
+    noPaymentMethods: '暂无可用支付方式，请联系管理员或稍后再试',
     totalTitle: '订单总额',
     checkout: '结账',
     notice: '注意',

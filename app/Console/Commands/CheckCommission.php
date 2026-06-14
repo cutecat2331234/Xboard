@@ -159,6 +159,7 @@ class CheckCommission extends Command
                 'remaining' => $remaining,
                 'expected' => (int) $order->commission_balance,
             ]);
+            return false;
         }
 
         return (int) $order->actual_commission_balance > 0;

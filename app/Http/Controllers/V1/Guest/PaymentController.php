@@ -5,8 +5,10 @@ namespace App\Http\Controllers\V1\Guest;
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\Plan;
 use App\Services\OrderService;
 use App\Services\PaymentService;
+use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -143,6 +145,17 @@ class PaymentController extends Controller
             Coupon::where('id', $order->coupon_id)
                 ->whereNotNull('limit_use')
                 ->decrement('limit_use');
+        }
+
+        if ((int) $order->type === Order::TYPE_NEW_PURCHASE) {
+            $plan = Plan::find($order->plan_id);
+            if ($plan && !(new PlanService($plan))->hasCapacity($plan)) {
+                Log::error('Payment notify: cannot reactivate cancelled order, plan sold out', [
+                    'trade_no' => $order->trade_no,
+                    'plan_id' => $order->plan_id,
+                ]);
+                return false;
+            }
         }
 
         Log::info('Payment notify: reactivating cancelled order after verified payment', [

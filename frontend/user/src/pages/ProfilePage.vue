@@ -107,7 +107,7 @@ async function unbindTg() {
         await auth.loadUser()
         msg.success(t('common.success'))
       } catch (e: unknown) {
-        msg.error(e instanceof Error ? e.message : t('common.error'))
+        msg.error(resolveApiError(e, t))
       }
     },
   })
@@ -143,7 +143,7 @@ function kickSession(row: ActiveSession) {
         msg.success(t('common.success'))
         await loadSessions()
       } catch (e: unknown) {
-        msg.error(e instanceof Error ? e.message : t('common.error'))
+        msg.error(resolveApiError(e, t))
       }
     },
   })
@@ -156,7 +156,7 @@ async function generateQuickLogin() {
     await navigator.clipboard.writeText(url)
     msg.success(t('profile.quickLoginCopied'))
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     quickLoginLoading.value = false
   }

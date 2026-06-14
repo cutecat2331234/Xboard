@@ -126,9 +126,15 @@ class OrderService
                 return false;
             }
 
-            $plan = Plan::find($order->plan_id);
+            $plan = Plan::where('id', $order->plan_id)->lockForUpdate()->first();
             if (!$plan) {
                 throw new \RuntimeException('订阅计划不存在或已删除');
+            }
+
+            if ((int) $order->type === Order::TYPE_NEW_PURCHASE) {
+                if (!(new PlanService($plan))->hasCapacity($plan)) {
+                    throw new \RuntimeException(__('Current product is sold out'));
+                }
             }
 
             $this->order = $order;
