@@ -2472,6 +2472,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "actions": {
       "view_details": "View Details",
+      "reply": "Reply",
+      "close": "Close ticket",
+      "close_reject_withdraw": "Reject withdrawal and close",
       "close_ticket": "Close Ticket",
       "close_confirm_title": "Confirm Close Ticket",
       "close_confirm_description": "Are you sure you want to close this ticket? It will move to the closed list, but you can still reply later.",

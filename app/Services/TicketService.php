@@ -13,6 +13,57 @@ use App\Services\Plugin\HookManager;
 
 class TicketService
 {
+    public const WITHDRAW_AMOUNT_PATTERN = '/\[withdraw_amount:(\d+)\]/';
+
+    public static function buildWithdrawMessage(int $amountCents, string $method, string $account): string
+    {
+        return sprintf(
+            "[withdraw_amount:%d]\r\n%s\r\n%s\r\n%s",
+            $amountCents,
+            __('Withdrawal amount') . '：' . number_format($amountCents / 100, 2),
+            __('Withdrawal method') . '：' . $method,
+            __('Withdrawal account') . '：' . $account
+        );
+    }
+
+    public static function parseWithdrawAmountCents(?string $message): ?int
+    {
+        if ($message === null || $message === '') {
+            return null;
+        }
+        if (preg_match(self::WITHDRAW_AMOUNT_PATTERN, $message, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Restore withheld commission when a withdrawal ticket is rejected/closed without payout.
+     */
+    public static function restoreWithdrawCommission(Ticket $ticket): bool
+    {
+        if ((int) $ticket->level !== 2) {
+            return false;
+        }
+
+        $firstMessage = TicketMessage::where('ticket_id', $ticket->id)
+            ->orderBy('id')
+            ->value('message');
+        $amountCents = self::parseWithdrawAmountCents($firstMessage);
+        if ($amountCents === null || $amountCents <= 0) {
+            return false;
+        }
+
+        $user = User::where('id', $ticket->user_id)->lockForUpdate()->first();
+        if (!$user) {
+            return false;
+        }
+
+        $user->commission_balance = (int) $user->commission_balance + $amountCents;
+        return $user->save();
+    }
+
     public function reply($ticket, $message, $userId)
     {
         try {
@@ -56,7 +107,16 @@ class TicketService
     {
         try {
             DB::beginTransaction();
-            if (Ticket::where('status', 0)->where('user_id', $userId)->lockForUpdate()->first()) {
+            User::where('id', $userId)->lockForUpdate()->first();
+
+            $openTicketQuery = Ticket::where('status', 0)->where('user_id', $userId);
+            if ((int) $level === 2) {
+                $openTicketQuery->where('level', 2);
+            } else {
+                $openTicketQuery->where('level', '!=', 2);
+            }
+
+            if ($openTicketQuery->lockForUpdate()->first()) {
                 DB::rollBack();
                 throw new ApiException('存在未关闭的工单');
             }

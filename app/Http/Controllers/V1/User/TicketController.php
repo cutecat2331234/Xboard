@@ -13,6 +13,7 @@ use App\Services\TicketService;
 use App\Utils\Dict;
 use Illuminate\Http\Request;
 use App\Services\Plugin\HookManager;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
@@ -102,8 +103,17 @@ class TicketController extends Controller
         if (!$ticket) {
             return $this->fail([400, __('Ticket does not exist')]);
         }
-        $ticket->status = Ticket::STATUS_CLOSED;
-        if (!$ticket->save()) {
+        try {
+            DB::transaction(function () use ($ticket) {
+                if ((int) $ticket->level === 2) {
+                    TicketService::restoreWithdrawCommission($ticket);
+                }
+                $ticket->status = Ticket::STATUS_CLOSED;
+                if (!$ticket->save()) {
+                    throw new \RuntimeException('Close failed');
+                }
+            });
+        } catch (\Exception $e) {
             return $this->fail([500, __('Close failed')]);
         }
         return $this->success(true);
@@ -154,11 +164,10 @@ class TicketController extends Controller
 
                 $ticketService = new TicketService();
                 $subject = __('[Commission Withdrawal Request] This ticket is opened by the system');
-                $message = sprintf(
-                    "%s\r\n%s\r\n%s",
-                    __('Withdrawal amount') . '：' . number_format($withdrawAmount / 100, 2),
-                    __('Withdrawal method') . '：' . $request->input('withdraw_method'),
-                    __('Withdrawal account') . '：' . $request->input('withdraw_account')
+                $message = TicketService::buildWithdrawMessage(
+                    $withdrawAmount,
+                    $request->input('withdraw_method'),
+                    $request->input('withdraw_account')
                 );
                 $ticket = $ticketService->createTicket(
                     $request->user()->id,

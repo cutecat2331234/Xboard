@@ -414,7 +414,14 @@ async function pay() {
     let token: string | undefined
 
     if (isStripe.value) {
-
+      if (stripeFormRef.value?.mountError) {
+        msg.error(stripeFormRef.value.mountError)
+        return
+      }
+      if (!stripeFormRef.value?.ready) {
+        msg.error(t('order.stripeRequired'))
+        return
+      }
       token = await stripeFormRef.value?.createToken()
 
       if (!token) {

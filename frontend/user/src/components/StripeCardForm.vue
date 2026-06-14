@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const mountId = `stripe-card-${Math.random().toString(36).slice(2)}`
 const ready = ref(false)
+const mountError = ref<string | null>(null)
 let stripe: Stripe | null = null
 let card: StripeCardElement | null = null
 let themeObserver: MutationObserver | undefined
@@ -41,18 +42,23 @@ function syncCardStyle() {
 
 async function mount() {
   ready.value = false
+  mountError.value = null
   if (!props.paymentId) return
   try {
     const pk = await fetchStripePublicKey(props.paymentId)
     stripe = await loadStripe(pk)
-    if (!stripe) return
+    if (!stripe) {
+      mountError.value = 'Stripe unavailable'
+      return
+    }
     const elements = stripe.elements()
     card?.destroy()
     card = elements.create('card', { hidePostalCode: true, style: cardStyle() })
     card.mount(`#${mountId}`)
     ready.value = true
-  } catch {
+  } catch (e: unknown) {
     ready.value = false
+    mountError.value = e instanceof Error ? e.message : 'Stripe load failed'
   }
 }
 
@@ -75,12 +81,13 @@ onBeforeUnmount(() => {
   card = null
 })
 
-defineExpose({ createToken, ready })
+defineExpose({ createToken, ready, mountError })
 </script>
 
 <template>
   <div v-show="paymentId" class="stripe-card-wrap">
     <div :id="mountId" class="stripe-card-mount" />
+    <p v-if="mountError" class="stripe-error">{{ mountError }}</p>
   </div>
 </template>
 
@@ -94,5 +101,10 @@ defineExpose({ createToken, ready })
 }
 .stripe-card-mount {
   min-height: 40px;
+}
+.stripe-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--n-error-color, #d03050);
 }
 </style>

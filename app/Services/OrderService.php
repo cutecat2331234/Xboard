@@ -61,6 +61,14 @@ class OrderService
                 throw new ApiException(__('User not found'));
             }
             $user = $lockedUser;
+
+            $lockedPlan = Plan::where('id', $plan->id)->lockForUpdate()->first();
+            if (!$lockedPlan) {
+                throw new ApiException(__('Subscription plan does not exist'));
+            }
+            $plan = $lockedPlan;
+            (new PlanService($plan))->validatePurchase($user, $period);
+
             if ($userService->isNotCompleteOrderByUserId($user->id)) {
                 throw new ApiException(__('You have an unpaid or pending order, please try again later or cancel it'));
             }

@@ -8,6 +8,7 @@ use App\Services\TicketService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Traits\SafeQueryColumns;
+use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
@@ -138,14 +139,20 @@ class TicketController extends Controller
     public function close(Request $request)
     {
         $request->validate([
-            'id' => 'required|numeric'
+            'id' => 'required|numeric',
+            'withdraw_rejected' => 'nullable|boolean',
         ], [
             'id.required' => '工单ID不能为空'
         ]);
         try {
-            $ticket = Ticket::findOrFail($request->input('id'));
-            $ticket->status = Ticket::STATUS_CLOSED;
-            $ticket->save();
+            DB::transaction(function () use ($request) {
+                $ticket = Ticket::where('id', $request->input('id'))->lockForUpdate()->firstOrFail();
+                if ((int) $ticket->level === 2 && $request->boolean('withdraw_rejected')) {
+                    TicketService::restoreWithdrawCommission($ticket);
+                }
+                $ticket->status = Ticket::STATUS_CLOSED;
+                $ticket->save();
+            });
             return $this->success(true);
         } catch (ModelNotFoundException $e) {
             return $this->fail([400202, '工单不存在']);

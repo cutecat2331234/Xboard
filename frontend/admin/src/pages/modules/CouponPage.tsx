@@ -4,7 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { adminApi, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
+import { adminApi, downloadAdminFile, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
 import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import { inputCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
@@ -173,10 +173,13 @@ export default function CouponPage() {
       if (form.limit_period.length) payload.limit_period = form.limit_period
       if (editingId) {
         payload.id = editingId
+        await postJson('/coupon/generate', payload)
       } else if (form.generate_count !== '') {
         payload.generate_count = Number(form.generate_count)
+        await downloadAdminFile('/coupon/generate', { method: 'POST', jsonBody: payload }, 'coupons.csv')
+      } else {
+        await postJson('/coupon/generate', payload)
       }
-      await postJson('/coupon/generate', payload)
       toast.success(t('common.success'))
       setDialogOpen(false)
       load()

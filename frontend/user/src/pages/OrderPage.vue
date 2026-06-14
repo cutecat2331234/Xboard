@@ -8,16 +8,16 @@ import { orderStatusLabel } from '@/lib/order-status'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { useCurrency } from '@/composables/useCurrency'
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
 const msg = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
+const { formatPrice, load: loadCurrency } = useCurrency()
 function formatOrderAmount(cents: number) {
-  const value = typeof cents === 'string' ? parseFloat(cents) : cents
-  if (!Number.isFinite(value)) return '0.00'
-  return (value / 100).toFixed(2)
+  return formatPrice(cents)
 }
 
 function periodLabel(period?: string) {
@@ -122,6 +122,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
 onMounted(async () => {
   loading.value = true
   try {
+    await loadCurrency()
     rows.value = await fetchOrders()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
