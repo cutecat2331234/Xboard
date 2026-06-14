@@ -1136,7 +1136,7 @@ export default function GiftCardPage() {
 
       { accessorKey: 'status', header: () => t('giftCard.code.table.columns.status') },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.code.table.columns.template_name') },
+      { accessorKey: 'template_name', header: () => t('giftCard.code.table.columns.template_name') },
 
       { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.id') },
 
@@ -1212,9 +1212,9 @@ export default function GiftCardPage() {
 
       { accessorKey: 'id', header: 'ID' },
 
-      { accessorKey: 'user_id', header: () => t('giftCard.usage.table.columns.user_email') },
+      { accessorKey: 'user_email', header: () => t('giftCard.usage.table.columns.user_email') },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.usage.table.columns.template_name') },
+      { accessorKey: 'template_name', header: () => t('giftCard.usage.table.columns.template_name') },
 
       { accessorKey: 'created_at', header: () => t('giftCard.usage.table.columns.created_at') },
 

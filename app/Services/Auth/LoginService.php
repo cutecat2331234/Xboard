@@ -141,7 +141,7 @@ class LoginService
 
         Cache::put($key, $user->id, 60);
 
-        $redirect = $redirect ?: 'dashboard';
+        $redirect = Helper::sanitizeAppRedirect($redirect);
         $loginRedirect = '/#/login?verify=' . $code . '&redirect=' . rawurlencode($redirect);
 
         if (admin_setting('app_url')) {

@@ -66,7 +66,7 @@ export default function NoticePage() {
 
   function openCreate() {
     setEditing(null)
-    setForm({ show: 1, title: '', content: '', img_url: '', tags: [] })
+    setForm({ show: 1, popup: 0, title: '', content: '', img_url: '', tags: [] })
     setDialogOpen(true)
   }
 
@@ -298,6 +298,13 @@ export default function NoticePage() {
                 onCheckedChange={(v) => setForm((f) => ({ ...f, show: v ? 1 : 0 }))}
               />
               <Label>{t('notice.form.fields.show.label')}</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={Boolean(form.popup)}
+                onCheckedChange={(v) => setForm((f) => ({ ...f, popup: v ? 1 : 0 }))}
+              />
+              <Label>{t('notice.form.fields.popup.label')}</Label>
             </div>
           </div>
           <DialogFooter>

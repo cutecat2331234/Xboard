@@ -601,7 +601,7 @@ class PluginManager
             return $this->update($config['code']);
         }
 
-        return true;
+        return $this->install($config['code']);
     }
 
     /**

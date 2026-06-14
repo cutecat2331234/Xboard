@@ -31,10 +31,12 @@ class UserController extends Controller
 
     private const FILTER_COLUMNS = [
         'email', 'id', 'plan_id', 'transfer_enable', 'total_used', 'online_count',
-        'expired_at', 'uuid', 'token', 'banned', 'remark', 'inviter_email',
+        'expired_at', 'uuid', 'token', 'banned', 'remarks', 'inviter_email',
         'invite_user_id', 'is_admin', 'is_staff', 'group_ids', 'group_id', 'u', 'd',
         'balance', 'commission_balance', 'created_at',
     ];
+
+    private const FILTER_ALIASES = ['remark' => 'remarks'];
 
     private const SORT_COLUMNS = [
         'id', 'email', 'is_admin', 'is_staff', 'online_count', 'banned', 'plan_id',
@@ -78,7 +80,11 @@ class UserController extends Controller
         }
 
         collect($request->input('filter'))->each(function ($filter) use ($builder) {
-            $field = $this->resolveFilterField((string) ($filter['id'] ?? ''), self::FILTER_COLUMNS, self::SORT_ALIASES);
+            $field = $this->resolveFilterField(
+                (string) ($filter['id'] ?? ''),
+                self::FILTER_COLUMNS,
+                array_merge(self::SORT_ALIASES, self::FILTER_ALIASES)
+            );
             if (!$field) {
                 return;
             }
@@ -474,6 +480,8 @@ class UserController extends Controller
         if ($request->input('generate_count')) {
             return $this->multiGenerate($request);
         }
+
+        return $this->fail([422, '请提供 email_prefix 或 generate_count']);
     }
 
     private function multiGenerate(Request $request)

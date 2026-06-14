@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { adminApi, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
+import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import { inputCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
@@ -98,6 +99,7 @@ export default function CouponPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(defaultForm())
   const [saving, setSaving] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const load = useCallback(() => {
     setLoading(true)
@@ -122,6 +124,7 @@ export default function CouponPage() {
   }, [page, pageSize, search, typeFilter, t])
 
   useEffect(() => {
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
     fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
   }, [])
 
@@ -141,7 +144,7 @@ export default function CouponPage() {
       name: row.name ?? '',
       code: row.code ?? '',
       type: row.type ?? 1,
-      value: row.value ?? 0,
+      value: row.type === 1 ? (row.value ?? 0) / 100 : (row.value ?? 0),
       limit_use: row.limit_use != null ? String(row.limit_use) : '',
       limit_use_with_user: row.limit_use_with_user != null ? String(row.limit_use_with_user) : '',
       limit_plan_ids: Array.isArray(row.limit_plan_ids) ? row.limit_plan_ids : [],
@@ -160,7 +163,7 @@ export default function CouponPage() {
         name: form.name,
         code: form.code || undefined,
         type: form.type,
-        value: form.value,
+        value: form.type === 1 ? Math.round(Number(form.value) * 100) : form.value,
         started_at: inputToTs(String(form.started_at_input ?? '')),
         ended_at: inputToTs(String(form.ended_at_input ?? '')),
       }
@@ -170,13 +173,10 @@ export default function CouponPage() {
       if (form.limit_period.length) payload.limit_period = form.limit_period
       if (editingId) {
         payload.id = editingId
-        await postJson('/coupon/update', payload)
-      } else {
-        if (form.generate_count !== '') {
-          payload.generate_count = Number(form.generate_count)
-        }
-        await postJson('/coupon/generate', payload)
+      } else if (form.generate_count !== '') {
+        payload.generate_count = Number(form.generate_count)
       }
+      await postJson('/coupon/generate', payload)
       toast.success(t('common.success'))
       setDialogOpen(false)
       load()
@@ -394,7 +394,10 @@ export default function CouponPage() {
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.form.value.placeholder')}</Label>
+                <Label>
+                  {t('coupon.form.value.placeholder')}
+                  {form.type === 1 ? ` (${currencySymbol})` : ''}
+                </Label>
                 <input
                   type="number"
                   className={inputCls}

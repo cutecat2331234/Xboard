@@ -40,13 +40,13 @@ function levelLabel(value: number) {
 
 function ticketStatusDotClass(row: TicketItem) {
   if (row.status === 1) return 'status-dot status-dot--ok'
-  if (row.reply_status === 0) return 'status-dot status-dot--info'
+  if (row.reply_status === 1) return 'status-dot status-dot--ok'
   return 'status-dot status-dot--bad'
 }
 
 function ticketStatusLabel(row: TicketItem) {
   if (row.status === 1) return t('ticket.closed')
-  if (row.reply_status === 0) return t('ticket.replied')
+  if (row.reply_status === 1) return t('ticket.replied')
   return t('ticket.pendingReply')
 }
 

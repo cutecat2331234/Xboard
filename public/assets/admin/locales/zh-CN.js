@@ -530,6 +530,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "show": {
           "label": "显示"
         },
+        "popup": {
+          "label": "弹窗公告"
+        },
         "tags": {
           "label": "节点标签",
           "placeholder": "输入后回车添加标签"
