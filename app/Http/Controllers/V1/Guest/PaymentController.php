@@ -256,6 +256,7 @@ class PaymentController extends Controller
 
         try {
             $this->creditOrphanPayment($order, $callbackNo, $reason);
+            $this->markOrphanCreditProcessed($order->trade_no, $callbackNo);
         } catch (\Throwable $e) {
             Cache::forget($cacheKey);
             throw $e;

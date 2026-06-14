@@ -1837,9 +1837,25 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "label": "启用礼品卡",
           "description": "关闭后用户无法访问礼品卡页面。"
         },
+        "featureTrafficLog": {
+          "label": "启用流量日志",
+          "description": "关闭后用户无法访问流量日志页面。"
+        },
+        "featureKnowledgeBase": {
+          "label": "启用知识库",
+          "description": "关闭后用户无法访问知识库页面。"
+        },
+        "featureAnnouncements": {
+          "label": "启用公告系统",
+          "description": "关闭后用户端不再展示公告与弹窗通知。"
+        },
         "ticketMustWaitReply": {
           "label": "工单等待回复限制",
           "description": "开启后，用户在管理员回复前无法在同一工单内连续发送消息。"
+        },
+        "tryOutEnable": {
+          "label": "启用注册试用",
+          "description": "关闭后新用户注册不会自动获得试用订阅。"
         },
         "tryOut": {
           "label": "注册试用",
@@ -1850,6 +1866,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
             "placeholder": "0",
             "description": "注册试用时长，单位为小时。"
           }
+        },
+        "tryOutHour": {
+          "label": "注册试用时长（小时）",
+          "description": "注册试用时长，单位为小时。"
         },
         "currency": {
           "label": "货币单位",

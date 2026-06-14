@@ -1882,9 +1882,25 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "label": "Подарочные карты",
           "description": "Скрыть страницу подарочных карт."
         },
+        "featureTrafficLog": {
+          "label": "Журнал трафика",
+          "description": "Скрыть страницу журнала трафика."
+        },
+        "featureKnowledgeBase": {
+          "label": "База знаний",
+          "description": "Скрыть страницу базы знаний."
+        },
+        "featureAnnouncements": {
+          "label": "Объявления",
+          "description": "Скрыть объявления и всплывающие уведомления на сайте."
+        },
         "ticketMustWaitReply": {
           "label": "Ожидание ответа в тикетах",
           "description": "Пользователь не может отправить новое сообщение, пока админ не ответит."
+        },
+        "tryOutEnable": {
+          "label": "Включить пробный период",
+          "description": "При отключении новые пользователи не получат пробную подписку при регистрации."
         },
         "tryOut": {
           "label": "Тестовый период",
@@ -1895,6 +1911,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
             "placeholder": "0",
             "description": "Время действия пробного периода."
           }
+        },
+        "tryOutHour": {
+          "label": "Длительность триала (часов)",
+          "description": "Время действия пробного периода."
         },
         "currency": {
           "label": "Код валюты",

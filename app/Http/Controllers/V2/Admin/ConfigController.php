@@ -128,6 +128,9 @@ class ConfigController extends Controller
                 'app_enable_commission_system' => (bool) admin_setting('app_enable_commission_system', 1),
                 'app_enable_invite_system' => (bool) admin_setting('app_enable_invite_system', 1),
                 'app_enable_gift_card' => (bool) admin_setting('app_enable_gift_card', 1),
+                'app_enable_traffic_log' => (bool) admin_setting('app_enable_traffic_log', 1),
+                'app_enable_knowledge_base' => (bool) admin_setting('app_enable_knowledge_base', 1),
+                'app_enable_announcements' => (bool) admin_setting('app_enable_announcements', 1),
             ],
             'subscribe' => [
                 'plan_change_enable' => (bool) admin_setting('plan_change_enable', 1),

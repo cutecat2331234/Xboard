@@ -45,6 +45,9 @@ class ConfigSave extends FormRequest
         'app_enable_commission_system' => 'boolean',
         'app_enable_invite_system' => 'boolean',
         'app_enable_gift_card' => 'boolean',
+        'app_enable_traffic_log' => 'boolean',
+        'app_enable_knowledge_base' => 'boolean',
+        'app_enable_announcements' => 'boolean',
         // subscribe
         'plan_change_enable' => '',
         'reset_traffic_method' => 'in:0,1,2,3,4',

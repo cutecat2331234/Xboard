@@ -323,6 +323,9 @@ class UserController extends Controller
         if ($request->exists('invite_user_email')) {
             $inviteEmail = trim((string) $request->input('invite_user_email'));
             if ($inviteEmail !== '' && ($inviteUser = User::byEmail($inviteEmail)->first())) {
+                if ($inviteUser->banned) {
+                    return $this->fail([400, '邀请人已被封禁，无法设置']);
+                }
                 try {
                     InviteChain::assertValid((int) $user->id, (int) $inviteUser->id);
                 } catch (\InvalidArgumentException $e) {

@@ -24,6 +24,7 @@ import { useI18n } from '@/i18n'
 import { toggleColorScheme } from '@/lib/theme'
 import { LANG_LABELS } from '@/lib/lang-labels'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { useCurrency } from '@/composables/useCurrency'
 import { featureEnabled } from '@/lib/feature-flags'
 
 const s = getSettings()
@@ -68,9 +69,23 @@ const menuOptions = computed<MenuOption[]>(() => {
   if (featureEnabled(commConfig.value?.gift_card_enable, commConfigLoaded.value)) {
     billingChildren.push({ label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) })
   }
-  return [
+  const accountChildren: MenuOption[] = [
+    { label: t('nav.profile'), key: '/profile', icon: renderIcon(MENU_ICON_PATHS.profile) },
+  ]
+  if (featureEnabled(commConfig.value?.ticket_enable, commConfigLoaded.value)) {
+    accountChildren.push({ label: t('nav.ticket'), key: '/ticket', icon: renderIcon(MENU_ICON_PATHS.ticket) })
+  }
+  if (featureEnabled(commConfig.value?.traffic_log_enable, commConfigLoaded.value)) {
+    accountChildren.push({ label: t('nav.traffic'), key: '/traffic', icon: renderIcon(MENU_ICON_PATHS.traffic) })
+  }
+  const topLevel: MenuOption[] = [
   { label: t('nav.dashboard'), key: '/dashboard', icon: renderIcon(MENU_ICON_PATHS.dashboard) },
-  { label: t('nav.knowledge'), key: '/knowledge', icon: renderIcon(MENU_ICON_PATHS.knowledge) },
+  ]
+  if (featureEnabled(commConfig.value?.knowledge_enable, commConfigLoaded.value)) {
+    topLevel.push({ label: t('nav.knowledge'), key: '/knowledge', icon: renderIcon(MENU_ICON_PATHS.knowledge) })
+  }
+  return [
+  ...topLevel,
   {
     type: 'group',
     label: () => t('nav.groupBilling'),
@@ -90,13 +105,7 @@ const menuOptions = computed<MenuOption[]>(() => {
     type: 'group',
     label: () => t('nav.groupAccount'),
     key: 'g-account',
-    children: [
-      { label: t('nav.profile'), key: '/profile', icon: renderIcon(MENU_ICON_PATHS.profile) },
-      ...(featureEnabled(commConfig.value?.ticket_enable, commConfigLoaded.value)
-        ? [{ label: t('nav.ticket'), key: '/ticket', icon: renderIcon(MENU_ICON_PATHS.ticket) }]
-        : []),
-      { label: t('nav.traffic'), key: '/traffic', icon: renderIcon(MENU_ICON_PATHS.traffic) },
-    ],
+    children: accountChildren,
   },
 ]
 })
@@ -155,10 +164,32 @@ function updateMobile() {
 
 let themeObserver: MutationObserver | undefined
 
+function redirectIfGatedRouteDisabled() {
+  const comm = commConfig.value
+  if (!comm) return
+  const path = route.path
+  const blocked =
+    (path === '/invite' && !featureEnabled(comm.invite_enable, true)) ||
+    (path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) ||
+    ((path === '/ticket' || path.startsWith('/ticket/')) && !featureEnabled(comm.ticket_enable, true)) ||
+    (path === '/knowledge' && !featureEnabled(comm.knowledge_enable, true)) ||
+    (path === '/traffic' && !featureEnabled(comm.traffic_log_enable, true))
+  if (blocked) {
+    router.replace('/dashboard')
+  }
+}
+
 function refreshCommConfig() {
+  const { load: loadCurrency } = useCurrency()
   loadCommConfig({ force: true })
-    .then(() => {
+    .then(async () => {
       commConfigLoaded.value = true
+      redirectIfGatedRouteDisabled()
+      try {
+        await loadCurrency()
+      } catch {
+        /* keep last currency */
+      }
     })
     .catch(() => {
       /* keep last known config */

@@ -251,6 +251,10 @@ class OrderController extends Controller
                     throw new \RuntimeException('该用户不存在');
                 }
 
+                if ($user->banned) {
+                    throw new \RuntimeException('该用户已被封禁，无法分配订阅');
+                }
+
                 if (!$plan) {
                     throw new \RuntimeException('该订阅不存在');
                 }
@@ -275,12 +279,18 @@ class OrderController extends Controller
                 $order->plan_id = $plan->id;
                 $order->period = $periodKey;
                 $order->trade_no = Helper::generateOrderNo();
-                $order->total_amount = $request->filled('total_amount')
+                $adminTotal = $request->filled('total_amount')
                     ? (int) $request->input('total_amount')
                     : (int) ($price * 100);
+                $order->total_amount = $adminTotal;
 
                 $orderService->setVipDiscount($user);
                 $orderService->setOrderType($user);
+                $order->total_amount = $adminTotal;
+                $order->surplus_amount = 0;
+                $order->surplus_credit = 0;
+                $order->surplus_order_ids = null;
+
                 $orderService->setInvite($user);
 
                 if (!$order->save()) {

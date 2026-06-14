@@ -435,6 +435,24 @@ export default function ConfigPage() {
                         onChange={(v) => update('site', 'app_enable_gift_card', v, true)}
                       />
                       <SwitchField
+                        label={t('settings.site.form.featureTrafficLog.label')}
+                        description={t('settings.site.form.featureTrafficLog.description')}
+                        checked={Boolean(site.app_enable_traffic_log ?? true)}
+                        onChange={(v) => update('site', 'app_enable_traffic_log', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureKnowledgeBase.label')}
+                        description={t('settings.site.form.featureKnowledgeBase.description')}
+                        checked={Boolean(site.app_enable_knowledge_base ?? true)}
+                        onChange={(v) => update('site', 'app_enable_knowledge_base', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureAnnouncements.label')}
+                        description={t('settings.site.form.featureAnnouncements.description')}
+                        checked={Boolean(site.app_enable_announcements ?? true)}
+                        onChange={(v) => update('site', 'app_enable_announcements', v, true)}
+                      />
+                      <SwitchField
                         label={t('settings.site.form.ticketMustWaitReply.label')}
                         description={t('settings.site.form.ticketMustWaitReply.description')}
                         checked={Boolean(site.ticket_must_wait_reply)}
