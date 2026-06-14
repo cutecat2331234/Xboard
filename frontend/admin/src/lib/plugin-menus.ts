@@ -136,7 +136,7 @@ export function resolvePluginMenuPageApiUrl(
 ): string | null {
   if (!pluginCode || !menuPath) return null
   const apiPath = `/plugin/${pluginCode}/page?${new URLSearchParams({ path: menuPath }).toString()}`
-  return appendAuthQuery(`${options.apiPrefix}${apiPath}`, options.authData)
+  return `${options.apiPrefix}${apiPath}`
 }
 
 export async function fetchPluginMenuPageHtml(pageApiUrl: string): Promise<string | null> {

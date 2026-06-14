@@ -111,6 +111,12 @@ class GiftCardService
                 throw new ApiException('兑换码不可用：' . ($code?->status_name ?? '不存在'));
             }
 
+            $lockedUser = User::where('id', $this->user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                throw new ApiException('用户不存在');
+            }
+            $this->user = $lockedUser;
+
             $actualRewards = $this->template->calculateActualRewards($this->user);
 
             if ($this->template->type === GiftCardTemplate::TYPE_MYSTERY) {

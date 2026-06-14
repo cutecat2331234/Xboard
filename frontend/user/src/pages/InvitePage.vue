@@ -12,6 +12,7 @@ import {
   NPagination,
   NSelect,
   NSpace,
+  NSpin,
   useMessage,
   type DataTableColumns,
   type PaginationInfo,
@@ -70,6 +71,7 @@ const transferAmount = ref('')
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 const withdrawMethod = ref('Alipay')
 const withdrawAccount = ref('')
+const pageLoading = ref(true)
 
 const available = computed(() => (stat.value[4] ?? 0) / 100)
 
@@ -146,6 +148,7 @@ async function loadDetails() {
 }
 
 async function load() {
+  pageLoading.value = true
   try {
     const data = await fetchInvite()
     codes.value = data.codes ?? []
@@ -153,6 +156,8 @@ async function load() {
     await loadDetails()
   } catch (e: unknown) {
     msg.error(e instanceof Error ? e.message : t('common.error'))
+  } finally {
+    pageLoading.value = false
   }
 }
 
@@ -270,6 +275,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <n-spin :show="pageLoading">
   <n-card :title="t('invite.title')" class="invite-balance-card rounded-md">
     <template #header-extra>
       <svg class="inline-block text-4xl text-gray-500" viewBox="0 0 24 24" width="1em" height="1em">
@@ -370,6 +376,7 @@ onMounted(async () => {
       <n-button type="primary" @click="doWithdraw">{{ t('common.confirm') }}</n-button>
     </div>
   </n-modal>
+  </n-spin>
 </template>
 
 <style scoped>

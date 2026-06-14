@@ -141,4 +141,13 @@ class SystemController extends Controller
         ]);
     }
 
+    public function getQueueMasters(MasterSupervisorRepository $masters)
+    {
+        try {
+            return $this->success(collect($masters->all())->values()->toArray());
+        } catch (\Throwable $e) {
+            return $this->success([]);
+        }
+    }
+
 }

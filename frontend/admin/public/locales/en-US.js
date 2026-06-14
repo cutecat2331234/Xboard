@@ -474,8 +474,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "emailInvalid": "Please enter a valid email address",
         "passwordRequired": "Please enter your password",
         "passwordLength": "Password must be at least 7 characters"
-      },
-      "notAdmin": "This account does not have admin access"
+      }
     }
   },
   "notice": {

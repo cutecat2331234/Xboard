@@ -48,12 +48,35 @@ class DeviceStateService
     }
 
     /**
+     * Scan Redis keys without blocking KEYS command.
+     *
+     * @return list<string>
+     */
+    private function scanKeys(string $pattern): array
+    {
+        $keys = [];
+        $cursor = 0;
+
+        do {
+            /** @var array{0: int, 1: list<string>} $result */
+            $result = Redis::scan($cursor, ['match' => $pattern, 'count' => 200]);
+            $cursor = (int) ($result[0] ?? 0);
+            $batch = $result[1] ?? [];
+            if ($batch !== []) {
+                $keys = array_merge($keys, $batch);
+            }
+        } while ($cursor !== 0);
+
+        return $keys;
+    }
+
+    /**
      * 获取某节点的所有设备数据
      * 返回: {userId: [ip1, ip2, ...], ...}
      */
     public function getNodeDevices(int $nodeId): array
     {
-        $keys = Redis::keys(self::PREFIX . '*');
+        $keys = $this->scanKeys(self::PREFIX . '*');
         $prefix = "{$nodeId}:";
         $result = [];
         foreach ($keys as $key) {
