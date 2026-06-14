@@ -219,27 +219,32 @@ class GiftCardTemplate extends Model
 
     /**
      * 检查使用频率限制
+     *
+     * @param bool $forUpdate 事务内重检时加行锁，避免并发兑换突破 per-user 上限
      */
-    public function checkUsageLimit(User $user): bool
+    public function checkUsageLimit(User $user, bool $forUpdate = false): bool
     {
         $limits = $this->limits ?? [];
+        $usageQuery = fn () => $this->usages()->where('user_id', $user->id);
 
         // 检查每用户最大使用次数
         if (isset($limits['max_use_per_user'])) {
-            $usedCount = $this->usages()
-                ->where('user_id', $user->id)
-                ->count();
-            if ($usedCount >= $limits['max_use_per_user']) {
+            $query = $usageQuery();
+            if ($forUpdate) {
+                $query->lockForUpdate();
+            }
+            if ($query->count() >= $limits['max_use_per_user']) {
                 return false;
             }
         }
 
         // 检查冷却时间
         if (isset($limits['cooldown_hours'])) {
-            $lastUsage = $this->usages()
-                ->where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->first();
+            $query = $usageQuery()->orderBy('created_at', 'desc');
+            if ($forUpdate) {
+                $query->lockForUpdate();
+            }
+            $lastUsage = $query->first();
 
             if ($lastUsage && isset($lastUsage->created_at)) {
                 $cooldownTime = $lastUsage->created_at + ($limits['cooldown_hours'] * 3600);

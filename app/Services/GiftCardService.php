@@ -123,7 +123,7 @@ class GiftCardService
             }
             $this->template = $lockedTemplate;
 
-            if (!$this->template->checkUsageLimit($this->user)) {
+            if (!$this->template->checkUsageLimit($this->user, true)) {
                 throw new ApiException('您已达到此礼品卡的使用限制');
             }
 

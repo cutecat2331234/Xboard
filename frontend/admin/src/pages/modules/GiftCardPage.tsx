@@ -1432,7 +1432,9 @@ export default function GiftCardPage() {
 
                 <div key={key} className="rounded-lg border p-4">
 
-                  <p className="text-sm text-muted-foreground">{key}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t(`giftCard.statistics.${key}`, key)}
+                  </p>
 
                   <p className="text-2xl font-semibold">{String(value)}</p>
 
