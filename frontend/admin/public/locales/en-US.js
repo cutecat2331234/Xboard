@@ -2048,6 +2048,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Enable Deduction Plan",
         "description": "When enabled, the system will deduct from the original subscription when users change subscriptions, refer to documentation for details."
       },
+      "surplus_traffic_ratio_enable": {
+        "title": "Use Remaining Traffic in Deduction",
+        "description": "When enabled, upgrade deduction uses the smaller of remaining cycle value and remaining traffic ratio. Independent from post-upgrade traffic reset."
+      },
       "new_order_event": {
         "title": "Trigger Event on New Subscription",
         "description": "This task will be triggered when a new subscription is completed.",
