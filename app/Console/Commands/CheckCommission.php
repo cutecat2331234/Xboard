@@ -326,6 +326,9 @@ class CheckCommission extends Command
 
         if ($remainingBudget > 0) {
             $directInviter = User::where('id', $order->invite_user_id)->lockForUpdate()->first();
+            if ($directInviter && $directInviter->banned) {
+                return 'invalid';
+            }
             if ($directInviter && $remainingBudget > 0) {
                 $payAmount = $remainingBudget;
                 if ((int) admin_setting('withdraw_close_enable', 0)) {

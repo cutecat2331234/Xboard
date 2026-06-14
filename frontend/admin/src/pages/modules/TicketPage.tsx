@@ -86,6 +86,10 @@ function isOfficialWithdrawTicket(row: TicketRow): boolean {
   return Number(row.level) === 2 && Boolean(row.subject?.includes('[withdraw_ticket]'))
 }
 
+function isWithdrawTicketRow(row: TicketRow): boolean {
+  return isOfficialWithdrawTicket(row) || isLegacyWithdrawTicket(row)
+}
+
 function isLegacyWithdrawTicket(row: TicketRow): boolean {
   if (Number(row.level) !== 2 || isOfficialWithdrawTicket(row)) {
     return false
@@ -97,8 +101,9 @@ function isLegacyWithdrawTicket(row: TicketRow): boolean {
     || subject.includes('佣金提现')
   )
 }
+
 function levelLabel(t: (key: string) => string, level?: number, subject?: string) {
-  if (level === 2 && subject?.includes('[withdraw_ticket]')) {
+  if (level === 2 && isWithdrawTicketRow({ level, subject })) {
     return t('ticket.level.withdraw')
   }
   if (level === 0) return t('ticket.level.low')
@@ -254,7 +259,7 @@ export default function TicketPage() {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {t('ticket.actions.reply')}
               </DropdownMenuItem>
-              {isOfficialWithdrawTicket(row.original) ? (
+              {isWithdrawTicketRow(row.original) ? (
                 <>
                   <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawPaid: true })}>
                     {t('ticket.actions.approve_withdraw')}
@@ -264,16 +269,9 @@ export default function TicketPage() {
                   </DropdownMenuItem>
                 </>
               ) : (
-                <>
-                  <DropdownMenuItem onClick={() => closeTicket(row.original)}>
-                    {t('ticket.actions.close_ticket')}
-                  </DropdownMenuItem>
-                  {isLegacyWithdrawTicket(row.original) ? (
-                    <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawRejected: true })}>
-                      {t('ticket.actions.close_reject_withdraw')}
-                    </DropdownMenuItem>
-                  ) : null}
-                </>
+                <DropdownMenuItem onClick={() => closeTicket(row.original)}>
+                  {t('ticket.actions.close_ticket')}
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

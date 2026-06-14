@@ -55,8 +55,11 @@ function capacityLabel(p: PlanItem) {
   if (limit === null || limit === undefined) return ''
   if (typeof limit === 'string') {
     if (/sold\s*out|售罄/i.test(limit)) return t('errors.planSoldOut')
+    const parsed = Number(limit.replace(/[^\d.-]/g, ''))
+    if (Number.isFinite(parsed) && parsed <= 0) return t('errors.planSoldOut')
     return limit
   }
+  if (typeof limit === 'number' && limit <= 0) return t('errors.planSoldOut')
   return t('plan.capacityRemaining', { count: limit })
 }
 

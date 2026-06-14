@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Support\AppFeature;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 
 class InviteController extends Controller
 {
@@ -21,16 +23,41 @@ class InviteController extends Controller
         if (!AppFeature::inviteEnabled()) {
             return $this->fail([403, __('Invalid invitation code')]);
         }
-        if (InviteCode::where('user_id', $request->user()->id)->where('status', 0)->count() >= admin_setting('invite_gen_limit', 5)) {
-            return $this->fail([400,__('The maximum number of creations has been reached')]);
-        }
-        $inviteCode = new InviteCode();
-        $inviteCode->user_id = $request->user()->id;
-        $inviteCode->code = Helper::randomChar(8);
-        if (!$inviteCode->save()) {
+
+        try {
+            return DB::transaction(function () use ($request) {
+                User::where('id', $request->user()->id)->lockForUpdate()->first();
+                $limit = (int) admin_setting('invite_gen_limit', 5);
+                $activeCount = InviteCode::where('user_id', $request->user()->id)
+                    ->where('status', InviteCode::STATUS_UNUSED)
+                    ->lockForUpdate()
+                    ->count();
+                if ($limit > 0 && $activeCount >= $limit) {
+                    throw new ApiException(__('The maximum number of creations has been reached'));
+                }
+
+                for ($attempt = 0; $attempt < 5; $attempt++) {
+                    $code = Helper::randomChar(8);
+                    if (InviteCode::where('code', $code)->exists()) {
+                        continue;
+                    }
+                    $inviteCode = InviteCode::create([
+                        'user_id' => $request->user()->id,
+                        'code' => $code,
+                        'status' => InviteCode::STATUS_UNUSED,
+                    ]);
+                    if ($inviteCode) {
+                        return $this->success(true);
+                    }
+                }
+
+                throw new ApiException(__('Save failed'));
+            });
+        } catch (ApiException $e) {
+            return $this->fail([400, $e->getMessage()]);
+        } catch (\Throwable $e) {
             return $this->fail([500, __('Save failed')]);
         }
-        return $this->success(true);
     }
 
     public function details(Request $request)

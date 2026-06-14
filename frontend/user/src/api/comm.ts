@@ -127,8 +127,8 @@ export async function fetchUserCommConfig() {
   return request<UserCommConfig>(api.get('/user/comm/config'))
 }
 
-export async function sendEmailVerify(email: string, captcha?: CaptchaPayload) {
-  return request<null>(api.post('/passport/comm/sendEmailVerify', { email, ...formatEmailVerifyCaptcha(captcha) }))
+export async function sendEmailVerify(email: string, captcha?: CaptchaPayload, purpose: 'register' | 'forget' = 'register') {
+  return request<null>(api.post('/passport/comm/sendEmailVerify', { email, purpose, ...formatEmailVerifyCaptcha(captcha) }))
 }
 
 export async function fetchStripePublicKey(paymentId: number) {

@@ -79,7 +79,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { getLocale } from '@/lib/i18n'
+import { getLocale, i18n } from '@/lib/i18n'
 
 import {
 
@@ -150,21 +150,13 @@ function formatFailedAt(value?: string | number) {
 
 
 function formatBytes(n?: number) {
-
-  if (!n) return '0 B'
-
+  if (!n) return `0 ${i18n.t('common.units.b')}`
   const gb = n / 1073741824
-
-  if (gb >= 1) return `${gb.toFixed(2)} GB`
-
+  if (gb >= 1) return `${gb.toFixed(2)} ${i18n.t('common.units.gb')}`
   const mb = n / 1048576
-
-  if (mb >= 1) return `${mb.toFixed(2)} MB`
-
+  if (mb >= 1) return `${mb.toFixed(2)} ${i18n.t('common.units.mb')}`
   const kb = n / 1024
-
-  return `${kb.toFixed(2)} KB`
-
+  return `${kb.toFixed(2)} ${i18n.t('common.units.kb')}`
 }
 
 

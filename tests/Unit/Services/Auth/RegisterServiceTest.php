@@ -55,7 +55,7 @@ class RegisterServiceTest extends TestCase
 
     public function test_validate_register_accepts_matching_cached_email_code(): void
     {
-        Cache::put(CacheKey::get('EMAIL_VERIFY_CODE', 'user@example.com'), 123456, 300);
+        Cache::put(CacheKey::get('EMAIL_VERIFY_CODE_REGISTER', 'user@example.com'), 123456, 300);
 
         [$success, $result] = $this->service->validateRegister($this->makeRequest([
             'email_code' => '123456',

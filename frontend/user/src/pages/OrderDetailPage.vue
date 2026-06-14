@@ -400,7 +400,12 @@ async function handleCheckoutResult(res: { type: number; data: string | boolean 
 
   if (res.type === 1 && typeof res.data === 'string') {
 
-    window.open(res.data, '_blank')
+    const opened = window.open(res.data, '_blank')
+    if (!opened) {
+      msg.warning(t('order.redirectPopupBlocked'))
+    } else {
+      msg.info(t('order.redirectPaymentHint'))
+    }
 
     startPoll(order.value.trade_no)
 

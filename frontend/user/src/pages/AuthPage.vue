@@ -184,7 +184,7 @@ async function sendCode() {
   sending.value = true
   try {
     const captcha = await captchaRef.value?.getPayload()
-    await sendEmailVerify(addr, captcha)
+    await sendEmailVerify(addr, captcha, isForget.value ? 'forget' : 'register')
     msg.success(t('common.success'))
     captchaRef.value?.reset()
   } catch (e: unknown) {
@@ -220,7 +220,7 @@ async function submitLogin() {
   try {
     const captcha = await captchaRef.value?.getPayload()
     await auth.login({ email: resolvedEmail(), password: password.value, ...captcha })
-    msg.success(t('login'))
+    msg.success(t('common.success'))
     router.push(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
     const message = resolveApiError(e, t, t('auth.loginFailed'))
@@ -261,7 +261,7 @@ async function submitRegister() {
       email_code: showEmailVerify.value ? emailCode.value : undefined,
       ...captcha,
     })
-    msg.success(t('register'))
+    msg.success(t('common.success'))
     router.push('/dashboard')
   } catch (e: unknown) {
     const message = resolveApiError(e, t, t('auth.registerFailed'))

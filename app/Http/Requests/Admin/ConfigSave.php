@@ -12,6 +12,8 @@ class ConfigSave extends FormRequest
         'invite_commission' => 'nullable|integer|min:0|max:100',
         'invite_gen_limit' => 'integer|nullable',
         'invite_never_expire' => '',
+        'invite_code_max_uses' => 'nullable|integer|min:0|max:10000',
+        'withdraw_ticket_stale_days' => 'nullable|integer|min:1|max:90',
         'commission_first_time_enable' => '',
         'commission_auto_check_enable' => '',
         'commission_withdraw_limit' => 'nullable|numeric|min:0',

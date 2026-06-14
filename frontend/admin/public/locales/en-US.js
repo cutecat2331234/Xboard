@@ -211,6 +211,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "toggleNavigation": "Toggle Navigation",
     "toggleSidebar": "Toggle Sidebar",
     "search": "Search...",
+    "units": {
+      "b": "B",
+      "kb": "KB",
+      "mb": "MB",
+      "gb": "GB"
+    },
     "select": "Please select",
     "theme": {
       "light": "Light",

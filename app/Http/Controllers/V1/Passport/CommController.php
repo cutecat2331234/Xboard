@@ -12,6 +12,7 @@ use App\Utils\CacheKey;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
 
 class CommController extends Controller
 {
@@ -26,8 +27,20 @@ class CommController extends Controller
         }
 
         $email = $request->input('email');
+        $purpose = $request->input('purpose', 'register');
+        if (!in_array($purpose, ['register', 'forget'], true)) {
+            return $this->fail([422, __('Invalid parameter')]);
+        }
 
-        // 检查白名单后缀限制
+        $ipKey = 'send-email-verify:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($ipKey, 30)) {
+            return $this->fail([429, __('Sending frequently, please try again later')]);
+        }
+        RateLimiter::hit($ipKey, 3600);
+
+        $codeKey = $purpose === 'forget'
+            ? CacheKey::get('EMAIL_VERIFY_CODE_FORGET', $email)
+            : CacheKey::get('EMAIL_VERIFY_CODE_REGISTER', $email);
         if ((int) admin_setting('email_whitelist_enable', 0)) {
             $isRegisteredEmail = User::byEmail($email)->exists();
             if (!$isRegisteredEmail) {
@@ -57,7 +70,7 @@ class CommController extends Controller
             ]
         ]);
 
-        Cache::put(CacheKey::get('EMAIL_VERIFY_CODE', $email), $code, 300);
+        Cache::put($codeKey, $code, 300);
         Cache::put(CacheKey::get('LAST_SEND_EMAIL_VERIFY_TIMESTAMP', $email), time(), 60);
         return $this->success(true);
     }
