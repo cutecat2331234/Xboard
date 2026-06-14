@@ -101,7 +101,7 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         $invoiceDetail = json_decode($invoiceDetail, true);
 
         $status = $invoiceDetail['status'] ?? '';
-        if (!in_array($status, ['Settled', 'Processing', 'Paid'], true)) {
+        if ($status !== 'Settled') {
             return 'pending';
         }
 

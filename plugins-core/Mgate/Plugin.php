@@ -120,6 +120,9 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         if ($status !== null && !in_array((string) $status, ['1', 'paid', 'success', 'TRADE_SUCCESS'], true)) {
             return false;
         }
+        if ($status === null && (array_key_exists('status', $params) || array_key_exists('trade_status', $params))) {
+            return false;
+        }
 
         return [
             'trade_no' => $params['out_trade_no'],

@@ -95,14 +95,12 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-import { ChevronDown } from 'lucide-react'
+import { formatAdminMoney, loadAdminCurrency } from '@/lib/currency'
 
 
 
 function formatMoney(cents?: number) {
-
-  return `¥${((cents ?? 0) / 100).toFixed(2)}`
-
+  return formatAdminMoney(cents)
 }
 
 
@@ -242,6 +240,10 @@ export default function DashboardPage() {
   }))
 
 
+
+  useEffect(() => {
+    void loadAdminCurrency()
+  }, [])
 
   useEffect(() => {
 

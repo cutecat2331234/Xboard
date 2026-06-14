@@ -334,8 +334,7 @@ class OrderService
                 OrderHandleJob::dispatchSync($order->trade_no);
             } catch (\Exception $e) {
                 Log::error($e);
-                $order->status = Order::STATUS_PENDING;
-                $order->save();
+                // Keep PROCESSING so cron/UserService can retry open(); payment metadata stays intact.
                 return false;
             }
             return true;

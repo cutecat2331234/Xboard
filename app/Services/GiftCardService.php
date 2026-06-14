@@ -117,6 +117,10 @@ class GiftCardService
             }
             $this->user = $lockedUser;
 
+            if (!$this->template->checkUsageLimit($this->user)) {
+                throw new ApiException('您已达到此礼品卡的使用限制');
+            }
+
             $actualRewards = $this->template->calculateActualRewards($this->user);
 
             if ($this->template->type === GiftCardTemplate::TYPE_MYSTERY) {
@@ -209,7 +213,7 @@ class GiftCardService
             return null;
         }
 
-        $inviteUser = User::find($this->user->invite_user_id);
+        $inviteUser = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
         if (!$inviteUser) {
             return null;
         }
