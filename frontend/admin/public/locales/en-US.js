@@ -2462,7 +2462,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "level": {
       "low": "Low Priority",
       "medium": "Medium Priority",
-      "high": "High Priority"
+      "high": "High Priority",
+      "withdraw": "Withdrawal"
     },
     "filter": {
       "placeholder": "Search {field}...",
@@ -3019,6 +3020,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "auto_resets": "Auto Resets",
         "manual_resets": "Manual Resets",
         "cron_resets": "Cron Resets",
+        "order_resets": "Order Resets",
+        "gift_card_resets": "Gift Card Resets",
         "in_period": "In the last {{days}} days",
         "breakdown": "Reset Type Breakdown",
         "breakdown_description": "Percentage breakdown of different reset operation types",

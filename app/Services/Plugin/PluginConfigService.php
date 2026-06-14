@@ -3,6 +3,7 @@
 namespace App\Services\Plugin;
 
 use App\Models\Plugin;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 
 class PluginConfigService
@@ -69,6 +70,8 @@ class PluginConfigService
                 'config' => json_encode($values),
                 'updated_at' => now()
             ]);
+
+        Cache::forget("plugin_config_{$pluginCode}");
 
         return true;
     }

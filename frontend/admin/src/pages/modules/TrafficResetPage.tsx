@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { IconDownload } from '@tabler/icons-react'
-import { Bot, Clock, RefreshCw, UserRound } from 'lucide-react'
+import { Bot, Clock, Gift, RefreshCw, ShoppingCart, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { fetchJsonObject, fetchPaginatedList } from '@/lib/api'
@@ -33,6 +33,8 @@ type TrafficStats = {
   auto_resets?: number
   manual_resets?: number
   cron_resets?: number
+  order_resets?: number
+  gift_card_resets?: number
 }
 
 function formatBytes(n?: number | null) {
@@ -359,7 +361,7 @@ export default function TrafficResetPage() {
             ))}
           </div>
         </div>
-        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
           <StatCard
             title={t('user.traffic_reset.stats.total_resets')}
             value={String(stats.total_resets ?? 0)}
@@ -379,6 +381,16 @@ export default function TrafficResetPage() {
             title={t('user.traffic_reset.stats.cron_resets')}
             value={String(stats.cron_resets ?? 0)}
             icon={Clock}
+          />
+          <StatCard
+            title={t('user.traffic_reset.stats.order_resets')}
+            value={String(stats.order_resets ?? 0)}
+            icon={ShoppingCart}
+          />
+          <StatCard
+            title={t('user.traffic_reset.stats.gift_card_resets')}
+            value={String(stats.gift_card_resets ?? 0)}
+            icon={Gift}
           />
         </div>
       </div>

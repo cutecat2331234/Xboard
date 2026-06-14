@@ -392,8 +392,15 @@ class UpdateService
 
             $output = $statusResult->output();
             if (str_contains($output, 'Octane server is running')) {
-                Log::info('Restarting Octane server after update...');
+                Log::info('Reloading Octane server after update...');
                 $this->updateVersionCache();
+                $reload = Process::run('php artisan octane:reload');
+                if ($reload->successful()) {
+                    Log::info('Octane server reloaded successfully.');
+                    return;
+                }
+
+                Log::warning('Octane reload failed, falling back to stop/start.');
                 Process::run('php artisan octane:stop');
                 sleep(2);
 

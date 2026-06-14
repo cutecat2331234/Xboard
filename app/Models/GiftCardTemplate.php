@@ -214,6 +214,11 @@ class GiftCardTemplate extends Model
             }
         }
 
+        $limits = $this->limits ?? [];
+        if (!isset($actualRewards['invite_reward_rate']) && isset($limits['invite_reward_rate'])) {
+            $actualRewards['invite_reward_rate'] = $limits['invite_reward_rate'];
+        }
+
         return $actualRewards;
     }
 

@@ -69,7 +69,7 @@ const transferOpen = ref(false)
 const withdrawOpen = ref(false)
 const transferAmount = ref('')
 const { config: commConfig, load: loadComm } = useUserCommConfig()
-const withdrawMethod = ref('Alipay')
+const withdrawMethod = ref('')
 const withdrawAccount = ref('')
 const pageLoading = ref(true)
 

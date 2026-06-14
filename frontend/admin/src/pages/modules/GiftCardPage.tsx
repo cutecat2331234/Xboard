@@ -673,6 +673,8 @@ export default function GiftCardPage() {
 
       limits.invite_reward_rate = form.limits.invite_reward_rate
 
+      rewards.invite_reward_rate = form.limits.invite_reward_rate
+
     }
 
     const special_config: GiftCardSpecialConfig = {}
