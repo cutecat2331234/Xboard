@@ -40,9 +40,7 @@ class UserObserver
 
   public function deleted(User $user): void
   {
-    if ($user->group_id) {
-      NodeUserSyncJob::dispatch($user->id, 'deleted', $user->group_id);
-    }
+    NodeUserSyncJob::dispatch($user->id, 'deleted', $user->group_id);
   }
 
   /**

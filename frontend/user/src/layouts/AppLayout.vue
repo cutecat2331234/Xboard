@@ -23,6 +23,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 import { toggleColorScheme } from '@/lib/theme'
 import { LANG_LABELS } from '@/lib/lang-labels'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
 
 const s = getSettings()
 const auth = useAuthStore()
@@ -30,6 +31,7 @@ const router = useRouter()
 const route = useRoute()
 const dialog = useDialog()
 const { t, locale, setLocale } = useI18n()
+const { config: commConfig, load: loadCommConfig } = useUserCommConfig()
 
 const isDark = ref(document.documentElement.classList.contains('dark'))
 
@@ -54,18 +56,24 @@ const ThemeIcon = renderCarbonIcon(HEADER_ICON_PATHS.theme, '0 0 24 24', 'inline
 const LangIcon = renderCarbonIcon(HEADER_ICON_PATHS.language, '0 0 24 24', 'inline')
 const ExpandIcon = renderCarbonIcon(HEADER_ICON_PATHS.expand, '0 0 1024 1024', 'inline')
 
-const menuOptions = computed<MenuOption[]>(() => [
+const menuOptions = computed<MenuOption[]>(() => {
+  const billingChildren: MenuOption[] = [
+    { label: t('nav.order'), key: '/order', icon: renderIcon(MENU_ICON_PATHS.order) },
+  ]
+  if (commConfig.value?.invite_enable !== 0) {
+    billingChildren.push({ label: t('nav.invite'), key: '/invite', icon: renderIcon(MENU_ICON_PATHS.invite) })
+  }
+  if (commConfig.value?.gift_card_enable !== 0) {
+    billingChildren.push({ label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) })
+  }
+  return [
   { label: t('nav.dashboard'), key: '/dashboard', icon: renderIcon(MENU_ICON_PATHS.dashboard) },
   { label: t('nav.knowledge'), key: '/knowledge', icon: renderIcon(MENU_ICON_PATHS.knowledge) },
   {
     type: 'group',
     label: () => t('nav.groupBilling'),
     key: 'g-billing',
-    children: [
-      { label: t('nav.order'), key: '/order', icon: renderIcon(MENU_ICON_PATHS.order) },
-      { label: t('nav.invite'), key: '/invite', icon: renderIcon(MENU_ICON_PATHS.invite) },
-      { label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) },
-    ],
+    children: billingChildren,
   },
   {
     type: 'group',
@@ -86,7 +94,8 @@ const menuOptions = computed<MenuOption[]>(() => [
       { label: t('nav.traffic'), key: '/traffic', icon: renderIcon(MENU_ICON_PATHS.traffic) },
     ],
   },
-])
+]
+})
 
 const collapsed = ref(false)
 const mobileDrawerOpen = ref(false)
@@ -143,6 +152,7 @@ function updateMobile() {
 let themeObserver: MutationObserver | undefined
 
 onMounted(() => {
+  void loadCommConfig()
   updateMobile()
   mobileQuery.addEventListener('change', updateMobile)
   themeObserver = new MutationObserver(() => {

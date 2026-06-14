@@ -126,11 +126,16 @@ export default {
     catNotice: "公告"
   },
   auth: {
+    defaultDescription: "登入您的帳號以繼續",
+    defaultTitle: "歡迎回來",
     or: "或",
     loginFailed: "登入失敗",
     registerFailed: "註冊失敗"
   },
   errors: {
+    couponPerUserLimit: "每人只能使用此優惠券 {limit} 次",
+    couponNotStarted: "優惠券尚未開始",
+    giftCardRedeemFailed: "兌換失敗，請稍後重試",
     incorrectCredentials: "郵箱或密碼錯誤",
     accountSuspended: "該帳戶已被停止使用",
     passwordTooManyAttempts: "密碼錯誤次數過多，請 {minute} 分鐘後再試",
@@ -240,6 +245,11 @@ export default {
     }
   },
   invite: {
+    withdrawAccountRequired: "請輸入提現帳號",
+    withdrawMethodRequired: "請選擇提現方式",
+    withdrawFullBalanceHint: "將提現全部可用佣金（扣除手續費）",
+    withdrawFeeHint: "提現手續費：{rate}%",
+    withdrawLimitHint: "最低提現金額：{limit}",
     peopleCount: "{number} 人",
     title: "我的邀請",
     available: "当前剩余佣金",
@@ -258,9 +268,9 @@ export default {
     incomeRecord: "佣金發放記錄",
     incomeTime: "发放时间",
     incomeAmount: "佣金",
-    transferAmount: "劃轉金額（分）",
+    transferAmount: "劃轉金額（元）",
     transferAmountRequired: "請輸入劃轉金額",
-    transferAmountInvalid: "劃轉金額必須為正整數（分）",
+    transferAmountInvalid: "劃轉金額必須為正整數（元）",
     withdrawSuccess: "提現申請已提交，請前往工單查看進度。"
   },
   traffic: {
@@ -274,6 +284,11 @@ export default {
     formula: "公式：(實際上行 + 實際下行) x 扣費倍率 = 扣除流量"
   },
   order: {
+    stripeLoadFailed: "Stripe 載入失敗",
+    stripeUnavailable: "Stripe 支付不可用",
+    noPaymentMethods: "暫無可用支付方式，請聯繫客服",
+    cancelledDuringPay: "訂單已取消，支付未完成",
+    processingOrderDesc: "您有訂單正在開通中，請稍候或前往訂單頁查看",
     listTradeNo: "# 訂單號",
     tradeNo: "訂單號",
     copyTradeNo: "複製訂單號",
@@ -329,6 +344,7 @@ export default {
     tryOutHint: "此訂單包含註冊試用套餐，支付完成後將開通對應試用權益。"
   },
   ticket: {
+    fillRequired: "請填寫必填欄位",
     title: "工單歷史",
     new: "新的工單",
     subject: "主題",
@@ -358,6 +374,7 @@ export default {
     closeSuccess: "工單已關閉"
   },
   giftCard: {
+    mysteryPreview: "神秘獎勵（兌換後揭曉）",
     title: "禮品卡",
     hint: "輸入兌換碼可領取餘額、流量或套餐等獎勵，兌換記錄可在下方查看。",
     redeem: "兌換禮品卡",

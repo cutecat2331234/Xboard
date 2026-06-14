@@ -244,6 +244,11 @@ export default {
     }
   },
   invite: {
+    withdrawAccountRequired: "출금 계정을 입력하세요",
+    withdrawMethodRequired: "출금 방법을 선택하세요",
+    withdrawFullBalanceHint: "사용 가능한 전체 커미션을 출금합니다(수수료 제외)",
+    withdrawFeeHint: "출금 수수료: {rate}%",
+    withdrawLimitHint: "최소 출금액: {limit}",
     peopleCount: "{number}명",
     title: "나의 초청",
     available: "현재 잔여 수수료",
@@ -262,9 +267,9 @@ export default {
     incomeRecord: "수수료 지불 기록",
     incomeTime: "수수료 지급 시간",
     incomeAmount: "수수료",
-    transferAmount: "이체 금액(센트)",
+    transferAmount: "이체 금액(통화 단위)",
     transferAmountRequired: "이체 금액을 입력하세요",
-    transferAmountInvalid: "이체 금액은 양의 정수(센트)여야 합니다",
+    transferAmountInvalid: "이체 금액은 양의 정수여야 합니다",
     withdrawSuccess: "출금 요청이 제출되었습니다. 티켓에서 진행 상황을 확인하세요."
   },
   traffic: {

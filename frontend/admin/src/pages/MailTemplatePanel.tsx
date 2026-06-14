@@ -45,8 +45,8 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
         setList(items)
         if (!selected && items[0]?.name) setSelected(items[0].name!)
       })
-      .catch(() => setList([]))
-  }, [selected])
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
+  }, [selected, t, toast])
 
   const loadDetail = useCallback((name: string) => {
     if (!name) return
@@ -57,7 +57,8 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
         setDetail(d)
         setSavedDetail(d)
       })
-      .catch(() => {
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
         setDetail({})
         setSavedDetail({})
       })
