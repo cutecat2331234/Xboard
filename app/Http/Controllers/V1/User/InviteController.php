@@ -42,6 +42,7 @@ class InviteController extends Controller
         $pageSize = $request->input('page_size') >= 10 ? $request->input('page_size') : 10;
         $builder = CommissionLog::where('invite_user_id', $request->user()->id)
             ->where('get_amount', '>', 0)
+            ->where('trade_no', 'not like', 'transfer:%')
             ->orderBy('created_at', 'DESC');
         $total = $builder->count();
         $details = $builder->forPage($current, $pageSize)
@@ -73,7 +74,8 @@ class InviteController extends Controller
             ->where('invite_user_id', $user->id)
             ->sum('commission_balance');
         if (admin_setting('commission_distribution_enable', 0)) {
-            $uncheck_commission_balance = $uncheck_commission_balance * (admin_setting('commission_distribution_l1') / 100);
+            $l1 = (int) admin_setting('commission_distribution_l1', 100);
+            $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));
         }
         $stat = [
             //已注册用户数

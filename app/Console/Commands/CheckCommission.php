@@ -84,6 +84,10 @@ class CheckCommission extends Command
                         'expected' => $expectedTotal,
                     ]);
                     $payResult = $this->payHandleRemainder($order->invite_user_id, $order);
+                    if ($payResult === 'retry') {
+                        DB::rollBack();
+                        continue;
+                    }
                     $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
                     if ($payResult === 'invalid' || ($paidTotal > 0 && $paidTotal < $expectedTotal)) {
                         $order->commission_status = Order::COMMISSION_STATUS_INVALID;

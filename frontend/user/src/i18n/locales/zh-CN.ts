@@ -374,6 +374,7 @@ export default {
     closedReplyPh: '工单已关闭，无法回复',
     closedHint: '工单已关闭，无法继续回复。',
     closeSuccess: '工单已关闭',
+    empty: '暂无工单',
   },
   giftCard: {
     title: '礼品卡',
@@ -405,6 +406,7 @@ export default {
     description: '描述',
     inviteRewards: '邀请人奖励',
     multiplier: '倍率',
+    historyEmpty: '暂无兑换记录',
   },
   profile: {
     wallet: '我的钱包',

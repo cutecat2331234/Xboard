@@ -296,6 +296,7 @@ export default {
     statusCompleted: "완료",
     statusOffset: "상계됨",
     empty: "주문이 없습니다",
+    filterAll: "모든 상태",
     createdAt: "생성 시간",
     pay: "결제",
     view: "보기",
@@ -366,7 +367,8 @@ export default {
     replyPh: "답장 내용을 입력하세요…",
     closedReplyPh: "티켓이 닫혔습니다 — 답장할 수 없습니다",
     closedHint: "이 티켓은 닫혔습니다. 더 이상 답장할 수 없습니다.",
-    closeSuccess: "티켓이 닫혔습니다"
+    closeSuccess: "티켓이 닫혔습니다",
+    empty: "티켓이 없습니다"
   },
   giftCard: {
     title: "기프트 카드",
@@ -396,7 +398,8 @@ export default {
     detailTitle: "교환 세부사항",
     description: "설명",
     inviteRewards: "초청자 보상",
-    multiplier: "배율"
+    multiplier: "배율",
+    historyEmpty: "교환 기록이 없습니다"
   },
   profile: {
     telegramUnbindConfirm: "Telegram 계정 연동을 해제하시겠습니까? 봇에 /bind 를 다시 보내야 합니다.",

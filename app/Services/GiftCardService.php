@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\ApiException;
 use App\Http\Resources\PlanResource;
+use App\Models\CommissionLog;
 use App\Models\GiftCardCode;
 use App\Models\GiftCardTemplate;
 use App\Models\GiftCardUsage;
@@ -252,6 +253,13 @@ class GiftCardService
                     throw new \RuntimeException('Failed to add invite reward balance');
                 }
                 $inviteRewards['balance'] = $inviteBalance;
+                CommissionLog::create([
+                    'invite_user_id' => $inviteUser->id,
+                    'user_id' => $this->user->id,
+                    'trade_no' => 'giftcard:' . $this->code->code,
+                    'order_amount' => (int) $rewards['balance'],
+                    'get_amount' => $inviteBalance,
+                ]);
             }
         }
 

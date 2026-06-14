@@ -33,6 +33,8 @@ class CommController extends Controller
             'commission_withdraw_limit' => admin_setting('commission_withdraw_limit', 100),
             'invite_enable' => (int) (AppFeature::inviteEnabled() && AppFeature::commissionEnabled()),
             'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
+            'coupon_enable' => (int) AppFeature::couponEnabled(),
+            'register_enable' => (int) AppFeature::registerEnabled(),
         ];
         return $this->success($data);
     }

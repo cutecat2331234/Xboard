@@ -375,6 +375,7 @@ export default {
     closedReplyPh: 'Ticket closed — replies disabled',
     closedHint: 'This ticket is closed. You cannot send more replies.',
     closeSuccess: 'Ticket closed',
+    empty: 'No tickets yet',
   },
   giftCard: {
     title: 'Gift Card',
@@ -406,6 +407,7 @@ export default {
     description: 'Description',
     inviteRewards: 'Inviter rewards',
     multiplier: 'Multiplier',
+    historyEmpty: 'No redemption history yet',
   },
   profile: {
     wallet: 'My Wallet',

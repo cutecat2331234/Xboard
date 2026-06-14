@@ -204,7 +204,10 @@ export default function ConfigPage() {
       .finally(() => setLoading(false))
     fetchJsonList('/plan/fetch')
       .then((rows) => setPlans(rows as Array<{ id?: number; name?: string }>))
-      .catch(() => setPlans([]))
+      .catch((err) => {
+        setPlans([])
+        toastApiError(err, toast, t, t('common.error'))
+      })
   }, [t])
 
   function update(sec: string, key: string, value: unknown, persist = false) {

@@ -155,7 +155,9 @@ class TicketController extends Controller
                     if ($request->boolean('withdraw_paid')) {
                         // Commission already withheld; payout completed offline.
                     } elseif ($request->boolean('withdraw_rejected')) {
-                        TicketService::restoreWithdrawCommission($ticket);
+                        if (!TicketService::restoreWithdrawCommission($ticket)) {
+                            throw new \RuntimeException('Failed to restore withdraw commission');
+                        }
                     } else {
                         throw new \RuntimeException('Withdraw ticket requires withdraw_paid or withdraw_rejected');
                     }

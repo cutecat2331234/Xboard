@@ -49,6 +49,8 @@ export interface UserCommConfig {
   commission_withdraw_limit?: number | string
   invite_enable?: number
   gift_card_enable?: number
+  coupon_enable?: number
+  register_enable?: number
 }
 
 const DEFAULT_TRAFFIC_WARN_RATE = 70

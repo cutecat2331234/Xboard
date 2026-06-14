@@ -235,5 +235,41 @@ return [
                 'balanceCooldown' => 3,
             ],
         ],
+        'staging' => [
+            'Xboard' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'order_handle', 'traffic_fetch', 'stat', 'send_email', 'send_email_mass', 'send_telegram', 'user_alive_sync', 'node_sync'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'tries' => 3,
+                'timeout' => 120,
+                'balanceCooldown' => 3,
+            ],
+        ],
+        'testing' => [
+            'Xboard' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'order_handle', 'traffic_fetch', 'stat', 'send_email', 'send_email_mass', 'send_telegram', 'user_alive_sync', 'node_sync'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 3,
+                'tries' => 1,
+                'timeout' => 60,
+                'balanceCooldown' => 3,
+            ],
+        ],
+        'development' => [
+            'Xboard' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'order_handle', 'traffic_fetch', 'stat', 'send_email', 'send_email_mass', 'send_telegram', 'user_alive_sync', 'node_sync'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'tries' => 1,
+                'timeout' => 60,
+                'balanceCooldown' => 3,
+            ],
+        ],
     ],
 ];
