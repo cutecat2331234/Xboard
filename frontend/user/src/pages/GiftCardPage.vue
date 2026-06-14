@@ -26,6 +26,7 @@ import {
 import { useCurrency } from '@/composables/useCurrency'
 import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const msg = useMessage()
 const { t, locale } = useI18n()
@@ -80,6 +81,12 @@ function formatRewards(rewards?: GiftCardRewards | null) {
   return parts.length ? parts.join(' · ') : '—'
 }
 
+function mapGiftCardReason(reason?: string | null): string {
+  if (!reason) return ''
+  const mapped = resolveApiError(new Error(reason), t)
+  return mapped !== reason ? mapped : reason
+}
+
 async function loadHistory() {
   loadingHistory.value = true
   try {
@@ -87,7 +94,7 @@ async function loadHistory() {
     history.value = res.data ?? []
     total.value = res.pagination?.total ?? 0
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     loadingHistory.value = false
   }
@@ -110,7 +117,7 @@ async function doCheck() {
   try {
     checkResult.value = await checkGiftCard(code)
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     checking.value = false
   }
@@ -129,7 +136,7 @@ async function doRedeem() {
     page.value = 1
     await loadHistory()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     redeeming.value = false
   }
@@ -153,7 +160,7 @@ async function openDetail(id: number) {
   try {
     detail.value = await fetchGiftCardDetail(id)
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
     detailOpen.value = false
   } finally {
     detailLoading.value = false
@@ -275,7 +282,7 @@ onMounted(async () => {
         {{ formatPreview(checkResult.reward_preview) }}
       </div>
       <div v-if="!checkResult.can_redeem && checkResult.reason" class="gift-card-preview__warn">
-        {{ checkResult.reason }}
+        {{ mapGiftCardReason(checkResult.reason) }}
       </div>
       <n-space v-if="checkResult.can_redeem" class="gift-card-modal-actions" justify="end">
         <n-button type="primary" :loading="redeeming" @click="doRedeem">

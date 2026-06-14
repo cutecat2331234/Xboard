@@ -309,5 +309,6 @@ class UserService
         $user->group_id = $plan->group_id;
         $user->expired_at = time() + (admin_setting('try_out_hour', 1) * 3600);
         $user->speed_limit = $plan->speed_limit;
+        $user->device_limit = $plan->device_limit;
     }
 }

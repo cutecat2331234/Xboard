@@ -1831,11 +1831,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Disable Withdrawals",
         "description": "When enabled, users will be prohibited from requesting withdrawals, and invitation commissions will go directly to user balance."
       },
-      "withdraw_fee_rate": {
-        "title": "Withdrawal Fee Rate",
-        "description": "Fee rate applied to withdrawal requests (0–1, e.g. 0.05 = 5%).",
-        "placeholder": "0"
-      },
       "commission_distribution": {
         "title": "Three-level Distribution",
         "description": "When enabled, commission will be split according to the three set ratios, total should not exceed 100%.",
@@ -1891,23 +1886,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "ticketMustWaitReply": {
           "label": "Reply Wait Restriction",
           "description": "When enabled, users cannot continue sending messages in the same ticket until an administrator replies."
-        },
-        "trafficWarnRate": {
-          "label": "Traffic Warning Threshold (%)",
-          "description": "Show a traffic usage alert on the user dashboard when usage exceeds this percentage.",
-          "placeholder": "70"
-        },
-        "loginWithMailLink": {
-          "label": "Magic Link Login",
-          "description": "When enabled, users can sign in via email magic link."
-        },
-        "tryOutEnable": {
-          "label": "Enable Registration Trial",
-          "description": "When disabled, new users will not receive a trial subscription even if a trial plan is configured."
-        },
-        "tryOutHour": {
-          "label": "Trial Duration (hours)",
-          "description": "Trial duration in hours when a trial plan is selected."
         },
         "tryOut": {
           "label": "Registration Trial",
@@ -2473,7 +2451,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "status": "Status",
       "updated_at": "Last Updated",
       "created_at": "Created At",
-      "reply_status": "Reply Status",
       "actions": "Actions"
     },
     "status": {
@@ -2485,25 +2462,18 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "level": {
       "low": "Low Priority",
       "medium": "Medium Priority",
-      "high": "High Priority",
-      "withdraw": "Withdrawal"
+      "high": "High Priority"
     },
     "filter": {
       "placeholder": "Search {field}...",
       "no_results": "No results found",
       "selected": "{count} selected",
-      "clear": "Clear filters",
-      "reply_status_all": "All reply statuses"
+      "clear": "Clear filters"
     },
     "actions": {
       "view_details": "View Details",
       "reply": "Reply",
       "close": "Close ticket",
-      "approve_withdraw": "Approve withdrawal",
-      "approve_withdraw_confirm_title": "Confirm withdrawal approval",
-      "approve_withdraw_confirm_description": "Approve this withdrawal request and mark the ticket as paid?",
-      "reject_withdraw_confirm_title": "Confirm withdrawal rejection",
-      "reject_withdraw_confirm_description": "Reject this withdrawal request and close the ticket?",
       "close_reject_withdraw": "Reject withdrawal and close",
       "close_ticket": "Close Ticket",
       "close_confirm_title": "Confirm Close Ticket",

@@ -1802,11 +1802,6 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "title": "Отключить вывод средств",
         "description": "Если включено, пользователи не могут запрашивать вывод, комиссия идет сразу на баланс."
       },
-      "withdraw_fee_rate": {
-        "title": "Комиссия за вывод",
-        "description": "Ставка комиссии при выводе (0–1, например 0.05 = 5%).",
-        "placeholder": "0"
-      },
       "commission_distribution": {
         "title": "Трехуровневая система",
         "description": "Распределение комиссии по трем уровням пригласителей. Сумма не должна превышать 100%.",
@@ -1862,23 +1857,6 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "ticketMustWaitReply": {
           "label": "Ожидание ответа в тикетах",
           "description": "Пользователь не может отправить новое сообщение, пока админ не ответит."
-        },
-        "trafficWarnRate": {
-          "label": "Порог предупреждения о трафике (%)",
-          "description": "Показывать предупреждение на панели пользователя при превышении этого процента.",
-          "placeholder": "70"
-        },
-        "loginWithMailLink": {
-          "label": "Вход по ссылке из письма",
-          "description": "Разрешить вход через magic link по email."
-        },
-        "tryOutEnable": {
-          "label": "Включить пробный период",
-          "description": "Если отключено, новые пользователи не получат пробную подписку."
-        },
-        "tryOutHour": {
-          "label": "Длительность пробного периода (часы)",
-          "description": "Длительность пробной подписки в часах."
         },
         "tryOut": {
           "label": "Тестовый период",
@@ -2444,7 +2422,6 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "status": "Статус",
       "updated_at": "Обновлен",
       "created_at": "Создан",
-      "reply_status": "Статус ответа",
       "actions": "Действия"
     },
     "status": {
@@ -2456,26 +2433,16 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "level": {
       "low": "Низкий",
       "medium": "Средний",
-      "high": "Высокий",
-      "withdraw": "Вывод средств"
+      "high": "Высокий"
     },
     "filter": {
       "placeholder": "Поиск {field}...",
       "no_results": "Результатов не найдено",
       "selected": "Выбрано: {count}",
-      "clear": "Очистить фильтры",
-      "reply_status_all": "Все статусы ответа"
+      "clear": "Очистить фильтры"
     },
     "actions": {
       "view_details": "Детали",
-      "reply": "Ответить",
-      "close": "Закрыть тикет",
-      "approve_withdraw": "Одобрить вывод",
-      "approve_withdraw_confirm_title": "Подтвердить одобрение вывода",
-      "approve_withdraw_confirm_description": "Одобрить заявку на вывод и отметить тикет как оплаченный?",
-      "reject_withdraw_confirm_title": "Подтвердить отклонение вывода",
-      "reject_withdraw_confirm_description": "Отклонить заявку на вывод и закрыть тикет?",
-      "close_reject_withdraw": "Отклонить вывод и закрыть",
       "close_ticket": "Закрыть тикет",
       "close_confirm_title": "Подтверждение закрытия",
       "close_confirm_description": "Вы уверены, что хотите закрыть этот тикет? Он переместится в список закрытых, но отвечать в нем все равно можно.",

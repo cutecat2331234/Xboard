@@ -10,6 +10,7 @@ use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Models\User;
 use App\Services\TicketService;
+use App\Support\AppFeature;
 use App\Utils\Dict;
 use Illuminate\Http\Request;
 use App\Services\Plugin\HookManager;
@@ -42,6 +43,9 @@ class TicketController extends Controller
 
     public function save(TicketSave $request)
     {
+        if (!AppFeature::ticketEnabled()) {
+            return $this->fail([403, __('Ticket reply failed')]);
+        }
         $ticketService = new TicketService();
         $ticket = $ticketService->createTicket(
             $request->user()->id,
@@ -56,6 +60,9 @@ class TicketController extends Controller
 
     public function reply(Request $request)
     {
+        if (!AppFeature::ticketEnabled()) {
+            return $this->fail([403, __('Ticket reply failed')]);
+        }
         if (empty($request->input('id'))) {
             return $this->fail([400, __('Invalid parameter')]);
         }
@@ -138,6 +145,9 @@ class TicketController extends Controller
 
     public function withdraw(TicketWithdraw $request)
     {
+        if (!AppFeature::commissionEnabled() || !AppFeature::ticketEnabled()) {
+            return $this->fail([403, __('Unsupported withdraw')]);
+        }
         if ((int) admin_setting('withdraw_close_enable', 0)) {
             return $this->fail([400, 'Unsupported withdraw']);
         }
@@ -207,7 +217,8 @@ class TicketController extends Controller
                 return $this->success(true);
             });
         } catch (\Exception $e) {
-            throw $e;
+            Log::error('Withdraw ticket failed', ['error' => $e->getMessage()]);
+            return $this->fail([500, __('Request failed, please try again later')]);
         }
     }
 }

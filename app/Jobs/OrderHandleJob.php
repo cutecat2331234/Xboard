@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -51,7 +52,10 @@ class OrderHandleJob implements ShouldQueue
                     if (!$order->payment_id && $age >= 3600 * 2) {
                         $orderService->cancel();
                     } elseif ($order->payment_id && $age >= 3600 * 24) {
-                        $orderService->cancel();
+                        Log::warning('Pending order with payment_id exceeded 24h, skipping auto-cancel pending reconciliation', [
+                            'trade_no' => $order->trade_no,
+                            'payment_id' => $order->payment_id,
+                        ]);
                     }
                     break;
                 case Order::STATUS_PROCESSING:

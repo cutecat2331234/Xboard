@@ -24,7 +24,7 @@ class AppController extends Controller
                 'version' => admin_setting('app_version', '1.0.0'), // 应用版本号
             ],
             'features' => [
-                'enable_register' => (bool) admin_setting('app_enable_register', true), // 是否开启注册功能
+                'enable_register' => \App\Support\AppFeature::registerEnabled(),
                 'enable_invite_system' => (bool) admin_setting('app_enable_invite_system', true), // 是否开启邀请系统
                 'enable_telegram_bot' => (bool) admin_setting('telegram_bot_enable', false), // 是否开启 Telegram 机器人
                 'enable_ticket_system' => (bool) admin_setting('app_enable_ticket_system', true), // 是否开启工单系统

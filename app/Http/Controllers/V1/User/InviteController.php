@@ -10,6 +10,7 @@ use App\Models\CommissionLog;
 use App\Models\InviteCode;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,9 @@ class InviteController extends Controller
 {
     public function save(Request $request)
     {
+        if (!AppFeature::inviteEnabled()) {
+            return $this->fail([403, __('Invalid invitation code')]);
+        }
         if (InviteCode::where('user_id', $request->user()->id)->where('status', 0)->count() >= admin_setting('invite_gen_limit', 5)) {
             return $this->fail([400,__('The maximum number of creations has been reached')]);
         }

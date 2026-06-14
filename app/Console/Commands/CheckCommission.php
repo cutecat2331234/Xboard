@@ -58,6 +58,13 @@ class CheckCommission extends Command
                 }
 
                 $expectedTotal = (int) $order->commission_balance;
+                if ($expectedTotal <= 0) {
+                    $order->commission_status = 2;
+                    $order->actual_commission_balance = 0;
+                    $order->save();
+                    DB::commit();
+                    continue;
+                }
                 $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
                 if ($paidTotal >= $expectedTotal && $expectedTotal > 0) {
                     $order->commission_status = 2;
@@ -145,6 +152,13 @@ class CheckCommission extends Command
             ]);
             $inviteUserId = $inviter->invite_user_id;
             $order->actual_commission_balance = (int) $order->actual_commission_balance + $commissionBalance;
+        }
+
+        if ($remaining > 0) {
+            Log::warning('Commission payout left unallocated remainder for order ' . $order->id, [
+                'remaining' => $remaining,
+                'expected' => (int) $order->commission_balance,
+            ]);
         }
 
         return (int) $order->actual_commission_balance > 0;

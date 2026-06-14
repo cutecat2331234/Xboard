@@ -32,9 +32,20 @@ const buying = ref(false)
 const availablePeriods = computed(() =>
   PERIOD_OPTIONS.filter((p) => {
     const price = plan.value?.[p.key as keyof PlanItem]
-    return typeof price === 'number' && price > 0
+    if (typeof price !== 'number' || price <= 0) return false
+    if (p.key === 'reset_price' && !canBuyResetTraffic.value) return false
+    return true
   }),
 )
+
+const canBuyResetTraffic = computed(() => {
+  const user = auth.user
+  const p = plan.value
+  if (!user || !p) return false
+  const now = Math.floor(Date.now() / 1000)
+  const hasActiveSub = user.expired_at === null || user.expired_at > now
+  return hasActiveSub && user.plan_id === p.id
+})
 
 const isTryOutPlan = computed(
   () => tryOutPlanId.value > 0 && plan.value?.id === tryOutPlanId.value,

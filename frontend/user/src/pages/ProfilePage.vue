@@ -55,6 +55,10 @@ const switchStyle = {
 } as const
 
 async function submitPassword() {
+  if (newPassword.value.length < 8) {
+    msg.error(t('errors.passwordTooShort'))
+    return
+  }
   if (newPassword.value !== confirmPassword.value) {
     msg.error(t('passwordMismatch'))
     return

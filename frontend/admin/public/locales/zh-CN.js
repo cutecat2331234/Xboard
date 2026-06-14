@@ -1814,23 +1814,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "label": "工单等待回复限制",
           "description": "开启后，用户在管理员回复前无法在同一工单内连续发送消息。"
         },
-        "trafficWarnRate": {
-          "label": "流量预警阈值（%）",
-          "description": "用户仪表盘流量使用超过该百分比时显示预警提示。",
-          "placeholder": "70"
-        },
-        "loginWithMailLink": {
-          "label": "邮箱链接登录",
-          "description": "开启后用户可通过邮件魔法链接登录。"
-        },
-        "tryOutEnable": {
-          "label": "启用注册试用",
-          "description": "关闭后即使配置了试用套餐，新用户也不会获得试用订阅。"
-        },
-        "tryOutHour": {
-          "label": "试用时长（小时）",
-          "description": "选择试用套餐后，试用订阅的有效时长（小时）。"
-        },
         "tryOut": {
           "label": "注册试用",
           "placeholder": "关闭",
@@ -2344,11 +2327,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "title": "关闭提现",
         "description": "关闭后将禁止用户申请提现，且邀请佣金将会直接进入用户余额。"
       },
-      "withdraw_fee_rate": {
-        "title": "提现手续费率",
-        "description": "提现申请收取的手续费比例（0–1，例如 0.05 表示 5%）。",
-        "placeholder": "0"
-      },
       "commission_distribution": {
         "title": "三级分销",
         "description": "开启后将佣金将按照设置的3成比例进行分成，三成比例合计请不要大于100%。",
@@ -2496,7 +2474,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "status": "状态",
       "updated_at": "最后更新",
       "created_at": "创建时间",
-      "reply_status": "回复状态",
       "actions": "操作"
     },
     "status": {
@@ -2508,25 +2485,18 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "level": {
       "low": "低优先",
       "medium": "中优先",
-      "high": "高优先",
-      "withdraw": "提现"
+      "high": "高优先"
     },
     "filter": {
       "placeholder": "搜索{field}...",
       "no_results": "未找到结果",
       "selected": "已选择 {count} 项",
-      "clear": "清除筛选",
-      "reply_status_all": "全部回复状态"
+      "clear": "清除筛选"
     },
     "actions": {
       "view_details": "查看详情",
       "reply": "回复",
       "close": "关闭工单",
-      "approve_withdraw": "批准提现",
-      "approve_withdraw_confirm_title": "确认批准提现",
-      "approve_withdraw_confirm_description": "批准此提现申请并将工单标记为已打款？",
-      "reject_withdraw_confirm_title": "确认拒绝提现",
-      "reject_withdraw_confirm_description": "拒绝此提现申请并关闭工单？",
       "close_reject_withdraw": "拒绝提现并关闭",
       "close_ticket": "关闭工单",
       "close_confirm_title": "确认关闭工单",
