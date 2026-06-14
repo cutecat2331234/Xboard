@@ -129,29 +129,55 @@ class TicketController extends Controller
         ) {
             return $this->fail([422, __('Unsupported withdrawal method')]);
         }
-        $user = User::find($request->user()->id);
-        $limit = admin_setting('commission_withdraw_limit', 100);
-        if ($limit > ($user->commission_balance / 100)) {
-            return $this->fail([422, __('The current required minimum withdrawal commission is :limit', ['limit' => $limit])]);
-        }
+
         try {
-            $ticketService = new TicketService();
-            $subject = __('[Commission Withdrawal Request] This ticket is opened by the system');
-            $message = sprintf(
-                "%s\r\n%s",
-                __('Withdrawal method') . "：" . $request->input('withdraw_method'),
-                __('Withdrawal account') . "：" . $request->input('withdraw_account')
-            );
-            $ticket = $ticketService->createTicket(
-                $request->user()->id,
-                $subject,
-                2,
-                $message
-            );
+            return \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+                $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
+                $limit = admin_setting('commission_withdraw_limit', 100);
+                $withdrawAmount = (int) $user->commission_balance;
+
+                if ($withdrawAmount <= 0) {
+                    return $this->fail([422, __('Insufficient commission balance')]);
+                }
+
+                if ($limit > ($withdrawAmount / 100)) {
+                    return $this->fail([422, __('The current required minimum withdrawal commission is :limit', ['limit' => $limit])]);
+                }
+
+                $hasOpenWithdraw = Ticket::where('user_id', $user->id)
+                    ->where('status', 0)
+                    ->where('level', 2)
+                    ->exists();
+                if ($hasOpenWithdraw) {
+                    return $this->fail([422, __('You already have a pending withdrawal request')]);
+                }
+
+                $ticketService = new TicketService();
+                $subject = __('[Commission Withdrawal Request] This ticket is opened by the system');
+                $message = sprintf(
+                    "%s\r\n%s\r\n%s",
+                    __('Withdrawal amount') . '：' . number_format($withdrawAmount / 100, 2),
+                    __('Withdrawal method') . '：' . $request->input('withdraw_method'),
+                    __('Withdrawal account') . '：' . $request->input('withdraw_account')
+                );
+                $ticket = $ticketService->createTicket(
+                    $request->user()->id,
+                    $subject,
+                    2,
+                    $message
+                );
+
+                $user->commission_balance = 0;
+                if (!$user->save()) {
+                    throw new \RuntimeException('Failed to update commission balance');
+                }
+
+                HookManager::call('ticket.create.after', $ticket);
+
+                return $this->success(true);
+            });
         } catch (\Exception $e) {
             throw $e;
         }
-        HookManager::call('ticket.create.after', $ticket);
-        return $this->success(true);
     }
 }

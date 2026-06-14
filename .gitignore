@@ -42,3 +42,4 @@ compose.host.yaml
 compose.split.yaml
 .scribedump.rdb
 dump.rdb
+:memory:

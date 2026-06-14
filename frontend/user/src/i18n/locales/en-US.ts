@@ -382,6 +382,8 @@ export default {
     telegram: 'Telegram',
     telegramHint: 'Search this bot on Telegram and send /bind:',
     telegramBound: 'Telegram linked',
+    telegramUnbind: 'Unbind Telegram',
+    telegramUnbindConfirm: 'Unbind your Telegram account? You will need to send /bind to the bot again.',
     telegramGroup: 'Join Telegram group',
   },
 }

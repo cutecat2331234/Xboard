@@ -1,19 +1,24 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { NAlert, NIcon, NList, NListItem, NPopover, NSkeleton, NSpace, NTag } from 'naive-ui'
+import { NAlert, NIcon, NList, NListItem, NPopover, NSkeleton, NSpace, NTag, useMessage } from 'naive-ui'
 import { HelpCircleOutline } from '@vicons/ionicons5'
 import { fetchServers, type ServerNode } from '@/api/server'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const { t } = useI18n()
+const msg = useMessage()
 const loading = ref(true)
+const loadError = ref(false)
 const servers = ref<ServerNode[]>([])
 
 onMounted(async () => {
   try {
     servers.value = await fetchServers()
-  } catch {
+  } catch (e: unknown) {
+    loadError.value = true
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
     servers.value = []
   } finally {
     loading.value = false
@@ -79,6 +84,8 @@ onMounted(async () => {
       </div>
     </n-list-item>
   </n-list>
+
+  <n-alert v-else-if="loadError" type="error">{{ t('errors.requestFailed') }}</n-alert>
 
   <n-alert v-else type="info">
     {{ t('node.emptyPrefix') }}

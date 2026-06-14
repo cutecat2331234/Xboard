@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import DOMPurify from 'dompurify'
-import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NTabs, NTabPane } from 'naive-ui'
+import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NSpin, NTabs, NTabPane, useMessage } from 'naive-ui'
 import { fetchKnowledge, fetchKnowledgeCategories, type KnowledgeItem } from '@/api/knowledge'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const ALL_CATEGORY = '__all__'
 
@@ -26,7 +27,9 @@ const categories = ref<string[]>([])
 const activeCategory = ref(ALL_CATEGORY)
 const keyword = ref('')
 const query = ref('')
+const loading = ref(true)
 const { t } = useI18n()
+const msg = useMessage()
 
 const filtered = computed(() => {
   let list = items.value
@@ -51,14 +54,25 @@ function search() {
 }
 
 onMounted(async () => {
-  const [list, cats] = await Promise.all([fetchKnowledge(), fetchKnowledgeCategories().catch(() => [])])
-  items.value = list
-  categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]
+  loading.value = true
+  try {
+    const [list, cats] = await Promise.all([
+      fetchKnowledge(),
+      fetchKnowledgeCategories().catch(() => []),
+    ])
+    items.value = list
+    categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 
 <template>
   <n-card>
+    <n-spin :show="loading">
     <div class="knowledge-search">
       <n-input v-model:value="keyword" :placeholder="t('knowledge.searchPh')" @keyup.enter="search" />
       <n-button @click="search">{{ t('common.search') }}</n-button>
@@ -73,6 +87,7 @@ onMounted(async () => {
       </n-collapse-item>
     </n-collapse>
     <n-empty v-else :description="t('knowledge.empty')" />
+    </n-spin>
   </n-card>
 </template>
 

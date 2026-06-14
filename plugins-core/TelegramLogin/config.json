@@ -1,0 +1,37 @@
+{
+    "name": "Telegram Login",
+    "code": "telegram_login",
+    "type": "feature",
+    "version": "1.0.0",
+    "description": "Telegram Login Widget authentication for user site",
+    "author": "XBoard Team",
+    "require": {
+        "xboard": ">=1.0.0"
+    },
+    "config": {
+        "bot_token": {
+            "type": "string",
+            "default": "",
+            "label": "Bot Token",
+            "description": "Telegram Bot API token (same bot used for /bind)"
+        },
+        "bot_username": {
+            "type": "string",
+            "default": "",
+            "label": "Bot Username",
+            "description": "Bot username without @, shown on login widget"
+        },
+        "domain": {
+            "type": "string",
+            "default": "",
+            "label": "Login Domain",
+            "description": "Optional domain registered with BotFather for the login widget"
+        },
+        "auth_timeout": {
+            "type": "number",
+            "default": 300,
+            "label": "Auth Timeout (seconds)",
+            "description": "Maximum age of Telegram auth payload"
+        }
+    }
+}

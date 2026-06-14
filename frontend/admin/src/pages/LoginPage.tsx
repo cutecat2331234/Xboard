@@ -62,7 +62,7 @@ export default function LoginPage() {
       const auth = await login({ email, password })
       if (!auth.is_admin) {
         clearAuthData()
-        setError(t('login.notAdmin'))
+        setError(t('auth.signIn.notAdmin'))
         return
       }
       navigate('/')

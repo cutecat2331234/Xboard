@@ -20,6 +20,7 @@ import { resolveApiError } from '@/lib/api-errors'
 
 const router = useRouter()
 const rows = ref<TicketItem[]>([])
+const loading = ref(false)
 const showCreate = ref(false)
 const subject = ref('')
 const message = ref('')
@@ -50,10 +51,13 @@ function ticketStatusLabel(row: TicketItem) {
 }
 
 async function load() {
+  loading.value = true
   try {
     rows.value = await fetchTickets()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  } finally {
+    loading.value = false
   }
 }
 
@@ -142,7 +146,7 @@ onMounted(load)
     <template #header-extra>
       <n-button type="primary" round size="small" @click="showCreate = true">{{ t('ticket.new') }}</n-button>
     </template>
-    <n-data-table :columns="columns" :data="rows" :scroll-x="800" />
+    <n-data-table :columns="columns" :data="rows" :loading="loading" :scroll-x="800" />
   </n-card>
 
   <n-modal v-model:show="showCreate" preset="card" :title="t('ticket.new')" style="width: 600px">

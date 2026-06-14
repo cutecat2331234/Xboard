@@ -18,6 +18,9 @@ class PaymentController extends Controller
         try {
             $paymentService = new PaymentService($method, null, $uuid);
             $verify = $paymentService->notify($request->input());
+            if (is_string($verify)) {
+                return response($verify);
+            }
             if (!$verify) {
                 HookManager::call('payment.notify.failed', [$method, $uuid, $request]);
                 return $this->fail([422, 'verify error']);

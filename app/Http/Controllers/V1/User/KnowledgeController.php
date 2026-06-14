@@ -76,9 +76,13 @@ class KnowledgeController extends Controller
 
     private function fetchList(Request $request)
     {
-        $builder = $this->buildKnowledgeQuery(['id', 'category', 'title', 'updated_at', 'body'])
-            ->where('language', $request->input('language'))
-            ->orderBy('sort', 'ASC');
+        $builder = $this->buildKnowledgeQuery(['id', 'category', 'title', 'updated_at', 'body']);
+
+        if ($request->filled('language')) {
+            $builder->where('language', $request->input('language'));
+        }
+
+        $builder->orderBy('sort', 'ASC');
 
         $keyword = $request->input('keyword');
         if ($keyword) {
