@@ -279,7 +279,7 @@ export default {
     incomeAmount: "コミッション金額",
     transferAmount: "振替金額（通貨単位）",
     transferAmountRequired: "振替金額を入力してください",
-    transferAmountInvalid: "振替金額は正の整数である必要があります",
+    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
     withdrawSuccess: "出金申請を送信しました。チケットで進捗を確認してください。"
   },
   traffic: {

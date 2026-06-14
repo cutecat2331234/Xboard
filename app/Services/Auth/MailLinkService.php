@@ -82,7 +82,7 @@ class MailLinkService
     public function handleTokenLogin(string $token): ?int
     {
         $key = CacheKey::get('TEMP_TOKEN', $token);
-        $userId = Cache::get($key);
+        $userId = Cache::pull($key);
 
         if (!$userId) {
             return null;
@@ -94,8 +94,6 @@ class MailLinkService
             return null;
         }
 
-        Cache::forget($key);
-
-        return $userId;
+        return (int) $userId;
     }
 }

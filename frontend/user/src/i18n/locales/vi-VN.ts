@@ -280,7 +280,7 @@ export default {
     incomeAmount: "Tiền hoa hồng",
     transferAmount: "Số tiền chuyển (đơn vị tiền tệ)",
     transferAmountRequired: "Vui lòng nhập số tiền chuyển",
-    transferAmountInvalid: "Số tiền chuyển phải là số nguyên dương",
+    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
     withdrawSuccess: "Yêu cầu rút tiền đã được gửi. Vui lòng xem vé hỗ trợ để cập nhật."
   },
   traffic: {

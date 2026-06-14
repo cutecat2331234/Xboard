@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Ticket;
 use App\Services\TicketService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CheckTicket extends Command
@@ -52,6 +53,39 @@ class CheckTicket extends Command
                 $ticket->status = Ticket::STATUS_CLOSED;
                 if (!$ticket->save()) {
                     Log::warning('check:ticket failed to auto-close ticket', ['ticket_id' => $ticket->id]);
+                }
+            });
+
+        $staleDays = max(1, (int) admin_setting('withdraw_ticket_stale_days', 14));
+        Ticket::where('status', 0)
+            ->where('updated_at', '<=', time() - $staleDays * 86400)
+            ->lazyById(200)
+            ->each(function ($ticket) {
+                if (!TicketService::isWithdrawTicket($ticket)) {
+                    return;
+                }
+                try {
+                    DB::transaction(function () use ($ticket) {
+                        $locked = Ticket::where('id', $ticket->id)->lockForUpdate()->first();
+                        if (!$locked || (int) $locked->status !== Ticket::STATUS_OPENING) {
+                            return;
+                        }
+                        if (!TicketService::restoreWithdrawCommission($locked)) {
+                            Log::warning('check:ticket failed to restore withdraw commission', [
+                                'ticket_id' => $locked->id,
+                            ]);
+                            return;
+                        }
+                        $locked->status = Ticket::STATUS_CLOSED;
+                        if (!$locked->save()) {
+                            throw new \RuntimeException('Failed to close stale withdraw ticket');
+                        }
+                    });
+                } catch (\Throwable $e) {
+                    Log::error('check:ticket stale withdraw handling failed', [
+                        'ticket_id' => $ticket->id,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             });
     }

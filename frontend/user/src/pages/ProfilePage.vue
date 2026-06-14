@@ -40,7 +40,7 @@ const confirmPassword = ref('')
 const remindExpire = ref(true)
 const remindTraffic = ref(true)
 const msg = useMessage()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 const { code: currency, load: loadCurrency } = useCurrency()
 const telegramBotError = ref(false)
@@ -143,7 +143,7 @@ async function loadSessions() {
 function formatTime(value: string | null) {
   if (!value) return '-'
   const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString()
+  return Number.isNaN(d.getTime()) ? value : d.toLocaleString(locale.value)
 }
 
 function kickSession(row: ActiveSession) {

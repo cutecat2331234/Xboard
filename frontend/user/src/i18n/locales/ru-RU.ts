@@ -40,7 +40,8 @@ export default {
     ...enUS.invite,
     transferAmount: 'Сумма перевода (в единицах валюты)',
     transferAmountRequired: 'Введите сумму перевода',
-    transferAmountInvalid: 'Сумма должна быть положительным целым числом',
+    transferAmountInvalid: 'Сумма должна быть положительным числом (до 2 знаков после запятой)',
+    commissionTiers: '{l1}%, {l2}%, {l3}%',
   },
   order: {
     ...enUS.order,
@@ -67,6 +68,7 @@ export default {
     pendingReply: 'Ожидает ответа',
     open: 'Открыт',
     closeSuccess: 'Тикет закрыт',
+    closeConfirm: 'Закрыть этот тикет? После закрытия ответы будут недоступны.',
   },
   giftCard: {
     ...enUS.giftCard,

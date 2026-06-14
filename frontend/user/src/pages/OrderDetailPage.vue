@@ -185,10 +185,19 @@ function applyPaymentSelection() {
       selectedMethod.value = locked
       return
     }
+    selectedMethodIndex.value = -1
+    selectedMethod.value = null
+    return
   }
   selectedMethodIndex.value = 0
   selectedMethod.value = methods.value[0]?.id ?? null
 }
+
+const lockedPaymentMissing = computed(() => {
+  const locked = lockedPaymentId.value
+  if (!locked || !methods.value.length) return false
+  return !methods.value.some((m) => m.id === locked)
+})
 
 const isPending = computed(() => Number(order.value?.status) === 0)
 
@@ -409,7 +418,7 @@ async function handleCheckoutResult(res: { type: number; data: string | boolean 
 
   }
 
-  msg.info(String(res.data))
+  msg.warning(t('errors.requestFailed'))
 
   startPoll(order.value.trade_no)
 
@@ -443,6 +452,11 @@ async function pay() {
 
     return
 
+  }
+
+  if (lockedPaymentMissing.value) {
+    msg.error(t('errors.paymentMethodUnavailable'))
+    return
   }
 
   if (selectedMethod.value == null) {
@@ -704,6 +718,11 @@ onUnmounted(stopPoll)
 
         <n-empty v-if="!methods.length" class="pay-empty" :description="t('order.noPaymentMethods')" />
 
+        <n-alert v-else-if="lockedPaymentMissing" type="error" :show-icon="true" class="pay-empty">
+          {{ t('order.paymentLocked') }}
+        </n-alert>
+
+        <template v-else>
         <div
 
           v-for="(m, index) in methods"
@@ -732,6 +751,7 @@ onUnmounted(stopPoll)
         </div>
 
         <StripeCardForm v-if="isStripe" ref="stripeFormRef" :payment-id="selectedMethod" class="pay-stripe" />
+        </template>
 
       </n-card>
 

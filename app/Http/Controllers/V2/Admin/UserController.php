@@ -372,10 +372,26 @@ class UserController extends Controller
         ]);
 
         try {
-            $user->update($params);
+            DB::transaction(function () use ($request, $params) {
+                $user = User::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$user) {
+                    throw new \RuntimeException('user_not_found');
+                }
+                $user->update($params);
+            });
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'user_not_found') {
+                return $this->fail([400202, '用户不存在']);
+            }
+            throw $e;
         } catch (\Exception $e) {
             Log::error($e);
             return $this->fail([500, '保存失败']);
+        }
+
+        $user = User::find($request->input('id'));
+        if (!$user) {
+            return $this->fail([400202, '用户不存在']);
         }
 
         HookManager::call('admin.user.update.after', [
