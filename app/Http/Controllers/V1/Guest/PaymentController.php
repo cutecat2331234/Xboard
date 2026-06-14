@@ -68,6 +68,22 @@ class PaymentController extends Controller
             }
         }
 
+        if ($order->status === Order::STATUS_CANCELLED) {
+            if (!isset($verify['amount']) || !$this->verifyAmount($order, (int) $verify['amount'])) {
+                Log::warning('Payment notify: cancelled order with invalid amount', [
+                    'trade_no' => $tradeNo,
+                    'expected' => $this->expectedAmountCents($order),
+                    'received' => $verify['amount'] ?? null,
+                ]);
+                return false;
+            }
+            Log::warning('Payment notify: reactivating cancelled order', ['trade_no' => $tradeNo]);
+            $order->status = Order::STATUS_PENDING;
+            if (!$order->save()) {
+                return false;
+            }
+        }
+
         if ($order->status !== Order::STATUS_PENDING) {
             return true;
         }

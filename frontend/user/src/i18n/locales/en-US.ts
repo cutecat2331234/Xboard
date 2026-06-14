@@ -304,6 +304,7 @@ export default {
     lastReply: 'Last reply',
     message: 'Message',
     messagePh: 'Describe the issue you encountered',
+    fillRequired: 'Please enter subject and message',
     levelLow: 'Low',
     levelMedium: 'Medium',
     levelHigh: 'High',

@@ -86,8 +86,9 @@ export default function PaymentPage() {
         }
       }
       setForm((f) => ({ ...f, config }))
-    } catch {
+    } catch (e) {
       setDynamicFields([])
+      toast.error(e instanceof Error ? e.message : t('common.error'))
     }
   }
 

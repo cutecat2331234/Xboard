@@ -13,7 +13,14 @@ use App\Services\Plugin\HookManager;
 
 class TicketService
 {
-    public const WITHDRAW_AMOUNT_PATTERN = '/\[withdraw_amount:(\d+)\]/';
+    public const WITHDRAW_AMOUNT_PATTERN = '/^\[withdraw_amount:(\d+)\]/';
+
+    public const WITHDRAW_SUBJECT_PREFIX = '[withdraw_ticket]';
+
+    public static function withdrawSubject(): string
+    {
+        return self::WITHDRAW_SUBJECT_PREFIX . ' ' . __('Commission withdrawal request');
+    }
 
     public static function buildWithdrawMessage(int $amountCents, string $method, string $account): string
     {
@@ -31,11 +38,30 @@ class TicketService
         if ($message === null || $message === '') {
             return null;
         }
-        if (preg_match(self::WITHDRAW_AMOUNT_PATTERN, $message, $matches)) {
+        if (preg_match('/\[withdraw_amount:(\d+)\]/', $message, $matches)) {
             return (int) $matches[1];
         }
 
         return null;
+    }
+
+    public static function isOfficialWithdrawTicket(Ticket $ticket, ?string $firstMessage = null): bool
+    {
+        if ((int) $ticket->level !== 2) {
+            return false;
+        }
+
+        if (!str_starts_with((string) $ticket->subject, self::WITHDRAW_SUBJECT_PREFIX)) {
+            return false;
+        }
+
+        if ($firstMessage === null) {
+            $firstMessage = TicketMessage::where('ticket_id', $ticket->id)
+                ->orderBy('id')
+                ->value('message');
+        }
+
+        return is_string($firstMessage) && preg_match(self::WITHDRAW_AMOUNT_PATTERN, trim($firstMessage)) === 1;
     }
 
     /**
@@ -43,25 +69,44 @@ class TicketService
      */
     public static function restoreWithdrawCommission(Ticket $ticket): bool
     {
-        if ((int) $ticket->level !== 2) {
-            return false;
-        }
+        return (bool) DB::transaction(function () use ($ticket) {
+            $ticket = Ticket::where('id', $ticket->id)->lockForUpdate()->first();
+            if (!$ticket || (int) $ticket->status !== Ticket::STATUS_OPENING) {
+                return false;
+            }
 
-        $firstMessage = TicketMessage::where('ticket_id', $ticket->id)
-            ->orderBy('id')
-            ->value('message');
-        $amountCents = self::parseWithdrawAmountCents($firstMessage);
-        if ($amountCents === null || $amountCents <= 0) {
-            return false;
-        }
+            $cacheKey = 'ticket_withdraw_restored:' . $ticket->id;
+            if (Cache::get($cacheKey)) {
+                return false;
+            }
 
-        $user = User::where('id', $ticket->user_id)->lockForUpdate()->first();
-        if (!$user) {
-            return false;
-        }
+            $firstMessage = TicketMessage::where('ticket_id', $ticket->id)
+                ->orderBy('id')
+                ->value('message');
 
-        $user->commission_balance = (int) $user->commission_balance + $amountCents;
-        return $user->save();
+            if (!self::isOfficialWithdrawTicket($ticket, $firstMessage)) {
+                return false;
+            }
+
+            $amountCents = self::parseWithdrawAmountCents($firstMessage);
+            if ($amountCents === null || $amountCents <= 0) {
+                return false;
+            }
+
+            $user = User::where('id', $ticket->user_id)->lockForUpdate()->first();
+            if (!$user) {
+                return false;
+            }
+
+            $user->commission_balance = (int) $user->commission_balance + $amountCents;
+            if (!$user->save()) {
+                return false;
+            }
+
+            Cache::forever($cacheKey, 1);
+
+            return true;
+        });
     }
 
     public function reply($ticket, $message, $userId)
@@ -105,16 +150,16 @@ class TicketService
 
     public function createTicket($userId, $subject, $level, $message)
     {
+        if ((int) $level === 2) {
+            throw new ApiException('请使用提现接口发起提现工单');
+        }
+
         try {
             DB::beginTransaction();
             User::where('id', $userId)->lockForUpdate()->first();
 
             $openTicketQuery = Ticket::where('status', 0)->where('user_id', $userId);
-            if ((int) $level === 2) {
-                $openTicketQuery->where('level', 2);
-            } else {
-                $openTicketQuery->where('level', '!=', 2);
-            }
+            $openTicketQuery->where('level', '!=', 2);
 
             if ($openTicketQuery->lockForUpdate()->first()) {
                 DB::rollBack();
@@ -124,6 +169,53 @@ class TicketService
                 'user_id' => $userId,
                 'subject' => $subject,
                 'level' => $level,
+                'reply_status' => Ticket::REPLY_STATUS_WAITING,
+                'last_reply_user_id' => $userId,
+            ]);
+            if (!$ticket) {
+                throw new ApiException('工单创建失败');
+            }
+            $ticketMessage = TicketMessage::create([
+                'user_id' => $userId,
+                'ticket_id' => $ticket->id,
+                'message' => $message
+            ]);
+            if (!$ticketMessage) {
+                DB::rollBack();
+                throw new ApiException('工单消息创建失败');
+            }
+            DB::commit();
+            return $ticket;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Create an official commission-withdraw ticket (level 2).
+     */
+    public function createWithdrawTicket(int $userId, string $subject, string $message): Ticket
+    {
+        try {
+            DB::beginTransaction();
+            User::where('id', $userId)->lockForUpdate()->first();
+
+            if (
+                Ticket::where('status', 0)
+                    ->where('user_id', $userId)
+                    ->where('level', 2)
+                    ->lockForUpdate()
+                    ->exists()
+            ) {
+                DB::rollBack();
+                throw new ApiException('存在未关闭的工单');
+            }
+
+            $ticket = Ticket::create([
+                'user_id' => $userId,
+                'subject' => $subject,
+                'level' => 2,
                 'reply_status' => Ticket::REPLY_STATUS_WAITING,
                 'last_reply_user_id' => $userId,
             ]);

@@ -199,6 +199,9 @@ class UserController extends Controller
 
     public function transfer(UserTransfer $request)
     {
+        if ((int) admin_setting('withdraw_close_enable', 0)) {
+            return $this->fail([400, 'Unsupported withdraw']);
+        }
         $amount = $request->input('transfer_amount');
         try {
             DB::transaction(function () use ($request, $amount) {

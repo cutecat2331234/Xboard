@@ -169,7 +169,7 @@ const handlingPreview = computed(() => {
 
   const m = selectedPayment.value
 
-  const base = periodPlanPrice.value ?? order.value?.total_amount ?? 0
+  const base = order.value?.total_amount ?? 0
 
   if (!m) return 0
 
@@ -198,7 +198,7 @@ const orderHandlingDisplay = computed(() => {
 
 
 
-const checkoutBase = computed(() => periodPlanPrice.value ?? order.value?.total_amount ?? 0)
+const checkoutBase = computed(() => order.value?.total_amount ?? 0)
 
 
 
@@ -206,17 +206,9 @@ const payTotal = computed(() => {
 
   const base = checkoutBase.value
 
-  const surplus = order.value?.surplus_amount ?? 0
-
-  const discount = order.value?.discount_amount ?? 0
-
-  const refund = order.value?.surplus_credit ?? 0
-
-  const balance = order.value?.balance_amount ?? 0
-
   const handling = order.value?.handling_amount ?? handlingPreview.value
 
-  return Math.max(0, base - surplus - discount - refund - balance + (handling || 0))
+  return Math.max(0, base + (handling || 0))
 
 })
 
@@ -326,6 +318,10 @@ function stopPoll() {
   }
 
 }
+
+watch(qrOpen, (open) => {
+  if (!open) stopPoll()
+})
 
 
 

@@ -242,6 +242,7 @@ function formatDateTime(value?: string | number | null) {
 }
 
 const GB_FILTER_FIELDS = new Set(['transfer_enable', 'total_used'])
+const MONEY_FILTER_FIELDS = new Set(['balance', 'commission_balance'])
 
 function filterValueForApi(cond: FilterCondition): string | number {
   const raw = cond.value.trim()
@@ -252,6 +253,11 @@ function filterValueForApi(cond: FilterCondition): string | number {
     const gb = parseFloat(raw)
     if (!Number.isNaN(gb)) {
       numeric = String(Math.round(gb * 1024 * 1024 * 1024))
+    }
+  } else if (MONEY_FILTER_FIELDS.has(cond.field)) {
+    const yuan = parseFloat(raw)
+    if (!Number.isNaN(yuan)) {
+      numeric = String(Math.round(yuan * 100))
     }
   }
   return `${cond.operator}:${numeric}`
