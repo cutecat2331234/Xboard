@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Setting as SettingModel;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Contracts\Cache\Repository;
 
 class Setting
@@ -108,31 +109,48 @@ class Setting
 
         try {
             $settings = $this->cache->rememberForever(self::CACHE_KEY, function (): array {
-                return array_change_key_case(
-                    SettingModel::pluck('value', 'name')->toArray(),
-                    CASE_LOWER
-                );
+                return $this->loadFromDatabase();
             });
             
-            // 处理JSON格式的值
-            foreach ($settings as $key => $value) {
-                if (is_string($value)) {
-                    $decoded = json_decode($value, true);
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        $settings[$key] = $decoded;
-                    }
-                }
-            }
-            
-            $this->loadedSettings = $settings;
+            $this->loadedSettings = $this->normalizeSettings($settings);
         } catch (\Throwable $e) {
             if (!app()->environment('testing')) {
-                \Illuminate\Support\Facades\Log::error('Failed to load admin settings cache', [
+                Log::error('Failed to load admin settings cache, falling back to database', [
                     'error' => $e->getMessage(),
                 ]);
             }
-            $this->loadedSettings = [];
+            $this->loadedSettings = $this->normalizeSettings($this->loadFromDatabase());
         }
+    }
+
+    private function loadFromDatabase(): array
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable((new SettingModel())->getTable())) {
+                return [];
+            }
+
+            return array_change_key_case(
+                SettingModel::pluck('value', 'name')->toArray(),
+                CASE_LOWER
+            );
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    private function normalizeSettings(array $settings): array
+    {
+        foreach ($settings as $key => $value) {
+            if (is_string($value)) {
+                $decoded = json_decode($value, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $settings[$key] = $decoded;
+                }
+            }
+        }
+
+        return $settings;
     }
 
     /**
@@ -140,7 +158,11 @@ class Setting
      */
     private function flush(): void
     {
-        $this->cache->forget(self::CACHE_KEY);
+        try {
+            $this->cache->forget(self::CACHE_KEY);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to flush admin settings cache', ['error' => $e->getMessage()]);
+        }
         $this->loadedSettings = null;
     }
 }

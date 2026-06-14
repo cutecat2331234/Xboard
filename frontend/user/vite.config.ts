@@ -16,7 +16,7 @@ export default defineConfig({
       input: path.resolve(__dirname, 'src/main.ts'),
       output: {
         entryFileNames: 'umi.js',
-        inlineDynamicImports: true,
+        codeSplitting: false,
         assetFileNames: (info) =>
           info.name?.endsWith('.css') ? 'umi.css' : 'assets/[name]-[hash][extname]',
       },

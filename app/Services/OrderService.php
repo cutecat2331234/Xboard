@@ -279,7 +279,11 @@ class OrderService
             $trafficRatio = $totalTraffic > 0 ? $remainTraffic / $totalTraffic : 0;
 
             $ratio = $cycleRatio;
-            if (admin_setting('change_order_event_id', 0) == 1) {
+            $useTrafficRatio = (int) admin_setting(
+                'surplus_traffic_ratio_enable',
+                admin_setting('change_order_event_id', 0),
+            ) === 1;
+            if ($useTrafficRatio) {
                 $ratio = min($cycleRatio, $trafficRatio);
             }
 
@@ -291,23 +295,31 @@ class OrderService
 
     public function paid(string $callbackNo)
     {
-        $order = $this->order;
-        if ($order->status !== Order::STATUS_PENDING)
+        return DB::transaction(function () use ($callbackNo) {
+            $order = Order::where('id', $this->order->id)->lockForUpdate()->first();
+            if (!$order) {
+                return false;
+            }
+            $this->order = $order;
+            if ($order->status !== Order::STATUS_PENDING) {
+                return true;
+            }
+            $order->status = Order::STATUS_PROCESSING;
+            $order->paid_at = time();
+            $order->callback_no = $callbackNo;
+            if (!$order->save()) {
+                return false;
+            }
+            try {
+                OrderHandleJob::dispatchSync($order->trade_no);
+            } catch (\Exception $e) {
+                Log::error($e);
+                $order->status = Order::STATUS_PENDING;
+                $order->save();
+                return false;
+            }
             return true;
-        $order->status = Order::STATUS_PROCESSING;
-        $order->paid_at = time();
-        $order->callback_no = $callbackNo;
-        if (!$order->save())
-            return false;
-        try {
-            OrderHandleJob::dispatchSync($order->trade_no);
-        } catch (\Exception $e) {
-            Log::error($e);
-            $order->status = Order::STATUS_PENDING;
-            $order->save();
-            return false;
-        }
-        return true;
+        });
     }
 
     public function cancel(): bool
@@ -403,7 +415,7 @@ class OrderService
 
     protected function applyCoupon(string $couponCode): void
     {
-        $couponService = new CouponService($couponCode);
+        $couponService = CouponService::lockByCode($couponCode);
         if (!$couponService->use($this->order)) {
             throw new ApiException(__('Coupon failed'));
         }
