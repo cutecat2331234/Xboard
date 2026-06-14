@@ -151,12 +151,10 @@ class TicketController extends Controller
                 if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
                     throw new \RuntimeException('Already closed');
                 }
-                if (TicketService::isOfficialWithdrawTicket($ticket)) {
+                if (TicketService::isWithdrawTicket($ticket)) {
                     if (!$request->boolean('withdraw_paid')) {
                         TicketService::restoreWithdrawCommission($ticket);
                     }
-                } elseif ((int) $ticket->level === 2 && $request->boolean('withdraw_rejected')) {
-                    TicketService::restoreWithdrawCommission($ticket);
                 }
                 $ticket->status = Ticket::STATUS_CLOSED;
                 $ticket->save();

@@ -46,6 +46,27 @@ class TicketService
         return null;
     }
 
+    public static function isLegacyWithdrawTicket(Ticket $ticket): bool
+    {
+        if ((int) $ticket->level !== 2) {
+            return false;
+        }
+        if (str_starts_with((string) $ticket->subject, self::WITHDRAW_SUBJECT_PREFIX)) {
+            return false;
+        }
+        $subject = (string) $ticket->subject;
+
+        return str_contains($subject, 'Commission Withdrawal Request')
+            || str_contains($subject, 'Commission withdrawal')
+            || str_contains($subject, '佣金提现');
+    }
+
+    public static function isWithdrawTicket(Ticket $ticket, ?string $firstMessage = null): bool
+    {
+        return self::isOfficialWithdrawTicket($ticket, $firstMessage)
+            || self::isLegacyWithdrawTicket($ticket);
+    }
+
     public static function isOfficialWithdrawTicket(Ticket $ticket, ?string $firstMessage = null): bool
     {
         if ((int) $ticket->level !== 2) {
@@ -94,7 +115,7 @@ class TicketService
                 ->orderBy('id')
                 ->value('message');
 
-            if (!self::isOfficialWithdrawTicket($ticket, $firstMessage)) {
+            if (!self::isWithdrawTicket($ticket, $firstMessage)) {
                 return false;
             }
 

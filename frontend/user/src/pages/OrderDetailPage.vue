@@ -182,6 +182,10 @@ const handlingPreview = computed(() => {
 
 const isPending = computed(() => Number(order.value?.status) === 0)
 
+const canCancel = computed(
+  () => isPending.value && (order.value?.payment_id == null || order.value?.payment_id === 0),
+)
+
 
 
 /** Paid orders store handling on the order; pending uses live payment-method preview. */
@@ -573,7 +577,7 @@ onUnmounted(stopPoll)
 
       <n-card class="order-info-card mt-5 rounded-md" :title="t('order.orderInfo')">
 
-        <template v-if="isPending" #header-extra>
+        <template v-if="canCancel" #header-extra>
 
           <n-button color="#db4619" size="small" round strong @click="confirmClose">
 

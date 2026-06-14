@@ -8,6 +8,7 @@ import {
 } from '@stripe/stripe-js'
 import { fetchStripePublicKey } from '@/api/comm'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const props = defineProps<{
   paymentId: number | null
@@ -60,14 +61,14 @@ async function mount() {
     ready.value = true
   } catch (e: unknown) {
     ready.value = false
-    mountError.value = e instanceof Error ? e.message : t('order.stripeLoadFailed')
+    mountError.value = resolveApiError(e, t, t('order.stripeLoadFailed'))
   }
 }
 
 async function createToken(): Promise<string | undefined> {
   if (!stripe || !card) return undefined
   const { token, error } = await stripe.createToken(card)
-  if (error) throw new Error(error.message || t('order.stripeTokenFailed'))
+  if (error) throw new Error(resolveApiError(new Error(error.message || ''), t, t('order.stripeTokenFailed')))
   return token?.id
 }
 

@@ -222,8 +222,8 @@ class ConfigController extends Controller
             $l1 = (int) ($data['commission_distribution_l1'] ?? admin_setting('commission_distribution_l1', 0));
             $l2 = (int) ($data['commission_distribution_l2'] ?? admin_setting('commission_distribution_l2', 0));
             $l3 = (int) ($data['commission_distribution_l3'] ?? admin_setting('commission_distribution_l3', 0));
-            if ($l1 + $l2 + $l3 > 100) {
-                return $this->fail([422, '三级分销比例合计不能超过100%']);
+            if ($l1 + $l2 + $l3 !== 100) {
+                return $this->fail([422, '三级分销比例合计必须等于100%']);
             }
         }
 

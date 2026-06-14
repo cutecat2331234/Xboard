@@ -131,6 +131,14 @@ class PaymentController extends Controller
 
     private function reactivateCancelledOrder(Order $order, string $callbackNo): bool
     {
+        if ((int) $order->type === Order::TYPE_NEW_PURCHASE) {
+            $plan = Plan::find($order->plan_id);
+            if ($plan && !(new PlanService($plan))->hasCapacity($plan)) {
+                $this->creditOrphanPayment($order, $callbackNo, 'cancelled order reactivation blocked by sold out plan');
+                return true;
+            }
+        }
+
         if ($order->balance_amount) {
             $userService = new UserService();
             if (!$userService->addBalance($order->user_id, -((int) $order->balance_amount))) {
@@ -145,17 +153,6 @@ class PaymentController extends Controller
             Coupon::where('id', $order->coupon_id)
                 ->whereNotNull('limit_use')
                 ->decrement('limit_use');
-        }
-
-        if ((int) $order->type === Order::TYPE_NEW_PURCHASE) {
-            $plan = Plan::find($order->plan_id);
-            if ($plan && !(new PlanService($plan))->hasCapacity($plan)) {
-                Log::error('Payment notify: cannot reactivate cancelled order, plan sold out', [
-                    'trade_no' => $order->trade_no,
-                    'plan_id' => $order->plan_id,
-                ]);
-                return false;
-            }
         }
 
         Log::info('Payment notify: reactivating cancelled order after verified payment', [
@@ -179,6 +176,37 @@ class PaymentController extends Controller
         }
 
         return true;
+    }
+
+    private function creditOrphanPayment(Order $order, string $callbackNo, string $reason): void
+    {
+        $creditCents = (int) $order->total_amount + (int) ($order->handling_amount ?? 0);
+        if ($creditCents <= 0) {
+            Log::warning('Payment notify: orphan payment with nothing to credit', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+                'reason' => $reason,
+            ]);
+            return;
+        }
+
+        $userService = new UserService();
+        if (!$userService->addBalance($order->user_id, $creditCents)) {
+            Log::error('Payment notify: failed to credit orphan payment to balance', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+                'credit_cents' => $creditCents,
+                'reason' => $reason,
+            ]);
+            return;
+        }
+
+        Log::warning('Payment notify: credited orphan payment to user balance', [
+            'trade_no' => $order->trade_no,
+            'callback_no' => $callbackNo,
+            'credit_cents' => $creditCents,
+            'reason' => $reason,
+        ]);
     }
 
     private function expectedAmountCents(Order $order): int

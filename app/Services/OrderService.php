@@ -352,13 +352,72 @@ class OrderService
             }
             try {
                 OrderHandleJob::dispatchSync($order->trade_no);
+                $order->refresh();
+                if ((int) $order->status === Order::STATUS_PROCESSING) {
+                    $this->failOpenAndRefund('Order remained in processing after open job');
+                    return false;
+                }
             } catch (\Exception $e) {
                 Log::error($e);
-                // Keep PROCESSING so cron/UserService can retry open(); payment metadata stays intact.
+                $this->failOpenAndRefund($e->getMessage());
                 return false;
             }
             return true;
         });
+    }
+
+    /**
+     * Refund balance / gateway payment and cancel when subscription open fails after payment.
+     */
+    public function failOpenAndRefund(string $reason = ''): bool
+    {
+        try {
+            return DB::transaction(function () use ($reason) {
+                $order = Order::where('id', $this->order->id)->lockForUpdate()->first();
+                if (!$order || (int) $order->status !== Order::STATUS_PROCESSING) {
+                    return false;
+                }
+                $this->order = $order;
+
+                $refundCents = (int) $order->balance_amount;
+                if ($order->paid_at) {
+                    $refundCents += (int) $order->total_amount + (int) ($order->handling_amount ?? 0);
+                }
+
+                if ($refundCents > 0) {
+                    $userService = new UserService();
+                    if (!$userService->addBalance($order->user_id, $refundCents)) {
+                        throw new \RuntimeException('Failed to refund balance after open failure.');
+                    }
+                }
+
+                if ($order->coupon_id) {
+                    Coupon::where('id', $order->coupon_id)
+                        ->whereNotNull('limit_use')
+                        ->increment('limit_use');
+                }
+
+                $order->status = Order::STATUS_CANCELLED;
+                if (!$order->save()) {
+                    throw new \RuntimeException('Failed to cancel order after open failure.');
+                }
+
+                Log::error('Order open failed; refunded and cancelled', [
+                    'trade_no' => $order->trade_no,
+                    'refund_cents' => $refundCents,
+                    'reason' => $reason,
+                ]);
+
+                HookManager::call('order.cancel.after', $order);
+                return true;
+            });
+        } catch (\Exception $e) {
+            Log::error('failOpenAndRefund failed', [
+                'order_id' => $this->order->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     public function cancel(): bool

@@ -400,6 +400,7 @@ function submit() {
           <TelegramLoginWidget
             v-if="showTelegram && config?.telegram_bot_username && !mailLinkMode && !isForget"
             :bot-username="config.telegram_bot_username"
+            :auth-url="config.telegram_login_domain || undefined"
           />
         </form>
 

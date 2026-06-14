@@ -2422,6 +2422,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "status": "Статус",
       "updated_at": "Обновлен",
       "created_at": "Создан",
+      "reply_status": "Статус ответа",
       "actions": "Действия"
     },
     "status": {
@@ -2433,24 +2434,38 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "level": {
       "low": "Низкий",
       "medium": "Средний",
-      "high": "Высокий"
+      "high": "Высокий",
+      "withdraw": "Вывод"
     },
     "filter": {
       "placeholder": "Поиск {field}...",
       "no_results": "Результатов не найдено",
       "selected": "Выбрано: {count}",
-      "clear": "Очистить фильтры"
+      "clear": "Очистить фильтры",
+      "reply_status_all": "Все статусы ответа"
     },
     "actions": {
       "view_details": "Детали",
+      "reply": "Ответить",
+      "close": "Закрыть тикет",
+      "close_reject_withdraw": "Отклонить вывод и закрыть",
+      "approve_withdraw": "Одобрить вывод и закрыть",
       "close_ticket": "Закрыть тикет",
       "close_confirm_title": "Подтверждение закрытия",
       "close_confirm_description": "Вы уверены, что хотите закрыть этот тикет? Он переместится в список закрытых, но отвечать в нем все равно можно.",
       "close_confirm_button": "Закрыть тикет",
       "close_success": "Тикет успешно закрыт",
-      "view_ticket": "Посмотреть тикет"
+      "view_ticket": "Посмотреть тикет",
+      "approve_withdraw_confirm_title": "Одобрить вывод?",
+      "approve_withdraw_confirm_description": "Тикет будет закрыт, вывод отмечен как выплаченный. Комиссия не будет восстановлена.",
+      "reject_withdraw_confirm_title": "Отклонить вывод?",
+      "reject_withdraw_confirm_description": "Тикет будет закрыт, удержанная комиссия будет возвращена пользователю."
+    },
+    "reply": {
+      "label": "Ответ"
     },
     "detail": {
+      "title": "Детали тикета",
       "no_messages": "Сообщений нет",
       "created_at": "Создан",
       "sender_admin": "Админ",
@@ -3202,6 +3217,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "title": "Ограничения",
           "max_use_per_user": {
             "label": "Макс. использований на пользователя",
+            "placeholder": "Оставьте пустым для безлимита"
+          },
+          "max_total_uses": {
+            "label": "Общий лимит активаций",
             "placeholder": "Оставьте пустым для безлимита"
           },
           "cooldown_hours": {

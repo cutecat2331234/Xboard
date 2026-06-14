@@ -59,7 +59,15 @@ class OrderHandleJob implements ShouldQueue
                     }
                     break;
                 case Order::STATUS_PROCESSING:
-                    $orderService->open();
+                    try {
+                        $orderService->open();
+                    } catch (\Throwable $e) {
+                        Log::error('Order open failed in OrderHandleJob', [
+                            'trade_no' => $order->trade_no,
+                            'error' => $e->getMessage(),
+                        ]);
+                        $orderService->failOpenAndRefund($e->getMessage());
+                    }
                     break;
             }
         });

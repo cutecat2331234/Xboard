@@ -78,8 +78,8 @@ class StatisticalService
             ->where('created_at', '<', $endAt)
             ->whereNotNull('invite_user_id')
             ->count();
-        $data['transfer_used_total'] = StatServer::where('created_at', '>=', $startAt)
-            ->where('created_at', '<', $endAt)
+        $data['transfer_used_total'] = StatServer::where('record_at', '>=', $startAt)
+            ->where('record_at', '<', $endAt)
             ->select(DB::raw('SUM(u) + SUM(d) as total'))
             ->value('total') ?? 0;
         return $data;
