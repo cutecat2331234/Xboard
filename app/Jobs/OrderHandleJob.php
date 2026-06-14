@@ -47,7 +47,7 @@ class OrderHandleJob implements ShouldQueue
             $orderService = new OrderService($order);
             switch ($order->status) {
                 case Order::STATUS_PENDING:
-                    if ($order->created_at <= (time() - 3600 * 2)) {
+                    if ($order->created_at <= (time() - 3600 * 2) && !$order->payment_id) {
                         $orderService->cancel();
                     }
                     break;

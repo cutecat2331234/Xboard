@@ -14,6 +14,7 @@ use App\Jobs\NodeUserSyncJob;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
 use App\Traits\QueryOperators;
+use App\Traits\SafeQueryColumns;
 use App\Utils\Helper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -26,6 +27,22 @@ use Illuminate\Support\Facades\Log;
 class UserController extends Controller
 {
     use QueryOperators;
+    use SafeQueryColumns;
+
+    private const FILTER_COLUMNS = [
+        'email', 'id', 'plan_id', 'transfer_enable', 'total_used', 'online_count',
+        'expired_at', 'uuid', 'token', 'banned', 'remark', 'inviter_email',
+        'invite_user_id', 'is_admin', 'is_staff', 'group_ids', 'group_id', 'u', 'd',
+        'balance', 'commission_balance', 'created_at',
+    ];
+
+    private const SORT_COLUMNS = [
+        'id', 'email', 'is_admin', 'is_staff', 'online_count', 'banned', 'plan_id',
+        'group_id', 'total_used', 'transfer_enable', 'balance', 'expired_at',
+        'commission_balance', 'created_at', 'next_reset_at', 'u', 'd',
+    ];
+
+    private const SORT_ALIASES = ['group' => 'group_id'];
 
     public function resetSecret(Request $request)
     {
@@ -61,7 +78,10 @@ class UserController extends Controller
         }
 
         collect($request->input('filter'))->each(function ($filter) use ($builder) {
-            $field = $filter['id'];
+            $field = $this->resolveFilterField((string) ($filter['id'] ?? ''), self::FILTER_COLUMNS, self::SORT_ALIASES);
+            if (!$field) {
+                return;
+            }
             $value = $filter['value'];
             $logic = strtolower($filter['logic'] ?? 'and');
 
@@ -80,6 +100,19 @@ class UserController extends Controller
     // Build one filter query condition.
     private function buildFilterQuery(Builder|QueryBuilder $query, string $field, mixed $value): void
     {
+        if ($field === 'inviter_email') {
+            if (!method_exists($query, 'whereHas')) {
+                return;
+            }
+            $email = is_string($value) && str_contains($value, ':')
+                ? explode(':', $value, 2)[1]
+                : (string) $value;
+            $query->whereHas('invite_user', function ($q) use ($email) {
+                $q->where('email', 'like', '%' . str_replace(['%', '_'], ['\\%', '\\_'], $email) . '%');
+            });
+            return;
+        }
+
         // 处理关联查询
         if (str_contains($field, '.')) {
             if (!method_exists($query, 'whereHas')) {
@@ -137,7 +170,10 @@ class UserController extends Controller
         }
 
         collect($request->input('sort'))->each(function ($sort) use ($builder) {
-            $field = $sort['id'];
+            $field = $this->resolveSortField((string) ($sort['id'] ?? ''), self::SORT_COLUMNS, self::SORT_ALIASES);
+            if (!$field) {
+                return;
+            }
             $direction = $sort['desc'] ? 'DESC' : 'ASC';
             $builder->orderBy($field, $direction);
         });
@@ -599,7 +635,7 @@ class UserController extends Controller
         }
 
         $sortType = in_array($request->input('sort_type'), ['ASC', 'DESC']) ? $request->input('sort_type') : 'DESC';
-        $sort = $request->input('sort') ? $request->input('sort') : 'created_at';
+        $sort = $this->resolveSortField((string) $request->input('sort', 'created_at'), self::SORT_COLUMNS, self::SORT_ALIASES) ?? 'created_at';
 
         $builder = User::query()
             ->with('plan:id,name')
@@ -669,7 +705,7 @@ class UserController extends Controller
         }
 
         $sortType = in_array($request->input('sort_type'), ['ASC', 'DESC']) ? $request->input('sort_type') : 'DESC';
-        $sort = $request->input('sort') ? $request->input('sort') : 'created_at';
+        $sort = $this->resolveSortField((string) $request->input('sort', 'created_at'), self::SORT_COLUMNS, self::SORT_ALIASES) ?? 'created_at';
 
         $builder = User::query()->orderBy('id', 'desc');
 
@@ -693,7 +729,6 @@ class UserController extends Controller
             Log::error($e);
             return $this->fail([500, '处理失败']);
         }
-        // Full refresh not implemented.
         return $this->success(true);
     }
 

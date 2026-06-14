@@ -10,14 +10,25 @@ use App\Models\Coupon;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Traits\SafeQueryColumns;
 
 class CouponController extends Controller
 {
+    use SafeQueryColumns;
+
+    private const QUERY_COLUMNS = [
+        'id', 'code', 'name', 'type', 'value', 'show', 'started_at', 'ended_at',
+        'created_at', 'updated_at', 'limit_use', 'limit_plan_ids', 'limit_period',
+    ];
+
     private function applyFiltersAndSorts(Request $request, $builder)
     {
         if ($request->has('filter')) {
             collect($request->input('filter'))->each(function ($filter) use ($builder) {
-                $key = $filter['id'];
+                $key = $this->resolveFilterField((string) ($filter['id'] ?? ''), self::QUERY_COLUMNS);
+                if (!$key) {
+                    return;
+                }
                 $value = $filter['value'];
                 $builder->where(function ($query) use ($key, $value) {
                     if (is_array($value)) {
@@ -31,7 +42,10 @@ class CouponController extends Controller
 
         if ($request->has('sort')) {
             collect($request->input('sort'))->each(function ($sort) use ($builder) {
-                $key = $sort['id'];
+                $key = $this->resolveSortField((string) ($sort['id'] ?? ''), self::QUERY_COLUMNS);
+                if (!$key) {
+                    return;
+                }
                 $value = $sort['desc'] ? 'DESC' : 'ASC';
                 $builder->orderBy($key, $value);
             });
@@ -66,6 +80,7 @@ class CouponController extends Controller
             }
             $coupon->update($params);
             DB::commit();
+            return $this->success(true);
         } catch (\Exception $e) {
             \Log::error($e);
             return $this->fail([500, '保存失败']);

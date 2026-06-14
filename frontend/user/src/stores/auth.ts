@@ -81,8 +81,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function logout() {
-    apiLogout()
+  async function logout() {
+    await apiLogout()
     invalidateSessionCache()
     user.value = null
     isAuthenticated.value = false

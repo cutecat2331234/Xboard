@@ -23,6 +23,22 @@ export function clearAuthData(): void {
   localStorage.removeItem(AUTH_STORAGE_KEY)
 }
 
+export async function logoutAdmin(): Promise<void> {
+  const auth = getAuthData()
+  try {
+    await fetch('/api/v1/user/logout', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        ...(auth ? { Authorization: auth } : {}),
+      },
+    })
+  } catch {
+    // always clear local session
+  }
+  clearAuthData()
+}
+
 function parseApiError(result: ApiResponse<unknown>): void {
   if (result.status === 'fail') {
     throw new Error(result.message || 'Request failed')

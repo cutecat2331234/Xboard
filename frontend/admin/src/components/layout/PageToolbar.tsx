@@ -2,7 +2,8 @@ import { Package } from 'lucide-react'
 import { IconMoon, IconSun } from '@tabler/icons-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { clearAuthData } from '@/lib/api'
+import { logoutAdmin } from '@/lib/api'
+import { invalidateAdminSessionCache } from '@/lib/session-cache'
 import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
 import { titleForPath, titleKeyForPath } from '@/lib/page-title'
 import { pluginTitleForPath } from '@/lib/plugin-menus'
@@ -36,8 +37,10 @@ export function PageToolbar() {
   const pluginTitle = titleForPath(pathname) ? pluginTitleForPath(pathname, plugins) : null
 
   function logout() {
-    clearAuthData()
-    navigate('/sign-in')
+    void logoutAdmin().finally(() => {
+      invalidateAdminSessionCache()
+      navigate('/sign-in')
+    })
   }
 
   return (

@@ -16,10 +16,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
+use App\Traits\SafeQueryColumns;
 
 class OrderController extends Controller
 {
+    use SafeQueryColumns;
 
+    private const QUERY_COLUMNS = [
+        'id', 'trade_no', 'user_id', 'plan_id', 'period', 'type', 'status',
+        'total_amount', 'commission_status', 'commission_balance', 'payment_id',
+        'invite_user_id', 'created_at', 'updated_at', 'paid_at', 'callback_no',
+    ];
     public function detail(Request $request)
     {
         $order = Order::with(['user', 'plan', 'commission_log', 'invite_user'])->find($request->input('id'));
@@ -76,7 +83,10 @@ class OrderController extends Controller
         }
 
         collect($request->input('filter'))->each(function ($filter) use ($builder) {
-            $field = $filter['id'];
+            $field = $this->resolveFilterField((string) ($filter['id'] ?? ''), self::QUERY_COLUMNS);
+            if (!$field) {
+                return;
+            }
             $value = $filter['value'];
 
             $builder->where(function ($query) use ($field, $value) {
@@ -134,7 +144,10 @@ class OrderController extends Controller
         }
 
         collect($request->input('sort'))->each(function ($sort) use ($builder) {
-            $field = $sort['id'];
+            $field = $this->resolveSortField((string) ($sort['id'] ?? ''), self::QUERY_COLUMNS);
+            if (!$field) {
+                return;
+            }
             $direction = $sort['desc'] ? 'DESC' : 'ASC';
             $builder->orderBy($field, $direction);
         });
