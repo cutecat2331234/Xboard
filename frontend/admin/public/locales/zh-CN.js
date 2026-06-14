@@ -209,6 +209,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "toggleNavigation": "切换导航",
     "toggleSidebar": "切换侧边栏",
     "search": "搜索...",
+    "units": {
+      "b": "B",
+      "kb": "KB",
+      "mb": "MB",
+      "gb": "GB"
+    },
     "select": "请选择",
     "theme": {
       "light": "浅色",

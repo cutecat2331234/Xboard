@@ -246,7 +246,10 @@ export default function ConfigPage() {
   }
 
   async function onBlurSave(e: React.FocusEvent<HTMLDivElement>) {
-    const related = e.relatedTarget as Node | null
+    const related = e.relatedTarget as HTMLElement | null
+    if (related?.closest('[data-radix-popper-content-wrapper], [data-radix-select-content], [role="listbox"]')) {
+      return
+    }
     if (related && e.currentTarget.contains(related)) return
     await persistSection()
   }

@@ -18,6 +18,7 @@ use App\Services\UserService;
 use App\Utils\CacheKey;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -257,6 +258,11 @@ class UserController extends Controller
     public function getQuickLoginUrl(Request $request)
     {
         $user = $request->user();
+        $rateKey = 'quick-login:' . $user->id . ':' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($rateKey, 60);
 
         $url = $this->loginService->generateQuickLoginUrl($user, $request->input('redirect'));
         return $this->success($url);

@@ -106,7 +106,7 @@ class RegisterService
                 return [false, [422, __('Email verification code cannot be empty')]];
             }
 
-            $cachedEmailCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE', $request->input('email')));
+            $cachedEmailCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE_REGISTER', $request->input('email')));
             if ($cachedEmailCode === null || !hash_equals((string) $cachedEmailCode, (string) $emailCode)) {
                 return [false, [400, __('Incorrect email verification code')]];
             }
@@ -150,6 +150,12 @@ class RegisterService
         if (!(int) admin_setting('invite_never_expire', 0)) {
             $inviteCodeModel->status = InviteCode::STATUS_USED;
             $inviteCodeModel->save();
+        } else {
+            $maxUses = (int) admin_setting('invite_code_max_uses', 0);
+            if ($maxUses > 0 && (int) $inviteCodeModel->use_count >= $maxUses) {
+                throw new ApiException(__('Invalid invitation code'));
+            }
+            $inviteCodeModel->increment('use_count');
         }
 
         return $inviteCodeModel->user_id;
@@ -202,7 +208,7 @@ class RegisterService
                 HookManager::call('user.register.after', $user);
 
                 if ((int) admin_setting('email_verify', 0)) {
-                    Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE', $email));
+                    Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE_REGISTER', $email));
                 }
 
                 $user->last_login_at = time();

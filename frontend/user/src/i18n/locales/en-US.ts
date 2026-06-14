@@ -323,6 +323,8 @@ export default {
     detailTitle: 'Order details',
     selectPayment: 'Select payment method',
     paymentLocked: 'This order is locked to the selected payment method. Cancel the order to choose another.',
+    redirectPaymentHint: 'Complete payment in the new browser tab. This page will update automatically when paid.',
+    redirectPopupBlocked: 'Popup blocked. Please allow popups for this site and try again.',
     paymentMethod: 'Payment method',
     noPaymentMethods: 'No payment methods are available. Please contact support or try again later.',
     totalTitle: 'Order total',

@@ -103,6 +103,8 @@ class ConfigController extends Controller
                 'invite_commission' => admin_setting('invite_commission', 10),
                 'invite_gen_limit' => admin_setting('invite_gen_limit', 5),
                 'invite_never_expire' => (bool) admin_setting('invite_never_expire', 0),
+                'invite_code_max_uses' => (int) admin_setting('invite_code_max_uses', 0),
+                'withdraw_ticket_stale_days' => (int) admin_setting('withdraw_ticket_stale_days', 14),
                 'commission_first_time_enable' => (bool) admin_setting('commission_first_time_enable', 1),
                 'commission_auto_check_enable' => (bool) admin_setting('commission_auto_check_enable', 1),
                 'commission_withdraw_limit' => admin_setting('commission_withdraw_limit', 100),

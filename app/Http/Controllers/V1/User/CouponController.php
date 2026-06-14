@@ -8,6 +8,7 @@ use App\Http\Resources\CouponResource;
 use App\Services\CouponService;
 use App\Support\AppFeature;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class CouponController extends Controller
 {
@@ -19,6 +20,11 @@ class CouponController extends Controller
         if (empty($request->input('code'))) {
             return $this->fail([422, __('Coupon cannot be empty')]);
         }
+        $rateKey = 'coupon-check:' . $request->user()->id . ':' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 30)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($rateKey, 60);
         $request->validate([
             'plan_id' => 'required|integer|min:1',
             'period' => 'required|string',
@@ -27,7 +33,11 @@ class CouponController extends Controller
         $couponService->setPlanId($request->input('plan_id'));
         $couponService->setUserId($request->user()->id);
         $couponService->setPeriod($request->input('period'));
-        $couponService->check();
+        try {
+            $couponService->check();
+        } catch (ApiException $e) {
+            return $this->fail([400, __('Invalid coupon')]);
+        }
         return $this->success(CouponResource::make($couponService->getCoupon()));
     }
 }

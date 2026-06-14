@@ -129,7 +129,7 @@ async function doRedeem() {
   redeeming.value = true
   try {
     const res = await redeemGiftCard(code)
-    msg.success(res.message || t('giftCard.redeemSuccess'))
+    msg.success(t('giftCard.redeemSuccess'))
     redeemOpen.value = false
     redeemCode.value = ''
     checkResult.value = null

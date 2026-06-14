@@ -11,6 +11,7 @@ use App\Services\GiftCardService;
 use App\Support\AppFeature;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class GiftCardController extends Controller
 {
@@ -22,6 +23,16 @@ class GiftCardController extends Controller
         return null;
     }
 
+    private function throttleGiftCard(Request $request, string $action): ?\Illuminate\Http\JsonResponse
+    {
+        $key = sprintf('gift-card:%s:%d:%s', $action, $request->user()->id, $request->ip());
+        if (RateLimiter::tooManyAttempts($key, 20)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($key, 60);
+        return null;
+    }
+
     /**
      * 查询兑换码信息
      */
@@ -29,6 +40,9 @@ class GiftCardController extends Controller
     {
         if ($denied = $this->ensureEnabled()) {
             return $denied;
+        }
+        if ($limited = $this->throttleGiftCard($request, 'check')) {
+            return $limited;
         }
         try {
             $giftCardService = new GiftCardService($request->input('code'));
@@ -52,15 +66,14 @@ class GiftCardController extends Controller
             ]);
 
         } catch (ApiException $e) {
-            // 这里只捕获 validateIsActive 抛出的异常
-            return $this->fail([400, $e->getMessage()]);
+            return $this->fail([400, __('Gift card is not available')]);
         } catch (\Exception $e) {
             Log::error('礼品卡查询失败', [
                 'code' => $request->input('code'),
                 'user_id' => $request->user()->id,
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '查询失败，请稍后重试']);
+            return $this->fail([500, __('Query failed, please try again later')]);
         }
     }
 
@@ -71,6 +84,9 @@ class GiftCardController extends Controller
     {
         if ($denied = $this->ensureEnabled()) {
             return $denied;
+        }
+        if ($limited = $this->throttleGiftCard($request, 'redeem')) {
+            return $limited;
         }
         try {
             $giftCardService = new GiftCardService($request->input('code'));
@@ -90,14 +106,13 @@ class GiftCardController extends Controller
             ]);
 
             return $this->success([
-                'message' => '兑换成功！',
                 'rewards' => $result['rewards'],
                 'invite_rewards' => $result['invite_rewards'],
                 'template_name' => $result['template_name'],
             ]);
 
         } catch (ApiException $e) {
-            return $this->fail([400, $e->getMessage()]);
+            return $this->fail([400, __('Gift card is not available')]);
         } catch (\Exception $e) {
             Log::error('礼品卡使用失败', [
                 'code' => $request->input('code'),
@@ -105,7 +120,7 @@ class GiftCardController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return $this->fail([500, '兑换失败，请稍后重试']);
+            return $this->fail([500, __('Redemption failed, please try again later')]);
         }
     }
 
@@ -173,7 +188,7 @@ class GiftCardController extends Controller
             ->first();
 
         if (!$usage) {
-            return $this->fail([404, '记录不存在']);
+            return $this->fail([404, __('Record not found')]);
         }
 
         return $this->success([

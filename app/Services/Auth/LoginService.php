@@ -98,7 +98,7 @@ class LoginService
         }
 
         // 验证邮箱验证码
-        $cachedEmailCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE', $email));
+        $cachedEmailCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE_FORGET', $email));
         if ($cachedEmailCode === null || !hash_equals((string) $cachedEmailCode, $emailCode)) {
             Cache::put($forgetRequestLimitKey, $forgetRequestLimit ? $forgetRequestLimit + 1 : 1, 300);
             return [false, [400, __('Incorrect email verification code')]];
@@ -124,7 +124,7 @@ class LoginService
         HookManager::call('user.password.reset.after', $user);
 
         // 清除邮箱验证码
-        Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE', $email));
+        Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE_FORGET', $email));
 
         return [true, true];
     }

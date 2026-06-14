@@ -73,6 +73,9 @@ class TicketController extends Controller
         if (empty($request->input('message'))) {
             return $this->fail([400, __('Message cannot be empty')]);
         }
+        $request->validate([
+            'message' => 'required|string|max:5000',
+        ]);
         $ticket = Ticket::where('id', $request->input('id'))
             ->where('user_id', $request->user()->id)
             ->first();

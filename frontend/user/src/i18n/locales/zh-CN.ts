@@ -322,6 +322,8 @@ export default {
     detailTitle: '订单详情',
     selectPayment: '请选择支付方式',
     paymentLocked: '该订单已锁定支付方式，如需更换请先取消订单',
+    redirectPaymentHint: '请在新打开的标签页中完成支付，支付成功后本页将自动更新。',
+    redirectPopupBlocked: '浏览器拦截了弹窗，请允许本站弹窗后重试。',
     paymentMethod: '支付方式',
     noPaymentMethods: '暂无可用支付方式，请联系管理员或稍后再试',
     totalTitle: '订单总额',
