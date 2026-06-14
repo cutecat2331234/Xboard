@@ -13,6 +13,7 @@ import { resolveTrafficWarnRate } from '@/api/comm'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
 import { resolvePopupNoticeTags } from '@/utils/settings'
 import DOMPurify from 'dompurify'
 
@@ -30,6 +31,7 @@ const notices = ref<NoticeItem[]>([])
 const popupNotice = ref<NoticeItem | null>(null)
 const unpaidOrders = ref(0)
 const openTickets = ref(0)
+const ticketsEnabled = computed(() => featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null))
 
 const promoNotices = computed(() => notices.value.filter((n) => n.img_url))
 const popupNoticeTags = computed(() =>
@@ -113,13 +115,16 @@ onMounted(async () => {
   try {
     const stat = await fetchUserStat()
     unpaidOrders.value = stat[0] ?? 0
-    openTickets.value = stat[1] ?? 0
+    if (ticketsEnabled.value) {
+      openTickets.value = stat[1] ?? 0
+    }
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
 })
 
-const shortcuts = [
+const shortcuts = computed(() => {
+  const items = [
   {
     icon: renderCarbonIcon(
       'M12 21.5c-1.35-.85-3.8-1.5-5.5-1.5c-1.65 0-3.35.3-4.75 1.05c-.1.05-.15.05-.25.05c-.25 0-.5-.25-.5-.5V6c.6-.45 1.25-.75 2-1c1.11-.35 2.33-.5 3.5-.5c1.95 0 4.05.4 5.5 1.5c1.45-1.1 3.55-1.5 5.5-1.5c1.17 0 2.39.15 3.5.5c.75.25 1.4.55 2 1v14.6c0 .25-.25.5-.5.5c-.1 0-.15 0-.25-.05c-1.4-.75-3.1-1.05-4.75-1.05c-1.7 0-4.15.65-5.5 1.5M12 8v11.5c1.35-.85 3.8-1.5 5.5-1.5c1.2 0 2.4.15 3.5.5V7c-1.1-.35-2.3-.5-3.5-.5c-1.7 0-4.15.65-5.5 1.5m1 3.5c1.11-.68 2.6-1 4.5-1c.91 0 1.76.09 2.5.28V9.23c-.87-.15-1.71-.23-2.5-.23q-2.655 0-4.5.84zm4.5.17c-1.71 0-3.21.26-4.5.79v1.69c1.11-.65 2.6-.99 4.5-.99c1.04 0 1.88.08 2.5.24v-1.5c-.87-.16-1.71-.23-2.5-.23m2.5 2.9c-.87-.16-1.71-.24-2.5-.24c-1.83 0-3.33.27-4.5.8v1.69c1.11-.66 2.6-.99 4.5-.99c1.04 0 1.88.08 2.5.24z',
@@ -150,17 +155,21 @@ const shortcuts = [
     descKey: 'dashboard.purchaseDesc',
     to: '/plan',
   },
-  {
-    icon: renderCarbonIcon(
-      'M20 2H4c-.53 0-1.04.21-1.41.59C2.21 2.96 2 3.47 2 4v12c0 .53.21 1.04.59 1.41c.37.38.88.59 1.41.59h4l4 4l4-4h4c.53 0 1.04-.21 1.41-.59S22 16.53 22 16V4c0-.53-.21-1.04-.59-1.41C21.04 2.21 20.53 2 20 2M4 16V4h16v12h-4.83L12 19.17L8.83 16m1.22-9.96c.54-.36 1.25-.54 2.14-.54c.94 0 1.69.21 2.23.62q.81.63.81 1.68c0 .44-.15.83-.44 1.2c-.29.36-.67.64-1.13.85c-.26.15-.43.3-.52.47c-.09.18-.14.4-.14.68h-2c0-.5.1-.84.29-1.08c.21-.24.55-.52 1.07-.84c.26-.14.47-.32.64-.54c.14-.21.22-.46.22-.74c0-.3-.09-.52-.27-.69c-.18-.18-.45-.26-.76-.26c-.27 0-.49.07-.69.21c-.16.14-.26.35-.26.63H9.27c-.05-.69.23-1.29.78-1.65M11 14v-2h2v2Z',
-      '0 0 24 24',
-      'inline',
-    ),
-    titleKey: 'dashboard.problem',
-    descKey: 'dashboard.problemDesc',
-    to: '/ticket',
-  },
-]
+  ]
+  if (ticketsEnabled.value) {
+    items.push({
+      icon: renderCarbonIcon(
+        'M20 2H4c-.53 0-1.04.21-1.41.59C2.21 2.96 2 3.47 2 4v12c0 .53.21 1.04.59 1.41c.37.38.88.59 1.41.59h4l4 4l4-4h4c.53 0 1.04-.21 1.41-.59S22 16.53 22 16V4c0-.53-.21-1.04-.59-1.41C21.04 2.21 20.53 2 20 2M4 16V4h16v12h-4.83L12 19.17L8.83 16m1.22-9.96c.54-.36 1.25-.54 2.14-.54c.94 0 1.69.21 2.23.62q.81.63.81 1.68c0 .44-.15.83-.44 1.2c-.29.36-.67.64-1.13.85c-.26.15-.43.3-.52.47c-.09.18-.14.4-.14.68h-2c0-.5.1-.84.29-1.08c.21-.24.55-.52 1.07-.84c.26-.14.47-.32.64-.54c.14-.21.22-.46.22-.74c0-.3-.09-.52-.27-.69c-.18-.18-.45-.26-.76-.26c-.27 0-.49.07-.69.21c-.16.14-.26.35-.26.63H9.27c-.05-.69.23-1.29.78-1.65M11 14v-2h2v2Z',
+        '0 0 24 24',
+        'inline',
+      ),
+      titleKey: 'dashboard.problem',
+      descKey: 'dashboard.problemDesc',
+      to: '/ticket',
+    })
+  }
+  return items
+})
 
 function onShortcut(item: { to?: string; action?: () => void }) {
   if (item.action) item.action()
@@ -172,7 +181,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
   <div class="mb-1 md:mb-10">
   <div class="dash-alerts">
     <n-alert
-      v-if="openTickets > 0"
+      v-if="ticketsEnabled && openTickets > 0"
       type="warning"
       :show-icon="false"
       bordered

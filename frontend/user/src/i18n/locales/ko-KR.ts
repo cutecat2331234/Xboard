@@ -182,7 +182,7 @@ export default {
     paymentInProgress: '이 주문은 결제 처리 중입니다. 취소할 수 없습니다.',
     ticketWaitForReply: '직원의 답변을 기다려 주세요.',
     withdrawUnsupported: 'Withdrawals are not supported',
-    insufficientCommission: 'Insufficient commission balance',
+    insufficientCommission: '커미션 잔액이 부족합니다',
     pendingWithdrawTicket: 'You already have a pending withdrawal request',
     withdrawMinimum: 'Minimum withdrawal amount is {limit}',
     planChangeDisabled: 'Plan changes are currently disabled. Please contact support or open a ticket.',

@@ -230,7 +230,7 @@ export default function PlanPage() {
     }
     const traffic = Number(form.transfer_enable)
     if (!Number.isFinite(traffic) || traffic < 1) {
-      toast.error(t('subscribe.plan.form.transfer_enable.label') + ': invalid')
+      toast.error(t('subscribe.plan.form.transfer.invalid'))
       return
     }
     setSaving(true)

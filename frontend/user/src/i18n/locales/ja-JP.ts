@@ -182,7 +182,7 @@ export default {
     paymentInProgress: 'この注文は支払い処理中です。キャンセルできません。',
     ticketWaitForReply: 'スタッフの返信をお待ちください。',
     withdrawUnsupported: 'Withdrawals are not supported',
-    insufficientCommission: 'Insufficient commission balance',
+    insufficientCommission: 'コミッション残高が不足しています',
     pendingWithdrawTicket: 'You already have a pending withdrawal request',
     withdrawMinimum: 'Minimum withdrawal amount is {limit}',
     planChangeDisabled: 'Plan changes are currently disabled. Please contact support or open a ticket.',

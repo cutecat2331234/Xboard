@@ -82,6 +82,8 @@ class InviteController extends Controller
                 $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));
             }
             $validCommission = (int) CommissionLog::where('invite_user_id', $user->id)
+                ->where('get_amount', '>', 0)
+                ->where('trade_no', 'not like', 'transfer:%')
                 ->sum('get_amount');
             $commissionBalance = (int) $user->commission_balance;
         }

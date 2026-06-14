@@ -18,7 +18,7 @@ class CheckCommission extends Command
 
     private function orderAmount(Order $order): int
     {
-        return (int) $order->total_amount + (int) ($order->balance_amount ?? 0);
+        return (int) $order->total_amount + (int) ($order->balance_amount ?? 0) + (int) ($order->surplus_amount ?? 0);
     }
 
     public function handle()

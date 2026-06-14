@@ -26,6 +26,7 @@ import { forgetPassword, loginWithMailLink, token2Login } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
 import { resolveAssetUrl } from '@/lib/asset-url'
 import { storeInviteCode } from '@/api/pv'
 
@@ -105,7 +106,7 @@ const showCaptcha = computed(() => Boolean(config.value?.is_captcha) && !isRegis
 const showTerms = computed(() => Boolean(config.value?.tos_url))
 const showEmailVerify = computed(() => Boolean(config.value?.is_email_verify))
 const inviteRequired = computed(() => Boolean(config.value?.is_invite_force))
-const inviteVisible = computed(() => config.value?.invite_enable !== 0)
+const inviteVisible = computed(() => featureEnabled(config.value?.invite_enable, config.value != null))
 
 const pageTitle = computed(() => {
   if (isForget.value) return t('forgotPassword')

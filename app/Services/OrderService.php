@@ -251,6 +251,10 @@ class OrderService
         if (!$user->invite_user_id) {
             return;
         }
+        $inviter = User::find($user->invite_user_id);
+        if (!$inviter) {
+            return;
+        }
         $order->invite_user_id = $user->invite_user_id;
 
         $commissionBase = (int) $order->total_amount
@@ -259,9 +263,6 @@ class OrderService
         if ($commissionBase <= 0) {
             return;
         }
-        $inviter = User::find($user->invite_user_id);
-        if (!$inviter)
-            return;
         $commissionType = (int) $inviter->commission_type;
         if ($commissionType === User::COMMISSION_TYPE_SYSTEM) {
             $commissionType = (bool) admin_setting('commission_first_time_enable', true) ? User::COMMISSION_TYPE_ONETIME : User::COMMISSION_TYPE_PERIOD;

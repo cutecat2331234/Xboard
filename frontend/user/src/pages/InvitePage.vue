@@ -31,6 +31,7 @@ import { useCurrency } from '@/composables/useCurrency'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
 
 const INVITE_PAGE_SIZE = 10
 
@@ -77,6 +78,7 @@ const withdrawAccount = ref('')
 const pageLoading = ref(true)
 
 const available = computed(() => (stat.value[4] ?? 0) / 100)
+const showCommissionFinance = computed(() => !commConfig.value?.withdraw_close)
 
 const showCodesPagination = computed(() => codes.value.length > INVITE_PAGE_SIZE)
 
@@ -239,7 +241,11 @@ async function doWithdraw() {
     msg.success(t('invite.withdrawSuccess'))
     withdrawOpen.value = false
     withdrawAccount.value = ''
-    router.push('/ticket')
+    if (featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null)) {
+      router.push('/ticket')
+    } else {
+      await load()
+    }
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
   }
@@ -311,7 +317,7 @@ onMounted(async () => {
 
 <template>
   <n-spin :show="pageLoading">
-  <n-card :title="t('invite.title')" class="invite-balance-card rounded-md">
+  <n-card v-if="showCommissionFinance" :title="t('invite.title')" class="invite-balance-card rounded-md">
     <template #header-extra>
       <svg class="inline-block text-4xl text-gray-500" viewBox="0 0 24 24" width="1em" height="1em">
         <path
@@ -343,7 +349,7 @@ onMounted(async () => {
     </n-space>
   </n-card>
 
-  <n-card class="mt-4 rounded-md" :bordered="true">
+  <n-card v-if="showCommissionFinance" class="mt-4 rounded-md" :bordered="true">
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.registered') }}</div>
       <div>{{ t('invite.peopleCount', { number: stat[0] ?? 0 }) }}</div>
@@ -379,7 +385,7 @@ onMounted(async () => {
     />
   </n-card>
 
-  <n-card :title="t('invite.incomeRecord')" class="mt-4 rounded-md">
+  <n-card :title="t('invite.incomeRecord')" v-if="showCommissionFinance" class="mt-4 rounded-md">
     <n-data-table
       class="invite-data-table"
       :columns="detailColumns"
