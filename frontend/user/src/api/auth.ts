@@ -59,6 +59,11 @@ export async function telegramLogin(payload: Record<string, unknown>) {
   return data
 }
 
-export function logout() {
+export async function logout() {
+  try {
+    await request<boolean>(api.post('/user/logout'))
+  } catch {
+    // ignore network errors; always clear local session
+  }
   localStorage.removeItem('xboard_auth_data')
 }

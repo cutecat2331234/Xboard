@@ -7,14 +7,25 @@ use App\Models\Ticket;
 use App\Services\TicketService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use App\Traits\SafeQueryColumns;
 
 class TicketController extends Controller
 {
+    use SafeQueryColumns;
+
+    private const QUERY_COLUMNS = [
+        'id', 'user_id', 'subject', 'level', 'status', 'reply_status',
+        'created_at', 'updated_at',
+    ];
+
     private function applyFiltersAndSorts(Request $request, $builder)
     {
         if ($request->has('filter')) {
             collect($request->input('filter'))->each(function ($filter) use ($builder) {
-                $key = $filter['id'];
+                $key = $this->resolveFilterField((string) ($filter['id'] ?? ''), self::QUERY_COLUMNS);
+                if (!$key) {
+                    return;
+                }
                 $value = $filter['value'];
                 $builder->where(function ($query) use ($key, $value) {
                     if (is_array($value)) {
@@ -28,7 +39,10 @@ class TicketController extends Controller
 
         if ($request->has('sort')) {
             collect($request->input('sort'))->each(function ($sort) use ($builder) {
-                $key = $sort['id'];
+                $key = $this->resolveSortField((string) ($sort['id'] ?? ''), self::QUERY_COLUMNS);
+                if (!$key) {
+                    return;
+                }
                 $value = $sort['desc'] ? 'DESC' : 'ASC';
                 $builder->orderBy($key, $value);
             });

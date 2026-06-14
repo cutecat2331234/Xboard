@@ -207,8 +207,8 @@ function logout() {
     content: t('common.logoutConfirm'),
     positiveText: t('common.confirm'),
     negativeText: t('common.cancel'),
-    onPositiveClick: () => {
-      auth.logout()
+    onPositiveClick: async () => {
+      await auth.logout()
       router.push('/login')
     },
   })

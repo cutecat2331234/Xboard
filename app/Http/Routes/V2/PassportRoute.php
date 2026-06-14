@@ -19,6 +19,7 @@ class PassportRoute
             $router->post('/auth/forget', [AuthController::class, 'forget']);
             $router->post('/auth/getQuickLoginUrl', [AuthController::class, 'getQuickLoginUrl']);
             $router->post('/auth/loginWithMailLink', [AuthController::class, 'loginWithMailLink']);
+            $router->post('/auth/telegramLogin', [AuthController::class, 'telegramLogin']);
             // Comm
             $router->post('/comm/sendEmailVerify', [CommController::class, 'sendEmailVerify']);
             $router->post('/comm/pv', [CommController::class, 'pv']);

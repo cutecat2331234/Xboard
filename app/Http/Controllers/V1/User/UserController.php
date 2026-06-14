@@ -44,6 +44,14 @@ class UserController extends Controller
         return $this->success($authService->removeSession($request->input('session_id')));
     }
 
+    public function logout(Request $request)
+    {
+        $user = $request->user();
+        $authService = new AuthService($user);
+        $authService->revokeCurrentToken($request->header('authorization'));
+        return $this->success(true);
+    }
+
     public function checkLogin(Request $request)
     {
         $data = [

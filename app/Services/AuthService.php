@@ -52,6 +52,21 @@ class AuthService
         return true;
     }
 
+    public function revokeCurrentToken(?string $authorization): bool
+    {
+        if (!$authorization) {
+            return false;
+        }
+
+        $token = str_replace('Bearer ', '', trim($authorization));
+        $accessToken = PersonalAccessToken::findToken($token);
+        if (!$accessToken || (int) $accessToken->tokenable_id !== (int) $this->user->id) {
+            return false;
+        }
+
+        return (bool) $accessToken->delete();
+    }
+
     public static function findUserByBearerToken(string $bearerToken): ?User
     {
         $token = str_replace('Bearer ', '', $bearerToken);
