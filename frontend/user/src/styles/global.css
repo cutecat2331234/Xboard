@@ -65,7 +65,9 @@ html.dark {
 * { box-sizing: border-box; }
 html, body, #app {
   margin: 0;
+  height: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: 'Encode Sans Condensed', sans-serif;
   font-size: 16px;
   line-height: 1.6;
@@ -73,6 +75,13 @@ html, body, #app {
   background: var(--xb-page-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.cus-scroll-y {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .shell-main { flex: 1; background: var(--xb-page-bg); }
