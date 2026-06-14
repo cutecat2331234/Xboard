@@ -690,6 +690,32 @@ class UserController extends Controller
         return $this->success(true);
     }
 
+    public function setInviteUser(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:App\Models\User,id',
+            'invite_user_id' => 'nullable|integer|exists:App\Models\User,id',
+        ], [
+            'id.required' => '用户ID不能为空',
+            'id.exists' => '用户不存在',
+            'invite_user_id.exists' => '邀请人不存在',
+        ]);
+
+        $user = User::find($request->input('id'));
+        $inviteUserId = $request->input('invite_user_id');
+
+        if ($inviteUserId && (int) $inviteUserId === (int) $user->id) {
+            return $this->fail([400, '不能将自己设为邀请人']);
+        }
+
+        $user->invite_user_id = $inviteUserId ?: null;
+        if (!$user->save()) {
+            return $this->fail([500, '保存失败']);
+        }
+
+        return $this->success(true);
+    }
+
     // Delete user and related data.
     public function destroy(Request $request)
     {

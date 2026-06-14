@@ -172,4 +172,16 @@ class AuthController extends Controller
 
         return $this->success(true);
     }
+
+    /**
+     * Telegram Login Widget (requires TelegramLogin plugin).
+     */
+    public function telegramLogin(Request $request)
+    {
+        if (!class_exists(\Plugin\TelegramLogin\Controllers\AuthController::class)) {
+            return $this->fail([400, __('Telegram login is not available')]);
+        }
+
+        return app(\Plugin\TelegramLogin\Controllers\AuthController::class)->telegramLogin($request);
+    }
 }

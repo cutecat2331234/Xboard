@@ -102,8 +102,16 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         $invoiceDetail = file_get_contents($this->getConfig('btcpay_url') . 'api/v1/stores/' . $this->getConfig('btcpay_storeId') . '/invoices/' . $json_param['invoiceId'], false, $context);
         $invoiceDetail = json_decode($invoiceDetail, true);
 
-        $out_trade_no = $invoiceDetail['metadata']["orderId"];
-        $pay_trade_no = $json_param['invoiceId'];
+        $status = $invoiceDetail['status'] ?? '';
+        if (!in_array($status, ['Settled', 'Processing', 'Paid'], true)) {
+            return 'pending';
+        }
+
+        $out_trade_no = $invoiceDetail['metadata']["orderId"] ?? null;
+        $pay_trade_no = $json_param['invoiceId'] ?? null;
+        if (!$out_trade_no || !$pay_trade_no) {
+            throw new ApiException('Invalid BTCPay webhook payload', 400);
+        }
         
         return [
             'trade_no' => $out_trade_no,

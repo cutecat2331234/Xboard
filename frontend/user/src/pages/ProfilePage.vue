@@ -21,7 +21,7 @@ import {
   updateUser,
   type ActiveSession,
 } from '@/api/profile'
-import { fetchTelegramBotInfo } from '@/api/telegram'
+import { fetchTelegramBotInfo, unbindTelegram } from '@/api/telegram'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
 
@@ -87,6 +87,24 @@ async function saveNotify() {
   } catch {
     /* ignore */
   }
+}
+
+async function unbindTg() {
+  dialog.warning({
+    title: t('profile.telegramUnbind'),
+    content: t('profile.telegramUnbindConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        await unbindTelegram()
+        await auth.loadUser()
+        msg.success(t('common.success'))
+      } catch (e: unknown) {
+        msg.error(e instanceof Error ? e.message : t('common.error'))
+      }
+    },
+  })
 }
 
 async function loadSessions() {
@@ -220,6 +238,16 @@ onMounted(async () => {
 
   <n-card v-if="commConfig?.is_telegram" :title="t('profile.telegram')" class="mt-5 rounded-md">
     <p v-if="auth.user?.telegram_id" class="text-gray-500">{{ t('profile.telegramBound') }}</p>
+    <n-button
+      v-if="auth.user?.telegram_id"
+      type="error"
+      tertiary
+      size="small"
+      class="mt-2"
+      @click="unbindTg"
+    >
+      {{ t('profile.telegramUnbind') }}
+    </n-button>
     <template v-else-if="botUsername">
       <p class="text-gray-500">{{ t('profile.telegramHint') }}</p>
       <a :href="`https://t.me/${botUsername}`" target="_blank" rel="noopener" class="tg-link">@{{ botUsername }}</a>

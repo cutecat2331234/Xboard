@@ -343,22 +343,27 @@ class OrderService
         $order = $this->order;
         HookManager::call('order.cancel.before', $order);
         try {
-            DB::beginTransaction();
-            $order->status = Order::STATUS_CANCELLED;
-            if (!$order->save()) {
-                throw new \Exception('Failed to save order status.');
-            }
-            if ($order->balance_amount) {
-                $userService = new UserService();
-                if (!$userService->addBalance($order->user_id, $order->balance_amount)) {
-                    throw new \Exception('Failed to add balance.');
+            return DB::transaction(function () use ($order) {
+                $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->first();
+                if (!$lockedOrder || $lockedOrder->status !== Order::STATUS_PENDING) {
+                    return $lockedOrder && $lockedOrder->status === Order::STATUS_CANCELLED;
                 }
-            }
-            DB::commit();
-            HookManager::call('order.cancel.after', $order);
-            return true;
+
+                $lockedOrder->status = Order::STATUS_CANCELLED;
+                if (!$lockedOrder->save()) {
+                    throw new \Exception('Failed to save order status.');
+                }
+                if ($lockedOrder->balance_amount) {
+                    $userService = new UserService();
+                    if (!$userService->addBalance($lockedOrder->user_id, $lockedOrder->balance_amount)) {
+                        throw new \Exception('Failed to add balance.');
+                    }
+                }
+                $this->order = $lockedOrder;
+                HookManager::call('order.cancel.after', $lockedOrder);
+                return true;
+            });
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error($e);
             return false;
         }

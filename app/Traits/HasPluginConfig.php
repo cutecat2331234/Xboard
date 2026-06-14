@@ -44,10 +44,6 @@ trait HasPluginConfig
         if ($this->pluginConfig === null) {
             $pluginCode = $this->getPluginCode();
 
-            \Log::channel('daily')->info('Telegram Login: 获取插件配置', [
-                'plugin_code' => $pluginCode
-            ]);
-
             $this->pluginConfig = Cache::remember(
                 "plugin_config_{$pluginCode}",
                 3600,

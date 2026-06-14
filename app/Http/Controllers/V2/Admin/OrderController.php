@@ -247,6 +247,12 @@ class OrderController extends Controller
             throw $e;
         }
 
+        $orderService = new OrderService($order->fresh());
+        if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
+            $order->delete();
+            return $this->fail([500, '订单开通失败']);
+        }
+
         return $this->success($order->trade_no);
     }
 }

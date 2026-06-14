@@ -90,8 +90,16 @@ class Plugin extends AbstractPlugin implements PaymentInterface
             throw new ApiException('HMAC signature does not match', 400);
         }
 
-        $out_trade_no = $json_param['event']['data']['metadata']['outTradeNo'];
-        $pay_trade_no = $json_param['event']['id'];
+        $eventType = $json_param['event']['type'] ?? '';
+        if (!in_array($eventType, ['charge:confirmed', 'charge:resolved'], true)) {
+            return 'pending';
+        }
+
+        $out_trade_no = $json_param['event']['data']['metadata']['outTradeNo'] ?? null;
+        $pay_trade_no = $json_param['event']['id'] ?? null;
+        if (!$out_trade_no || !$pay_trade_no) {
+            throw new ApiException('Invalid Coinbase webhook payload', 400);
+        }
         
         return [
             'trade_no' => $out_trade_no,

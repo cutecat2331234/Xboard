@@ -505,4 +505,17 @@ class StatController extends Controller
             'data' => $result
         ];
     }
+
+    public function getRanking(Request $request)
+    {
+        $request->validate([
+            'type' => 'nullable|string|in:server_traffic_rank,user_consumption_rank,invite_rank',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $type = $request->input('type', 'server_traffic_rank');
+        $limit = (int) $request->input('limit', 20);
+
+        return $this->success($this->service->getRanking($type, $limit));
+    }
 }
