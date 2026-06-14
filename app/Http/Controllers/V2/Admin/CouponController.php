@@ -81,6 +81,8 @@ class CouponController extends Controller
             $coupon->update($params);
             DB::commit();
             return $this->success(true);
+        } catch (ApiException $e) {
+            return $this->fail([$e->getCode(), $e->getMessage()]);
         } catch (\Exception $e) {
             \Log::error($e);
             return $this->fail([500, '保存失败']);
@@ -121,8 +123,12 @@ class CouponController extends Controller
                 return $this->fail([500, '创建失败']);
             }
         } else {
+            $coupon = Coupon::find($request->input('id'));
+            if (!$coupon) {
+                return $this->fail([400202, '优惠券不存在']);
+            }
             try {
-                Coupon::find($request->input('id'))->update($params);
+                $coupon->update($params);
             } catch (\Exception $e) {
                 \Log::error($e);
                 return $this->fail([500, '保存失败']);

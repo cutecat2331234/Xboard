@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { IconArrowsSort, IconDots, IconExternalLink } from '@tabler/icons-react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
@@ -291,7 +291,8 @@ function StatusDot({ status }: { status?: number }) {
 
 export default function OrderPage() {
   const { t } = useTranslation()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [data, setData] = useState<OrderRow[]>([])
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -334,14 +335,43 @@ export default function OrderPage() {
     }
     if (commissionBalance) {
       setCommissionBalanceFilter(commissionBalance)
+    } else {
+      setCommissionBalanceFilter(null)
     }
     if (userId != null && userId !== '') {
       setUserIdFilter(Number(userId))
+    } else {
+      setUserIdFilter(null)
     }
     if (commissionStatus || status || commissionBalance || userId) {
       setPage(1)
     }
   }, [searchParams])
+
+  const hasHiddenFilters = userIdFilter != null || Boolean(commissionBalanceFilter)
+
+  function clearHiddenFilters() {
+    setUserIdFilter(null)
+    setCommissionBalanceFilter(null)
+    const next = new URLSearchParams(searchParams)
+    next.delete('user_id')
+    next.delete('commission_balance')
+    setSearchParams(next, { replace: true })
+    setPage(1)
+  }
+
+  function clearAllFilters() {
+    setSearch('')
+    setTypeFilter(null)
+    setPeriodFilter(null)
+    setStatusFilter(null)
+    setCommissionFilter(null)
+    setCommissionBalanceFilter(null)
+    setUserIdFilter(null)
+    setStatusSortDesc(null)
+    setPage(1)
+    navigate('/finance/order')
+  }
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
 
@@ -763,6 +793,36 @@ export default function OrderPage() {
                 </FilterOption>
               ))}
             </FilterPopover>
+            {(hasHiddenFilters ||
+              typeFilter != null ||
+              periodFilter ||
+              statusFilter != null ||
+              commissionFilter != null ||
+              search.trim()) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {userIdFilter != null ? (
+                  <button
+                    type="button"
+                    className="inline-flex items-center rounded-md border bg-muted/40 px-2 py-1 text-xs"
+                    onClick={clearHiddenFilters}
+                  >
+                    {t('order.filters.userId', { id: userIdFilter })} ×
+                  </button>
+                ) : null}
+                {commissionBalanceFilter ? (
+                  <button
+                    type="button"
+                    className="inline-flex items-center rounded-md border bg-muted/40 px-2 py-1 text-xs"
+                    onClick={clearHiddenFilters}
+                  >
+                    {t('order.filters.commissionBalance', { value: commissionBalanceFilter })} ×
+                  </button>
+                ) : null}
+                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={clearAllFilters}>
+                  {t('order.filters.clearAll')}
+                </Button>
+              </div>
+            )}
           </div>
           <DataTable
             columns={columns}

@@ -605,6 +605,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "openMenu": "打开菜单",
       "reset": "重置"
     },
+    "filters": {
+      "userId": "用户 ID：{{id}}",
+      "commissionBalance": "佣金余额：{{value}}",
+      "clearAll": "清除全部筛选"
+    },
     "search": {
       "placeholder": "搜索订单..."
     },
@@ -2944,6 +2949,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "token": "Token",
         "banned": "账号状态",
         "remark": "备注",
+        "remarks": "备注",
         "inviter_email": "邀请人邮箱",
         "invite_user_id": "邀请人ID",
         "is_admin": "管理员",

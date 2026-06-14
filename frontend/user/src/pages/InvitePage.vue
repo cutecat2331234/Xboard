@@ -251,7 +251,7 @@ async function doTransfer() {
     return
   }
   if (transferMinLimit.value > 0 && amount < transferMinLimit.value) {
-    msg.error(t('errors.withdrawMinimum', { limit: transferMinLimit.value }))
+    msg.error(t('errors.withdrawMinimum', { limit: formatPriceSpaced(transferMinLimit.value * 100) }))
     return
   }
   try {
@@ -273,6 +273,11 @@ async function doWithdraw() {
   }
   if (!withdrawMethod.value.trim()) {
     msg.error(t('invite.withdrawMethodRequired'))
+    return
+  }
+  const minLimit = transferMinLimit.value
+  if (minLimit > 0 && available.value < minLimit) {
+    msg.error(t('errors.withdrawMinimum', { limit: formatPriceSpaced(minLimit * 100) }))
     return
   }
   try {

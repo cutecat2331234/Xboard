@@ -255,6 +255,8 @@ export default {
     withdrawMethodRequired: "출금 방법을 선택하세요",
     withdrawFullBalanceHint: "사용 가능한 전체 커미션을 출금합니다(수수료 제외)",
     withdrawFeeHint: "출금 수수료: {rate}%",
+    transferMinHint: "최소 이체 금액: {limit}",
+    transferNetHint: "수수료 {fee}, 실제 입금 {net}",
     withdrawLimitHint: "최소 출금액: {limit}",
     peopleCount: "{number}명",
     title: "나의 초청",

@@ -37,8 +37,8 @@ export async function forgetPassword(form: ForgetForm & AuthFormPayload) {
   return request<boolean>(api.post('/passport/auth/forget', form))
 }
 
-export async function loginWithMailLink(email: string) {
-  return request<boolean>(api.post('/passport/auth/loginWithMailLink', { email }))
+export async function loginWithMailLink(email: string, captcha?: CaptchaPayload) {
+  return request<boolean>(api.post('/passport/auth/loginWithMailLink', { email, ...captcha }))
 }
 
 /** token2Login returns bare `{ data: AuthPayload }` without status wrapper */

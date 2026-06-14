@@ -602,6 +602,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "openMenu": "Open Menu",
       "reset": "Reset"
     },
+    "filters": {
+      "userId": "User ID: {{id}}",
+      "commissionBalance": "Commission balance: {{value}}",
+      "clearAll": "Clear all filters"
+    },
     "search": {
       "placeholder": "Search orders..."
     },
@@ -2925,6 +2930,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "token": "Token",
         "banned": "Account Status",
         "remark": "Remark",
+        "remarks": "Remark",
         "inviter_email": "Inviter Email",
         "invite_user_id": "Inviter ID",
         "is_admin": "Admin",

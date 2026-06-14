@@ -66,8 +66,7 @@ function isSoldOut(): boolean {
 }
 
 function isPlanChangeBlocked(): boolean {
-  if (!commReady.value) return true
-  if (commConfig.value == null) return true
+  if (!commReady.value || commConfig.value == null) return false
   if (commConfig.value.plan_change_enable !== 0) return false
   const user = auth.user
   const p = plan.value
@@ -112,6 +111,7 @@ async function applyCoupon() {
 
 watch(period, () => {
   couponDiscount.value = ''
+  couponCode.value = ''
 })
 
 async function ensureNoPendingOrder() {
@@ -146,6 +146,10 @@ async function buy() {
   if (!plan.value) return
   if (isSoldOut()) {
     msg.warning(t('errors.planSoldOut'))
+    return
+  }
+  if (!commReady.value || commConfig.value == null) {
+    msg.warning(t('errors.commConfigFailed'))
     return
   }
   if (isPlanChangeBlocked()) {

@@ -599,6 +599,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "openMenu": "Открыть меню",
       "reset": "Сбросить"
     },
+    "filters": {
+      "userId": "ID пользователя: {{id}}",
+      "commissionBalance": "Баланс комиссии: {{value}}",
+      "clearAll": "Сбросить все фильтры"
+    },
     "search": {
       "placeholder": "Поиск заказов..."
     },
@@ -2896,6 +2901,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "token": "Токен",
         "banned": "Статус аккаунта",
         "remark": "Примечание",
+        "remarks": "Примечание",
         "inviter_email": "Email пригласителя",
         "invite_user_id": "ID пригласителя",
         "is_admin": "Админ",
