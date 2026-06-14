@@ -20,14 +20,12 @@ class InviteChain
 
         $visited = [$userId];
         $current = (int) $inviteUserId;
-        $depth = 0;
-        while ($current && $depth < 20) {
+        while ($current) {
             if (in_array($current, $visited, true)) {
                 throw new \InvalidArgumentException(__('Invite chain cycle detected'));
             }
             $visited[] = $current;
             $current = (int) User::where('id', $current)->value('invite_user_id');
-            $depth++;
         }
     }
 }

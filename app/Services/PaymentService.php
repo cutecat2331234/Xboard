@@ -27,14 +27,14 @@ class PaymentService
         if ($id) {
             $paymentModel = Payment::find($id);
             if (!$paymentModel) {
-                throw new ApiException('payment not found');
+                throw new ApiException(__('Payment method is not available'));
             }
             $payment = $paymentModel->makeVisible('config')->toArray();
         }
         if ($uuid) {
             $paymentModel = Payment::where('uuid', $uuid)->first();
             if (!$paymentModel) {
-                throw new ApiException('payment not found');
+                throw new ApiException(__('Payment method is not available'));
             }
             $payment = $paymentModel->makeVisible('config')->toArray();
         }
@@ -70,7 +70,7 @@ class PaymentService
             throw new ApiException(__('Payment gateway is not configured'));
         }
         if (!$this->config['enable']) {
-            throw new ApiException('gate is not enable');
+            throw new ApiException(__('Payment method is not available'));
         }
         return $this->payment->notify($params);
     }

@@ -69,7 +69,7 @@ class CheckOrder extends Command
             ->orderBy('created_at', 'ASC')
             ->lazyById(200)
             ->each(function ($order) {
-                OrderHandleJob::dispatchSync($order->trade_no);
+                OrderHandleJob::dispatch($order->trade_no);
             });
     }
 }

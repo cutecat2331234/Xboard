@@ -22,6 +22,8 @@ import {
 
   cancelOrder,
 
+  canCancelOrder,
+
   type OrderDetail,
 
   type PaymentMethod,
@@ -183,9 +185,7 @@ const handlingPreview = computed(() => {
 
 const isPending = computed(() => Number(order.value?.status) === 0)
 
-const canCancel = computed(
-  () => isPending.value && (order.value?.payment_id == null || order.value?.payment_id === 0),
-)
+const canCancel = computed(() => (order.value ? canCancelOrder(order.value) : false))
 
 
 

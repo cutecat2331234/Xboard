@@ -31,7 +31,7 @@ class CommController extends Controller
             'plan_change_enable' => (int) admin_setting('plan_change_enable', 1),
             'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
             'commission_withdraw_limit' => admin_setting('commission_withdraw_limit', 100),
-            'invite_enable' => (int) (AppFeature::inviteEnabled() && AppFeature::commissionEnabled()),
+            'invite_enable' => (int) AppFeature::inviteEnabled(),
             'commission_enable' => (int) AppFeature::commissionEnabled(),
             'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
             'coupon_enable' => (int) AppFeature::couponEnabled(),
@@ -46,7 +46,7 @@ class CommController extends Controller
         $payment = Payment::where('id', $request->input('id'))
             ->where('payment', 'StripeCredit')
             ->first();
-        if (!$payment) throw new ApiException('payment is not found');
+        if (!$payment) throw new ApiException(__('Payment method is not available'));
         return $this->success($payment->config['stripe_pk_live']);
     }
 }

@@ -64,6 +64,9 @@ class PaymentController extends Controller
             }
 
             if ($order->status === Order::STATUS_CANCELLED) {
+                if ($order->paid_at) {
+                    return $this->handleTerminalOrderNotify($order, $verify, $callbackNo);
+                }
                 if (!isset($verify['amount']) || !$this->verifyAmount($order, (int) $verify['amount'])) {
                     Log::warning('Payment notify: cancelled order with invalid amount', [
                         'trade_no' => $tradeNo,
@@ -84,12 +87,10 @@ class PaymentController extends Controller
                     if ((int) $order->status === Order::STATUS_PROCESSING) {
                         if (!$orderService->failOpenAndRefund('Order remained in processing after payment notify retry')) {
                             $order->refresh();
-                            if ($order->paid_at) {
-                                Log::warning('Payment notify: open failed after pay, acknowledging gateway for manual recovery', [
-                                    'trade_no' => $tradeNo,
-                                ]);
-                                return true;
-                            }
+                            Log::warning('Payment notify: open failed after pay, refund also failed — gateway will retry', [
+                                'trade_no' => $tradeNo,
+                                'paid_at' => $order->paid_at,
+                            ]);
                             return false;
                         }
                         $order->refresh();
