@@ -68,8 +68,8 @@ class InviteController extends Controller
         if ($user->commission_rate) {
             $commission_rate = $user->commission_rate;
         }
-        $uncheck_commission_balance = (int)Order::where('status', 3)
-            ->where('commission_status', 0)
+        $uncheck_commission_balance = (int) Order::where('status', Order::STATUS_COMPLETED)
+            ->whereIn('commission_status', [0, 1])
             ->where('invite_user_id', $user->id)
             ->sum('commission_balance');
         if (admin_setting('commission_distribution_enable', 0)) {

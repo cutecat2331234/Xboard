@@ -110,7 +110,12 @@ class CheckCommission extends Command
                 }
 
                 if (!$this->payHandle($order->invite_user_id, $order)) {
-                    DB::rollBack();
+                    $order->refresh();
+                    if ((int) $order->commission_status === 1) {
+                        $order->commission_status = Order::COMMISSION_STATUS_INVALID;
+                        $order->save();
+                    }
+                    DB::commit();
                     continue;
                 }
                 $order->commission_status = 2;
@@ -209,8 +214,6 @@ class CheckCommission extends Command
                 'remaining' => $remaining,
                 'expected' => (int) $order->commission_balance,
             ]);
-            $order->commission_status = Order::COMMISSION_STATUS_INVALID;
-            $order->save();
             return false;
         }
 

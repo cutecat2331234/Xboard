@@ -80,6 +80,15 @@ class RegisterService
             return [false, [400, __('Invalid invitation code')]];
         }
 
+        if ($request->filled('invite_code') && AppFeature::inviteEnabled()) {
+            $inviteCodeModel = InviteCode::where('code', $request->input('invite_code'))
+                ->where('status', InviteCode::STATUS_UNUSED)
+                ->first();
+            if (!$inviteCodeModel) {
+                return [false, [400, __('Invalid invitation code')]];
+            }
+        }
+
         if ((int) admin_setting('invite_force', 0)) {
             if (empty($request->input('invite_code'))) {
                 return [false, [422, __('You must use the invitation code to register')]];
@@ -120,26 +129,21 @@ class RegisterService
             throw new ApiException(__('Invalid invitation code'));
         }
 
-        return DB::transaction(function () use ($inviteCode) {
-            $inviteCodeModel = InviteCode::where('code', $inviteCode)
-                ->where('status', InviteCode::STATUS_UNUSED)
-                ->lockForUpdate()
-                ->first();
+        $inviteCodeModel = InviteCode::where('code', $inviteCode)
+            ->where('status', InviteCode::STATUS_UNUSED)
+            ->lockForUpdate()
+            ->first();
 
-            if (!$inviteCodeModel) {
-                if ((int) admin_setting('invite_force', 0)) {
-                    throw new ApiException(__('Invalid invitation code'));
-                }
-                return null;
-            }
+        if (!$inviteCodeModel) {
+            throw new ApiException(__('Invalid invitation code'));
+        }
 
-            if (!(int) admin_setting('invite_never_expire', 0)) {
-                $inviteCodeModel->status = InviteCode::STATUS_USED;
-                $inviteCodeModel->save();
-            }
+        if (!(int) admin_setting('invite_never_expire', 0)) {
+            $inviteCodeModel->status = InviteCode::STATUS_USED;
+            $inviteCodeModel->save();
+        }
 
-            return $inviteCodeModel->user_id;
-        });
+        return $inviteCodeModel->user_id;
     }
 
 
@@ -158,52 +162,54 @@ class RegisterService
             return [false, $error];
         }
 
-        HookManager::call('user.register.before', $request);
-
         $email = $request->input('email');
         $password = $request->input('password');
         $inviteCode = $request->input('invite_code');
 
-        // 处理邀请码获取邀请人ID
-        $inviteUserId = null;
-        if ($inviteCode) {
-            $inviteUserId = $this->handleInviteCode($inviteCode);
-        }
+        try {
+            return DB::transaction(function () use ($request, $email, $password, $inviteCode) {
+                HookManager::call('user.register.before', $request);
 
-        // 创建用户
-        $userService = app(UserService::class);
-        $user = $userService->createUser([
-            'email' => $email,
-            'password' => $password,
-            'invite_user_id' => $inviteUserId,
-        ]);
+                $inviteUserId = null;
+                if ($inviteCode) {
+                    $inviteUserId = $this->handleInviteCode($inviteCode);
+                }
 
-        // 保存用户
-        if (!$user->save()) {
+                $userService = app(UserService::class);
+                $user = $userService->createUser([
+                    'email' => $email,
+                    'password' => $password,
+                    'invite_user_id' => $inviteUserId,
+                ]);
+
+                if (!$user->save()) {
+                    throw new \RuntimeException(__('Register failed'));
+                }
+
+                HookManager::call('user.register.after', $user);
+
+                if ((int) admin_setting('email_verify', 0)) {
+                    Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE', $email));
+                }
+
+                $user->last_login_at = time();
+                $user->save();
+
+                if ((int) admin_setting('register_limit_by_ip_enable', 0)) {
+                    $registerCountByIP = Cache::get(CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip())) ?? 0;
+                    Cache::put(
+                        CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip()),
+                        (int) $registerCountByIP + 1,
+                        (int) admin_setting('register_limit_expire', 60) * 60
+                    );
+                }
+
+                return [true, $user];
+            });
+        } catch (ApiException $e) {
+            return [false, [400, $e->getMessage()]];
+        } catch (\Throwable $e) {
             return [false, [500, __('Register failed')]];
         }
-
-        HookManager::call('user.register.after', $user);
-
-        // 清除邮箱验证码
-        if ((int) admin_setting('email_verify', 0)) {
-            Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE', $email));
-        }
-
-        // 更新最近登录时间
-        $user->last_login_at = time();
-        $user->save();
-
-        // 更新IP注册计数
-        if ((int) admin_setting('register_limit_by_ip_enable', 0)) {
-            $registerCountByIP = Cache::get(CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip())) ?? 0;
-            Cache::put(
-                CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip()),
-                (int) $registerCountByIP + 1,
-                (int) admin_setting('register_limit_expire', 60) * 60
-            );
-        }
-
-        return [true, $user];
     }
 }

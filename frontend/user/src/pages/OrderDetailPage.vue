@@ -304,12 +304,13 @@ function startPoll(tradeNo: string) {
 
         }
 
-        if (status === 1 || status === 3 || status === 4) {
-
+        if (status === 3) {
           msg.success(t('order.paySuccess'))
-
           await load()
-
+        } else if (status === 1) {
+          await load()
+        } else if (status === 4) {
+          await load()
         }
 
       }

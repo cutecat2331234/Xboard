@@ -275,7 +275,7 @@ class UserController extends Controller
         }
         $user->load('invite_user');
         $user = HookManager::filter('admin.user.detail', $user, $request);
-        return $this->success($user);
+        return $this->success(self::transformUserData($user));
     }
 
     public function update(UserUpdate $request)

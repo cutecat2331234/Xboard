@@ -254,9 +254,9 @@ class OrderService
         if (!$isCommission)
             return;
         if ($inviter->commission_rate) {
-            $order->commission_balance = $commissionBase * ($inviter->commission_rate / 100);
+            $order->commission_balance = (int) round($commissionBase * ($inviter->commission_rate / 100));
         } else {
-            $order->commission_balance = $commissionBase * (admin_setting('invite_commission', 10) / 100);
+            $order->commission_balance = (int) round($commissionBase * (admin_setting('invite_commission', 10) / 100));
         }
     }
 
@@ -308,10 +308,10 @@ class OrderService
             $orderAmountSum = $orders->sum(fn($item) => $item->total_amount + $item->balance_amount + $item->surplus_amount - $item->surplus_credit);
             $orderMonthSum = $orders->sum(fn($item) => self::STR_TO_TIME[PlanService::getPeriodKey($item->period)] ?? 0);
             $firstOrderAt = $orders->min('created_at');
-            $expiredAt = Carbon::createFromTimestamp($firstOrderAt)->addMonths($orderMonthSum);
+            $expiredAt = Carbon::createFromTimestamp((int) $user->expired_at);
 
             $now = now();
-            $totalSeconds = $expiredAt->timestamp - $firstOrderAt;
+            $totalSeconds = max(1, $expiredAt->timestamp - $firstOrderAt);
             $remainSeconds = max(0, $expiredAt->timestamp - $now->timestamp);
             $cycleRatio = $totalSeconds > 0 ? $remainSeconds / $totalSeconds : 0;
 

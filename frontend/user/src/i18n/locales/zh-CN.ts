@@ -23,6 +23,9 @@ export default {
   auth: {
     defaultTitle: 'Xboard',
     defaultDescription: '专业的网络加速服务',
+    or: '或',
+    loginFailed: '登录失败',
+    registerFailed: '注册失败',
   },
   nav: {
     dashboard: '仪表盘',
@@ -129,11 +132,6 @@ export default {
     catTutorial: '教程',
     catFaq: '常见问题',
     catNotice: '公告',
-  },
-  auth: {
-    or: '或',
-    loginFailed: '登录失败',
-    registerFailed: '注册失败',
   },
   errors: {
     incorrectCredentials: '邮箱或密码错误',
