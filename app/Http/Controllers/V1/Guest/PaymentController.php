@@ -99,6 +99,17 @@ class PaymentController extends Controller
             }
 
             if ($order->status !== Order::STATUS_PENDING) {
+                Log::warning('Payment notify: order not pending for new payment', [
+                    'trade_no' => $tradeNo,
+                    'status' => $order->status,
+                ]);
+                if (isset($verify['amount']) && $this->verifyAmount($order, (int) $verify['amount'])) {
+                    $this->creditOrphanPayment(
+                        $order,
+                        $callbackNo,
+                        'terminal order status ' . $order->status
+                    );
+                }
                 return true;
             }
 

@@ -205,6 +205,7 @@ class GiftCardService
             if (!(new PlanService($plan))->hasCapacity($plan)) {
                 throw new ApiException(__('Current product is sold out'));
             }
+            app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_GIFT_CARD);
             $userService->assignPlan(
                 $this->user,
                 $plan,

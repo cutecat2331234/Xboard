@@ -170,6 +170,10 @@ class OrderController extends Controller
             if (!$orderService->paid('manual_operation')) {
                 return $this->fail([500, '更新失败']);
             }
+            $order->refresh();
+            if ((int) $order->status !== Order::STATUS_COMPLETED) {
+                return $this->fail([500, '订单开通失败']);
+            }
             return $this->success(true);
         });
     }
@@ -205,6 +209,14 @@ class OrderController extends Controller
             ->first();
         if (!$order) {
             return $this->fail([400202, '订单不存在']);
+        }
+
+        if (
+            isset($params['commission_status'])
+            && (int) $params['commission_status'] === 2
+            && (int) $order->commission_status !== 2
+        ) {
+            return $this->fail([400, '佣金状态不可手动标记为已结算']);
         }
 
         if (
@@ -256,16 +268,11 @@ class OrderController extends Controller
             }
 
             $planService = new PlanService($plan);
-            if ($periodKey === Plan::PERIOD_RESET_TRAFFIC) {
-                try {
-                    $planService->validatePurchase($user, (string) $request->input('period'));
-                } catch (\App\Exceptions\ApiException $e) {
-                    DB::rollBack();
-                    return $this->fail([400, $e->getMessage()]);
-                }
-            } elseif ($user->plan_id !== $plan->id && !$planService->hasCapacity($plan)) {
+            try {
+                $planService->validatePurchase($user, (string) $request->input('period'));
+            } catch (\App\Exceptions\ApiException $e) {
                 DB::rollBack();
-                return $this->fail([400, __('Current product is sold out')]);
+                return $this->fail([400, $e->getMessage()]);
             }
 
             $order = new Order();
@@ -292,7 +299,10 @@ class OrderController extends Controller
 
         $orderService = new OrderService($order->fresh());
         if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
-            $order->delete();
+            return $this->fail([500, '订单开通失败']);
+        }
+        $order->refresh();
+        if ((int) $order->status !== Order::STATUS_COMPLETED) {
             return $this->fail([500, '订单开通失败']);
         }
 

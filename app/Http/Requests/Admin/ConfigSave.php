@@ -9,18 +9,18 @@ class ConfigSave extends FormRequest
     const RULES = [
         // invite & commission
         'invite_force' => '',
-        'invite_commission' => 'integer|nullable',
+        'invite_commission' => 'nullable|integer|min:0|max:100',
         'invite_gen_limit' => 'integer|nullable',
         'invite_never_expire' => '',
         'commission_first_time_enable' => '',
         'commission_auto_check_enable' => '',
-        'commission_withdraw_limit' => 'nullable|numeric',
+        'commission_withdraw_limit' => 'nullable|numeric|min:0',
         'commission_withdraw_method' => 'nullable|array',
         'withdraw_close_enable' => '',
         'commission_distribution_enable' => '',
-        'commission_distribution_l1' => 'nullable|numeric',
-        'commission_distribution_l2' => 'nullable|numeric',
-        'commission_distribution_l3' => 'nullable|numeric',
+        'commission_distribution_l1' => 'nullable|numeric|min:0|max:100',
+        'commission_distribution_l2' => 'nullable|numeric|min:0|max:100',
+        'commission_distribution_l3' => 'nullable|numeric|min:0|max:100',
         'app_withdraw_fee_rate' => 'nullable|numeric|min:0|max:1',
         // site
         'logo' => 'nullable|url',

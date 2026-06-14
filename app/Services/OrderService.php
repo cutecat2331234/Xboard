@@ -342,7 +342,7 @@ class OrderService
             }
             $this->order = $order;
             if ($order->status !== Order::STATUS_PENDING) {
-                return true;
+                return (int) $order->status === Order::STATUS_COMPLETED;
             }
             $order->status = Order::STATUS_PROCESSING;
             $order->paid_at = time();
@@ -362,7 +362,8 @@ class OrderService
                 $this->failOpenAndRefund($e->getMessage());
                 return false;
             }
-            return true;
+            $order->refresh();
+            return (int) $order->status === Order::STATUS_COMPLETED;
         });
     }
 

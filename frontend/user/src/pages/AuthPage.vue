@@ -87,6 +87,8 @@ const mailLinkLoading = ref(false)
 const forgetLoading = ref(false)
 
 const showMailLink = computed(() => Boolean(config.value?.login_with_mail_link_enable))
+const registerClosed = computed(() => Boolean(config.value?.stop_register))
+const brandLogo = computed(() => config.value?.logo || settings.value.logo || '')
 const showTelegram = computed(
   () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
 )
@@ -130,6 +132,10 @@ async function tryTokenLogin() {
 
 onMounted(async () => {
   await loadGuest()
+  if (registerClosed.value && isRegister.value) {
+    msg.warning(t('errors.registrationClosed'))
+    backToLoginTab()
+  }
   applyInviteFromQuery()
   await tryTokenLogin()
 })
@@ -279,6 +285,7 @@ function submit() {
   <div class="auth-page" :style="authPageStyle">
     <n-card class="auth-card" :bordered="true">
       <div class="auth-card__body p-6">
+        <img v-if="brandLogo" :src="brandLogo" alt="" class="auth-card__logo" />
         <h1 class="auth-card__title-main">
           {{ pageTitle }}
         </h1>
@@ -421,8 +428,8 @@ function submit() {
             </a>
           </template>
           <template v-else>
-            <router-link class="auth-footer-link text-gray-500" to="/register">{{ t('register') }}</router-link>
-            <n-divider vertical />
+            <router-link v-if="!registerClosed" class="auth-footer-link text-gray-500" to="/register">{{ t('register') }}</router-link>
+            <n-divider v-if="!registerClosed" vertical />
             <router-link class="auth-footer-link text-gray-500" to="/forgetpassword">{{ t('forgotPassword') }}</router-link>
             <template v-if="showMailLink">
               <n-divider vertical />
@@ -449,6 +456,13 @@ function submit() {
 <style scoped>
 .auth-card__body form {
   margin: 0;
+}
+.auth-card__logo {
+  display: block;
+  max-height: 48px;
+  max-width: 160px;
+  margin: 0 auto 12px;
+  object-fit: contain;
 }
 .auth-card__title-main {
   margin: 24.12px 0;

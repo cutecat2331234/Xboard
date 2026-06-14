@@ -12,6 +12,8 @@ export interface GuestConfig {
   recaptcha_v3_score_threshold?: number
   turnstile_site_key?: string
   app_description?: string
+  app_name?: string
+  stop_register?: number
   app_url?: string
   logo?: string
   telegram_login_enable?: number

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { IconBuilding, IconRefresh } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { resolveApiError } from '@/lib/api-errors'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
 import { configFieldLabelCls, configSubFieldLabelCls, inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
@@ -233,7 +234,7 @@ export default function ConfigPage() {
       await saveConfig(payload)
       toast.success(t('common.success'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.error'))
+      toast.error(resolveApiError(err, t, t('common.error')))
     }
   }
 

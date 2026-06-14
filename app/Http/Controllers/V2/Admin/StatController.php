@@ -27,6 +27,11 @@ class StatController extends Controller
             ->whereNotNull('paid_at');
     }
 
+    private function sumPaidIncome($query): int
+    {
+        return (int) ((clone $query)->selectRaw('COALESCE(SUM(total_amount + balance_amount), 0) as income')->value('income') ?? 0);
+    }
+
     public function getOverride(Request $request)
     {
         // 获取在线节点数
@@ -59,10 +64,11 @@ class StatController extends Controller
 
         return [
             'data' => [
-                'month_income' => $this->paidIncomeQuery()
-                    ->where('paid_at', '>=', strtotime(date('Y-m-1')))
-                    ->where('paid_at', '<', time())
-                    ->sum('total_amount'),
+                'month_income' => $this->sumPaidIncome(
+                    $this->paidIncomeQuery()
+                        ->where('paid_at', '>=', strtotime(date('Y-m-1')))
+                        ->where('paid_at', '<', time())
+                ),
                 'month_register_total' => User::where('created_at', '>=', strtotime(date('Y-m-1')))
                     ->where('created_at', '<', time())
                     ->count(),
@@ -73,14 +79,16 @@ class StatController extends Controller
                     ->where('status', Order::STATUS_COMPLETED)
                     ->where('commission_balance', '>', 0)
                     ->count(),
-                'day_income' => $this->paidIncomeQuery()
-                    ->where('paid_at', '>=', strtotime(date('Y-m-d')))
-                    ->where('paid_at', '<', time())
-                    ->sum('total_amount'),
-                'last_month_income' => $this->paidIncomeQuery()
-                    ->where('paid_at', '>=', strtotime('-1 month', strtotime(date('Y-m-1'))))
-                    ->where('paid_at', '<', strtotime(date('Y-m-1')))
-                    ->sum('total_amount'),
+                'day_income' => $this->sumPaidIncome(
+                    $this->paidIncomeQuery()
+                        ->where('paid_at', '>=', strtotime(date('Y-m-d')))
+                        ->where('paid_at', '<', time())
+                ),
+                'last_month_income' => $this->sumPaidIncome(
+                    $this->paidIncomeQuery()
+                        ->where('paid_at', '>=', strtotime('-1 month', strtotime(date('Y-m-1'))))
+                        ->where('paid_at', '<', strtotime(date('Y-m-1')))
+                ),
                 'commission_month_payout' => CommissionLog::where('created_at', '>=', strtotime(date('Y-m-1')))
                     ->where('created_at', '<', time())
                     ->sum('get_amount'),
@@ -299,28 +307,18 @@ class StatController extends Controller
             ->first();
 
         // Today's income
-        $todayIncome = $this->paidIncomeQuery()
-            ->where('paid_at', '>=', $todayStart)
-            ->where('paid_at', '<', time())
-            ->sum('total_amount');
-
-        // Yesterday's income for day growth calculation
-        $yesterdayIncome = $this->paidIncomeQuery()
-            ->where('paid_at', '>=', $yesterdayStart)
-            ->where('paid_at', '<', $todayStart)
-            ->sum('total_amount');
-
-        // Current month income
-        $currentMonthIncome = $this->paidIncomeQuery()
-            ->where('paid_at', '>=', $currentMonthStart)
-            ->where('paid_at', '<', time())
-            ->sum('total_amount');
-
-        // Last month income
-        $lastMonthIncome = $this->paidIncomeQuery()
-            ->where('paid_at', '>=', $lastMonthStart)
-            ->where('paid_at', '<', $currentMonthStart)
-            ->sum('total_amount');
+        $todayIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $todayStart)->where('paid_at', '<', time())
+        );
+        $yesterdayIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $yesterdayStart)->where('paid_at', '<', $todayStart)
+        );
+        $currentMonthIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $currentMonthStart)->where('paid_at', '<', time())
+        );
+        $lastMonthIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $lastMonthStart)->where('paid_at', '<', $currentMonthStart)
+        );
 
         // Last month commission payout
         $lastMonthCommissionPayout = CommissionLog::where('created_at', '>=', $lastMonthStart)
@@ -341,16 +339,17 @@ class StatController extends Controller
         $totalUsers = User::count();
 
         // Active users (users with valid subscription)
-        $activeUsers = User::where(function ($query) {
-            $query->where('expired_at', '>=', time())
-                ->orWhere('expired_at', NULL);
-        })->count();
+        $activeUsers = User::where('banned', 0)
+            ->whereNotNull('plan_id')
+            ->where(function ($query) {
+                $query->where('expired_at', '>=', time())
+                    ->orWhere('expired_at', NULL);
+            })->count();
 
         // Previous month income for growth calculation
-        $twoMonthsAgoIncome = $this->paidIncomeQuery()
-            ->where('paid_at', '>=', $twoMonthsAgoStart)
-            ->where('paid_at', '<', $lastMonthStart)
-            ->sum('total_amount');
+        $twoMonthsAgoIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $twoMonthsAgoStart)->where('paid_at', '<', $lastMonthStart)
+        );
 
         // Previous month commission for growth calculation
         $twoMonthsAgoCommission = CommissionLog::where('created_at', '>=', $twoMonthsAgoStart)
