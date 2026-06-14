@@ -7,7 +7,12 @@ use App\Http\Requests\Admin\UserGenerate;
 use App\Http\Requests\Admin\UserSendMail;
 use App\Http\Requests\Admin\UserUpdate;
 use App\Jobs\SendEmailJob;
+use App\Models\CommissionLog;
+use App\Models\GiftCardCode;
+use App\Models\GiftCardUsage;
 use App\Models\Plan;
+use App\Models\TicketMessage;
+use App\Models\TrafficResetLog;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Jobs\NodeUserSyncJob;
@@ -768,6 +773,18 @@ class UserController extends Controller
 
         try {
             DB::beginTransaction();
+            $userId = (int) $user->id;
+            $ticketIds = $user->tickets()->pluck('id');
+            if ($ticketIds->isNotEmpty()) {
+                TicketMessage::whereIn('ticket_id', $ticketIds)->delete();
+            }
+            CommissionLog::where('user_id', $userId)
+                ->orWhere('invite_user_id', $userId)
+                ->delete();
+            GiftCardUsage::where('user_id', $userId)->delete();
+            TrafficResetLog::where('user_id', $userId)->delete();
+            GiftCardCode::where('user_id', $userId)->update(['user_id' => null]);
+            $user->tokens()->delete();
             $user->orders()->delete();
             $user->codes()->delete();
             $user->stat()->delete();

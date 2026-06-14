@@ -132,6 +132,9 @@ export default {
     registerFailed: "등록에 실패했습니다"
   },
   errors: {
+    giftCardRedeemFailed: "교환에 실패했습니다. 나중에 다시 시도하세요.",
+    couponPerUserLimit: "이 쿠폰은 1인당 {limit}회까지 사용할 수 있습니다",
+    couponNotStarted: "쿠폰이 아직 시작되지 않았습니다",
     incorrectCredentials: "이메일 또는 비밀번호가 올바르지 않습니다",
     accountSuspended: "이 계정은 사용이 중지되었습니다",
     passwordTooManyAttempts: "비밀번호 오류 횟수가 너무 많습니다. {minute}분 후에 다시 시도해 주세요",
@@ -201,12 +204,12 @@ export default {
     ticketReplyFailed: '답변에 실패했습니다',
     ticketCloseFailed: '종료에 실패했습니다',
     ticketSubjectEmpty: '제목을 입력하세요',
-    oldPasswordWrong: 'Current password is incorrect',
-    passwordTooShort: 'Password must be at least 8 characters',
-    saveFailed: 'Save failed',
-    transferFailed: 'Transfer failed',
-    telegramNotBound: 'Telegram account is not linked',
-    telegramUnbindFailed: 'Failed to unlink Telegram',
+    oldPasswordWrong: "현재 비밀번호가 올바르지 않습니다",
+    passwordTooShort: "비밀번호는 8자 이상이어야 합니다",
+    saveFailed: "저장에 실패했습니다",
+    transferFailed: "이체에 실패했습니다",
+    telegramNotBound: "Telegram 계정이 연결되어 있지 않습니다",
+    telegramUnbindFailed: "Telegram 연동 해제에 실패했습니다",
     inviteCodeLimit: 'Maximum number of invite codes reached',
     giftCardNotFound: '교환 코드를 찾을 수 없습니다',
     giftCardDisabled: '이 기프트 카드는 비활성화되었습니다',
@@ -241,6 +244,7 @@ export default {
     }
   },
   invite: {
+    peopleCount: "{number}명",
     title: "나의 초청",
     available: "현재 잔여 수수료",
     transfer: "이체하기",
@@ -390,6 +394,8 @@ export default {
     multiplier: "배율"
   },
   profile: {
+    telegramUnbindConfirm: "Telegram 계정 연동을 해제하시겠습니까? 봇에 /bind 를 다시 보내야 합니다.",
+    telegramUnbind: "Telegram 연동 해제",
     wallet: "나의 지갑",
     balanceHint: "계정 잔액(결제 전용)",
     email: "이메일",

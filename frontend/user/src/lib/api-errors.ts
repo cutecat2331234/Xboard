@@ -106,6 +106,14 @@ const MESSAGE_MAP: Record<string, string> = {
   '优惠券不可用于该订阅周期': 'errors.couponPeriodMismatch',
   'Coupon failed': 'errors.couponFailed',
   '优惠券使用失败': 'errors.couponFailed',
+  'This coupon is no longer available': 'errors.couponUsedUp',
+  '优惠券不可用': 'errors.couponUsedUp',
+  'This coupon has not yet started': 'errors.couponNotStarted',
+  '优惠券尚未开始': 'errors.couponNotStarted',
+  'The coupon code cannot be used for this subscription': 'errors.couponPlanMismatch',
+  '优惠券不可用于该订阅': 'errors.couponPlanMismatch',
+  'The coupon can only be used :limit_use_with_user per person': 'errors.couponPerUserLimit',
+  '兑换失败，请稍后重试': 'errors.giftCardRedeemFailed',
 
   // Plan / order
   'Current product is sold out': 'errors.planSoldOut',
@@ -194,6 +202,15 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     key: 'errors.withdrawMinimum',
     params: (m) => {
       const hit = m.match(/(\d+(?:\.\d+)?)/)
+      return hit ? { limit: hit[1] } : undefined
+    },
+  },
+  {
+    test: (m) =>
+      /coupon can only be used/i.test(m) || /每人.*使用/.test(m),
+    key: 'errors.couponPerUserLimit',
+    params: (m) => {
+      const hit = m.match(/(\d+)/)
       return hit ? { limit: hit[1] } : undefined
     },
   },

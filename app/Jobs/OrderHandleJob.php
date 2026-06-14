@@ -7,12 +7,13 @@ use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class OrderHandleJob implements ShouldQueue
+class OrderHandleJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $order;
@@ -20,6 +21,7 @@ class OrderHandleJob implements ShouldQueue
 
     public $tries = 3;
     public $timeout = 120;
+    public $uniqueFor = 300;
     /**
      * Create a new job instance.
      *
@@ -29,6 +31,11 @@ class OrderHandleJob implements ShouldQueue
     {
         $this->onQueue('order_handle');
         $this->tradeNo = $tradeNo;
+    }
+
+    public function uniqueId(): string
+    {
+        return (string) $this->tradeNo;
     }
 
     /**
