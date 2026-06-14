@@ -2495,6 +2495,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "actions": {
       "view_details": "查看详情",
+      "reply": "回复",
+      "close": "关闭工单",
+      "close_reject_withdraw": "拒绝提现并关闭",
       "close_ticket": "关闭工单",
       "close_confirm_title": "确认关闭工单",
       "close_confirm_description": "确定要关闭这个工单吗？关闭后会移入已关闭列表，但仍可继续回复。",

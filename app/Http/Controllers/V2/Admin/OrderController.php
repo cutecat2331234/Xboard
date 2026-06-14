@@ -211,24 +211,27 @@ class OrderController extends Controller
 
     public function assign(OrderAssign $request)
     {
-        $plan = Plan::find($request->input('plan_id'));
-        $user = User::byEmail($request->input('email'))->first();
-
-        if (!$user) {
-            return $this->fail([400202, '该用户不存在']);
-        }
-
-        if (!$plan) {
-            return $this->fail([400202, '该订阅不存在']);
-        }
-
-        $userService = new UserService();
-        if ($userService->isNotCompleteOrderByUserId($user->id)) {
-            return $this->fail([400, '该用户还有待支付的订单，无法分配']);
-        }
-
         try {
             DB::beginTransaction();
+            $user = User::byEmail($request->input('email'))->lockForUpdate()->first();
+            $plan = Plan::where('id', $request->input('plan_id'))->lockForUpdate()->first();
+
+            if (!$user) {
+                DB::rollBack();
+                return $this->fail([400202, '该用户不存在']);
+            }
+
+            if (!$plan) {
+                DB::rollBack();
+                return $this->fail([400202, '该订阅不存在']);
+            }
+
+            $userService = new UserService();
+            if ($userService->isNotCompleteOrderByUserId($user->id)) {
+                DB::rollBack();
+                return $this->fail([400, '该用户还有待支付的订单，无法分配']);
+            }
+
             $order = new Order();
             $orderService = new OrderService($order);
             $order->user_id = $user->id;
@@ -238,16 +241,7 @@ class OrderController extends Controller
             $order->trade_no = Helper::guid();
             $order->total_amount = $request->input('total_amount');
 
-            if (PlanService::getPeriodKey((string) $order->period) === Plan::PERIOD_RESET_TRAFFIC) {
-                $order->type = Order::TYPE_RESET_TRAFFIC;
-            } else if ($user->plan_id !== NULL && $order->plan_id !== $user->plan_id) {
-                $order->type = Order::TYPE_UPGRADE;
-            } else if ($user->expired_at !== null && $user->expired_at > time() && $order->plan_id == $user->plan_id) {
-                $order->type = Order::TYPE_RENEWAL;
-            } else {
-                $order->type = Order::TYPE_NEW_PURCHASE;
-            }
-
+            $orderService->setOrderType($user);
             $orderService->setInvite($user);
 
             if (!$order->save()) {

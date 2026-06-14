@@ -27,8 +27,8 @@ function scrollToBottom() {
   })
 }
 
-async function load() {
-  pageLoading.value = true
+async function load(silent = false) {
+  if (!silent) pageLoading.value = true
   try {
     const id = Number(route.params.id)
     ticket.value = await fetchTicketById(id)
@@ -37,9 +37,9 @@ async function load() {
     }
     scrollToBottom()
   } catch (e: unknown) {
-    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+    if (!silent) msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
-    pageLoading.value = false
+    if (!silent) pageLoading.value = false
   }
 }
 
@@ -79,7 +79,7 @@ function startPoll() {
   stopPoll()
   if (ticket.value?.status !== 0) return
   pollTimer = setInterval(() => {
-    load().catch(() => {})
+    void load(true)
   }, 2000)
 }
 

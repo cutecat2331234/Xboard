@@ -154,9 +154,13 @@ export default function TicketPage() {
     }
   }
 
-  async function closeTicket(row: TicketRow) {
+  async function closeTicket(row: TicketRow, withdrawRejected = false) {
     try {
-      await postJson('/ticket/close', { id: row.id })
+      const payload: Record<string, unknown> = { id: row.id }
+      if (Number(row.level) === 2) {
+        payload.withdraw_rejected = withdrawRejected
+      }
+      await postJson('/ticket/close', payload)
       toast.success(t('common.success'))
       load()
     } catch (e) {
@@ -202,6 +206,11 @@ export default function TicketPage() {
               <DropdownMenuItem onClick={() => closeTicket(row.original)}>
                 {t('ticket.actions.close')}
               </DropdownMenuItem>
+              {Number(row.original.level) === 2 ? (
+                <DropdownMenuItem onClick={() => closeTicket(row.original, true)}>
+                  {t('ticket.actions.close_reject_withdraw')}
+                </DropdownMenuItem>
+              ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
         ),

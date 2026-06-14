@@ -50,6 +50,24 @@ class PaymentController extends Controller
             Log::warning('Payment notify: order not found', ['trade_no' => $tradeNo]);
             return false;
         }
+        if ($order->status === Order::STATUS_COMPLETED) {
+            return true;
+        }
+
+        if ($order->status === Order::STATUS_PROCESSING) {
+            try {
+                (new OrderService($order->fresh()))->open();
+                HookManager::call('payment.notify.success', $order);
+                return true;
+            } catch (\Throwable $e) {
+                Log::warning('Payment notify: retry open failed for processing order', [
+                    'trade_no' => $tradeNo,
+                    'error' => $e->getMessage(),
+                ]);
+                return false;
+            }
+        }
+
         if ($order->status !== Order::STATUS_PENDING) {
             return true;
         }

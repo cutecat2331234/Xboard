@@ -117,6 +117,12 @@ class GiftCardService
             }
             $this->user = $lockedUser;
 
+            $lockedTemplate = GiftCardTemplate::where('id', $this->template->id)->lockForUpdate()->first();
+            if (!$lockedTemplate) {
+                throw new ApiException('礼品卡模板不存在');
+            }
+            $this->template = $lockedTemplate;
+
             if (!$this->template->checkUsageLimit($this->user)) {
                 throw new ApiException('您已达到此礼品卡的使用限制');
             }

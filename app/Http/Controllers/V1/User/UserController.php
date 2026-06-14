@@ -206,6 +206,14 @@ class UserController extends Controller
                 if (!$user) {
                     throw new \Exception(__('The user does not exist'));
                 }
+                if (
+                    \App\Models\Ticket::where('user_id', $user->id)
+                        ->where('status', 0)
+                        ->where('level', 2)
+                        ->exists()
+                ) {
+                    throw new \Exception(__('You already have a pending withdrawal request'));
+                }
                 if ($amount > $user->commission_balance) {
                     throw new \Exception(__('Insufficient commission balance'));
                 }
