@@ -9,15 +9,20 @@ export interface OrderItem {
   status: number
   payment_id?: number | null
   created_at: number
+  paid_at?: number | null
   plan?: { name: string }
 }
 
 export function canCancelOrder(row: OrderItem) {
-  return row.status === 0 && (row.payment_id == null || row.payment_id === 0)
+  if (row.status === 0 && (row.payment_id == null || row.payment_id === 0)) {
+    return true
+  }
+  return row.status === 1 && !row.paid_at
 }
 
-export async function fetchOrders() {
-  return request<OrderItem[]>(api.get('/user/order/fetch'))
+export async function fetchOrders(status?: number) {
+  const params = status !== undefined && status !== null ? { status } : undefined
+  return request<OrderItem[]>(api.get('/user/order/fetch', { params }))
 }
 
 export async function saveOrder(payload: { plan_id: number; period: string; coupon_code?: string }) {

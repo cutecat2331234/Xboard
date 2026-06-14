@@ -152,8 +152,12 @@ class TicketController extends Controller
                     throw new \RuntimeException('Already closed');
                 }
                 if (TicketService::isWithdrawTicket($ticket)) {
-                    if (!$request->boolean('withdraw_paid')) {
+                    if ($request->boolean('withdraw_paid')) {
+                        // Commission already withheld; payout completed offline.
+                    } elseif ($request->boolean('withdraw_rejected')) {
                         TicketService::restoreWithdrawCommission($ticket);
+                    } else {
+                        throw new \RuntimeException('Withdraw ticket requires withdraw_paid or withdraw_rejected');
                     }
                 }
                 $ticket->status = Ticket::STATUS_CLOSED;

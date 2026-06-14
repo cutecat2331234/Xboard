@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Activity, Clock, Layers, RefreshCw, Server } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import {
   fetchAuditLog,
@@ -11,6 +12,7 @@ import {
   type QueueWorkloadItem,
   type SystemStatus,
 } from '@/lib/api'
+import { toastApiError } from '@/lib/api-errors'
 import { StatCard } from '@/components/shared/StatCard'
 import { DataTable } from '@/components/shared/DataTable'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,9 +39,12 @@ export function SystemStatusPanel() {
     setLoading(true)
     fetchSystemStatus()
       .then(setStatus)
-      .catch(() => setStatus({}))
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
+        setStatus({})
+      })
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   useEffect(() => {
     load()
@@ -85,9 +90,12 @@ export function QueueWorkloadPanel() {
     setLoading(true)
     fetchQueueWorkload()
       .then(setItems)
-      .catch(() => setItems([]))
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
+        setItems([])
+      })
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   useEffect(() => {
     load()
@@ -149,12 +157,13 @@ export function AuditLogPanel() {
         setRows(res.data)
         setTotal(res.total)
       })
-      .catch(() => {
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
         setRows([])
         setTotal(0)
       })
       .finally(() => setLoading(false))
-  }, [page, search])
+  }, [page, search, t])
 
   useEffect(() => {
     load()

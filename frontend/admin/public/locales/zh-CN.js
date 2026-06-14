@@ -467,9 +467,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "forgotPassword": "忘记密码？",
       "submit": "登录",
       "rememberMe": "记住我",
-      "notAdmin": "该账号不是管理员",
-      "invalidCredentials": "邮箱或密码错误",
-      "accountSuspended": "该账户已被停止使用",
       "resetPassword": {
         "title": "重置密码",
         "description": "在站点目录下执行以下命令找回密码",
@@ -3041,8 +3038,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "auto_resets": "自动重置",
         "manual_resets": "手动重置",
         "cron_resets": "定时重置",
-        "order_resets": "订单重置",
-        "gift_card_resets": "礼品卡重置",
         "in_period": "最近 {{days}} 天",
         "breakdown": "重置类型分布",
         "breakdown_description": "各类型重置操作的百分比分布",

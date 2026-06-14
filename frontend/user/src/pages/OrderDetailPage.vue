@@ -115,6 +115,7 @@ const qrOpen = ref(false)
 const qrDataUrl = ref('')
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
+let pollFailures = 0
 
 
 
@@ -282,11 +283,15 @@ function startPoll(tradeNo: string) {
 
   stopPoll()
 
+  pollFailures = 0
+
   pollTimer = setInterval(async () => {
 
     try {
 
       const status = await checkOrderStatus(tradeNo)
+
+      pollFailures = 0
 
       if (status !== 0) {
 
@@ -315,9 +320,17 @@ function startPoll(tradeNo: string) {
 
       }
 
-    } catch {
+    } catch (e: unknown) {
 
-      /* ignore */
+      pollFailures += 1
+
+      if (pollFailures >= 3) {
+
+        stopPoll()
+
+        msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+
+      }
 
     }
 

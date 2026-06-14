@@ -83,34 +83,19 @@ class CheckCommission extends Command
                         'paid' => $paidTotal,
                         'expected' => $expectedTotal,
                     ]);
-                    $remainder = $expectedTotal - $paidTotal;
-                    $directInviter = User::where('id', $order->invite_user_id)->lockForUpdate()->first();
-                    if ($directInviter && $remainder > 0) {
-                        if ((int) admin_setting('withdraw_close_enable', 0)) {
-                            $directInviter->increment('balance', $remainder);
-                        } else {
-                            $directInviter->increment('commission_balance', $remainder);
-                        }
-                        if ($directInviter->save()) {
-                            CommissionLog::create([
-                                'invite_user_id' => $order->invite_user_id,
-                                'user_id' => $order->user_id,
-                                'trade_no' => $order->trade_no,
-                                'order_amount' => $this->orderAmount($order),
-                                'get_amount' => $remainder,
-                            ]);
-                            $paidTotal += $remainder;
-                        }
-                    }
-                    if ($paidTotal >= $expectedTotal) {
-                        $order->commission_status = 2;
-                        $order->actual_commission_balance = $paidTotal;
+                    $payResult = $this->payHandleRemainder($order->invite_user_id, $order);
+                    $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
+                    if ($payResult === 'invalid' || ($paidTotal > 0 && $paidTotal < $expectedTotal)) {
+                        $order->commission_status = Order::COMMISSION_STATUS_INVALID;
                         $order->save();
-                    } else {
                         Log::warning('Commission payout still incomplete after remainder attempt for order ' . $orderId, [
                             'paid' => $paidTotal,
                             'expected' => $expectedTotal,
                         ]);
+                    } elseif ($paidTotal >= $expectedTotal) {
+                        $order->commission_status = 2;
+                        $order->actual_commission_balance = $paidTotal;
+                        $order->save();
                     }
                     DB::commit();
                     continue;
@@ -227,5 +212,100 @@ class CheckCommission extends Command
         }
 
         return 'ok';
+    }
+
+    /**
+     * Resume multi-level payout for orders with partial CommissionLog history.
+     */
+    private function payHandleRemainder(int $inviteUserId, Order $order): string
+    {
+        $expectedTotal = (int) $order->commission_balance;
+        $paidByInviter = CommissionLog::where('trade_no', $order->trade_no)
+            ->selectRaw('invite_user_id, SUM(get_amount) as total')
+            ->groupBy('invite_user_id')
+            ->pluck('total', 'invite_user_id')
+            ->map(fn ($v) => (int) $v);
+
+        if ((int) $paidByInviter->sum() >= $expectedTotal) {
+            return 'ok';
+        }
+
+        $level = 3;
+        if ((int) admin_setting('commission_distribution_enable', 0)) {
+            $commissionShareLevels = [
+                0 => (int) admin_setting('commission_distribution_l1'),
+                1 => (int) admin_setting('commission_distribution_l2'),
+                2 => (int) admin_setting('commission_distribution_l3'),
+            ];
+        } else {
+            $commissionShareLevels = [0 => 100];
+        }
+
+        $remainingBudget = $expectedTotal - (int) $paidByInviter->sum();
+        for ($l = 0; $l < $level; $l++) {
+            if ($remainingBudget <= 0) {
+                break;
+            }
+            $inviter = User::where('id', $inviteUserId)->lockForUpdate()->first();
+            if (!$inviter) {
+                break;
+            }
+            if (!isset($commissionShareLevels[$l])) {
+                $inviteUserId = $inviter->invite_user_id;
+                continue;
+            }
+            $levelShare = (int) round($expectedTotal * ($commissionShareLevels[$l] / 100));
+            $alreadyGot = (int) ($paidByInviter[$inviteUserId] ?? 0);
+            $payAmount = min(max(0, $levelShare - $alreadyGot), $remainingBudget);
+            if ($payAmount <= 0) {
+                $inviteUserId = $inviter->invite_user_id;
+                continue;
+            }
+
+            if ((int) admin_setting('withdraw_close_enable', 0)) {
+                $inviter->increment('balance', $payAmount);
+            } else {
+                $inviter->increment('commission_balance', $payAmount);
+            }
+            if (!$inviter->save()) {
+                return 'retry';
+            }
+            CommissionLog::create([
+                'invite_user_id' => $inviteUserId,
+                'user_id' => $order->user_id,
+                'trade_no' => $order->trade_no,
+                'order_amount' => $this->orderAmount($order),
+                'get_amount' => $payAmount,
+            ]);
+            $order->actual_commission_balance = (int) $order->actual_commission_balance + $payAmount;
+            $remainingBudget -= $payAmount;
+            $inviteUserId = $inviter->invite_user_id;
+        }
+
+        if ($remainingBudget > 0) {
+            $directInviter = User::where('id', $order->invite_user_id)->lockForUpdate()->first();
+            if ($directInviter && $remainingBudget > 0) {
+                $payAmount = $remainingBudget;
+                if ((int) admin_setting('withdraw_close_enable', 0)) {
+                    $directInviter->increment('balance', $payAmount);
+                } else {
+                    $directInviter->increment('commission_balance', $payAmount);
+                }
+                if (!$directInviter->save()) {
+                    return 'retry';
+                }
+                CommissionLog::create([
+                    'invite_user_id' => $order->invite_user_id,
+                    'user_id' => $order->user_id,
+                    'trade_no' => $order->trade_no,
+                    'order_amount' => $this->orderAmount($order),
+                    'get_amount' => $payAmount,
+                ]);
+                $order->actual_commission_balance = (int) $order->actual_commission_balance + $payAmount;
+                $remainingBudget = 0;
+            }
+        }
+
+        return $remainingBudget > 0 ? 'invalid' : 'ok';
     }
 }

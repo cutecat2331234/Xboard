@@ -259,7 +259,7 @@ export default function TicketPage() {
                   <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawPaid: true })}>
                     {t('ticket.actions.approve_withdraw')}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => closeTicket(row.original)}>
+                  <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawRejected: true })}>
                     {t('ticket.actions.close_reject_withdraw')}
                   </DropdownMenuItem>
                 </>

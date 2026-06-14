@@ -104,7 +104,12 @@ async function loadNotices() {
 
 onMounted(async () => {
   await auth.loadUser()
-  await Promise.all([load(), loadNotices(), loadComm()])
+  await Promise.all([load(), loadNotices()])
+  try {
+    await loadComm()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
   try {
     const stat = await fetchUserStat()
     unpaidOrders.value = stat[0] ?? 0

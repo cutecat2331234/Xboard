@@ -41,6 +41,7 @@ const remindTraffic = ref(true)
 const msg = useMessage()
 const { t } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
+const telegramBotError = ref(false)
 const botUsername = ref('')
 const currency = ref('CNY')
 const sessions = ref<ActiveSession[]>([])
@@ -197,8 +198,11 @@ onMounted(async () => {
     try {
       const bot = await fetchTelegramBotInfo()
       botUsername.value = bot.username
-    } catch {
+      telegramBotError.value = false
+    } catch (e: unknown) {
       botUsername.value = ''
+      telegramBotError.value = true
+      msg.error(resolveApiError(e, t, t('errors.requestFailed')))
     }
   }
 })

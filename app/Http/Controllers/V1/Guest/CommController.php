@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Guest;
 
 use App\Http\Controllers\Controller;
+use App\Support\AppFeature;
 use App\Services\Plugin\HookManager;
 use App\Utils\Dict;
 use App\Utils\Helper;
@@ -36,6 +37,10 @@ class CommController extends Controller
             'try_out_enable' => (int) admin_setting('try_out_enable', 1),
             'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
             'login_with_mail_link_enable' => (int) admin_setting('login_with_mail_link_enable', 0) ? 1 : 0,
+            'invite_enable' => (int) (AppFeature::inviteEnabled() && AppFeature::commissionEnabled()),
+            'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
+            'coupon_enable' => (int) AppFeature::couponEnabled(),
+            'register_enable' => (int) AppFeature::registerEnabled(),
         ];
 
         $data = HookManager::filter('guest_comm_config', $data);

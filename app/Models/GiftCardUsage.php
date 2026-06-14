@@ -103,7 +103,7 @@ class GiftCardUsage extends Model
             'user_level_at_use' => $user->plan ? $user->plan->sort : null,
             'plan_id_at_use' => $user->plan_id,
             'multiplier_applied' => $options['multiplier'] ?? 1.0,
-            // 'ip_address' => $options['ip_address'] ?? null,
+            'ip_address' => $options['ip_address'] ?? null,
             'user_agent' => $options['user_agent'] ?? null,
             'notes' => $options['notes'] ?? null,
             'created_at' => time(),

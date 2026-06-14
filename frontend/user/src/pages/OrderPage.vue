@@ -1,21 +1,24 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NDataTable, NDivider, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
+import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
 import { fetchOrders, cancelOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
-import { orderStatusLabel } from '@/lib/order-status'
+import { ORDER_STATUS_KEYS, orderStatusLabel } from '@/lib/order-status'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { useCurrency } from '@/composables/useCurrency'
+
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
+const statusFilter = ref<number | null>(null)
 const msg = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
+
 function formatOrderAmount(cents: number) {
   return formatPrice(cents)
 }
@@ -33,6 +36,14 @@ function periodLabel(period?: string) {
   const hit = PERIOD_OPTIONS.find((o) => o.key === period)
   return hit ? t(hit.labelKey) : period
 }
+
+const statusOptions = computed(() => [
+  { label: t('order.filterAll'), value: null as number | null },
+  ...Object.entries(ORDER_STATUS_KEYS).map(([value, key]) => ({
+    label: t(key),
+    value: Number(value),
+  })),
+])
 
 function renderTradeNoCell(row: OrderItem) {
   const tradeNo = row.trade_no
@@ -57,7 +68,7 @@ function confirmCancel(tradeNo: string) {
       try {
         await cancelOrder(tradeNo)
         msg.success(t('order.closeSuccess'))
-        rows.value = await fetchOrders()
+        await loadOrders()
       } catch (e: unknown) {
         msg.error(resolveApiError(e, t, t('order.cancelFailed')))
       }
@@ -70,6 +81,11 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
     title: t('order.listTradeNo'),
     key: 'trade_no',
     render: (row) => renderTradeNoCell(row),
+  },
+  {
+    title: t('order.productName'),
+    key: 'plan',
+    render: (row) => row.plan?.name ?? '—',
   },
   {
     title: t('order.period'),
@@ -127,26 +143,63 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   },
 ])
 
-onMounted(async () => {
+async function loadOrders() {
   loading.value = true
   try {
-    await loadCurrency()
-    rows.value = await fetchOrders()
+    rows.value = await fetchOrders(statusFilter.value ?? undefined)
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
   }
+}
+
+watch(statusFilter, () => {
+  void loadOrders()
+})
+
+onMounted(async () => {
+  try {
+    await loadCurrency()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
+  await loadOrders()
 })
 </script>
 
 <template>
-  <n-data-table
-    class="order-list-table"
-    :columns="columns"
-    :data="rows"
-    :bordered="false"
-    :scroll-x="800"
-    :loading="loading"
-  />
+  <div class="order-page">
+    <div class="order-page__toolbar">
+      <n-select
+        v-model:value="statusFilter"
+        :options="statusOptions"
+        :placeholder="t('order.filterAll')"
+        class="order-page__filter"
+        clearable
+      />
+    </div>
+    <n-empty v-if="!loading && rows.length === 0" :description="t('order.empty')" />
+    <n-data-table
+      v-else
+      class="order-list-table"
+      :columns="columns"
+      :data="rows"
+      :bordered="false"
+      :scroll-x="960"
+      :loading="loading"
+    />
+  </div>
 </template>
+
+<style scoped>
+.order-page__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+.order-page__filter {
+  width: 200px;
+  max-width: 100%;
+}
+</style>

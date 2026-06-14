@@ -64,7 +64,7 @@ class GiftCardController extends Controller
 
             // 使用礼品卡
             $result = $giftCardService->redeem([
-                // 'ip_address' => $request->ip(),
+                'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
 
@@ -175,7 +175,7 @@ class GiftCardController extends Controller
             'user_level_at_use' => $usage->user_level_at_use,
             'plan_id_at_use' => $usage->plan_id_at_use,
             'multiplier_applied' => $usage->multiplier_applied,
-            // 'ip_address' => $usage->ip_address,
+            'ip_address' => $usage->ip_address,
             'notes' => $usage->notes,
             'created_at' => $usage->created_at,
         ]);
