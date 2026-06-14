@@ -66,7 +66,7 @@ async function submitPassword() {
     newPassword.value = ''
     confirmPassword.value = ''
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -75,7 +75,7 @@ async function reset() {
     await resetSecurity()
     msg.success(t('common.success'))
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -85,8 +85,9 @@ async function saveNotify() {
       remind_expire: remindExpire.value ? 1 : 0,
       remind_traffic: remindTraffic.value ? 1 : 0,
     })
+    msg.success(t('common.success'))
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 

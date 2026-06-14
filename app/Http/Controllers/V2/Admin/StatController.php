@@ -64,7 +64,7 @@ class StatController extends Controller
                     ->count(),
                 'commission_pending_total' => Order::where('commission_status', 0)
                     ->where('invite_user_id', '!=', NULL)
-                    ->whereNotIn('status', [0, 2])
+                    ->where('status', Order::STATUS_COMPLETED)
                     ->where('commission_balance', '>', 0)
                     ->count(),
                 'day_income' => Order::where('created_at', '>=', strtotime(date('Y-m-d')))

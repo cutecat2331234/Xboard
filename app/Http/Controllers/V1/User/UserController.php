@@ -220,6 +220,10 @@ class UserController extends Controller
                 if ($amount > $user->commission_balance) {
                     throw new \Exception(__('Insufficient commission balance'));
                 }
+                $limit = (int) admin_setting('commission_withdraw_limit', 100);
+                if ($limit > 0 && $limit > ($amount / 100)) {
+                    throw new \Exception(__('The current required minimum withdrawal commission is :limit', ['limit' => $limit]));
+                }
                 $user->commission_balance -= $amount;
                 $user->balance += $amount;
                 if (!$user->save()) {

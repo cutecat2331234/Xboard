@@ -79,6 +79,7 @@ const MESSAGE_MAP: Record<string, string> = {
   '扣款失败，请检查信用卡信息': 'errors.paymentCardFailed',
   'Payment gateway request failed': 'errors.paymentGatewayFailed',
   '支付网关请求失败': 'errors.paymentGatewayFailed',
+  'payment is not found': 'errors.paymentNotFound',
 
   // Generic
   'Uh-oh, we\'ve had some problems, we\'re working on it.': 'errors.serverError',

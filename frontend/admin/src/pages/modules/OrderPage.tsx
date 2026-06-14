@@ -79,6 +79,17 @@ const PERIOD_KEYS = [
   'onetime_price',
   'reset_price',
 ] as const
+
+const LEGACY_TO_NEW_PERIOD: Record<string, string> = {
+  month_price: 'monthly',
+  quarter_price: 'quarterly',
+  half_year_price: 'half_yearly',
+  year_price: 'yearly',
+  two_year_price: 'two_yearly',
+  three_year_price: 'three_yearly',
+  onetime_price: 'onetime',
+  reset_price: 'reset_traffic',
+}
 const STATUS_KEYS = [0, 1, 2, 3, 4] as const
 const COMMISSION_KEYS = [0, 1, 2, 3] as const
 
@@ -339,7 +350,12 @@ export default function OrderPage() {
     if (search.trim()) filter.push({ id: 'trade_no', value: search.trim() })
     if (userIdFilter != null) filter.push({ id: 'user_id', value: userIdFilter })
     if (typeFilter != null) filter.push({ id: 'type', value: typeFilter })
-    if (periodFilter) filter.push({ id: 'period', value: periodFilter })
+    if (periodFilter) {
+      filter.push({
+        id: 'period',
+        value: LEGACY_TO_NEW_PERIOD[periodFilter] ?? periodFilter,
+      })
+    }
     if (statusFilter != null) filter.push({ id: 'status', value: statusFilter })
     if (commissionFilter != null) filter.push({ id: 'commission_status', value: commissionFilter })
     if (commissionBalanceFilter) filter.push({ id: 'commission_balance', value: commissionBalanceFilter })

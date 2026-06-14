@@ -35,6 +35,19 @@ type TrafficStats = {
   cron_resets?: number
 }
 
+function formatBytes(n?: number | null) {
+  const v = Number(n ?? 0)
+  if (!Number.isFinite(v) || v <= 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let size = v
+  let i = 0
+  while (size >= 1024 && i < units.length - 1) {
+    size /= 1024
+    i += 1
+  }
+  return `${size.toFixed(i === 0 ? 0 : 2)} ${units[i]}`
+}
+
 const RESET_TYPE_KEYS = [
   'monthly',
   'first_day_month',
@@ -277,9 +290,9 @@ export default function TrafficResetPage() {
             </div>
             <div className="text-xs text-muted-foreground">
               {t('user.traffic_reset_logs.columns.upload')}:{' '}
-              {row.original.old_traffic?.upload ?? 0} /{' '}
+              {formatBytes(row.original.old_traffic?.upload)} /{' '}
               {t('user.traffic_reset_logs.columns.download')}:{' '}
-              {row.original.old_traffic?.download ?? 0}
+              {formatBytes(row.original.old_traffic?.download)}
             </div>
           </div>
         ),

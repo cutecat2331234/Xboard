@@ -147,6 +147,7 @@ class ServerService
         $data = array_filter($traffic, fn($item) =>
             is_array($item) && count($item) === 2
             && is_numeric($item[0]) && is_numeric($item[1])
+            && (float) $item[0] >= 0 && (float) $item[1] >= 0
         );
 
         if (empty($data)) {

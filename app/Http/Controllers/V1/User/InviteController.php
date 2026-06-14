@@ -23,7 +23,10 @@ class InviteController extends Controller
         $inviteCode = new InviteCode();
         $inviteCode->user_id = $request->user()->id;
         $inviteCode->code = Helper::randomChar(8);
-        return $this->success($inviteCode->save());
+        if (!$inviteCode->save()) {
+            return $this->fail([500, __('Save failed')]);
+        }
+        return $this->success(true);
     }
 
     public function details(Request $request)

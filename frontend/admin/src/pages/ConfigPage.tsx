@@ -444,9 +444,22 @@ export default function ConfigPage() {
                       <FormField
                         label={t('settings.invite.commission_withdraw_method.title')}
                         description={t('settings.invite.commission_withdraw_method.description')}
-                        value={String(invite.commission_withdraw_method ?? '')}
+                        value={
+                          Array.isArray(invite.commission_withdraw_method)
+                            ? invite.commission_withdraw_method.join(', ')
+                            : String(invite.commission_withdraw_method ?? '')
+                        }
                         placeholder={t('settings.invite.commission_withdraw_method.placeholder')}
-                        onChange={(v) => update('invite', 'commission_withdraw_method', v)}
+                        onChange={(v) =>
+                          update(
+                            'invite',
+                            'commission_withdraw_method',
+                            v
+                              .split(/[,，]/)
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          )
+                        }
                       />
                       <SwitchField
                         label={t('settings.invite.withdraw_close.title')}

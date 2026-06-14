@@ -52,7 +52,13 @@ class TicketService
         }
 
         if (!str_starts_with((string) $ticket->subject, self::WITHDRAW_SUBJECT_PREFIX)) {
-            return false;
+            $subject = (string) $ticket->subject;
+            $isLegacyOfficial = str_contains($subject, 'Commission Withdrawal Request')
+                || str_contains($subject, 'Commission withdrawal')
+                || str_contains($subject, '佣金提现');
+            if (!$isLegacyOfficial) {
+                return false;
+            }
         }
 
         if ($firstMessage === null) {

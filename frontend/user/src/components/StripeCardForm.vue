@@ -7,12 +7,14 @@ import {
   type StripeElementStyle,
 } from '@stripe/stripe-js'
 import { fetchStripePublicKey } from '@/api/comm'
+import { useI18n } from '@/i18n'
 
 const props = defineProps<{
   paymentId: number | null
 }>()
 
 const mountId = `stripe-card-${Math.random().toString(36).slice(2)}`
+const { t } = useI18n()
 const ready = ref(false)
 const mountError = ref<string | null>(null)
 let stripe: Stripe | null = null
@@ -48,7 +50,7 @@ async function mount() {
     const pk = await fetchStripePublicKey(props.paymentId)
     stripe = await loadStripe(pk)
     if (!stripe) {
-      mountError.value = 'Stripe unavailable'
+      mountError.value = t('order.stripeUnavailable')
       return
     }
     const elements = stripe.elements()
@@ -58,14 +60,14 @@ async function mount() {
     ready.value = true
   } catch (e: unknown) {
     ready.value = false
-    mountError.value = e instanceof Error ? e.message : 'Stripe load failed'
+    mountError.value = e instanceof Error ? e.message : t('order.stripeLoadFailed')
   }
 }
 
 async function createToken(): Promise<string | undefined> {
   if (!stripe || !card) return undefined
   const { token, error } = await stripe.createToken(card)
-  if (error) throw new Error(error.message || 'Stripe token failed')
+  if (error) throw new Error(error.message || t('order.stripeTokenFailed'))
   return token?.id
 }
 

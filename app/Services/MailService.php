@@ -194,6 +194,14 @@ class MailService
             return;
         }
 
+        $flag = CacheKey::get('LAST_SEND_EMAIL_REMIND_EXPIRE', $user->id);
+        if (Cache::get($flag)) {
+            return;
+        }
+        if (!Cache::put($flag, 1, 24 * 3600)) {
+            return;
+        }
+
         SendEmailJob::dispatch([
             'email' => $user->email,
             'subject' => __('The service in :app_name is about to expire', [
@@ -312,7 +320,7 @@ class MailService
             'subject' => $params['subject'],
             'template_name' => $params['template_name'],
             'error' => $error,
-            'config' => config('mail')
+            'config' => self::sanitizeMailConfigForLog(config('mail')),
         ];
         MailLog::create($log);
         return $log;
@@ -338,5 +346,26 @@ class MailService
             $safe['content'] = ($contentMode === 'text') ? nl2br($content) : $content;
         }
         return $safe;
+    }
+
+    /**
+     * Strip credentials before persisting mail config snapshots.
+     *
+     * @param array<string, mixed> $config
+     * @return array<string, mixed>
+     */
+    private static function sanitizeMailConfigForLog(array $config): array
+    {
+        $sanitized = $config;
+        if (isset($sanitized['mailers']) && is_array($sanitized['mailers'])) {
+            foreach ($sanitized['mailers'] as $name => $mailer) {
+                if (!is_array($mailer)) {
+                    continue;
+                }
+                unset($sanitized['mailers'][$name]['password'], $sanitized['mailers'][$name]['username']);
+            }
+        }
+
+        return $sanitized;
     }
 }
