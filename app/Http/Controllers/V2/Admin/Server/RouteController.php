@@ -36,6 +36,9 @@ class RouteController extends Controller
         if ($request->input('id')) {
             try {
                 $route = ServerRoute::find($request->input('id'));
+                if (!$route) {
+                    return $this->fail([404, '路由不存在']);
+                }
                 $route->update($params);
                 return $this->success(true);
             } catch (\Exception $e) {

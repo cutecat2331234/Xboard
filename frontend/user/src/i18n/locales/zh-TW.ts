@@ -171,7 +171,8 @@ export default {
     insufficientBalance: "餘額不足",
     paymentCardFailed: "扣款失敗，請檢查信用卡資訊",
     paymentGatewayFailed: "支付閘道請求失敗",
-    serverError: "遇到了些問題，我們正在進行處理"
+    serverError: "遇到了些問題，我們正在進行處理",
+    pageNotFound: '頁面不存在',
   },
   common: {
     loading: "載入中...",

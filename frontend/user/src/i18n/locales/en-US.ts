@@ -173,6 +173,7 @@ export default {
     paymentCardFailed: 'Payment failed. Please check your card details.',
     paymentGatewayFailed: 'Payment gateway request failed',
     serverError: 'Something went wrong. We are working on it.',
+    pageNotFound: 'Page not found',
   },
   common: {
     loading: 'Loading...',

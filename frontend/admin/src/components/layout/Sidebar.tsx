@@ -191,7 +191,7 @@ function SidebarNav({
 
 export const Sidebar = memo(function Sidebar() {
   const { title, logo, version } = getSettings()
-  const { plugins } = usePluginList()
+  const { plugins, error: pluginError } = usePluginList()
   const pluginGroups = useMemo(() => buildPluginNavGroups(plugins), [plugins])
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
@@ -232,6 +232,9 @@ export const Sidebar = memo(function Sidebar() {
         </div>
 
         <div className="group hidden min-h-0 flex-1 flex-col overflow-hidden border-b bg-background md:flex md:border-none">
+          {pluginError ? (
+            <p className="px-4 py-2 text-xs text-destructive">{pluginError.message}</p>
+          ) : null}
           <SidebarNav
             openGroups={openGroups}
             setOpenGroups={setOpenGroups}

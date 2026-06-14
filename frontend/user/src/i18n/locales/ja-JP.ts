@@ -171,7 +171,8 @@ export default {
     insufficientBalance: "残高が不足しています",
     paymentCardFailed: "決済に失敗しました。カード情報をご確認ください",
     paymentGatewayFailed: "決済ゲートウェイへのリクエストに失敗しました",
-    serverError: "問題が発生しました。対応中です"
+    serverError: "問題が発生しました。対応中です",
+    pageNotFound: 'ページが見つかりません',
   },
   common: {
     loading: "読み込み中...",

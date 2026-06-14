@@ -7,6 +7,7 @@ import {
   type OnChangeFn,
   type VisibilityState,
 } from '@tanstack/react-table'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -81,6 +82,8 @@ function RadixDoubleChevronRight() {
   )
 }
 
+const PAGE_SIZE_OPTIONS = [10, 20, 30, 50, 100]
+
 type Props<T> = {
   columns: ColumnDef<T, unknown>[]
   data: T[]
@@ -95,6 +98,7 @@ type Props<T> = {
   /** Server-side pagination: total page count */
   pageCount?: number
   onPageIndexChange?: (pageIndex: number) => void
+  onPageSizeChange?: (pageSize: number) => void
   columnVisibility?: VisibilityState
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>
   tableClassName?: string
@@ -109,12 +113,13 @@ export function DataTable<T>({
   data,
   loading,
   emptyText,
-  pageSize = 10,
+  pageSize: pageSizeProp = 10,
   alwaysShowPagination,
   totalItems,
   pageIndex: externalPageIndex,
   pageCount: externalPageCount,
   onPageIndexChange,
+  onPageSizeChange,
   columnVisibility,
   onColumnVisibilityChange,
   tableClassName,
@@ -125,6 +130,13 @@ export function DataTable<T>({
 }: Props<T>) {
   const { t } = useTranslation()
   const manualPagination = externalPageIndex != null && externalPageCount != null
+  const [clientPageSize, setClientPageSize] = useState(pageSizeProp)
+  const effectivePageSize = manualPagination ? pageSizeProp : clientPageSize
+  const [pageInput, setPageInput] = useState('1')
+  const [clientPagination, setClientPagination] = useState({
+    pageIndex: 0,
+    pageSize: pageSizeProp,
+  })
   const manualColumnVisibility =
     columnVisibility != null && onColumnVisibilityChange != null
 
@@ -135,28 +147,53 @@ export function DataTable<T>({
     ...(manualPagination
       ? { manualPagination: true, pageCount: externalPageCount }
       : { getPaginationRowModel: getPaginationRowModel() }),
-    initialState: { pagination: { pageSize, pageIndex: externalPageIndex ?? 0 } },
     state: {
-      ...(manualPagination ? { pagination: { pageIndex: externalPageIndex, pageSize } } : {}),
+      pagination: manualPagination
+        ? { pageIndex: externalPageIndex!, pageSize: effectivePageSize }
+        : clientPagination,
       ...(manualColumnVisibility ? { columnVisibility } : {}),
     },
-    onPaginationChange: manualPagination
-      ? (updater) => {
-          const prev = { pageIndex: externalPageIndex, pageSize }
-          const next = typeof updater === 'function' ? updater(prev) : updater
-          onPageIndexChange?.(next.pageIndex)
-        }
-      : undefined,
+    onPaginationChange: (updater) => {
+      if (manualPagination) {
+        const prev = { pageIndex: externalPageIndex!, pageSize: effectivePageSize }
+        const next = typeof updater === 'function' ? updater(prev) : updater
+        onPageIndexChange?.(next.pageIndex)
+        return
+      }
+      setClientPagination((prev) => (typeof updater === 'function' ? updater(prev) : updater))
+    },
     onColumnVisibilityChange: manualColumnVisibility ? onColumnVisibilityChange : undefined,
   })
 
   const visibleColumnCount = table.getVisibleLeafColumns().length
 
   const pageCount = manualPagination ? externalPageCount : table.getPageCount()
-  const pageIndex = manualPagination ? externalPageIndex : table.getState().pagination.pageIndex
+  const pageIndex = manualPagination ? externalPageIndex! : table.getState().pagination.pageIndex
   const itemTotal = totalItems ?? data.length
   const canPrevious = manualPagination ? pageIndex > 0 : table.getCanPreviousPage()
   const canNext = manualPagination ? pageIndex < pageCount - 1 : table.getCanNextPage()
+
+  useEffect(() => {
+    setPageInput(String(pageIndex + 1))
+  }, [pageIndex])
+
+  function applyPageJump() {
+    const target = Math.max(1, Math.min(pageCount || 1, parseInt(pageInput, 10) || 1))
+    setPageInput(String(target))
+    if (manualPagination) onPageIndexChange?.(target - 1)
+    else table.setPageIndex(target - 1)
+  }
+
+  function changePageSize(size: number) {
+    if (manualPagination) {
+      onPageSizeChange?.(size)
+      onPageIndexChange?.(0)
+      return
+    }
+    setClientPageSize(size)
+    table.setPageSize(size)
+    table.setPageIndex(0)
+  }
 
   const showFooter = alwaysShowPagination || data.length > 0 || loading
 
@@ -226,25 +263,29 @@ export function DataTable<T>({
           <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
             <div className="flex items-center space-x-2">
               <p className="text-sm font-medium">{t('common.table.pagination.itemsPerPage')}</p>
-              <button
-                type="button"
-                role="combobox"
-                aria-expanded="false"
-                aria-autocomplete="none"
-                dir="ltr"
-                data-state="closed"
-                className="flex items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 h-8 w-[70px]"
+              <select
+                className="flex h-8 w-[70px] items-center rounded-md border border-input bg-transparent px-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                value={effectivePageSize}
+                onChange={(e) => changePageSize(Number(e.target.value))}
               >
-                <span style={{ pointerEvents: 'none' }}>{pageSize}</span>
-                <RadixChevronDown />
-              </button>
+                {PAGE_SIZE_OPTIONS.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="flex items-center justify-center space-x-2 text-sm font-medium">
               <span>{t('common.table.pagination.page')}</span>
               <input
                 type="text"
                 className="flex rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 h-8 w-[50px] text-center"
-                value={String(pageIndex + 1)}
+                value={pageInput}
+                onChange={(e) => setPageInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') applyPageJump()
+                }}
+                onBlur={applyPageJump}
               />
               <span>{t('common.table.pagination.pageOf', { total: pageCount || 0 })}</span>
             </div>

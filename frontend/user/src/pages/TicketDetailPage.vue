@@ -5,6 +5,7 @@ import { NCard, NButton, NInput, NScrollbar, NAlert, useMessage } from 'naive-ui
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
 import { formatFixedDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const route = useRoute()
 const msg = useMessage()
@@ -19,16 +20,23 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 
 const isClosed = computed(() => Boolean(ticket.value?.status))
 
-async function load() {
-  const id = Number(route.params.id)
-  ticket.value = await fetchTicketById(id)
-  if (ticket.value.status !== 0) {
-    stopPoll()
-  }
+function scrollToBottom() {
   requestAnimationFrame(() => {
-    const el = scrollContentRef.value
-    if (el) el.scrollTop = el.scrollHeight
+    scrollRef.value?.scrollTo({ top: 999999, behavior: 'auto' })
   })
+}
+
+async function load() {
+  try {
+    const id = Number(route.params.id)
+    ticket.value = await fetchTicketById(id)
+    if (ticket.value.status !== 0) {
+      stopPoll()
+    }
+    scrollToBottom()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
 }
 
 async function sendReply() {

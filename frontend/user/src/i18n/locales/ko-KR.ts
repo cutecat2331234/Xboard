@@ -171,7 +171,8 @@ export default {
     insufficientBalance: "잔액이 부족합니다",
     paymentCardFailed: "결제에 실패했습니다. 카드 정보를 확인해 주세요",
     paymentGatewayFailed: "결제 게이트웨이 요청에 실패했습니다",
-    serverError: "문제가 발생했습니다. 처리 중입니다"
+    serverError: "문제가 발생했습니다. 처리 중입니다",
+    pageNotFound: '페이지를 찾을 수 없습니다',
   },
   common: {
     loading: "로딩 중...",

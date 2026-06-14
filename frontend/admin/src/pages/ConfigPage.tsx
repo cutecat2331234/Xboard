@@ -236,25 +236,21 @@ export default function ConfigPage() {
       <div className="flex flex-1 flex-col space-y-8 overflow-auto lg:flex-row lg:space-x-12 lg:space-y-0">
         <aside className="sticky top-0 lg:w-1/5">
           <div className="p-1 md:hidden">
-            <button
-              type="button"
-              role="combobox"
-              aria-expanded="false"
-              aria-autocomplete="none"
-              dir="ltr"
-              data-state="closed"
-              className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 sm:w-48 [&>span]:line-clamp-1"
+            <select
+              className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring sm:w-48"
+              value={section}
+              onChange={(e) => {
+                const id = e.target.value as SectionId
+                setSection(id)
+                navigate(sectionToPath(id))
+              }}
             >
-              <span style={{ pointerEvents: 'none' }}>
-                <div className="flex gap-x-4 px-2 py-1">
-                  <span className="scale-125">
-                    <ConfigNavIcon name={active.icon} />
-                  </span>
-                  <span className="text-md">{t(active.labelKey)}</span>
-                </div>
-              </span>
-              <RadixChevron />
-            </button>
+              {SECTIONS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {t(item.labelKey)}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="hidden w-full overflow-x-auto bg-background px-1 py-2 md:block">
             <nav className="config-nav flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
