@@ -90,7 +90,9 @@ const menuOptions = computed<MenuOption[]>(() => {
     key: 'g-account',
     children: [
       { label: t('nav.profile'), key: '/profile', icon: renderIcon(MENU_ICON_PATHS.profile) },
-      { label: t('nav.ticket'), key: '/ticket', icon: renderIcon(MENU_ICON_PATHS.ticket) },
+      ...(commConfig.value?.ticket_enable !== 0
+        ? [{ label: t('nav.ticket'), key: '/ticket', icon: renderIcon(MENU_ICON_PATHS.ticket) }]
+        : []),
       { label: t('nav.traffic'), key: '/traffic', icon: renderIcon(MENU_ICON_PATHS.traffic) },
     ],
   },

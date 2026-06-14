@@ -104,7 +104,7 @@ router.beforeEach(async (to) => {
     if (valid && publicPaths.includes(to.path) && !hasTokenLogin) {
       return { path: '/dashboard' }
     }
-    if (valid && (to.path === '/gift-card' || to.path === '/invite')) {
+    if (valid && (to.path === '/gift-card' || to.path === '/invite' || to.path === '/ticket' || to.path.startsWith('/ticket/'))) {
       try {
         const comm = await fetchUserCommConfig()
         if (to.path === '/gift-card' && Number(comm.gift_card_enable) === 0) {
@@ -113,8 +113,11 @@ router.beforeEach(async (to) => {
         if (to.path === '/invite' && Number(comm.invite_enable) === 0) {
           return { path: '/dashboard' }
         }
+        if ((to.path === '/ticket' || to.path.startsWith('/ticket/')) && Number(comm.ticket_enable) === 0) {
+          return { path: '/dashboard' }
+        }
       } catch {
-        /* keep route accessible if config fetch fails */
+        return { path: '/dashboard' }
       }
     }
     return true

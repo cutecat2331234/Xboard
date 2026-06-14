@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\CommissionLog;
+use App\Support\AppFeature;
 use Illuminate\Console\Command;
 use App\Models\Order;
 use App\Models\User;
@@ -22,6 +23,9 @@ class CheckCommission extends Command
 
     public function handle()
     {
+        if (!AppFeature::commissionEnabled()) {
+            return;
+        }
         $this->autoCheck();
         $this->autoPayCommission();
     }

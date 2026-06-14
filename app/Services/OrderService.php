@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Plan;
 use App\Models\TrafficResetLog;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Services\Plugin\HookManager;
 use App\Utils\Helper;
 use Illuminate\Support\Facades\DB;
@@ -243,6 +244,9 @@ class OrderService
 
     public function setInvite(User $user): void
     {
+        if (!AppFeature::commissionEnabled() || !AppFeature::inviteEnabled()) {
+            return;
+        }
         $order = $this->order;
         if (!$user->invite_user_id) {
             return;

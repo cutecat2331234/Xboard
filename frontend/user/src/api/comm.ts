@@ -26,7 +26,7 @@ export interface GuestConfig {
   invite_enable?: number
   gift_card_enable?: number
   coupon_enable?: number
-  register_enable?: number
+  ticket_enable?: number
 }
 
 export interface UserCommConfig {
@@ -51,6 +51,7 @@ export interface UserCommConfig {
   gift_card_enable?: number
   coupon_enable?: number
   register_enable?: number
+  ticket_enable?: number
 }
 
 const DEFAULT_TRAFFIC_WARN_RATE = 70

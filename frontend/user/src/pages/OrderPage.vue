@@ -70,7 +70,7 @@ function confirmCancel(tradeNo: string) {
         msg.success(t('order.closeSuccess'))
         await loadOrders()
       } catch (e: unknown) {
-        msg.error(resolveApiError(e, t, t('order.cancelFailed')))
+        msg.error(resolveApiError(e, t, t('errors.cancelFailed')))
       }
     },
   })

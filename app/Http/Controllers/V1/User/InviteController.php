@@ -69,26 +69,28 @@ class InviteController extends Controller
         if ($user->commission_rate) {
             $commission_rate = $user->commission_rate;
         }
-        $uncheck_commission_balance = (int) Order::where('status', Order::STATUS_COMPLETED)
-            ->whereIn('commission_status', [0, 1])
-            ->where('invite_user_id', $user->id)
-            ->sum('commission_balance');
-        if (admin_setting('commission_distribution_enable', 0)) {
-            $l1 = (int) admin_setting('commission_distribution_l1', 100);
-            $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));
+        $uncheck_commission_balance = 0;
+        $commissionBalance = 0;
+        $validCommission = 0;
+        if (AppFeature::commissionEnabled()) {
+            $uncheck_commission_balance = (int) Order::where('status', Order::STATUS_COMPLETED)
+                ->whereIn('commission_status', [0, 1])
+                ->where('invite_user_id', $user->id)
+                ->sum('commission_balance');
+            if (admin_setting('commission_distribution_enable', 0)) {
+                $l1 = (int) admin_setting('commission_distribution_l1', 100);
+                $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));
+            }
+            $validCommission = (int) CommissionLog::where('invite_user_id', $user->id)
+                ->sum('get_amount');
+            $commissionBalance = (int) $user->commission_balance;
         }
         $stat = [
-            //已注册用户数
             (int)User::where('invite_user_id', $user->id)->count(),
-            //有效的佣金
-            (int)CommissionLog::where('invite_user_id', $user->id)
-                ->sum('get_amount'),
-            //确认中的佣金
+            $validCommission,
             $uncheck_commission_balance,
-            //佣金比例
-            (int)$commission_rate,
-            //可用佣金
-            (int)$user->commission_balance
+            AppFeature::commissionEnabled() ? (int)$commission_rate : 0,
+            $commissionBalance,
         ];
         $data = [
             'codes' => InviteCodeResource::collection($user->codes),
