@@ -477,7 +477,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "emailInvalid": "邮箱地址格式不正确",
         "passwordRequired": "请输入密码",
         "passwordLength": "密码长度至少为7个字符"
-      }
+      },
+      "notAdmin": "该账号没有管理员权限"
     }
   },
   "notice": {

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { ApiResponse } from '@/types/settings'
 import { getRouterBase } from '@/utils/settings'
+import { invalidateSessionCache } from '@/lib/session-cache'
 
 const AUTH_STORAGE_KEY = 'xboard_auth_data'
 
@@ -25,7 +26,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 403) {
-      localStorage.removeItem(AUTH_STORAGE_KEY)
+      clearAuthData()
+      invalidateSessionCache()
       const loginPath = `${getRouterBase()}#/login`
       if (!window.location.hash.includes('/login')) {
         window.location.href = loginPath

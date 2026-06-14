@@ -193,8 +193,8 @@ class DeviceStateService
     {
         $dbThrottleKey = "device:db_throttle:{$userId}";
 
-        // if (Redis::setnx($dbThrottleKey, 1)) {
-        //     Redis::expire($dbThrottleKey, self::DB_THROTTLE);
+        if (Redis::setnx($dbThrottleKey, 1)) {
+            Redis::expire($dbThrottleKey, self::DB_THROTTLE);
 
             User::query()
                 ->whereKey($userId)
@@ -202,6 +202,6 @@ class DeviceStateService
                     'online_count' => $this->getDeviceCount($userId),
                     'last_online_at' => now(),
                 ]);
-        // }
+        }
     }
 }

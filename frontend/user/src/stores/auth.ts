@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { checkLogin as apiCheckLogin } from '@/api/user'
 import { clearAuthData, getAuthData } from '@/api'
+import { invalidateSessionCache } from '@/lib/session-cache'
 import { login as apiLogin, logout as apiLogout, register as apiRegister } from '@/api/auth'
 import type { AuthFormPayload, LoginForm, RegisterForm } from '@/api/auth'
 import type { UserInfo } from '@/api/user'
@@ -50,6 +51,8 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = await fetchUserInfo()
       isAuthenticated.value = true
     } catch {
+      clearAuthData()
+      invalidateSessionCache()
       user.value = null
       isAuthenticated.value = false
     }
@@ -72,6 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
       return result.is_login
     } catch {
       clearAuthData()
+      invalidateSessionCache()
       isAuthenticated.value = false
       return false
     }
@@ -79,6 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function logout() {
     apiLogout()
+    invalidateSessionCache()
     user.value = null
     isAuthenticated.value = false
   }
