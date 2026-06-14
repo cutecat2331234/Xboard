@@ -165,7 +165,10 @@ class PlanService
         }
 
         if (!$this->plan->renew && $user->plan_id == $this->plan->id) {
-            throw new ApiException(__('This subscription cannot be renewed, please change to another subscription'));
+            $stillActive = $user->expired_at === null || (int) $user->expired_at > time();
+            if ($stillActive) {
+                throw new ApiException(__('This subscription cannot be renewed, please change to another subscription'));
+            }
         }
 
         if (!$this->plan->show && $this->plan->renew && !app(UserService::class)->isAvailable($user)) {

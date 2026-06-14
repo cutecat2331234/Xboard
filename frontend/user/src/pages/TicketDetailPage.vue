@@ -107,9 +107,10 @@ function stopPoll() {
 onMounted(async () => {
   try {
     await loadComm()
-    commReady.value = true
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  } finally {
+    commReady.value = true
   }
   await load()
   if (ticket.value?.status === 0) startPoll()

@@ -32,6 +32,8 @@ const popupNotice = ref<NoticeItem | null>(null)
 const unpaidOrders = ref(0)
 const openTickets = ref(0)
 const ticketsEnabled = computed(() => featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null))
+const knowledgeEnabled = computed(() => featureEnabled(commConfig.value?.knowledge_enable, commConfig.value != null))
+const announcementsEnabled = computed(() => featureEnabled(commConfig.value?.announcement_enable, commConfig.value != null))
 
 const promoNotices = computed(() => notices.value.filter((n) => n.img_url))
 const popupNoticeTags = computed(() =>
@@ -96,6 +98,11 @@ function openClientImport() {
 }
 
 async function loadNotices() {
+  if (!announcementsEnabled.value) {
+    notices.value = []
+    popupNotice.value = null
+    return
+  }
   try {
     notices.value = await fetchNotices()
     const needles = popupNoticeTags.value
@@ -111,12 +118,12 @@ async function loadNotices() {
 
 onMounted(async () => {
   await auth.loadUser()
-  await Promise.all([load(), loadNotices()])
   try {
     await loadComm()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
+  await Promise.all([load(), loadNotices()])
   try {
     const stat = await fetchUserStat()
     unpaidOrders.value = stat[0] ?? 0
@@ -129,8 +136,9 @@ onMounted(async () => {
 })
 
 const shortcuts = computed(() => {
-  const items = [
-  {
+  const items = []
+  if (knowledgeEnabled.value) {
+    items.push({
     icon: renderCarbonIcon(
       'M12 21.5c-1.35-.85-3.8-1.5-5.5-1.5c-1.65 0-3.35.3-4.75 1.05c-.1.05-.15.05-.25.05c-.25 0-.5-.25-.5-.5V6c.6-.45 1.25-.75 2-1c1.11-.35 2.33-.5 3.5-.5c1.95 0 4.05.4 5.5 1.5c1.45-1.1 3.55-1.5 5.5-1.5c1.17 0 2.39.15 3.5.5c.75.25 1.4.55 2 1v14.6c0 .25-.25.5-.5.5c-.1 0-.15 0-.25-.05c-1.4-.75-3.1-1.05-4.75-1.05c-1.7 0-4.15.65-5.5 1.5M12 8v11.5c1.35-.85 3.8-1.5 5.5-1.5c1.2 0 2.4.15 3.5.5V7c-1.1-.35-2.3-.5-3.5-.5c-1.7 0-4.15.65-5.5 1.5m1 3.5c1.11-.68 2.6-1 4.5-1c.91 0 1.76.09 2.5.28V9.23c-.87-.15-1.71-.23-2.5-.23q-2.655 0-4.5.84zm4.5.17c-1.71 0-3.21.26-4.5.79v1.69c1.11-.65 2.6-.99 4.5-.99c1.04 0 1.88.08 2.5.24v-1.5c-.87-.16-1.71-.23-2.5-.23m2.5 2.9c-.87-.16-1.71-.24-2.5-.24c-1.83 0-3.33.27-4.5.8v1.69c1.11-.66 2.6-.99 4.5-.99c1.04 0 1.88.08 2.5.24z',
       '0 0 24 24',
@@ -139,8 +147,9 @@ const shortcuts = computed(() => {
     titleKey: 'dashboard.viewTutorial',
     descKey: 'dashboard.viewTutorialDesc',
     to: '/knowledge',
-  },
-  {
+    })
+  }
+  items.push({
     icon: renderCarbonIcon(
       'M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27zm0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93z',
       '0 0 24 24',
@@ -159,8 +168,7 @@ const shortcuts = computed(() => {
     titleKey: 'dashboard.purchase',
     descKey: 'dashboard.purchaseDesc',
     to: '/plan',
-  },
-  ]
+  })
   if (ticketsEnabled.value) {
     items.push({
       icon: renderCarbonIcon(

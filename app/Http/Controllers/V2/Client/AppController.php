@@ -26,7 +26,7 @@ class AppController extends Controller
             ],
             'features' => [
                 'enable_register' => \App\Support\AppFeature::registerEnabled(),
-                'enable_invite_system' => AppFeature::inviteEnabled() && AppFeature::commissionEnabled(),
+                'enable_invite_system' => AppFeature::inviteEnabled(),
                 'enable_telegram_bot' => (bool) admin_setting('telegram_bot_enable', false), // 是否开启 Telegram 机器人
                 'enable_ticket_system' => (bool) admin_setting('app_enable_ticket_system', true), // 是否开启工单系统
                 'ticket_must_wait_reply' => (bool) admin_setting('ticket_must_wait_reply', 0), // 工单是否需要等待管理员回复后才可继续发消息

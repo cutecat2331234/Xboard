@@ -132,7 +132,7 @@ class OrderService
                 throw new \RuntimeException('订阅计划不存在或已删除');
             }
 
-            if ((int) $order->type === Order::TYPE_NEW_PURCHASE) {
+            if (in_array((int) $order->type, [Order::TYPE_NEW_PURCHASE, Order::TYPE_UPGRADE], true)) {
                 if (!(new PlanService($plan))->hasCapacity($plan)) {
                     throw new \RuntimeException(__('Current product is sold out'));
                 }
@@ -420,7 +420,7 @@ class OrderService
                 $this->order = $order;
 
                 $refundCents = (int) $order->balance_amount;
-                if ($order->paid_at) {
+                if ($order->paid_at && !$this->isCompedPaymentCallback($order->callback_no)) {
                     $refundCents += (int) $order->total_amount + (int) ($order->handling_amount ?? 0);
                 }
 
@@ -458,6 +458,19 @@ class OrderService
             ]);
             return false;
         }
+    }
+
+    /**
+     * Admin comp / free checkout — no gateway funds to refund as balance.
+     */
+    private function isCompedPaymentCallback(?string $callbackNo): bool
+    {
+        if ($callbackNo === null || $callbackNo === '') {
+            return false;
+        }
+        return str_starts_with($callbackNo, 'ADMIN_ASSIGN_')
+            || str_starts_with($callbackNo, 'free:')
+            || $callbackNo === 'manual_operation';
     }
 
     public function cancel(): bool

@@ -5,6 +5,19 @@ import {
   setAdminSessionCache,
 } from '@/lib/session-cache'
 
+function isTransientSessionError(error: unknown): boolean {
+  if (error instanceof TypeError) return true
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase()
+    return msg.includes('network') || msg.includes('fetch') || msg.includes('failed to fetch')
+  }
+  return false
+}
+
+function isAuthSessionError(error: unknown): boolean {
+  return error instanceof Error && error.message === 'Unauthorized'
+}
+
 export async function ensureAdminSession(): Promise<boolean> {
   if (!getAuthData()) {
     invalidateAdminSessionCache()
@@ -21,9 +34,21 @@ export async function ensureAdminSession(): Promise<boolean> {
     await fetchDashboardStats()
     setAdminSessionCache(true, now)
     return true
-  } catch {
-    clearAuthData()
-    invalidateAdminSessionCache()
-    return false
+  } catch (error) {
+    if (!getAuthData()) {
+      invalidateAdminSessionCache()
+      return false
+    }
+    if (isAuthSessionError(error)) {
+      clearAuthData()
+      invalidateAdminSessionCache()
+      return false
+    }
+    if (isTransientSessionError(error)) {
+      setAdminSessionCache(lastSessionValid, now)
+      return lastSessionValid
+    }
+    setAdminSessionCache(lastSessionValid, now)
+    return lastSessionValid
   }
 }

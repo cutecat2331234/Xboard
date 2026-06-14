@@ -73,9 +73,10 @@ class OrderHandleJob implements ShouldQueue, ShouldBeUnique
                     break;
                 case Order::STATUS_PROCESSING:
                     if (!$order->paid_at) {
-                        Log::warning('OrderHandleJob: skipping open for processing order without paid_at', [
+                        Log::warning('OrderHandleJob: cancelling processing order without paid_at', [
                             'trade_no' => $order->trade_no,
                         ]);
+                        $orderService->cancel();
                         break;
                     }
                     try {

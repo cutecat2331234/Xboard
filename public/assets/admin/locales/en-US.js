@@ -1911,9 +1911,25 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "label": "Enable Gift Card",
           "description": "When disabled, users cannot access the gift card page."
         },
+        "featureTrafficLog": {
+          "label": "Enable Traffic Log",
+          "description": "When disabled, users cannot access the traffic log page."
+        },
+        "featureKnowledgeBase": {
+          "label": "Enable Knowledge Base",
+          "description": "When disabled, users cannot access the knowledge base page."
+        },
+        "featureAnnouncements": {
+          "label": "Enable Announcements",
+          "description": "When disabled, announcements and popup notices are hidden on the user site."
+        },
         "ticketMustWaitReply": {
           "label": "Reply Wait Restriction",
           "description": "When enabled, users cannot continue sending messages in the same ticket until an administrator replies."
+        },
+        "tryOutEnable": {
+          "label": "Enable Registration Trial",
+          "description": "When disabled, new users will not receive a trial subscription on registration."
         },
         "tryOut": {
           "label": "Registration Trial",
@@ -1924,6 +1940,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
             "placeholder": "0",
             "description": "Trial duration in hours."
           }
+        },
+        "tryOutHour": {
+          "label": "Trial Duration (hours)",
+          "description": "Trial duration in hours."
         },
         "currency": {
           "label": "Currency Unit",

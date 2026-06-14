@@ -38,6 +38,9 @@ class CommController extends Controller
             'coupon_enable' => (int) AppFeature::couponEnabled(),
             'register_enable' => (int) AppFeature::registerEnabled(),
             'ticket_enable' => (int) AppFeature::ticketEnabled(),
+            'knowledge_enable' => (int) admin_setting('app_enable_knowledge_base', 1),
+            'traffic_log_enable' => (int) admin_setting('app_enable_traffic_log', 1),
+            'announcement_enable' => (int) admin_setting('app_enable_announcements', 1),
         ];
         return $this->success($data);
     }

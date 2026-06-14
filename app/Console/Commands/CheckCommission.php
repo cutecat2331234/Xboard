@@ -94,11 +94,8 @@ class CheckCommission extends Command
                     }
                     $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
                     if ($payResult === 'invalid') {
-                        Log::warning('Commission remainder payout invalid, keeping order pending', [
-                            'order_id' => $orderId,
-                            'paid' => $paidTotal,
-                            'expected' => $expectedTotal,
-                        ]);
+                        $order->commission_status = Order::COMMISSION_STATUS_INVALID;
+                        $order->save();
                     } elseif ($paidTotal >= $expectedTotal) {
                         $order->commission_status = 2;
                         $order->actual_commission_balance = $paidTotal;
@@ -110,10 +107,9 @@ class CheckCommission extends Command
 
                 $payResult = $this->payHandle($order->invite_user_id, $order);
                 if ($payResult === 'invalid') {
-                    Log::warning('Commission payout invalid, keeping order pending for retry', [
-                        'order_id' => $orderId,
-                    ]);
-                    DB::rollBack();
+                    $order->commission_status = Order::COMMISSION_STATUS_INVALID;
+                    $order->save();
+                    DB::commit();
                     continue;
                 }
                 if ($payResult !== 'ok') {
@@ -263,6 +259,9 @@ class CheckCommission extends Command
             $inviter = User::where('id', $inviteUserId)->lockForUpdate()->first();
             if (!$inviter) {
                 break;
+            }
+            if ($inviter->banned) {
+                return 'invalid';
             }
             if (!isset($commissionShareLevels[$l])) {
                 $inviteUserId = $inviter->invite_user_id;
