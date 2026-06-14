@@ -88,9 +88,15 @@ class Plugin extends AbstractPlugin implements PaymentInterface
             return false;
         }
 
+        $tradeStatus = $params['trade_status'] ?? null;
+        if ($tradeStatus !== null && !in_array($tradeStatus, ['TRADE_SUCCESS', 'success', '1'], true)) {
+            return false;
+        }
+
         return [
             'trade_no' => $params['out_trade_no'],
-            'callback_no' => $params['trade_no']
+            'callback_no' => $params['trade_no'],
+            'amount' => (int) round(((float) ($params['money'] ?? 0)) * 100),
         ];
     }
 }

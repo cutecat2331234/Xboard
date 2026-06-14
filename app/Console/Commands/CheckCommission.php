@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CheckCommission extends Command
 {
@@ -84,7 +85,8 @@ class CheckCommission extends Command
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                throw $e;
+                Log::error('Commission payout failed for order ' . $orderId, ['error' => $e->getMessage()]);
+                continue;
             }
         }
     }

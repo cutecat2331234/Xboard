@@ -305,20 +305,22 @@ class UpdateService
     protected function pullLatestCode(): array
     {
         try {
-            // Get current project root directory
             $basePath = base_path();
-            
-            // Ensure git configuration is correct
-            Process::run(sprintf('git config --global --add safe.directory %s', $basePath));
-            
-            // Pull latest code
-            Process::run('git fetch origin master');
-            Process::run('git reset --hard origin/master');
 
-            // Update dependencies
-            Process::run('composer install --no-dev --optimize-autoloader');
+            $commands = [
+                sprintf('git config --global --add safe.directory %s', $basePath),
+                'git fetch origin master',
+                'git reset --hard origin/master',
+                'composer install --no-dev --optimize-autoloader',
+            ];
 
-            // Update version cache after pulling new code
+            foreach ($commands as $command) {
+                Process::run($command);
+                if (!Process::result()->successful()) {
+                    throw new \Exception(trim(Process::result()->errorOutput() ?: Process::result()->output()) ?: $command . ' failed');
+                }
+            }
+
             $this->updateVersionCache();
 
             return ['success' => true];
@@ -334,6 +336,9 @@ class UpdateService
     {
         try {
             Process::run('php artisan migrate --force');
+            if (!Process::result()->successful()) {
+                throw new \Exception(trim(Process::result()->errorOutput() ?: Process::result()->output()) ?: 'migrate failed');
+            }
         } catch (\Exception $e) {
             Log::error('Migration failed: ' . $e->getMessage());
             throw new \Exception(__('update.migration_failed', ['error' => $e->getMessage()]));

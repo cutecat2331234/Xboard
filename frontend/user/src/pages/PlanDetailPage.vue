@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, NTag, useMessage, useDialog } from 'naive-ui'
+import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, NTag, NSpin, useMessage, useDialog } from 'naive-ui'
 import { fetchPlanById, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
 import { saveOrder, cancelOrder, fetchOrders } from '@/api/order'
 import { resolveTryOutPlanId } from '@/api/comm'
@@ -118,7 +118,8 @@ onMounted(async () => {
 
 <template>
   <div class="plan-detail-page">
-  <n-card v-if="plan" class="plan-detail-card rounded-md">
+  <n-spin v-if="loading" class="plan-loading" />
+  <n-card v-else-if="plan" class="plan-detail-card rounded-md">
     <template #header>
       <div class="plan-header">
         <span>{{ plan.name }}</span>
@@ -154,11 +155,15 @@ onMounted(async () => {
       <n-button type="primary" class="buy-btn" :loading="buying" @click="buy">{{ t('plan.buyNow') }}</n-button>
     </template>
   </n-card>
-  <p v-else-if="!loading" class="muted">—</p>
+  <p v-else class="muted">—</p>
   </div>
 </template>
 
 <style scoped>
+.plan-loading {
+  display: block;
+  padding: 48px 0;
+}
 .plan-detail-page {
   max-width: 800px;
 }

@@ -260,11 +260,14 @@ class UserController extends Controller
             }
             $params['group_id'] = $plan->group_id;
         }
-        // 处理邀请用户
-        if ($request->input('invite_user_email') && $inviteUser = User::byEmail($request->input('invite_user_email'))->first()) {
-            $params['invite_user_id'] = $inviteUser->id;
-        } else {
-            $params['invite_user_id'] = null;
+        // 处理邀请用户（仅当请求显式携带 invite_user_email 时才更新）
+        if ($request->exists('invite_user_email')) {
+            $inviteEmail = trim((string) $request->input('invite_user_email'));
+            if ($inviteEmail !== '' && ($inviteUser = User::byEmail($inviteEmail)->first())) {
+                $params['invite_user_id'] = $inviteUser->id;
+            } else {
+                $params['invite_user_id'] = null;
+            }
         }
 
         if (isset($params['banned']) && (int) $params['banned'] === 1) {

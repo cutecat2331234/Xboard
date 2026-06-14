@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ExternalLink } from 'lucide-react'
-import { getAuthData } from '@/lib/api'
 import { getAdminApiPrefix } from '@/lib/settings'
 import {
   buildPluginRoute,
   fetchPluginMenuPageHtml,
   normalizePluginPath,
+  openPluginBackendPage,
   resolvePluginMenuBackendPageUrl,
   resolvePluginMenuIframeSrc,
   resolvePluginMenuPageApiUrl,
@@ -15,6 +15,7 @@ import {
 import type { PluginAdminMenu, PluginRow } from '@/lib/plugin-types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { toast } from 'sonner'
 
 type Props = {
   plugin: PluginRow
@@ -25,7 +26,6 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
   const { t } = useTranslation()
   const pluginCode = plugin.code ?? ''
   const menuPath = normalizePluginPath(menu.path)
-  const authData = getAuthData()
   const apiPrefix = getAdminApiPrefix()
 
   const iframeSrc = useMemo(
@@ -34,21 +34,22 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
   )
 
   const backendPageUrl = useMemo(
-    () => resolvePluginMenuBackendPageUrl(pluginCode, menu, { apiPrefix, authData }),
-    [pluginCode, menu, apiPrefix, authData],
+    () => resolvePluginMenuBackendPageUrl(pluginCode, menu, { apiPrefix }),
+    [pluginCode, menu, apiPrefix],
   )
 
   const pageApiUrl = useMemo(
     () =>
       iframeSrc
         ? null
-        : resolvePluginMenuPageApiUrl(pluginCode, menuPath, { apiPrefix, authData }),
-    [iframeSrc, pluginCode, menuPath, apiPrefix, authData],
+        : resolvePluginMenuPageApiUrl(pluginCode, menuPath, { apiPrefix }),
+    [iframeSrc, pluginCode, menuPath, apiPrefix],
   )
 
   const [embeddedHtml, setEmbeddedHtml] = useState<string | null>(null)
   const [loadingEmbed, setLoadingEmbed] = useState(Boolean(pageApiUrl))
   const [pageProbeFailed, setPageProbeFailed] = useState(false)
+  const [openingBackend, setOpeningBackend] = useState(false)
 
   useEffect(() => {
     if (iframeSrc || !pageApiUrl) {
@@ -73,6 +74,19 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
       cancelled = true
     }
   }, [iframeSrc, pageApiUrl])
+
+  async function handleOpenBackendPage() {
+    if (!backendPageUrl) return
+    setOpeningBackend(true)
+    try {
+      const ok = await openPluginBackendPage(backendPageUrl)
+      if (!ok) {
+        toast.error(t('plugin.runtime.pluginContentUnavailable'))
+      }
+    } finally {
+      setOpeningBackend(false)
+    }
+  }
 
   if (iframeSrc || embeddedHtml) {
     return (
@@ -132,11 +146,9 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
 
         <div className="flex flex-wrap gap-2">
           {backendPageUrl ? (
-            <Button asChild>
-              <a href={backendPageUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                {t('plugin.runtime.openBackendPage')}
-              </a>
+            <Button type="button" disabled={openingBackend} onClick={() => void handleOpenBackendPage()}>
+              <ExternalLink className="mr-2 h-4 w-4" />
+              {t('plugin.runtime.openBackendPage')}
             </Button>
           ) : null}
           <Button variant="outline" asChild>

@@ -47,7 +47,13 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  if (state === 'loading') return null
+  if (state === 'loading') {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+        …
+      </div>
+    )
+  }
   if (state === 'guest') {
     return <Navigate to="/sign-in" replace />
   }

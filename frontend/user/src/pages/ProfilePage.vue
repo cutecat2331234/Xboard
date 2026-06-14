@@ -112,8 +112,9 @@ async function loadSessions() {
   sessionsLoading.value = true
   try {
     sessions.value = await getActiveSessions()
-  } catch {
+  } catch (e: unknown) {
     sessions.value = []
+    msg.error(resolveApiError(e, t))
   } finally {
     sessionsLoading.value = false
   }

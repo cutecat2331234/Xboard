@@ -539,6 +539,19 @@ class PluginManager
             throw new \Exception('无法打开插件包文件');
         }
 
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entry = $zip->getNameIndex($i);
+            if ($entry === false) {
+                continue;
+            }
+            $normalized = str_replace('\\', '/', $entry);
+            if (str_starts_with($normalized, '/') || str_contains($normalized, '../')) {
+                $zip->close();
+                File::deleteDirectory($extractPath);
+                throw new \Exception('插件包包含非法路径');
+            }
+        }
+
         $zip->extractTo($extractPath);
         $zip->close();
 
