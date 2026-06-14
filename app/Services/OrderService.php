@@ -56,6 +56,11 @@ class OrderService
         HookManager::call('order.create.before', [$user, $plan, $period, $couponCode]);
 
         return DB::transaction(function () use ($user, $plan, $period, $couponCode, $userService) {
+            User::where('id', $user->id)->lockForUpdate()->first();
+            if ($userService->isNotCompleteOrderByUserId($user->id)) {
+                throw new ApiException(__('You have an unpaid or pending order, please try again later or cancel it'));
+            }
+
             $newPeriod = PlanService::getPeriodKey($period);
 
             $order = new Order([
@@ -94,16 +99,23 @@ class OrderService
 
     public function open(): void
     {
-        $order = $this->order;
-        $plan = Plan::find($order->plan_id);
-        if (!$plan) {
-            throw new \RuntimeException('订阅计划不存在或已删除');
-        }
+        HookManager::call('order.open.before', $this->order);
 
-        HookManager::call('order.open.before', $order);
+        $shouldRunEvent = DB::transaction(function () {
+            $order = Order::where('id', $this->order->id)->lockForUpdate()->first();
+            if (!$order) {
+                throw new \RuntimeException('订单不存在');
+            }
+            if ((int) $order->status !== Order::STATUS_PROCESSING) {
+                return false;
+            }
 
+            $plan = Plan::find($order->plan_id);
+            if (!$plan) {
+                throw new \RuntimeException('订阅计划不存在或已删除');
+            }
 
-        DB::transaction(function () use ($order, $plan) {
+            $this->order = $order;
             $this->user = User::lockForUpdate()->find($order->user_id);
             if (!$this->user) {
                 throw new \RuntimeException('用户不存在');
@@ -135,8 +147,15 @@ class OrderService
             if (!$order->save()) {
                 throw new \RuntimeException('订单信息保存失败');
             }
+
+            return true;
         });
 
+        if (!$shouldRunEvent) {
+            return;
+        }
+
+        $order = $this->order;
         $eventId = match ((int) $order->type) {
             Order::TYPE_NEW_PURCHASE => admin_setting('new_order_event_id', 0),
             Order::TYPE_RENEWAL => admin_setting('renew_order_event_id', 0),
@@ -279,10 +298,7 @@ class OrderService
             $trafficRatio = $totalTraffic > 0 ? $remainTraffic / $totalTraffic : 0;
 
             $ratio = $cycleRatio;
-            $useTrafficRatio = (int) admin_setting(
-                'surplus_traffic_ratio_enable',
-                admin_setting('change_order_event_id', 0),
-            ) === 1;
+            $useTrafficRatio = (int) admin_setting('surplus_traffic_ratio_enable', 0) === 1;
             if ($useTrafficRatio) {
                 $ratio = min($cycleRatio, $trafficRatio);
             }

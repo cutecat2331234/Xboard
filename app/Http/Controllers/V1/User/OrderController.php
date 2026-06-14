@@ -68,10 +68,6 @@ class OrderController extends Controller
         $user = User::findOrFail($request->user()->id);
         $userService = app(UserService::class);
 
-        if ($userService->isNotCompleteOrderByUserId($user->id)) {
-            throw new ApiException(__('You have an unpaid or pending order, please try again later or cancel it'));
-        }
-
         $plan = Plan::findOrFail($request->input('plan_id'));
         $planService = new PlanService($plan);
 

@@ -1975,10 +1975,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "title": "开启折抵方案",
         "description": "开启后用户更换订阅将会由系统对原有订阅进行折抵，方案参考文档。"
       },
-      "surplus_traffic_ratio_enable": {
-        "title": "折抵时计入剩余流量比例",
-        "description": "开启后升级折抵将取「周期剩余价值」与「流量剩余比例」的较小值；与「升级完成后重置流量」相互独立。"
-      },
       "new_order_event": {
         "title": "当订阅新购时触发事件",
         "description": "新购订阅完成时将触发该任务。",

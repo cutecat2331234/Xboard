@@ -13,6 +13,7 @@ import { resolveTrafficWarnRate } from '@/api/comm'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
 import { resolvePopupNoticeTags } from '@/utils/settings'
+import DOMPurify from 'dompurify'
 
 const auth = useAuthStore()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
@@ -37,6 +38,9 @@ const popupNoticeTags = computed(() =>
       .map((tag) => tag.trim())
       .filter(Boolean),
   ),
+)
+const sanitizedPopupContent = computed(() =>
+  popupNotice.value?.content ? DOMPurify.sanitize(popupNotice.value.content) : '',
 )
 const trafficPercent = computed(() => {
   const u = auth.user
@@ -291,7 +295,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
     style="width: min(560px, 92vw)"
     @update:show="(v: boolean) => { if (!v) popupNotice = null }"
   >
-    <div v-if="popupNotice" v-html="popupNotice.content" />
+    <div v-if="popupNotice" v-html="sanitizedPopupContent" />
   </n-modal>
   </div>
 </template>

@@ -61,18 +61,25 @@ class PaymentService
             }
         }
 
-        $this->payment = new $this->class($this->config);
+        throw new ApiException(__('Payment gateway is not configured'));
     }
 
     public function notify($params)
     {
-        if (!$this->config['enable'])
+        if (!$this->payment) {
+            throw new ApiException(__('Payment gateway is not configured'));
+        }
+        if (!$this->config['enable']) {
             throw new ApiException('gate is not enable');
+        }
         return $this->payment->notify($params);
     }
 
     public function pay($order)
     {
+        if (!$this->payment) {
+            throw new ApiException(__('Payment gateway is not configured'));
+        }
         // custom notify domain name
         $notifyUrl = url("/api/v1/guest/payment/notify/{$this->method}/{$this->config['uuid']}");
         if ($this->config['notify_domain']) {
@@ -92,6 +99,9 @@ class PaymentService
 
     public function form()
     {
+        if (!$this->payment) {
+            throw new ApiException(__('Payment gateway is not configured'));
+        }
         $form = $this->payment->form();
         $result = [];
         foreach ($form as $key => $field) {

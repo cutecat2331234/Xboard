@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { adminApi, buildQuery, postJson } from '@/lib/api'
-import { inputCls } from '@/lib/form-styles'
+import { PluginCrudFormFields } from '@/lib/plugin-crud'
 import {
   buildPluginRoute,
   findAdminCrud,
@@ -15,7 +15,6 @@ import { PluginCrudPanel } from '@/components/plugin/PluginCrudPanel'
 import { PluginMenuPanel } from '@/components/plugin/PluginMenuPanel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 
@@ -304,41 +303,22 @@ function PluginSettingsPanel({ plugin }: { plugin: PluginRow }) {
         <CardDescription>{plugin.name}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {Object.entries(fields).map(([key, field]) => (
-          <div key={key} className="flex flex-col gap-2">
-            <Label>{field.label ?? key}</Label>
-            {field.type === 'select' && field.options?.length ? (
-              <select
-                className={inputCls}
-                value={String(values[key] ?? '')}
-                onChange={(e) => setValues((prev) => ({ ...prev, [key]: e.target.value }))}
-              >
-                {field.options.map((opt) => (
-                  <option key={String(opt.value)} value={String(opt.value)}>
-                    {opt.label ?? opt.value}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                className={inputCls}
-                value={String(values[key] ?? '')}
-                placeholder={field.placeholder}
-                onChange={(e) => setValues((prev) => ({ ...prev, [key]: e.target.value }))}
-              />
-            )}
-            {field.description ? <p className="text-xs text-muted-foreground">{field.description}</p> : null}
-          </div>
-        ))}
         {Object.keys(fields).length === 0 ? (
           <p className="text-sm text-muted-foreground">
             {t('plugin.config.empty')}
           </p>
         ) : (
+          <PluginCrudFormFields
+            fields={Object.entries(fields).map(([key, field]) => ({ key, field }))}
+            values={values}
+            onChange={(key, value) => setValues((prev) => ({ ...prev, [key]: value }))}
+          />
+        )}
+        {Object.keys(fields).length > 0 ? (
           <Button onClick={saveConfig} disabled={saving}>
             {t('common.save')}
           </Button>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   )

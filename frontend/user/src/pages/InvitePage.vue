@@ -56,6 +56,7 @@ const WithdrawIcon = {
 const codes = ref<InviteCode[]>([])
 const stat = ref<number[]>([0, 0, 0, 0, 0])
 const details = ref<Array<{ created_at?: number; get_amount?: number }>>([])
+const detailsTotal = ref(0)
 const codesPage = ref(1)
 const detailsPage = ref(1)
 const detailsPageSize = ref(INVITE_PAGE_SIZE)
@@ -83,7 +84,7 @@ const paginatedCodes = computed(() => {
 const detailTablePagination = computed(() => ({
   page: detailsPage.value,
   pageSize: detailsPageSize.value,
-  itemCount: details.value.length,
+  itemCount: detailsTotal.value,
   showSizePicker: true,
   pageSizes: [10, 50, 100, 150],
   onUpdatePage: (page: number) => {
@@ -112,13 +113,9 @@ watch(
   },
 )
 
-watch(
-  () => details.value.length,
-  () => {
-    const maxPage = Math.max(1, Math.ceil(details.value.length / INVITE_PAGE_SIZE))
-    if (detailsPage.value > maxPage) detailsPage.value = maxPage
-  },
-)
+watch([detailsPage, detailsPageSize], () => {
+  void loadDetails()
+})
 
 const commissionRateLabel = computed(() => {
   const base = stat.value[3] ?? 0
@@ -136,15 +133,26 @@ function inviteLink(code: string) {
   return `${window.location.protocol}//${window.location.host}/#/register?code=${code}`
 }
 
-async function load() {
-  const data = await fetchInvite()
-  codes.value = data.codes ?? []
-  stat.value = data.stat ?? [0, 0, 0, 0, 0]
+async function loadDetails() {
   try {
-    const res = await fetchInviteDetails()
-    details.value = (res as { data?: typeof details.value }).data ?? []
-  } catch {
+    const res = await fetchInviteDetails(detailsPage.value, detailsPageSize.value)
+    details.value = res.data ?? []
+    detailsTotal.value = res.total ?? 0
+  } catch (e: unknown) {
     details.value = []
+    detailsTotal.value = 0
+    msg.error(e instanceof Error ? e.message : t('common.error'))
+  }
+}
+
+async function load() {
+  try {
+    const data = await fetchInvite()
+    codes.value = data.codes ?? []
+    stat.value = data.stat ?? [0, 0, 0, 0, 0]
+    await loadDetails()
+  } catch (e: unknown) {
+    msg.error(e instanceof Error ? e.message : t('common.error'))
   }
 }
 
