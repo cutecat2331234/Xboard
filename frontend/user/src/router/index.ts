@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import AuthPage from '../pages/AuthPage.vue'
 
 import { getAuthData } from '@/api'
+import { fetchUserCommConfig } from '@/api/comm'
 import { useAuthStore } from '@/stores/auth'
 import { getSessionCache, invalidateSessionCache, setSessionCache } from '@/lib/session-cache'
 
@@ -102,6 +103,19 @@ router.beforeEach(async (to) => {
     }
     if (valid && publicPaths.includes(to.path) && !hasTokenLogin) {
       return { path: '/dashboard' }
+    }
+    if (valid && (to.path === '/gift-card' || to.path === '/invite')) {
+      try {
+        const comm = await fetchUserCommConfig()
+        if (to.path === '/gift-card' && Number(comm.gift_card_enable) === 0) {
+          return { path: '/dashboard' }
+        }
+        if (to.path === '/invite' && Number(comm.invite_enable) === 0) {
+          return { path: '/dashboard' }
+        }
+      } catch {
+        /* keep route accessible if config fetch fails */
+      }
     }
     return true
   }

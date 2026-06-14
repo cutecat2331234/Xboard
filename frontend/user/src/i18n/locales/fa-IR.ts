@@ -244,6 +244,11 @@ export default {
     }
   },
   invite: {
+    withdrawAccountRequired: "حساب برداشت را وارد کنید",
+    withdrawMethodRequired: "روش برداشت را انتخاب کنید",
+    withdrawFullBalanceHint: "کل کمیسیون موجود برداشت می‌شود (پس از کسر کارمزد)",
+    withdrawFeeHint: "کارمزد برداشت: {rate}%",
+    withdrawLimitHint: "حداقل برداشت: {limit}",
     peopleCount: "{number} نفر",
     title: "دعوتنامه های من",
     available: "کمیسیون فعلی باقی مانده",
@@ -262,9 +267,9 @@ export default {
     incomeRecord: "سابقه پرداخت کمیسیون",
     incomeTime: "زمان پرداخت",
     incomeAmount: "کمیسیون",
-    transferAmount: "مبلغ انتقال (سنت)",
+    transferAmount: "مبلغ انتقال (واحد پول)",
     transferAmountRequired: "لطفاً مبلغ انتقال را وارد کنید",
-    transferAmountInvalid: "مبلغ انتقال باید یک عدد صحیح مثبت (سنت) باشد",
+    transferAmountInvalid: "مبلغ انتقال باید یک عدد صحیح مثبت باشد",
     withdrawSuccess: "درخواست برداشت ارسال شد. برای پیگیری به تیکت‌ها بروید."
   },
   traffic: {

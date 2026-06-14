@@ -214,8 +214,11 @@ class OrderController extends Controller
         if (!$order) {
             return $this->fail([400, __('Order does not exist')]);
         }
-        if ($order->status !== 0) {
+        if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
             return $this->fail([400, __('You can only cancel pending orders')]);
+        }
+        if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
+            return $this->fail([400, __('Payment is in progress for this order, cannot cancel')]);
         }
         $orderService = new OrderService($order);
         if (!$orderService->cancel()) {

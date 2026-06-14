@@ -182,7 +182,8 @@ return [
                 'maxJobs' => (int) env('HORIZON_WORKER_MAX_JOBS', 1000),
                 'balanceCooldown' => 1,
                 'tries' => 3,
-                'timeout' => 30,
+                'timeout' => 120,
+                'backoff' => [10, 30, 60],
             ],
             'business' => [
                 'connection' => 'redis',
@@ -194,7 +195,8 @@ return [
                 'maxTime' => (int) env('HORIZON_WORKER_MAX_TIME', 3600),
                 'maxJobs' => (int) env('HORIZON_WORKER_MAX_JOBS', 1000),
                 'tries' => 3,
-                'timeout' => 30,
+                'timeout' => 120,
+                'backoff' => [10, 30, 60],
             ],
             'notification' => [
                 'connection' => 'redis',

@@ -24,6 +24,11 @@ class AppFeature
         return (bool) admin_setting('app_enable_invite_system', 1);
     }
 
+    public static function giftCardEnabled(): bool
+    {
+        return (bool) admin_setting('app_enable_gift_card', 1);
+    }
+
     public static function registerEnabled(): bool
     {
         if ((int) admin_setting('stop_register', 0)) {

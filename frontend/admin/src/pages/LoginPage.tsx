@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+import { resolveApiError } from '@/lib/api-errors'
 import { cn } from '@/lib/utils'
 
 const emailInputCls =
@@ -78,7 +79,7 @@ export default function LoginPage() {
       }
       navigate('/')
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
+      setError(resolveApiError(err, t, t('common.error')))
     } finally {
       setLoading(false)
     }

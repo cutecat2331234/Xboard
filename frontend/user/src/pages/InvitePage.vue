@@ -246,8 +246,10 @@ async function doWithdraw() {
 }
 
 function copyLink(code: string) {
-  navigator.clipboard.writeText(inviteLink(code))
-  msg.success(t('common.success'))
+  navigator.clipboard.writeText(inviteLink(code)).then(
+    () => msg.success(t('profile.copied')),
+    () => msg.error(t('errors.requestFailed')),
+  )
 }
 
 const codeColumns = computed<DataTableColumns<InviteCode>>(() => [

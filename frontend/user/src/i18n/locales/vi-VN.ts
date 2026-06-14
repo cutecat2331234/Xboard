@@ -245,6 +245,11 @@ export default {
     }
   },
   invite: {
+    withdrawAccountRequired: "Vui lòng nhập tài khoản rút",
+    withdrawMethodRequired: "Vui lòng chọn phương thức rút",
+    withdrawFullBalanceHint: "Rút toàn bộ hoa hồng khả dụng (trừ phí)",
+    withdrawFeeHint: "Phí rút: {rate}%",
+    withdrawLimitHint: "Số tiền rút tối thiểu: {limit}",
     peopleCount: "{number} người",
     title: "Lời Mời Của Tôi",
     available: "Số dư hoa hồng hiện tại",
@@ -263,9 +268,9 @@ export default {
     incomeRecord: "Hồ sơ hoa hồng",
     incomeTime: "Thời gian thanh toán hoa hồng",
     incomeAmount: "Tiền hoa hồng",
-    transferAmount: "Số tiền chuyển (cent)",
+    transferAmount: "Số tiền chuyển (đơn vị tiền tệ)",
     transferAmountRequired: "Vui lòng nhập số tiền chuyển",
-    transferAmountInvalid: "Số tiền chuyển phải là số nguyên dương (cent)",
+    transferAmountInvalid: "Số tiền chuyển phải là số nguyên dương",
     withdrawSuccess: "Yêu cầu rút tiền đã được gửi. Vui lòng xem vé hỗ trợ để cập nhật."
   },
   traffic: {

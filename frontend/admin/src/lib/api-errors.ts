@@ -3,6 +3,11 @@ type TranslateFn = (key: string, params?: Record<string, string | number>) => st
 const MESSAGE_MAP: Record<string, string> = {
   '三级分销比例合计必须等于100%': 'settings.invite.commission_distribution.sum_error',
   'Level 1 + Level 2 + Level 3 ratios must equal 100%': 'settings.invite.commission_distribution.sum_error',
+  '邮箱或密码错误': 'auth.signIn.invalidCredentials',
+  'Incorrect email or password': 'auth.signIn.invalidCredentials',
+  '该账户已被停止使用': 'auth.signIn.accountSuspended',
+  'Your account has been suspended': 'auth.signIn.accountSuspended',
+  'Level 1 + Level 2 + Level 3 ratios must equal 100%': 'settings.invite.commission_distribution.sum_error',
   '邀请佣金比例必须在0-100之间': 'common.error',
   '佣金状态不可手动标记为已结算': 'common.error',
   '已结算的佣金不可回退': 'common.error',

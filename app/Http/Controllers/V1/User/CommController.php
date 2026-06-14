@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\User;
 
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Support\AppFeature;
 use App\Models\Payment;
 use App\Utils\Dict;
 use Illuminate\Http\Request;
@@ -30,6 +31,8 @@ class CommController extends Controller
             'plan_change_enable' => (int) admin_setting('plan_change_enable', 1),
             'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
             'commission_withdraw_limit' => admin_setting('commission_withdraw_limit', 100),
+            'invite_enable' => (int) (AppFeature::inviteEnabled() && AppFeature::commissionEnabled()),
+            'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
         ];
         return $this->success($data);
     }

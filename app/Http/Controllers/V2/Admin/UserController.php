@@ -10,6 +10,7 @@ use App\Jobs\SendEmailJob;
 use App\Models\CommissionLog;
 use App\Models\GiftCardCode;
 use App\Models\GiftCardUsage;
+use App\Models\Order;
 use App\Models\Plan;
 use App\Models\TicketMessage;
 use App\Models\TrafficResetLog;
@@ -782,8 +783,13 @@ class UserController extends Controller
                 ->orWhere('invite_user_id', $userId)
                 ->delete();
             GiftCardUsage::where('user_id', $userId)->delete();
+            GiftCardUsage::where('invite_user_id', $userId)->update(['invite_user_id' => null]);
             TrafficResetLog::where('user_id', $userId)->delete();
             GiftCardCode::where('user_id', $userId)->update(['user_id' => null]);
+            User::where('invite_user_id', $userId)->update(['invite_user_id' => null]);
+            Order::where('invite_user_id', $userId)
+                ->whereIn('commission_status', [0, 1])
+                ->update(['invite_user_id' => null, 'commission_status' => Order::COMMISSION_STATUS_INVALID]);
             $user->tokens()->delete();
             $user->orders()->delete();
             $user->codes()->delete();

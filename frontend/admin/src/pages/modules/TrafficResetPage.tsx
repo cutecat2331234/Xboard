@@ -150,8 +150,8 @@ export default function TrafficResetPage() {
                   ['manual_resets', t('user.traffic_reset.stats.manual_resets')],
                   ['cron_resets', t('user.traffic_reset.stats.cron_resets')],
                   ['auto_resets', t('user.traffic_reset.stats.auto_resets')],
-                  ['order_resets', 'Order'],
-                  ['gift_card_resets', 'Gift card'],
+                  ['order_resets', t('user.traffic_reset.stats.order_resets')],
+                  ['gift_card_resets', t('user.traffic_reset.stats.gift_card_resets')],
                 ] as const
               ).map(([key, label]) => (
                 <Card key={key}>

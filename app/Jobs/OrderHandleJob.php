@@ -38,6 +38,11 @@ class OrderHandleJob implements ShouldQueue, ShouldBeUnique
         return (string) $this->tradeNo;
     }
 
+    public function backoff(): array
+    {
+        return [10, 30, 60];
+    }
+
     /**
      * Execute the job.
      *

@@ -244,6 +244,11 @@ export default {
     }
   },
   invite: {
+    withdrawAccountRequired: "出金口座を入力してください",
+    withdrawMethodRequired: "出金方法を選択してください",
+    withdrawFullBalanceHint: "利用可能な全コミッションを出金します（手数料差引後）",
+    withdrawFeeHint: "出金手数料：{rate}%",
+    withdrawLimitHint: "最低出金額：{limit}",
     peopleCount: "{number} 人",
     title: "招待リスト",
     available: "コミッション残高",
@@ -262,9 +267,9 @@ export default {
     incomeRecord: "コミッション履歴",
     incomeTime: "手数料支払時間",
     incomeAmount: "コミッション金額",
-    transferAmount: "振替金額（セント）",
+    transferAmount: "振替金額（通貨単位）",
     transferAmountRequired: "振替金額を入力してください",
-    transferAmountInvalid: "振替金額は正の整数（セント）である必要があります",
+    transferAmountInvalid: "振替金額は正の整数である必要があります",
     withdrawSuccess: "出金申請を送信しました。チケットで進捗を確認してください。"
   },
   traffic: {

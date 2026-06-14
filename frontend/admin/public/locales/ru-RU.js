@@ -247,15 +247,15 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       }
     },
     "update": {
-      "title": "Обновление системы",
-      "newVersion": "Доступна новая версия",
-      "currentVersion": "Текущая версия",
-      "latestVersion": "Последняя версия",
-      "updateLater": "Обновить позже",
-      "updateNow": "Обновить сейчас",
-      "updating": "Обновление...",
-      "updateSuccess": "Обновление успешно, система скоро перезапустится",
-      "updateFailed": "Не удалось обновить, попробуйте позже"
+      "title": "System Update",
+      "newVersion": "New Version Available",
+      "currentVersion": "Current Version",
+      "latestVersion": "Latest Version",
+      "updateLater": "Update Later",
+      "updateNow": "Update Now",
+      "updating": "Updating...",
+      "updateSuccess": "Update successful, system will restart shortly",
+      "updateFailed": "Update failed, please try again later"
     },
     "time": {
       "day": "day",
@@ -267,12 +267,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "yuan": "Yuan"
     },
     "http": {
-      "notLoggedIn": "Не выполнен вход",
-      "unknownError": "Неизвестная ошибка",
-      "loginExpired": "Сессия истекла",
-      "noPermission": "Нет прав доступа",
-      "notFound": "Ресурс или API не найден",
-      "unknownException": "Неизвестное исключение"
+      "notLoggedIn": "Not logged in",
+      "unknownError": "Unknown error",
+      "loginExpired": "Login expired",
+      "noPermission": "No permission",
+      "notFound": "Resource or API not found",
+      "unknownException": "Unknown exception"
     }
   },
   "plugin": {

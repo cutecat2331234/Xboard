@@ -242,11 +242,17 @@ class OrderService
     public function setInvite(User $user): void
     {
         $order = $this->order;
-        $commissionBase = (int) $order->total_amount + (int) ($order->balance_amount ?? 0);
-        if (!$user->invite_user_id || $commissionBase <= 0) {
+        if (!$user->invite_user_id) {
             return;
         }
         $order->invite_user_id = $user->invite_user_id;
+
+        $commissionBase = (int) $order->total_amount
+            + (int) ($order->balance_amount ?? 0)
+            + (int) ($order->surplus_amount ?? 0);
+        if ($commissionBase <= 0) {
+            return;
+        }
         $inviter = User::find($user->invite_user_id);
         if (!$inviter)
             return;

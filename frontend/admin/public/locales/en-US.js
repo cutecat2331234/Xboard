@@ -464,6 +464,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "forgotPassword": "Forgot Password?",
       "submit": "Sign In",
       "rememberMe": "Remember me",
+      "notAdmin": "This account is not an administrator",
+      "invalidCredentials": "Incorrect email or password",
+      "accountSuspended": "Your account has been suspended",
       "resetPassword": {
         "title": "Reset Password",
         "description": "Execute the following command in the site directory to reset your password",
@@ -3032,6 +3035,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "auto_resets": "Auto Resets",
         "manual_resets": "Manual Resets",
         "cron_resets": "Cron Resets",
+        "order_resets": "Order Resets",
+        "gift_card_resets": "Gift Card Resets",
         "in_period": "In the last {{days}} days",
         "breakdown": "Reset Type Breakdown",
         "breakdown_description": "Percentage breakdown of different reset operation types",
