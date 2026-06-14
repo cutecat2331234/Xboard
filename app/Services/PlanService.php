@@ -85,6 +85,10 @@ class PlanService
             return;
         }
 
+        if ($user->plan_id !== $this->plan->id && !$this->plan->sell) {
+            throw new ApiException(__('This subscription has been sold out, please choose another subscription'));
+        }
+
         if ($user->plan_id !== $this->plan->id && !$this->hasCapacity($this->plan)) {
             throw new ApiException(__('Current product is sold out'));
         }
