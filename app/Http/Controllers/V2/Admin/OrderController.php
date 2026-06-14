@@ -177,8 +177,9 @@ class OrderController extends Controller
         if (!$order) {
             return $this->fail([400202, '订单不存在']);
         }
-        if ($order->status !== 0)
-            return $this->fail([400, '只能对待支付的订单进行操作']);
+        if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
+            return $this->fail([400, '只能对待支付或处理中的订单进行操作']);
+        }
 
         $orderService = new OrderService($order);
         if (!$orderService->cancel()) {

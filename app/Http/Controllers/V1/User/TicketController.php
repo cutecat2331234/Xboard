@@ -112,10 +112,10 @@ class TicketController extends Controller
                 if (!$locked || (int) $locked->status !== Ticket::STATUS_OPENING) {
                     throw new \RuntimeException('Already closed');
                 }
-                if (
-                    (int) $locked->level === 2
-                    && (int) $locked->reply_status === Ticket::REPLY_STATUS_WAITING
-                ) {
+                $firstMessage = TicketMessage::where('ticket_id', $locked->id)
+                    ->orderBy('id')
+                    ->value('message');
+                if (TicketService::isOfficialWithdrawTicket($locked, is_string($firstMessage) ? $firstMessage : null)) {
                     TicketService::restoreWithdrawCommission($locked);
                 }
                 $locked->status = Ticket::STATUS_CLOSED;

@@ -110,7 +110,10 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
       {
         id: 'total',
         header: () => t('traffic.trafficRecord.total'),
-        cell: ({ row }) => formatBytes((row.original.u ?? 0) + (row.original.d ?? 0)),
+        cell: ({ row }) => {
+          const rate = Number(row.original.server_rate) || 1
+          return formatBytes(((row.original.u ?? 0) + (row.original.d ?? 0)) / rate)
+        },
       },
     ],
     [t],

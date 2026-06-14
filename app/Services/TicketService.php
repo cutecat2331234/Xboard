@@ -9,6 +9,7 @@ use App\Models\TicketMessage;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Services\Plugin\HookManager;
 
 class TicketService
@@ -136,6 +137,7 @@ class TicketService
             return $ticketMessage;
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Ticket reply failed: ' . $e->getMessage());
             return false;
         }
     }
@@ -145,6 +147,9 @@ class TicketService
         $ticket = Ticket::where('id', $ticketId)->first();
         if (!$ticket) {
             throw new ApiException('工单不存在');
+        }
+        if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
+            throw new ApiException('工单已关闭');
         }
         $ticketMessage = $this->reply($ticket, $message, $userId);
         if (!$ticketMessage) {

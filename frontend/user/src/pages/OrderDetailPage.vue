@@ -37,6 +37,7 @@ import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
 import { useCurrency } from '@/composables/useCurrency'
+import { formatBytes } from '@/lib/format-traffic'
 
 import QRCode from 'qrcode'
 
@@ -548,7 +549,7 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.productTraffic') }}：</div>
 
-          <div class="info-value">{{ order.plan?.transfer_enable ?? 0 }} GB</div>
+          <div class="info-value">{{ formatBytes(order.plan?.transfer_enable ?? 0) }}</div>
 
         </div>
 

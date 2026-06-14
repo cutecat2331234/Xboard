@@ -124,7 +124,7 @@ class UserController extends Controller
     public function getStat(Request $request)
     {
         $stat = [
-            Order::where('status', 0)
+            Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
                 ->where('user_id', $request->user()->id)
                 ->count(),
             Ticket::where('status', 0)

@@ -20,6 +20,12 @@ function formatOrderAmount(cents: number) {
   return formatPrice(cents)
 }
 
+function orderStatusDotClass(status: number) {
+  if (status === 3) return 'status-dot status-dot--ok'
+  if (status === 1) return 'status-dot status-dot--info'
+  return 'status-dot status-dot--bad'
+}
+
 function periodLabel(period?: string) {
   if (!period) return ''
   const hit = PERIOD_OPTIONS.find((o) => o.key === period)
@@ -79,7 +85,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
     render: (row) =>
       h('div', { class: 'flex items-center' }, [
         h('div', {
-          class: ['status-dot', row.status === 3 ? 'status-dot--ok' : 'status-dot--bad'],
+          class: orderStatusDotClass(row.status),
         }),
         t(orderStatusLabel(row.status)),
       ]),

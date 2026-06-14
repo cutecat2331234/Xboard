@@ -100,6 +100,12 @@ class GiftCardController extends Controller
         ]);
 
         try {
+            GiftCardTemplate::assertRewardsValid((int) $request->input('type'), $request->input('rewards'));
+        } catch (\InvalidArgumentException $e) {
+            return $this->fail([422, $e->getMessage()]);
+        }
+
+        try {
             $template = GiftCardTemplate::create([
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
@@ -158,6 +164,15 @@ class GiftCardController extends Controller
         $template = GiftCardTemplate::find($validatedData['id']);
         if (!$template) {
             return $this->fail([404, '模板不存在']);
+        }
+
+        $rewardType = (int) ($validatedData['type'] ?? $template->type);
+        if (isset($validatedData['rewards'])) {
+            try {
+                GiftCardTemplate::assertRewardsValid($rewardType, $validatedData['rewards']);
+            } catch (\InvalidArgumentException $e) {
+                return $this->fail([422, $e->getMessage()]);
+            }
         }
 
         try {
@@ -408,6 +423,9 @@ class GiftCardController extends Controller
                 $code->markAsDisabled();
             } else {
                 if ($code->status === GiftCardCode::STATUS_DISABLED) {
+                    if ($code->expires_at && $code->expires_at < time()) {
+                        return $this->fail([400, '兑换码已过期，无法启用']);
+                    }
                     $code->status = GiftCardCode::STATUS_UNUSED;
                     $code->save();
                 }
@@ -466,19 +484,22 @@ class GiftCardController extends Controller
         $perPage = $request->input('per_page', 15);
         $usages = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        $usages->transform(function ($usage) {
-            return [
-                'id' => $usage->id,
-                'code' => $usage->code->code ?? '',
-                'template_name' => $usage->template->name ?? '',
-                'user_email' => $usage->user->email ?? '',
-                'invite_user_email' => $usage->inviteUser ? (substr($usage->inviteUser->email ?? '', 0, 3) . '***@***') : null,
-                'rewards_given' => $usage->rewards_given,
-                'invite_rewards' => $usage->invite_rewards,
-                'multiplier_applied' => $usage->multiplier_applied,
-                'created_at' => $usage->created_at,
-            ];
-        })->values();
+        $usages->setCollection(
+            $usages->getCollection()->map(function ($usage) {
+                return [
+                    'id' => $usage->id,
+                    'code' => $usage->code->code ?? '',
+                    'template_name' => $usage->template->name ?? '',
+                    'user_email' => $usage->user->email ?? '',
+                    'invite_user_email' => $usage->inviteUser ? (substr($usage->inviteUser->email ?? '', 0, 3) . '***@***') : null,
+                    'rewards_given' => $usage->rewards_given,
+                    'invite_rewards' => $usage->invite_rewards,
+                    'multiplier_applied' => $usage->multiplier_applied,
+                    'created_at' => $usage->created_at,
+                ];
+            })
+        );
+
         return $this->paginate($usages);
     }
 

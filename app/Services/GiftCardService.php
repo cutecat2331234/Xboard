@@ -24,7 +24,11 @@ class GiftCardService
         $this->code = GiftCardCode::where('code', $code)->first()
             ?? throw new ApiException('兑换码不存在');
 
-        $this->template = $this->code->template;
+        $template = $this->code->template;
+        if (!$template) {
+            throw new ApiException('礼品卡模板不存在');
+        }
+        $this->template = $template;
     }
 
     /**
@@ -194,13 +198,14 @@ class GiftCardService
 
         if (isset($rewards['plan_id'])) {
             $plan = Plan::find($rewards['plan_id']);
-            if ($plan) {
-                $userService->assignPlan(
-                    $this->user,
-                    $plan,
-                    $rewards['plan_validity_days'] ?? 0
-                );
+            if (!$plan) {
+                throw new ApiException('关联套餐不存在');
             }
+            $userService->assignPlan(
+                $this->user,
+                $plan,
+                $rewards['plan_validity_days'] ?? 0
+            );
         } else {
             // 只有在不是套餐卡的情况下，才处理独立的有效期奖励
             if (isset($rewards['expire_days']) && $rewards['expire_days'] > 0) {

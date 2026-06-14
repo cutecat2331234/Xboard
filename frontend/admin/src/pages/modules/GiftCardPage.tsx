@@ -1371,14 +1371,6 @@ export default function GiftCardPage() {
 
                 </Button>
 
-                <Button variant="outline" size="sm" className="ml-auto hidden h-8 rounded-md px-3 text-xs lg:flex">
-
-                  <SlidersHorizontal className="mr-2 h-4 w-4" />
-
-                  {t('common.table.viewOptions.button')}
-
-                </Button>
-
               </div>
 
             </div>

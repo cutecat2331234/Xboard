@@ -359,7 +359,12 @@ class OrderService
         try {
             return DB::transaction(function () use ($order) {
                 $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->first();
-                if (!$lockedOrder || $lockedOrder->status !== Order::STATUS_PENDING) {
+                $cancellable = $lockedOrder && in_array(
+                    (int) $lockedOrder->status,
+                    [Order::STATUS_PENDING, Order::STATUS_PROCESSING],
+                    true
+                );
+                if (!$cancellable) {
                     return $lockedOrder && $lockedOrder->status === Order::STATUS_CANCELLED;
                 }
 

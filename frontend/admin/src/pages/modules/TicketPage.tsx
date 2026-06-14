@@ -164,11 +164,11 @@ export default function TicketPage() {
     }
   }
 
-  async function closeTicket(row: TicketRow, withdrawRejected = false) {
+  async function closeTicket(row: TicketRow, options?: { withdrawPaid?: boolean }) {
     try {
       const payload: Record<string, unknown> = { id: row.id }
-      if (Number(row.level) === 2) {
-        payload.withdraw_rejected = withdrawRejected
+      if (Number(row.level) === 2 && options?.withdrawPaid) {
+        payload.withdraw_paid = true
       }
       await postJson('/ticket/close', payload)
       toast.success(t('common.success'))
@@ -213,11 +213,11 @@ export default function TicketPage() {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {t('ticket.actions.reply')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => closeTicket(row.original)}>
+              <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawPaid: true })}>
                 {t('ticket.actions.close')}
               </DropdownMenuItem>
               {Number(row.original.level) === 2 ? (
-                <DropdownMenuItem onClick={() => closeTicket(row.original, true)}>
+                <DropdownMenuItem onClick={() => closeTicket(row.original)}>
                   {t('ticket.actions.close_reject_withdraw')}
                 </DropdownMenuItem>
               ) : null}
@@ -316,18 +316,22 @@ export default function TicketPage() {
             </div>
             <div className="flex flex-col gap-2">
               <Label>{t('ticket.reply.label')}</Label>
-              <textarea
-                className={textareaCls}
-                value={reply}
-                onChange={(e) => setReply(e.target.value)}
-              />
+              {detail?.status === 1 ? (
+                <p className="text-sm text-muted-foreground">{t('ticket.status.closed')}</p>
+              ) : (
+                <textarea
+                  className={textareaCls}
+                  value={reply}
+                  onChange={(e) => setReply(e.target.value)}
+                />
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailOpen(false)}>
               {t('common.cancel')}
             </Button>
-            <Button onClick={sendReply} disabled={saving || !reply.trim()}>
+            <Button onClick={sendReply} disabled={saving || !reply.trim() || detail?.status === 1}>
               {t('ticket.actions.reply')}
             </Button>
           </DialogFooter>
