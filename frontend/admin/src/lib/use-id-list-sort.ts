@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { postJson } from '@/lib/api'
 import { moveListItem, reorderList } from '@/lib/list-sort'
 
@@ -33,7 +34,7 @@ export function useIdListSort<T extends SortableRow>(items: T[], sortPath: strin
       setSortRows([])
       return true
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
       return false
     } finally {
       setSortSaving(false)

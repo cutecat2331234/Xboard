@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { adminApi, buildQuery, postJson, type PaginatedResult } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
@@ -141,7 +142,7 @@ export default function TicketPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, search, statusTab, replyStatusFilter, t])
 
@@ -158,7 +159,7 @@ export default function TicketPage() {
       setReply('')
       setDetailOpen(true)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -175,7 +176,7 @@ export default function TicketPage() {
       setReply('')
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -214,7 +215,7 @@ export default function TicketPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

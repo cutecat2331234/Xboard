@@ -17,6 +17,7 @@ import { PluginCrudFormFields } from '@/lib/plugin-crud'
 import { buildPluginRoute } from '@/lib/plugin-menus'
 import { invalidatePluginListCache } from '@/lib/use-plugin-list'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -73,7 +74,7 @@ export default function PluginPage() {
         const types = orderedTypes(list)
         setTab((current) => (current === 'all' || types.includes(current) ? current : types[0] ?? 'all'))
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -96,7 +97,7 @@ export default function PluginPage() {
       setConfigCode(code)
       setConfigOpen(true)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -107,7 +108,7 @@ export default function PluginPage() {
       toast.success(t('common.success'))
       setConfigOpen(false)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setConfigSaving(false)
     }
@@ -127,7 +128,7 @@ export default function PluginPage() {
       setUploadOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('plugin.messages.uploadError'))
+      toastApiError(e, toast, t, t('plugin.messages.uploadError'))
     } finally {
       setUploading(false)
     }
@@ -139,7 +140,7 @@ export default function PluginPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -150,7 +151,7 @@ export default function PluginPage() {
       toast.success(t('plugin.messages.upgradeSuccess'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('plugin.messages.upgradeError'))
+      toastApiError(e, toast, t, t('plugin.messages.upgradeError'))
     }
   }
 
@@ -168,7 +169,7 @@ export default function PluginPage() {
       toast.success(t('plugin.messages.deleteSuccess'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('plugin.messages.deleteError'))
+      toastApiError(e, toast, t, t('plugin.messages.deleteError'))
     }
   }
 

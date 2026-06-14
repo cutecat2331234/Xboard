@@ -26,6 +26,7 @@ import { forgetPassword, loginWithMailLink, token2Login } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { resolveAssetUrl } from '@/lib/asset-url'
 import { storeInviteCode } from '@/api/pv'
 
 const LoginIcon = {
@@ -88,7 +89,15 @@ const forgetLoading = ref(false)
 
 const showMailLink = computed(() => Boolean(config.value?.login_with_mail_link_enable))
 const registerClosed = computed(() => Boolean(config.value?.stop_register))
-const brandLogo = computed(() => config.value?.logo || settings.value.logo || '')
+const brandLogo = computed(() =>
+  resolveAssetUrl(config.value?.logo || settings.value.logo || '', config.value?.app_url),
+)
+const telegramAuthUrl = computed(() => {
+  const domain = config.value?.telegram_login_domain
+  if (!domain) return undefined
+  const resolved = resolveAssetUrl(domain, config.value?.app_url)
+  return resolved || undefined
+})
 const showTelegram = computed(
   () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
 )
@@ -149,6 +158,11 @@ watch(
     confirmPassword.value = ''
     emailCode.value = ''
     applyInviteFromQuery()
+    if (registerClosed.value && isRegister.value) {
+      msg.warning(t('errors.registrationClosed'))
+      backToLoginTab()
+      return
+    }
     if (!isRegister.value && !isForget.value) tryTokenLogin()
   },
 )
@@ -407,7 +421,7 @@ function submit() {
           <TelegramLoginWidget
             v-if="showTelegram && config?.telegram_bot_username && !mailLinkMode && !isForget"
             :bot-username="config.telegram_bot_username"
-            :auth-url="config.telegram_login_domain || undefined"
+            :auth-url="telegramAuthUrl"
           />
         </form>
 

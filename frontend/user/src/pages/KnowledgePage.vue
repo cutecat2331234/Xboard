@@ -86,6 +86,7 @@ async function loadKnowledge() {
 }
 
 watch(locale, () => {
+  activeCategory.value = ALL_CATEGORY
   void loadKnowledge()
 })
 

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 
 import { toast } from 'sonner'
 
+import { toastApiError } from '@/lib/api-errors'
 import { downloadAdminFile, fetchJsonList, fetchJsonObject, fetchPaginatedList, postJson } from '@/lib/api'
 
 import {
@@ -454,7 +455,7 @@ export default function GiftCardPage() {
 
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
   }, [t])
 
@@ -468,7 +469,7 @@ export default function GiftCardPage() {
 
       .then((res) => setTemplates(res.data))
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
@@ -490,7 +491,7 @@ export default function GiftCardPage() {
 
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
@@ -512,7 +513,7 @@ export default function GiftCardPage() {
 
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
@@ -536,7 +537,7 @@ export default function GiftCardPage() {
         setTypeStats(Array.isArray(res.type_stats) ? res.type_stats : [])
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
@@ -840,7 +841,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     } finally {
 
@@ -910,7 +911,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     } finally {
 
@@ -940,7 +941,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -971,7 +972,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -999,7 +1000,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -1030,7 +1031,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -1092,11 +1093,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(
-
-        e instanceof Error ? e.message : t('giftCard.messages.updateCodeStatusFailed'),
-
-      )
+      toastApiError(e, toast, t, t('giftCard.messages.updateCodeStatusFailed'))
 
     } finally {
 

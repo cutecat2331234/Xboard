@@ -4,6 +4,7 @@ import { Pencil, Plus, Trash2, UserCheck, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { fetchJsonList, postJson } from '@/lib/api'
 import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import {
@@ -186,7 +187,7 @@ export default function PlanPage() {
         setData(plans as PlanRow[])
         setGroups(grps as GroupRow[])
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -244,7 +245,7 @@ export default function PlanPage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -255,7 +256,7 @@ export default function PlanPage() {
       await postJson('/plan/update', { id: row.id, [field]: !row[field] })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -272,7 +273,7 @@ export default function PlanPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

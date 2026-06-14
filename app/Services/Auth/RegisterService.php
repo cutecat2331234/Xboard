@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\CaptchaService;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
+use App\Support\AppFeature;
 use App\Utils\CacheKey;
 use App\Utils\Dict;
 use App\Utils\Helper;
@@ -75,6 +76,10 @@ class RegisterService
         }
 
         // 检查邀请码要求
+        if (!AppFeature::inviteEnabled() && $request->filled('invite_code')) {
+            return [false, [400, __('Invalid invitation code')]];
+        }
+
         if ((int) admin_setting('invite_force', 0)) {
             if (empty($request->input('invite_code'))) {
                 return [false, [422, __('You must use the invitation code to register')]];
@@ -111,6 +116,10 @@ class RegisterService
      */
     public function handleInviteCode(string $inviteCode): int|null
     {
+        if (!AppFeature::inviteEnabled()) {
+            throw new ApiException(__('Invalid invitation code'));
+        }
+
         return DB::transaction(function () use ($inviteCode) {
             $inviteCodeModel = InviteCode::where('code', $inviteCode)
                 ->where('status', InviteCode::STATUS_UNUSED)

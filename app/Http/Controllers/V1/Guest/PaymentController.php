@@ -76,8 +76,16 @@ class PaymentController extends Controller
             if ($order->status === Order::STATUS_PROCESSING) {
                 try {
                     $statusBeforeOpen = (int) $order->status;
-                    (new OrderService($order->fresh()))->open();
+                    $orderService = new OrderService($order->fresh());
+                    $orderService->open();
                     $order->refresh();
+                    if ((int) $order->status === Order::STATUS_PROCESSING) {
+                        if (!$orderService->failOpenAndRefund('Order remained in processing after payment notify retry')) {
+                            return false;
+                        }
+                        $order->refresh();
+                        return (int) $order->status !== Order::STATUS_PROCESSING;
+                    }
                     if (
                         $statusBeforeOpen === Order::STATUS_PROCESSING
                         && (int) $order->status === Order::STATUS_COMPLETED

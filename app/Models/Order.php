@@ -59,6 +59,11 @@ class Order extends Model
     const STATUS_COMPLETED = 3; // 已完成
     const STATUS_DISCOUNTED = 4; // 已折抵
 
+    const COMMISSION_STATUS_PENDING = 0;
+    const COMMISSION_STATUS_VALID = 1;
+    const COMMISSION_STATUS_PAID = 2;
+    const COMMISSION_STATUS_INVALID = 3;
+
     public static $statusMap = [
         self::STATUS_PENDING => '待支付',
         self::STATUS_PROCESSING => '开通中',

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { TFunction } from 'i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { setTelegramWebhook } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 
@@ -40,7 +41,7 @@ export function TelegramConfigFields({ t, telegram, update, FormField, SwitchFie
       await setTelegramWebhook(token)
       toast.success(t('settings.telegram.webhook.success'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setWebhookLoading(false)
     }

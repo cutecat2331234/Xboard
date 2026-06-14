@@ -206,10 +206,11 @@ class GiftCardService
                 throw new ApiException(__('Current product is sold out'));
             }
             app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_GIFT_CARD);
+            $validityDays = (int) ($rewards['plan_validity_days'] ?? 0);
             $userService->assignPlan(
                 $this->user,
                 $plan,
-                $rewards['plan_validity_days'] ?? 0
+                max(0, $validityDays)
             );
         } else {
             // 只有在不是套餐卡的情况下，才处理独立的有效期奖励
