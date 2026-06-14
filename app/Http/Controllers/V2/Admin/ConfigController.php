@@ -218,12 +218,22 @@ class ConfigController extends Controller
     {
         $data = $request->validated();
 
-        if (!empty($data['commission_distribution_enable'])) {
+        $distributionEnabled = array_key_exists('commission_distribution_enable', $data)
+            ? !empty($data['commission_distribution_enable'])
+            : (bool) admin_setting('commission_distribution_enable', 0);
+        if ($distributionEnabled) {
             $l1 = (int) ($data['commission_distribution_l1'] ?? admin_setting('commission_distribution_l1', 0));
             $l2 = (int) ($data['commission_distribution_l2'] ?? admin_setting('commission_distribution_l2', 0));
             $l3 = (int) ($data['commission_distribution_l3'] ?? admin_setting('commission_distribution_l3', 0));
             if ($l1 + $l2 + $l3 !== 100) {
                 return $this->fail([422, '三级分销比例合计必须等于100%']);
+            }
+        }
+
+        if (array_key_exists('invite_commission', $data)) {
+            $rate = (int) $data['invite_commission'];
+            if ($rate < 0 || $rate > 100) {
+                return $this->fail([422, '邀请佣金比例必须在0-100之间']);
             }
         }
 

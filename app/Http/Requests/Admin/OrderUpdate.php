@@ -14,7 +14,8 @@ class OrderUpdate extends FormRequest
     public function rules()
     {
         return [
-            'status' => 'in:0,1,2,3',
+            'trade_no' => 'required|string',
+            'status' => 'in:0,1,2,3,4',
             'commission_status' => 'in:0,1,2'
         ];
     }

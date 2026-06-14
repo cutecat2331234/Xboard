@@ -35,6 +35,9 @@ class InviteController extends Controller
 
     public function details(Request $request)
     {
+        if (!AppFeature::commissionEnabled()) {
+            return $this->fail([403, __('Unsupported withdraw')]);
+        }
         $current = $request->input('current') ? $request->input('current') : 1;
         $pageSize = $request->input('page_size') >= 10 ? $request->input('page_size') : 10;
         $builder = CommissionLog::where('invite_user_id', $request->user()->id)
@@ -53,6 +56,9 @@ class InviteController extends Controller
 
     public function fetch(Request $request)
     {
+        if (!AppFeature::inviteEnabled()) {
+            return $this->fail([403, __('Invalid invitation code')]);
+        }
         $commission_rate = admin_setting('invite_commission', 10);
         $user = User::find($request->user()->id);
         if (!$user) {

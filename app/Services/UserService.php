@@ -107,42 +107,46 @@ class UserService
 
     public function isNotCompleteOrderByUserId(int $userId): bool
     {
-        $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
-            ->where('user_id', $userId)
-            ->first();
-        if (!$order) {
-            return false;
-        }
+        return DB::transaction(function () use ($userId) {
+            $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                ->where('user_id', $userId)
+                ->lockForUpdate()
+                ->first();
+            if (!$order) {
+                return false;
+            }
 
-        if ((int) $order->status === Order::STATUS_PROCESSING) {
-            $paidAt = (int) ($order->paid_at ?? 0);
-            if ($paidAt > 0 && (time() - $paidAt) > 120) {
-                try {
-                    (new OrderService($order))->open();
-                    $order->refresh();
-                    if ((int) $order->status === Order::STATUS_COMPLETED) {
-                        return false;
-                    }
-                } catch (\Throwable $e) {
-                    Log::warning('Failed to recover stale processing order', [
-                        'trade_no' => $order->trade_no,
-                        'user_id' => $userId,
-                        'error' => $e->getMessage(),
-                    ]);
-                    (new OrderService($order))->failOpenAndRefund($e->getMessage());
-                    $order->refresh();
-                    if ((int) $order->status === Order::STATUS_CANCELLED) {
-                        return false;
+            if ((int) $order->status === Order::STATUS_PROCESSING) {
+                $paidAt = (int) ($order->paid_at ?? 0);
+                if ($paidAt > 0 && (time() - $paidAt) > 120) {
+                    try {
+                        (new OrderService($order))->open();
+                        $order->refresh();
+                        if ((int) $order->status === Order::STATUS_COMPLETED) {
+                            return false;
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning('Failed to recover stale processing order', [
+                            'trade_no' => $order->trade_no,
+                            'user_id' => $userId,
+                            'error' => $e->getMessage(),
+                        ]);
+                        (new OrderService($order))->failOpenAndRefund($e->getMessage());
+                        $order->refresh();
+                        if ((int) $order->status === Order::STATUS_CANCELLED) {
+                            return false;
+                        }
                     }
                 }
             }
-        }
 
-        $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
-            ->where('user_id', $userId)
-            ->first();
+            $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                ->where('user_id', $userId)
+                ->lockForUpdate()
+                ->first();
 
-        return $order !== null;
+            return $order !== null;
+        });
     }
 
     public function trafficFetch(Server $server, string $protocol, array $data)
