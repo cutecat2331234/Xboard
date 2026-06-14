@@ -78,6 +78,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { getLocale } from '@/lib/i18n'
 
 import {
@@ -256,11 +257,11 @@ export default function DashboardPage() {
 
     fetchDashboardStats()
       .then(setStats)
-      .catch(() => toast.error(t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
     fetchQueueStats()
       .then(setQueueStats)
-      .catch(() => toast.error(t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
     const timer = window.setInterval(() => {
       fetchDashboardStats()
@@ -281,7 +282,7 @@ export default function DashboardPage() {
         setChartData(d.list)
         setSummary(d.summary)
       })
-      .catch(() => toast.error(t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
   }, [overviewRange, overviewCustom, t])
 
 
@@ -291,9 +292,9 @@ export default function DashboardPage() {
     setNodeRankLoading(true)
     fetchTrafficRank('node', start, end)
       .then(setNodeRank)
-      .catch(() => {
+      .catch((e) => {
         setNodeRank([])
-        toast.error(t('common.error'))
+        toastApiError(e, toast, t, t('common.error'))
       })
       .finally(() => setNodeRankLoading(false))
   }, [nodeRankRange, nodeRankCustom, t])
@@ -303,9 +304,9 @@ export default function DashboardPage() {
     setUserRankLoading(true)
     fetchTrafficRank('user', start, end)
       .then(setUserRank)
-      .catch(() => {
+      .catch((e) => {
         setUserRank([])
-        toast.error(t('common.error'))
+        toastApiError(e, toast, t, t('common.error'))
       })
       .finally(() => setUserRankLoading(false))
   }, [userRankRange, userRankCustom, t])

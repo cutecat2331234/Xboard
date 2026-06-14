@@ -297,6 +297,7 @@ class TrafficResetService
         }
 
         $batchResetCount = 0;
+        $batchErrors = [];
 
         if ($progressCallback) {
           $progressCallback([
