@@ -346,6 +346,7 @@ export default {
     codeMasked: 'Code',
     rewards: 'Rewards',
     rewardPreview: 'Reward preview',
+    mysteryPreview: 'Random reward ({count} items in pool — revealed after redeem)',
     rewardBalance: 'Balance',
     rewardTraffic: 'Traffic',
     rewardExpireDays: 'Extend validity (days)',

@@ -209,14 +209,27 @@ export default function ConfigPage() {
     const related = e.relatedTarget as Node | null
     if (related && e.currentTarget.contains(related)) return
     try {
-      const flat: Record<string, unknown> = {}
-      for (const sec of Object.values(config)) {
-        if (sec && typeof sec === 'object') Object.assign(flat, sec)
-      }
-      await saveConfig(flat)
+      const sec = config[section] ?? {}
+      const payload = normalizeSectionPayload(section, sec)
+      await saveConfig(payload)
+      toast.success(t('common.success'))
     } catch {
       toast.error(t('common.error'))
     }
+  }
+
+  function normalizeSectionPayload(secId: string, sec: Record<string, unknown>): Record<string, unknown> {
+    const payload = { ...sec }
+    if (secId === 'safe') {
+      const raw = payload.email_whitelist_suffix
+      if (typeof raw === 'string') {
+        payload.email_whitelist_suffix = raw
+          .split(/[\n,，]/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      }
+    }
+    return payload
   }
 
   const active = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0]

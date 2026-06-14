@@ -209,8 +209,13 @@ export default function PlanPage() {
   function openEdit(row: PlanRow) {
     setEditing(row)
     setForceUpdate(false)
+    const trafficGb =
+      row.transfer_enable && row.transfer_enable > 1073741824
+        ? Math.round(row.transfer_enable / 1073741824)
+        : row.transfer_enable ?? 100
     setForm({
       ...row,
+      transfer_enable: trafficGb,
       prices: { ...(row.prices ?? {}) },
       tags: row.tags ?? [],
     })

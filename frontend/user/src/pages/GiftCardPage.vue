@@ -47,6 +47,13 @@ const detailOpen = ref(false)
 const detailLoading = ref(false)
 const detail = ref<GiftCardDetail | null>(null)
 
+function formatPreview(rewards?: GiftCardRewards | { type?: string; pool_size?: number } | null) {
+  if (rewards && typeof rewards === 'object' && 'type' in rewards && rewards.type === 'mystery') {
+    return t('giftCard.mysteryPreview', { count: rewards.pool_size ?? 0 })
+  }
+  return formatRewards(rewards as GiftCardRewards | null | undefined)
+}
+
 function formatRewards(rewards?: GiftCardRewards | null) {
   if (!rewards) return '—'
   const parts: string[] = []
@@ -265,7 +272,7 @@ onMounted(async () => {
       <n-tag size="small" round>{{ checkResult.code_info.template.type_name }}</n-tag>
       <div class="gift-card-preview__rewards">
         <span class="gift-card-preview__label">{{ t('giftCard.rewardPreview') }}</span>
-        {{ formatRewards(checkResult.reward_preview) }}
+        {{ formatPreview(checkResult.reward_preview) }}
       </div>
       <div v-if="!checkResult.can_redeem && checkResult.reason" class="gift-card-preview__warn">
         {{ checkResult.reason }}

@@ -159,6 +159,13 @@ class GiftCardTemplate extends Model
             }
         }
 
+        // 检查禁止的套餐
+        if (isset($conditions['disallowed_plans']) && $user->plan_id) {
+            if (in_array($user->plan_id, $conditions['disallowed_plans'])) {
+                return false;
+            }
+        }
+
         // 检查是否需要邀请人
         if (isset($conditions['require_invite']) && $conditions['require_invite']) {
             if (!$user->invite_user_id) {
@@ -181,17 +188,22 @@ class GiftCardTemplate extends Model
         if ($this->type === self::TYPE_MYSTERY && isset($this->rewards['random_rewards'])) {
             $randomRewards = $this->rewards['random_rewards'];
             $totalWeight = array_sum(array_column($randomRewards, 'weight'));
+            if ($totalWeight <= 0) {
+                throw new \App\Exceptions\ApiException('盲盒奖励池配置无效');
+            }
             $random = mt_rand(1, $totalWeight);
             $currentWeight = 0;
 
             foreach ($randomRewards as $reward) {
-                $currentWeight += $reward['weight'];
+                $currentWeight += (int) ($reward['weight'] ?? 0);
                 if ($random <= $currentWeight) {
-                    $actualRewards = array_merge($actualRewards, $reward);
-                    unset($actualRewards['weight']);
+                    $picked = $reward;
+                    unset($picked['weight']);
+                    $actualRewards = array_merge($actualRewards, $picked);
                     break;
                 }
             }
+            unset($actualRewards['random_rewards']);
         }
 
         // 处理节日等特殊奖励(通用逻辑)

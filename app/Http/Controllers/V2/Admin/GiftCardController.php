@@ -383,6 +383,8 @@ class GiftCardController extends Controller
             ];
         })->values();
 
+        $codes->setCollection($data);
+
         return $this->paginate($codes);
     }
 

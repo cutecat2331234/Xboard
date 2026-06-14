@@ -324,6 +324,15 @@ class GiftCardService
             throw new ApiException('未设置使用用户');
         }
 
+        if ($this->template->type === GiftCardTemplate::TYPE_MYSTERY) {
+            $pool = $this->template->rewards['random_rewards'] ?? [];
+
+            return [
+                'type' => 'mystery',
+                'pool_size' => count($pool),
+            ];
+        }
+
         return $this->template->calculateActualRewards($this->user);
     }
 

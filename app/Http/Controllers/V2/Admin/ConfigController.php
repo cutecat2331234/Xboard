@@ -227,6 +227,9 @@ class ConfigController extends Controller
             if ($k === 'commission_withdraw_method') {
                 $v = $this->normalizeWithdrawMethods($v);
             }
+            if ($k === 'email_whitelist_suffix') {
+                $v = $this->normalizeEmailWhitelistSuffix($v);
+            }
             if (isset($templateKeys[$k])) {
                 SubscribeTemplate::setContent($templateKeys[$k], $v);
                 continue;
@@ -252,6 +255,22 @@ class ConfigController extends Controller
         }
         if (is_string($value)) {
             return array_values(array_filter(array_map('trim', preg_split('/[,，]/', $value) ?: [])));
+        }
+
+        return [];
+    }
+
+    /**
+     * @param mixed $value
+     * @return list<string>
+     */
+    private function normalizeEmailWhitelistSuffix(mixed $value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map(static fn ($item) => trim((string) $item), $value)));
+        }
+        if (is_string($value)) {
+            return array_values(array_filter(array_map('trim', preg_split('/[\n,，]/', $value) ?: [])));
         }
 
         return [];

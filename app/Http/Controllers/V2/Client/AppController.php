@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\ServerService;
 use App\Services\UserService;
 use App\Utils\Dict;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Yaml\Yaml;
@@ -32,7 +33,7 @@ class AppController extends Controller
                 'enable_traffic_log' => (bool) admin_setting('app_enable_traffic_log', true), // 是否开启流量日志
                 'enable_knowledge_base' => (bool) admin_setting('app_enable_knowledge_base', true), // 是否开启知识库
                 'enable_announcements' => (bool) admin_setting('app_enable_announcements', true), // 是否开启公告系统
-                'enable_auto_renewal' => (bool) admin_setting('app_enable_auto_renewal', false), // 是否开启自动续费
+                'enable_auto_renewal' => false, // 服务端自动续费尚未实现，固定返回 false
                 'enable_coupon_system' => (bool) admin_setting('app_enable_coupon_system', true), // 是否开启优惠券系统
                 'enable_speed_test' => (bool) admin_setting('app_enable_speed_test', true), // 是否开启测速功能
                 'enable_server_ping' => (bool) admin_setting('app_enable_server_ping', true), // 是否开启服务器延迟检测
@@ -83,7 +84,9 @@ class AppController extends Controller
                 'privacy_policy_url' => admin_setting('app_privacy_policy_url', 'https://example.com/privacy'), // 隐私政策 URL
                 'is_email_verify' => (int) admin_setting('email_verify', 1), // 是否开启邮箱验证 (0/1)
                 'is_invite_force' => (int) admin_setting('invite_force', 0), // 是否强制邀请码 (0/1)
-                'email_whitelist_suffix' => (int) admin_setting('email_whitelist_suffix', 0), // 邮箱白名单后缀 (0/1)
+                'email_whitelist_suffix' => (int) admin_setting('email_whitelist_enable', 0)
+                    ? Helper::getEmailSuffix()
+                    : [],
                 'is_captcha' => (int) admin_setting('captcha_enable', 1), // 是否开启验证码 (0/1)
                 'captcha_type' => admin_setting('captcha_type', 'recaptcha'), // 验证码类型 (recaptcha/turnstile)
                 'recaptcha_site_key' => admin_setting('recaptcha_site_key', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'), // reCAPTCHA 站点密钥
