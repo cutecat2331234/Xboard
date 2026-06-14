@@ -4,6 +4,7 @@ import { Command } from 'cmdk'
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { COMMAND_ITEMS } from '@/lib/nav-groups'
+import { useNavHighlight } from '@/lib/nav-highlight'
 import { buildPluginNavGroups } from '@/lib/plugin-menus'
 import { usePluginList } from '@/lib/use-plugin-list'
 import { PluginMenuIcon } from '@/components/plugin/PluginMenuIcon'
@@ -12,6 +13,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 export function CommandMenu() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const { setActivePath } = useNavHighlight()
   const { t } = useTranslation()
   const { plugins } = usePluginList()
   const pluginGroups = useMemo(() => buildPluginNavGroups(plugins), [plugins])
@@ -69,6 +71,7 @@ export function CommandMenu() {
                     key={item.path}
                     value={label}
                     onSelect={() => {
+                      setActivePath(item.path)
                       navigate(item.path)
                       setOpen(false)
                     }}
@@ -84,6 +87,7 @@ export function CommandMenu() {
                   key={item.id}
                   value={`${item.title} ${item.groupTitle} ${item.path} ${item.pluginCode}`}
                   onSelect={() => {
+                    setActivePath(item.path)
                     navigate(item.path)
                     setOpen(false)
                   }}

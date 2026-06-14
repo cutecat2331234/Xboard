@@ -42,7 +42,12 @@ export default function PluginAdminRoute() {
   const adminCrud = findAdminCrud(plugin, subpath)
   const showOverview = !adminMenu && !adminCrud && (!subpath || (subpath === 'settings' && hasConfig))
   const showUnknownPage = Boolean(subpath && !adminMenu && !adminCrud && subpath !== 'settings')
-  const tab = resolveTab(subpath, hasConfig)
+  const tabFromRoute = resolveTab(subpath, hasConfig)
+  const [tab, setTab] = useState(tabFromRoute)
+
+  useEffect(() => {
+    setTab(tabFromRoute)
+  }, [tabFromRoute])
 
   const pageTitle =
     adminCrud?.title ||
@@ -142,6 +147,7 @@ export default function PluginAdminRoute() {
         <Tabs
           value={tab}
           onValueChange={(value) => {
+            setTab(value as 'overview' | 'settings')
             navigate(
               value === 'settings'
                 ? buildPluginRoute(pluginCode, 'settings')

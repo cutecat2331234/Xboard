@@ -1,5 +1,5 @@
-import { memo, useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { memo, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { IconChevronDown, IconMenu2 } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
@@ -9,6 +9,7 @@ import { buildPluginNavGroups } from '@/lib/plugin-menus'
 import { usePluginList } from '@/lib/use-plugin-list'
 import { GroupIcon, NavIcon } from '@/lib/tabler-nav-icons'
 import { PluginMenuIcon } from '@/components/plugin/PluginMenuIcon'
+import { useNavHighlight } from '@/lib/nav-highlight'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 
@@ -47,14 +48,7 @@ function SidebarNav({
   onNavigate,
 }: SidebarNavProps) {
   const { t } = useTranslation()
-  const location = useLocation()
-  const [selectedPath, setSelectedPath] = useState(location.pathname)
-
-  useEffect(() => {
-    setSelectedPath(location.pathname)
-  }, [location.pathname])
-
-  const currentPath = selectedPath
+  const { activePath: currentPath, setActivePath } = useNavHighlight()
 
   function navClass(path: string, end?: boolean, sub = false) {
     const active = matchNavPath(path, end, currentPath)
@@ -62,7 +56,7 @@ function SidebarNav({
   }
 
   function onNavClick(path: string) {
-    setSelectedPath(path)
+    setActivePath(path)
     onNavigate?.()
   }
 

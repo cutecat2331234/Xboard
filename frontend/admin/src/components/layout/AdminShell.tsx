@@ -1,9 +1,11 @@
 import { Outlet } from 'react-router-dom'
+import { NavHighlightProvider } from '@/lib/nav-highlight'
 import { PageToolbar } from './PageToolbar'
 import { Sidebar } from './Sidebar'
 
 export function AdminShell() {
   return (
+    <NavHighlightProvider>
     <div className="relative flex h-full min-h-0 overflow-hidden bg-background">
       <Sidebar />
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden pt-16 md:ml-64 md:pt-0">
@@ -13,5 +15,6 @@ export function AdminShell() {
         </div>
       </main>
     </div>
+    </NavHighlightProvider>
   )
 }
