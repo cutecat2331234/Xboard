@@ -14,6 +14,13 @@ export function formatAdminMoney(cents?: number | null): string {
   return `${symbol}${amount}`
 }
 
+export function resetAdminCurrency(): void {
+  loaded = false
+  loading = null
+  symbol = '¥'
+  code = 'CNY'
+}
+
 export async function loadAdminCurrency(): Promise<void> {
   if (loaded) return
   if (loading) return loading
@@ -26,10 +33,13 @@ export async function loadAdminCurrency(): Promise<void> {
       loaded = true
     })
     .catch(() => {
-      loaded = true
+      /* keep defaults; allow retry */
+      loading = null
     })
     .finally(() => {
-      loading = null
+      if (loaded) {
+        loading = null
+      }
     })
 
   return loading

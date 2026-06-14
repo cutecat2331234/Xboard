@@ -44,6 +44,7 @@ export interface UserCommConfig {
   commission_distribution_l2?: number | string
   commission_distribution_l3?: number | string
   try_out_plan_id?: number
+  try_out_enable?: number
   traffic_warn_rate?: number
   ticket_must_wait_reply?: number
   plan_change_enable?: number

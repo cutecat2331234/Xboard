@@ -87,6 +87,10 @@ class RegisterService
             if (!$inviteCodeModel) {
                 return [false, [400, __('Invalid invitation code')]];
             }
+            $inviter = User::find($inviteCodeModel->user_id);
+            if (!$inviter || $inviter->banned) {
+                return [false, [400, __('Invalid invitation code')]];
+            }
         }
 
         if ((int) admin_setting('invite_force', 0) && AppFeature::inviteEnabled()) {
@@ -135,6 +139,11 @@ class RegisterService
             ->first();
 
         if (!$inviteCodeModel) {
+            throw new ApiException(__('Invalid invitation code'));
+        }
+
+        $inviter = User::find($inviteCodeModel->user_id);
+        if (!$inviter || $inviter->banned) {
             throw new ApiException(__('Invalid invitation code'));
         }
 

@@ -67,7 +67,8 @@ function isSoldOut(): boolean {
 
 function isPlanChangeBlocked(): boolean {
   if (!commReady.value) return true
-  if (commConfig.value?.plan_change_enable !== 0) return false
+  if (commConfig.value == null) return false
+  if (commConfig.value.plan_change_enable !== 0) return false
   const user = auth.user
   const p = plan.value
   if (!user || !p) return false
@@ -173,9 +174,10 @@ onMounted(async () => {
   await auth.loadUser()
   try {
     await loadComm()
-    commReady.value = true
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  } finally {
+    commReady.value = true
   }
   await Promise.all([load(), resolveTryOutPlanId().then((id) => { tryOutPlanId.value = id })])
 })

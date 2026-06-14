@@ -23,6 +23,7 @@ import {
 } from '@/api/profile'
 import { fetchTelegramBotInfo, unbindTelegram } from '@/api/telegram'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { useCurrency } from '@/composables/useCurrency'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
@@ -41,9 +42,7 @@ const remindTraffic = ref(true)
 const msg = useMessage()
 const { t } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
-const telegramBotError = ref(false)
-const botUsername = ref('')
-const currency = ref('CNY')
+const { code: currency, load: loadCurrency } = useCurrency()
 const sessions = ref<ActiveSession[]>([])
 const sessionsLoading = ref(false)
 const quickLoginLoading = ref(false)
@@ -192,9 +191,9 @@ onMounted(async () => {
   remindExpire.value = Boolean(auth.user?.remind_expire ?? 1)
   remindTraffic.value = Boolean(auth.user?.remind_traffic ?? 1)
   try {
-    const cfg = await loadComm()
-    currency.value = cfg.currency ?? 'CNY'
-    if (cfg.is_telegram) {
+    await Promise.all([loadComm(), loadCurrency()])
+    const cfg = commConfig.value
+    if (cfg?.is_telegram) {
       try {
         const bot = await fetchTelegramBotInfo()
         botUsername.value = bot.username

@@ -39,6 +39,12 @@ class ConfigSave extends FormRequest
         'currency_symbol' => '',
         'ticket_must_wait_reply' => '',
         'traffic_warn_rate' => 'integer|min:1|max:100',
+        'app_enable_register' => 'boolean',
+        'app_enable_coupon_system' => 'boolean',
+        'app_enable_ticket_system' => 'boolean',
+        'app_enable_commission_system' => 'boolean',
+        'app_enable_invite_system' => 'boolean',
+        'app_enable_gift_card' => 'boolean',
         // subscribe
         'plan_change_enable' => '',
         'reset_traffic_method' => 'in:0,1,2,3,4',

@@ -18,7 +18,7 @@ class CheckCommission extends Command
 
     private function orderAmount(Order $order): int
     {
-        return (int) $order->total_amount + (int) ($order->balance_amount ?? 0) + (int) ($order->surplus_amount ?? 0);
+        return (int) $order->total_amount + (int) ($order->balance_amount ?? 0);
     }
 
     public function handle()
@@ -158,6 +158,9 @@ class CheckCommission extends Command
             if (!$inviter) {
                 break;
             }
+            if ($inviter->banned) {
+                return 'invalid';
+            }
             if (!isset($commissionShareLevels[$l])) {
                 continue;
             }
@@ -190,6 +193,9 @@ class CheckCommission extends Command
 
         if ($remaining > 0) {
             $directInviter = User::where('id', $order->invite_user_id)->lockForUpdate()->first();
+            if ($directInviter && $directInviter->banned) {
+                return 'invalid';
+            }
             if ($directInviter && $remaining > 0) {
                 if ((int)admin_setting('withdraw_close_enable', 0)) {
                     $directInviter->increment('balance', $remaining);

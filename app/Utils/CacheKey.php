@@ -20,6 +20,7 @@ class CacheKey
         'USER_SESSIONS' => '用户session',
         'FORGET_REQUEST_LIMIT' => '找回密码次数限制',
         'PAYMENT_ORPHAN_CREDIT' => '支付孤儿入账幂等',
+        'ORDER_CHECKOUT' => '订单结账进行中',
     ];
 
     // 允许的缓存键模式（支持通配符）

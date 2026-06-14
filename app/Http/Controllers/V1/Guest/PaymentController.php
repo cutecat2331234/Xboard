@@ -79,6 +79,12 @@ class PaymentController extends Controller
             }
 
             if ($order->status === Order::STATUS_PROCESSING) {
+                if (!$order->paid_at) {
+                    Log::warning('Payment notify: processing order without paid_at', [
+                        'trade_no' => $tradeNo,
+                    ]);
+                    return false;
+                }
                 try {
                     $statusBeforeOpen = (int) $order->status;
                     $orderService = new OrderService($order->fresh());

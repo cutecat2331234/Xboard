@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { resolveApiError, toastApiError } from '@/lib/api-errors'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
+import { resetAdminCurrency } from '@/lib/currency'
 import { configFieldLabelCls, configSubFieldLabelCls, inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { Switch } from '@/components/ui/switch'
@@ -235,6 +236,9 @@ export default function ConfigPage() {
       }
       const payload = normalizeSectionPayload(section, sec)
       await saveConfig(payload)
+      if (section === 'site') {
+        resetAdminCurrency()
+      }
       toast.success(t('common.success'))
     } catch (err) {
       toastApiError(err, toast, t, t('common.error'))
@@ -393,6 +397,42 @@ export default function ConfigPage() {
                         description={t('settings.site.form.stopRegister.description')}
                         checked={Boolean(site.stop_register)}
                         onChange={(v) => update('site', 'stop_register', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureRegister.label')}
+                        description={t('settings.site.form.featureRegister.description')}
+                        checked={Boolean(site.app_enable_register ?? true)}
+                        onChange={(v) => update('site', 'app_enable_register', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureCoupon.label')}
+                        description={t('settings.site.form.featureCoupon.description')}
+                        checked={Boolean(site.app_enable_coupon_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_coupon_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureTicket.label')}
+                        description={t('settings.site.form.featureTicket.description')}
+                        checked={Boolean(site.app_enable_ticket_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_ticket_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureCommission.label')}
+                        description={t('settings.site.form.featureCommission.description')}
+                        checked={Boolean(site.app_enable_commission_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_commission_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureInvite.label')}
+                        description={t('settings.site.form.featureInvite.description')}
+                        checked={Boolean(site.app_enable_invite_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_invite_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureGiftCard.label')}
+                        description={t('settings.site.form.featureGiftCard.description')}
+                        checked={Boolean(site.app_enable_gift_card ?? true)}
+                        onChange={(v) => update('site', 'app_enable_gift_card', v, true)}
                       />
                       <SwitchField
                         label={t('settings.site.form.ticketMustWaitReply.label')}

@@ -213,8 +213,12 @@ class UserController extends Controller
             } elseif ($hasFilter) {
                 $scope = 'filtered';
             } else {
-                $scope = 'all';
+                $scope = 'selected';
             }
+        }
+
+        if ($scope === 'all' && $request->input('scope') !== 'all') {
+            $scope = 'selected';
         }
 
         $normalizedIds = [];
@@ -335,9 +339,15 @@ class UserController extends Controller
             $authService->removeAllSessions();
         }
         if (isset($params['balance'])) {
+            if ((float) $request->input('balance') < 0) {
+                return $this->fail([422, '余额不能为负数']);
+            }
             $params['balance'] = $params['balance'] * 100;
         }
         if (isset($params['commission_balance'])) {
+            if ((float) $request->input('commission_balance') < 0) {
+                return $this->fail([422, '佣金余额不能为负数']);
+            }
             $params['commission_balance'] = $params['commission_balance'] * 100;
         }
 
@@ -805,6 +815,10 @@ class UserController extends Controller
             if ($processingPaidOrder) {
                 DB::rollBack();
                 return $this->fail([400, '用户存在支付处理中的订单，请等待开通完成或退款后再删除']);
+            }
+            if ((int) $user->balance > 0 || (int) $user->commission_balance > 0) {
+                DB::rollBack();
+                return $this->fail([400, '用户仍有站内余额或佣金余额，请先清零后再删除']);
             }
             $openOrders = Order::where('user_id', $userId)
                 ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
