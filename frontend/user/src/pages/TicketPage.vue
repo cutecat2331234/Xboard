@@ -32,6 +32,7 @@ const { t } = useI18n()
 const levelOptions = computed(() => [
   { label: t('ticket.levelLow'), value: 0 },
   { label: t('ticket.levelMedium'), value: 1 },
+  { label: t('ticket.levelHigh'), value: 2 },
 ])
 
 function levelLabel(value: number) {

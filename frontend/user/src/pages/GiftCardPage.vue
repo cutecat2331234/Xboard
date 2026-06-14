@@ -321,7 +321,7 @@ onMounted(async () => {
           ×{{ detail.multiplier_applied }}
         </n-descriptions-item>
         <n-descriptions-item :label="t('giftCard.redeemedAt')">
-          {{ formatLocaleDateTime(detail.created_at, locale) }}
+          {{ formatLocaleDateTime(detail.created_at, locale.value) }}
         </n-descriptions-item>
       </n-descriptions>
     </template>

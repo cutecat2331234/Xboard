@@ -2,7 +2,7 @@
 import { computed, h, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NDataTable, NDivider, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
-import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
+import { fetchOrders, cancelOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { orderStatusLabel } from '@/lib/order-status'
 import { formatFixedDateTime } from '@/lib/format-date'
@@ -116,7 +116,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
           {
             text: true,
             type: 'primary',
-            disabled: row.status !== 0,
+            disabled: !canCancelOrder(row),
             onClick: () => confirmCancel(row.trade_no),
           },
           { default: () => t('common.cancel') },

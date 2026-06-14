@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
 import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NSpin, NTabs, NTabPane, useMessage } from 'naive-ui'
 import { fetchKnowledge, fetchKnowledgeCategories, type KnowledgeItem } from '@/api/knowledge'
@@ -68,7 +68,7 @@ function resolveKnowledgeLang(loc: string): string {
   return 'en-US'
 }
 
-onMounted(async () => {
+async function loadKnowledge() {
   loading.value = true
   try {
     const lang = resolveKnowledgeLang(locale.value)
@@ -83,6 +83,14 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+watch(locale, () => {
+  void loadKnowledge()
+})
+
+onMounted(() => {
+  void loadKnowledge()
 })
 </script>
 

@@ -2333,7 +2333,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "l1": "一级邀请人比例",
         "l2": "二级邀请人比例",
         "l3": "三级邀请人比例",
-        "placeholder": "请输入比例，如：50"
+        "placeholder": "请输入比例，如：50",
+        "sum_error": "三级分销比例合计必须等于 100%"
       },
       "saving": "保存中..."
     },

@@ -1837,7 +1837,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "l1": "Level 1 Inviter Ratio",
         "l2": "Level 2 Inviter Ratio",
         "l3": "Level 3 Inviter Ratio",
-        "placeholder": "Enter ratio e.g. 50"
+        "placeholder": "Enter ratio e.g. 50",
+        "sum_error": "Level 1 + Level 2 + Level 3 ratios must equal 100%"
       },
       "saving": "Saving..."
     },
@@ -2451,6 +2452,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "status": "Status",
       "updated_at": "Last Updated",
       "created_at": "Created At",
+      "reply_status": "Reply Status",
       "actions": "Actions"
     },
     "status": {
@@ -2462,27 +2464,38 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "level": {
       "low": "Low Priority",
       "medium": "Medium Priority",
-      "high": "High Priority"
+      "high": "High Priority",
+      "withdraw": "Withdrawal"
     },
     "filter": {
       "placeholder": "Search {field}...",
       "no_results": "No results found",
       "selected": "{count} selected",
-      "clear": "Clear filters"
+      "clear": "Clear filters",
+      "reply_status_all": "All reply statuses"
     },
     "actions": {
       "view_details": "View Details",
       "reply": "Reply",
       "close": "Close ticket",
       "close_reject_withdraw": "Reject withdrawal and close",
+      "approve_withdraw": "Approve withdrawal and close",
       "close_ticket": "Close Ticket",
       "close_confirm_title": "Confirm Close Ticket",
       "close_confirm_description": "Are you sure you want to close this ticket? It will move to the closed list, but you can still reply later.",
       "close_confirm_button": "Confirm Close",
       "close_success": "Ticket closed successfully",
-      "view_ticket": "View Ticket"
+      "view_ticket": "View Ticket",
+      "approve_withdraw_confirm_title": "Approve withdrawal?",
+      "approve_withdraw_confirm_description": "This will close the ticket and mark the withdrawal as paid. Commission will not be restored.",
+      "reject_withdraw_confirm_title": "Reject withdrawal?",
+      "reject_withdraw_confirm_description": "This will close the ticket and restore the withheld commission to the user."
+    },
+    "reply": {
+      "label": "Reply"
     },
     "detail": {
+      "title": "Ticket Detail",
       "no_messages": "No messages yet",
       "created_at": "Created at",
       "sender_admin": "Admin",
@@ -3240,6 +3253,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "title": "Usage Limits",
           "max_use_per_user": {
             "label": "Max Uses Per User",
+            "placeholder": "Leave empty for no limit"
+          },
+          "max_total_uses": {
+            "label": "Max Total Redemptions",
             "placeholder": "Leave empty for no limit"
           },
           "cooldown_hours": {

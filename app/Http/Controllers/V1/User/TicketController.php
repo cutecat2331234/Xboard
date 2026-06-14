@@ -122,7 +122,7 @@ class TicketController extends Controller
                 $firstMessage = TicketMessage::where('ticket_id', $locked->id)
                     ->orderBy('id')
                     ->value('message');
-                if (TicketService::isOfficialWithdrawTicket($locked, is_string($firstMessage) ? $firstMessage : null)) {
+                if (TicketService::isWithdrawTicket($locked, is_string($firstMessage) ? $firstMessage : null)) {
                     TicketService::restoreWithdrawCommission($locked);
                 }
                 $locked->status = Ticket::STATUS_CLOSED;
@@ -174,7 +174,7 @@ class TicketController extends Controller
                 $feeAmount = $feeRate > 0 ? (int) round($withdrawAmount * $feeRate) : 0;
                 $netAmount = $withdrawAmount - $feeAmount;
 
-                if ($limit > ($withdrawAmount / 100)) {
+                if ($limit > 0 && $limit > ($withdrawAmount / 100)) {
                     return $this->fail([422, __('The current required minimum withdrawal commission is :limit', ['limit' => $limit])]);
                 }
 

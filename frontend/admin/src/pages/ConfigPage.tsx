@@ -220,6 +220,15 @@ export default function ConfigPage() {
   async function persistSection() {
     try {
       const sec = configRef.current[section] ?? {}
+      if (section === 'invite' && sec.commission_distribution_enable) {
+        const l1 = Number(sec.commission_distribution_l1 ?? 0)
+        const l2 = Number(sec.commission_distribution_l2 ?? 0)
+        const l3 = Number(sec.commission_distribution_l3 ?? 0)
+        if (l1 + l2 + l3 !== 100) {
+          toast.error(t('settings.invite.commission_distribution.sum_error'))
+          return
+        }
+      }
       const payload = normalizeSectionPayload(section, sec)
       await saveConfig(payload)
       toast.success(t('common.success'))

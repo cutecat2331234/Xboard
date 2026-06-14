@@ -180,6 +180,7 @@ class PlanService
         }
 
         $activeUserCount = User::where('plan_id', $plan->id)
+            ->where('banned', 0)
             ->where(function ($query) {
                 $query->where('expired_at', '>=', time())
                     ->orWhereNull('expired_at');

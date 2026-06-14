@@ -52,10 +52,11 @@ class OrderHandleJob implements ShouldQueue
                     if (!$order->payment_id && $age >= 3600 * 2) {
                         $orderService->cancel();
                     } elseif ($order->payment_id && $age >= 3600 * 24) {
-                        Log::warning('Pending order with payment_id exceeded 24h, skipping auto-cancel pending reconciliation', [
+                        Log::info('Auto-cancelling stale pending order with payment method selected', [
                             'trade_no' => $order->trade_no,
                             'payment_id' => $order->payment_id,
                         ]);
+                        $orderService->cancel();
                     }
                     break;
                 case Order::STATUS_PROCESSING:
