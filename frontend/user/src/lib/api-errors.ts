@@ -79,9 +79,15 @@ const MESSAGE_MAP: Record<string, string> = {
   '扣款失败，请检查信用卡信息': 'errors.paymentCardFailed',
   'Payment gateway request failed': 'errors.paymentGatewayFailed',
   '支付网关请求失败': 'errors.paymentGatewayFailed',
-  'payment is not found': 'errors.paymentNotFound',
-
-  // Generic
+  'Payment is in progress for this order, cannot cancel': 'errors.paymentInProgress',
+  '订单支付进行中，无法取消': 'errors.paymentInProgress',
+  'Please wait for the technical enginneer to reply': 'errors.ticketWaitForReply',
+  'Please wait for the technical engineer to reply': 'errors.ticketWaitForReply',
+  'Unsupported withdraw': 'errors.withdrawUnsupported',
+  'Insufficient commission balance': 'errors.insufficientCommission',
+  '佣金余额不足': 'errors.insufficientCommission',
+  'You already have a pending withdrawal request': 'errors.pendingWithdrawTicket',
+  'The current required minimum withdrawal commission is :limit': 'errors.withdrawMinimum',
   'Uh-oh, we\'ve had some problems, we\'re working on it.': 'errors.serverError',
   '遇到了些问题，我们正在进行处理': 'errors.serverError',
   'Request failed': 'errors.requestFailed',
@@ -109,6 +115,15 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     params: (m) => {
       const hit = m.match(/(\d+)/)
       return hit ? { minute: hit[1] } : undefined
+    },
+  },
+  {
+    test: (m) =>
+      /minimum withdrawal commission/i.test(m) || /最低.*提现/.test(m),
+    key: 'errors.withdrawMinimum',
+    params: (m) => {
+      const hit = m.match(/(\d+(?:\.\d+)?)/)
+      return hit ? { limit: hit[1] } : undefined
     },
   },
 ]

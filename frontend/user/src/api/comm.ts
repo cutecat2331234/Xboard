@@ -18,6 +18,7 @@ export interface GuestConfig {
   telegram_bot_username?: string
   telegram_login_domain?: string
   try_out_plan_id?: number
+  try_out_enable?: number
   traffic_warn_rate?: number
   login_with_mail_link_enable?: number
 }
@@ -36,6 +37,10 @@ export interface UserCommConfig {
   commission_distribution_l3?: number | string
   try_out_plan_id?: number
   traffic_warn_rate?: number
+  ticket_must_wait_reply?: number
+  plan_change_enable?: number
+  withdraw_fee_rate?: number
+  commission_withdraw_limit?: number | string
 }
 
 const DEFAULT_TRAFFIC_WARN_RATE = 70
@@ -57,7 +62,12 @@ export async function resolveTryOutPlanId(): Promise<number> {
   if (cachedTryOutPlanId !== null) return cachedTryOutPlanId
   try {
     const config = getAuthData() ? await fetchUserCommConfig() : await fetchGuestConfig()
-    if (config.try_out_plan_id != null) {
+    const enabled = (config as GuestConfig).try_out_enable
+    if (enabled !== undefined && Number(enabled) === 0) {
+      cacheTryOutPlanId(0)
+      return 0
+    }
+    if (config.try_out_plan_id != null && config.try_out_plan_id > 0) {
       cacheTryOutPlanId(config.try_out_plan_id)
       return config.try_out_plan_id
     }

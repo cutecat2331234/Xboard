@@ -33,6 +33,8 @@ class ConfigSave extends FormRequest
         'try_out_enable' => '',
         'try_out_plan_id' => 'integer',
         'try_out_hour' => 'numeric',
+        'try_out_enable' => 'boolean',
+        'login_with_mail_link_enable' => 'boolean',
         'tos_url' => 'nullable|url',
         'currency' => '',
         'currency_symbol' => '',

@@ -115,6 +115,8 @@ class ConfigController extends Controller
                 'subscribe_url' => admin_setting('subscribe_url'),
                 'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
                 'try_out_hour' => (int) admin_setting('try_out_hour', 1),
+                'try_out_enable' => (bool) admin_setting('try_out_enable', 1),
+                'login_with_mail_link_enable' => (bool) admin_setting('login_with_mail_link_enable', 0),
                 'tos_url' => admin_setting('tos_url'),
                 'currency' => admin_setting('currency', 'CNY'),
                 'currency_symbol' => admin_setting('currency_symbol', '¥'),

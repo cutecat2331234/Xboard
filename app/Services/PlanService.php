@@ -164,7 +164,7 @@ class PlanService
 
     public function hasCapacity(Plan $plan): bool
     {
-        if ($plan->capacity_limit === null) {
+        if ($plan->capacity_limit === null || (int) $plan->capacity_limit <= 0) {
             return true;
         }
 

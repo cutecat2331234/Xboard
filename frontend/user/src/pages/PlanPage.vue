@@ -104,7 +104,7 @@ onMounted(async () => {
         <p v-if="hasPeriodPrices(p)" class="plan-period-hint">{{ t('plan.periodPricesHint') }}</p>
         <p class="plan-price">{{ priceLabel(p) }}</p>
         <div class="plan-tags">
-          <n-tag v-if="p.transfer_enable > 0" size="small" type="info">{{ transferGb(p) }} GB</n-tag>
+          <n-tag v-if="p.transfer_enable > 0" size="small" type="info">{{ transferGb(p) }}</n-tag>
           <n-tag v-if="showCapacity(p)" size="small" :type="capacityTagType(p)">
             {{ capacityLabel(p) }}
           </n-tag>
