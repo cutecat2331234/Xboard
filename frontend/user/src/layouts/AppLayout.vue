@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, onMounted, onUnmounted, ref } from 'vue'
+import { computed, h, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { HEADER_ICON_PATHS, MENU_ICON_PATHS, renderCarbonIcon } from '@/utils/carbon-icon'
 import {
@@ -144,6 +144,11 @@ const menuActiveKey = computed(() => {
   return menuKey ?? resolveMenuKey(route.path)
 })
 
+const menuValue = ref(menuActiveKey.value)
+watch(menuActiveKey, (key) => {
+  menuValue.value = key
+})
+
 type BreadcrumbItem = { label: string; to?: string }
 
 const breadcrumbItems = computed<BreadcrumbItem[]>(() => {
@@ -167,6 +172,7 @@ const themeAriaLabel = computed(() =>
 
 function onMenuSelect(key: string) {
   if (!key.startsWith('/')) return
+  menuValue.value = key
   router.push(key)
   if (isMobile.value) mobileDrawerOpen.value = false
 }
@@ -222,8 +228,7 @@ const MenuToggleIcon = {
         <h2 v-show="!collapsed" class="app-brand__title">{{ s.title || 'Xboard' }}</h2>
       </div>
       <n-menu
-        v-memo="[menuActiveKey, collapsed, locale]"
-        :value="menuActiveKey"
+        :value="menuValue"
         :collapsed="collapsed"
         :collapsed-width="64"
         :options="menuOptions"
@@ -247,8 +252,7 @@ const MenuToggleIcon = {
           <h2 class="app-brand__title">{{ s.title || 'Xboard' }}</h2>
         </div>
         <n-menu
-          v-memo="[menuActiveKey, locale]"
-          :value="menuActiveKey"
+          :value="menuValue"
           :options="menuOptions"
           :indent="18"
           :root-indent="18"
@@ -336,6 +340,14 @@ const MenuToggleIcon = {
   background: var(--xb-primary);
 }
 .app-sider :deep(.n-menu-item-content) { position: relative; transition: none !important; }
+.app-sider :deep(.n-menu-item-content::before),
+.app-sider :deep(.n-menu-item-content--selected::before) {
+  transition: none !important;
+}
+.app-sider :deep(.n-menu .n-menu-item-content-header),
+.app-sider :deep(.n-menu .n-menu-item-content__icon) {
+  transition: none !important;
+}
 .app-sider :deep(.n-menu-item-group-title) {
   font-size: 13.02px;
   text-transform: none;

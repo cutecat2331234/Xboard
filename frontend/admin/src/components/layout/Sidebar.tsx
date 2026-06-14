@@ -1,5 +1,5 @@
-import { memo, useMemo, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { memo, useEffect, useMemo, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { IconChevronDown, IconMenu2 } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
@@ -23,6 +23,12 @@ const subLinkCls =
 const activeNavCls = 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
 const inactiveNavCls = 'hover:bg-accent hover:text-accent-foreground'
 
+function matchNavPath(path: string, end: boolean | undefined, current: string) {
+  if (end) return current === path || (path === '/' && current === '')
+  if (current === path) return true
+  return current.startsWith(`${path}/`)
+}
+
 type SidebarNavProps = {
   openGroups: Record<string, boolean>
   setOpenGroups: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
@@ -32,7 +38,7 @@ type SidebarNavProps = {
   onNavigate?: () => void
 }
 
-const SidebarNav = memo(function SidebarNav({
+function SidebarNav({
   openGroups,
   setOpenGroups,
   openPluginGroups,
@@ -42,33 +48,45 @@ const SidebarNav = memo(function SidebarNav({
 }: SidebarNavProps) {
   const { t } = useTranslation()
   const location = useLocation()
+  const [selectedPath, setSelectedPath] = useState(location.pathname)
+
+  useEffect(() => {
+    setSelectedPath(location.pathname)
+  }, [location.pathname])
+
+  const currentPath = selectedPath
+
+  function navClass(path: string, end?: boolean, sub = false) {
+    const active = matchNavPath(path, end, currentPath)
+    return cn(sub ? subLinkCls : navLinkCls, active ? activeNavCls : inactiveNavCls)
+  }
+
+  function onNavClick(path: string) {
+    setSelectedPath(path)
+    onNavigate?.()
+  }
 
   return (
-    <nav className="grid flex-1 gap-1 overflow-auto overscroll-contain py-2 [contain:paint]">
+    <nav className="sidebar-nav grid flex-1 gap-1 overflow-auto overscroll-contain py-2">
       {NAV_GROUPS.map((group, gi) => {
         const groupKey = groupKeys[gi - 1]
         const isDashboardOnly = !group.labelKey
 
         if (isDashboardOnly) {
-          return group.items.map((item) => {
-            const active = item.end
-              ? location.pathname === '/' || location.pathname === ''
-              : location.pathname.startsWith(item.path)
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.end}
-                onClick={onNavigate}
-                className={cn(navLinkCls, active ? activeNavCls : inactiveNavCls)}
-              >
-                <div className="mr-2">
-                  <NavIcon path={item.path} className="h-[18px] w-[18px]" />
-                </div>
-                {t(item.labelKey)}
-              </NavLink>
-            )
-          })
+          return group.items.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              aria-current={matchNavPath(item.path, item.end, currentPath) ? 'page' : undefined}
+              className={navClass(item.path, item.end)}
+              onClick={() => onNavClick(item.path)}
+            >
+              <div className="mr-2">
+                <NavIcon path={item.path} className="h-[18px] w-[18px]" />
+              </div>
+              {t(item.labelKey)}
+            </Link>
+          ))
         }
 
         const open = openGroups[groupKey] ?? true
@@ -89,30 +107,27 @@ const SidebarNav = memo(function SidebarNav({
               </div>
               {t(group.labelKey!)}
               <IconChevronDown
-                className={cn('tabler-icon tabler-icon-chevron-down ml-auto h-4 w-4 transition-transform', open && '-rotate-180')}
+                className={cn('tabler-icon tabler-icon-chevron-down ml-auto h-4 w-4 transition-none', open && '-rotate-180')}
                 stroke={2}
               />
             </CollapsibleTrigger>
-            <CollapsibleContent>
+            <CollapsibleContent className="transition-none">
               <ul>
-                {group.items.map((item) => {
-                  return (
-                    <li key={item.path} className="my-1 ml-8">
-                      <NavLink
-                        to={item.path}
-                        onClick={onNavigate}
-                        className={({ isActive }) =>
-                          cn(subLinkCls, isActive ? activeNavCls : inactiveNavCls)
-                        }
-                      >
-                        <div className="mr-2">
-                          <NavIcon path={item.path} className="h-[18px] w-[18px]" />
-                        </div>
-                        {t(item.labelKey)}
-                      </NavLink>
-                    </li>
-                  )
-                })}
+                {group.items.map((item) => (
+                  <li key={item.path} className="my-1 ml-8">
+                    <Link
+                      to={item.path}
+                      aria-current={matchNavPath(item.path, false, currentPath) ? 'page' : undefined}
+                      className={navClass(item.path, false, true)}
+                      onClick={() => onNavClick(item.path)}
+                    >
+                      <div className="mr-2">
+                        <NavIcon path={item.path} className="h-[18px] w-[18px]" />
+                      </div>
+                      {t(item.labelKey)}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </CollapsibleContent>
           </Collapsible>
@@ -143,27 +158,21 @@ const SidebarNav = memo(function SidebarNav({
               ) : null}
               <IconChevronDown
                 className={cn(
-                  'tabler-icon tabler-icon-chevron-down ml-auto h-4 w-4 shrink-0 transition-transform',
+                  'tabler-icon tabler-icon-chevron-down ml-auto h-4 w-4 shrink-0 transition-none',
                   open && '-rotate-180',
                 )}
                 stroke={2}
               />
             </CollapsibleTrigger>
-            <CollapsibleContent>
+            <CollapsibleContent className="transition-none">
               <ul>
                 {group.items.map((item) => (
                   <li key={item.id} className="my-1 ml-8">
-                    <NavLink
+                    <Link
                       to={item.path}
-                      onClick={onNavigate}
-                      className={({ isActive }) =>
-                        cn(
-                          subLinkCls,
-                          isActive
-                            ? activeNavCls
-                            : inactiveNavCls,
-                        )
-                      }
+                      aria-current={matchNavPath(item.path, false, currentPath) ? 'page' : undefined}
+                      className={navClass(item.path, false, true)}
+                      onClick={() => onNavClick(item.path)}
                     >
                       <div className="mr-2">
                         <PluginMenuIcon icon={item.icon} pluginType={group.pluginType} />
@@ -174,7 +183,7 @@ const SidebarNav = memo(function SidebarNav({
                           {item.label}
                         </span>
                       ) : null}
-                    </NavLink>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -184,7 +193,7 @@ const SidebarNav = memo(function SidebarNav({
       })}
     </nav>
   )
-})
+}
 
 export const Sidebar = memo(function Sidebar() {
   const { title, logo, version } = getSettings()
