@@ -228,6 +228,13 @@ class PaymentController extends Controller
         ]);
 
         if (isset($verify['amount']) && $this->verifyAmount($order, (int) $verify['amount'])) {
+            if (Cache::has(CacheKey::get('ORDER_OPEN_REFUNDED', $order->trade_no))) {
+                Log::info('Payment notify: skipping orphan credit; order already refunded after open failure', [
+                    'trade_no' => $order->trade_no,
+                    'callback_no' => $callbackNo,
+                ]);
+                return true;
+            }
             $this->creditOrphanPaymentOnce(
                 $order,
                 $callbackNo,
@@ -241,6 +248,14 @@ class PaymentController extends Controller
 
     private function creditOrphanPaymentOnce(Order $order, string $callbackNo, array $verify, string $reason): void
     {
+        if (Cache::has(CacheKey::get('ORDER_OPEN_REFUNDED', $order->trade_no))) {
+            Log::info('Payment notify: orphan credit skipped; order already refunded after open failure', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+            ]);
+            return;
+        }
+
         $cacheKey = $this->orphanCreditCacheKey($order->trade_no, $callbackNo);
         if (Cache::has($cacheKey)) {
             Log::info('Payment notify: orphan credit already processed', [

@@ -117,6 +117,14 @@ class AuthController extends Controller
     {
         // 处理直接通过token重定向
         if ($token = $request->input('token')) {
+            $rateKey = 'token2login-redirect:' . $request->ip();
+            if (RateLimiter::tooManyAttempts($rateKey, 60)) {
+                return response()->json([
+                    'message' => __('Too many attempts'),
+                ], 429);
+            }
+            RateLimiter::hit($rateKey, 60);
+
             $safeRedirect = rawurlencode(\App\Utils\Helper::sanitizeAppRedirect($request->input('redirect')));
             $redirect = '/#/login?verify=' . $token . '&redirect=' . $safeRedirect;
 

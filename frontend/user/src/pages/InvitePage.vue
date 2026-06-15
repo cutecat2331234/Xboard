@@ -99,7 +99,7 @@ const detailTablePagination = computed(() => ({
   pageSize: detailsPageSize.value,
   itemCount: detailsTotal.value,
   showSizePicker: true,
-  pageSizes: [10, 50, 100, 150],
+  pageSizes: [10, 50, 100],
   onUpdatePage: (page: number) => {
     detailsPage.value = page
   },

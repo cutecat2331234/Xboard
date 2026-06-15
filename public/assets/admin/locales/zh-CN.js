@@ -2939,7 +2939,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "invite": {
       "selfInviter": "不能将自己设为邀请人",
-      "cycleDetected": "邀请链存在循环，无法设置"
+      "cycleDetected": "邀请链存在循环，无法设置",
+      "inviterBanned": "邀请人已被封禁，无法设置"
+    },
+    "edit": {
+      "negativeBalance": "余额不能为负数",
+      "negativeCommission": "佣金余额不能为负数"
     },
     "columns": {
       "is_admin": "管理员",
@@ -3695,7 +3700,14 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "updateTemplateFailed": "更新模板失败",
       "deleteTemplateFailed": "删除模板失败",
       "loadDataFailed": "加载数据失败",
-      "codesGenerated": "兑换码生成成功"
+      "codesGenerated": "兑换码生成成功",
+      "createFailed": "创建失败",
+      "templateNotFound": "模板不存在",
+      "codeExpiredEnable": "兑换码已过期，无法启用",
+      "codeNotFound": "兑换码不存在",
+      "templateDisabled": "该礼品卡类型已停用",
+      "deleteFailed": "删除失败",
+      "updateFailed": "更新失败"
     }
   },
   "knowledge": {

@@ -1532,7 +1532,7 @@ export default function GiftCardPage() {
 
                   {dailyUsages.length === 0 ? (
 
-                    <p className="text-sm text-muted-foreground">{t('giftCard.statistics.noData')}</p>
+                    <p className="text-sm text-muted-foreground">{t('giftCard.common.noData')}</p>
 
                   ) : (
 
@@ -1568,7 +1568,7 @@ export default function GiftCardPage() {
 
                   {typeStats.length === 0 ? (
 
-                    <p className="text-sm text-muted-foreground">{t('giftCard.statistics.noData')}</p>
+                    <p className="text-sm text-muted-foreground">{t('giftCard.common.noData')}</p>
 
                   ) : (
 

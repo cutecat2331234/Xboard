@@ -153,6 +153,7 @@ const MESSAGE_MAP: Record<string, string> = {
   '无效的套餐周期': 'errors.planPeriodUnavailable',
   'Feature is disabled': 'errors.featureDisabled',
   '用户信息未提供': 'errors.giftCardIneligible',
+  'Gift card is not available': 'errors.giftCardUnavailable',
   'Subscription has expired or no active subscription, unable to purchase Data Reset Package': 'errors.resetTrafficNoSub',
   '订阅已过期或无有效订阅，无法购买流量重置包': 'errors.resetTrafficNoSub',
   'Failed to create order': 'errors.orderCreateFailed',
