@@ -267,6 +267,9 @@ const MESSAGE_MAP: Record<string, string> = {
   '余额发放失败': 'errors.requestFailed',
   'There are other unresolved tickets': 'errors.openTicketExists',
   'There are too many password errors, please try again after :minute minutes.': 'errors.passwordTooManyAttempts',
+  'Invalid email verification purpose': 'errors.invalidEmailVerificationPurpose',
+  '无效的邮箱验证用途': 'errors.invalidEmailVerificationPurpose',
+  '無效的郵箱驗證用途': 'errors.invalidEmailVerificationPurpose',
 }
 
 interface ErrorPattern {

@@ -165,6 +165,7 @@ export default {
     registerTooFrequent: '注册频繁，请等待 {minute} 分钟后再次尝试',
     invalidCaptcha: '验证码有误',
     invalidCaptchaType: '验证码配置无效',
+    invalidEmailVerificationPurpose: '无效的邮箱验证用途',
     emailCodeSentRecently: '验证码已发送，请过一会儿再请求',
     emailNotRegistered: '该邮箱不存在系统中',
     resetFailed: '重置失败',
