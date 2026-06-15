@@ -443,6 +443,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "deleteButton": "删除",
       "createSuccess": "创建成功",
       "updateSuccess": "更新成功",
+      "notFound": "组不存在",
+      "nameRequired": "组名不能为空",
+      "usedByNodes": "该组已被节点所使用，无法删除",
+      "usedByPlans": "该组已被订阅所使用，无法删除",
+      "usedByUsers": "该组已被用户所使用，无法删除",
       "nameValidation": {
         "min": "组名至少需要2个字符",
         "max": "组名不能超过50个字符",
@@ -1835,7 +1840,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "deleteButton": "删除",
       "deleteSuccess": "删除成功",
       "createSuccess": "创建成功",
-      "updateSuccess": "更新成功"
+      "updateSuccess": "更新成功",
+      "notFound": "路由不存在",
+      "saveFailed": "保存失败",
+      "createFailed": "创建失败"
     }
   },
   "settings": {
@@ -2371,6 +2379,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "baseUrl": "基础地址"
         }
       },
+      "webhookMissing": "Telegram Webhook地址未配置",
+      "tokenMissing": "Telegram Bot Token 未配置",
       "bot_enable": {
         "title": "启用Telegram绑定引导",
         "description": "开启后将在用户端显示Telegram绑定引导，帮助用户绑定Telegram账户以接收通知。"
@@ -2711,6 +2721,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "description": "在这里可以配置支付方式，包括支付宝、微信等。",
     "delete": {
       "pendingOrders": "该支付方式仍有待支付或处理中的订单，无法删除"
+    },
+    "messages": {
+      "notFound": "支付方式不存在",
+      "disabled": "支付方式不存在或未启用",
+      "siteUrlRequired": "请在站点配置中配置站点地址",
+      "saveFailed": "保存失败"
     },
     "table": {
       "columns": {

@@ -91,12 +91,12 @@ class GiftCardController extends Controller
             'theme_color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
             'sort' => 'integer|min:0',
         ], [
-            'name.required' => '礼品卡名称不能为空',
-            'type.required' => '礼品卡类型不能为空',
-            'type.in' => '无效的礼品卡类型',
-            'rewards.required' => '奖励配置不能为空',
-            'theme_color.regex' => '主题色格式不正确',
-            'background_image.url' => '背景图片必须是有效的URL',
+            'name.required' => __('Gift card name cannot be empty'),
+            'type.required' => __('Gift card type cannot be empty'),
+            'type.in' => __('Invalid gift card type'),
+            'rewards.required' => __('Reward configuration cannot be empty'),
+            'theme_color.regex' => __('Invalid theme color format'),
+            'background_image.url' => __('Background image must be a valid URL'),
         ]);
 
         try {
@@ -244,10 +244,10 @@ class GiftCardController extends Controller
             'expires_hours' => 'nullable|integer|min:1',
             'max_usage' => 'integer|min:1|max:1000',
         ], [
-            'template_id.required' => '请选择礼品卡模板',
-            'count.required' => '请指定生成数量',
-            'count.max' => '单次最多生成10000个兑换码',
-            'prefix.regex' => '前缀只能包含大写字母和数字',
+            'template_id.required' => __('Gift card template is required'),
+            'count.required' => __('Generation count is required'),
+            'count.max' => __('At most 10000 redemption codes can be generated at once'),
+            'prefix.regex' => __('Prefix may only contain uppercase letters and digits'),
         ]);
 
         $template = GiftCardTemplate::find($request->input('template_id'));

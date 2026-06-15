@@ -438,6 +438,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "deleteButton": "Удалить",
       "createSuccess": "Создано успешно",
       "updateSuccess": "Обновлено успешно",
+      "notFound": "Группа не найдена",
+      "nameRequired": "Имя группы не может быть пустым",
+      "usedByNodes": "Нельзя удалить: группа используется узлами",
+      "usedByPlans": "Нельзя удалить: группа используется тарифами",
+      "usedByUsers": "Нельзя удалить: группа используется пользователями",
       "nameValidation": {
         "min": "Название должно содержать минимум 2 символа",
         "max": "Название не может превышать 50 символов",
@@ -1780,7 +1785,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "deleteButton": "Удалить",
       "deleteSuccess": "Удалено успешно",
       "createSuccess": "Создано успешно",
-      "updateSuccess": "Обновлено успешно"
+      "updateSuccess": "Обновлено успешно",
+      "notFound": "Маршрут не найден",
+      "saveFailed": "Не удалось сохранить маршрут",
+      "createFailed": "Не удалось создать маршрут"
     }
   },
   "settings": {
@@ -2408,6 +2416,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "baseUrl": "Base URL"
         }
       },
+      "webhookMissing": "URL Telegram Webhook не настроен",
+      "tokenMissing": "Telegram Bot Token не настроен",
       "bot_enable": {
         "title": "Гайд по привязке",
         "description": "Показывать инструкцию по подключению Telegram на стороне пользователя."
@@ -2629,6 +2639,15 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
   "payment": {
     "title": "Способы оплаты",
     "description": "Настройка способов оплаты, включая Alipay, WeChat Pay и др.",
+    "delete": {
+      "pendingOrders": "Нельзя удалить: есть ожидающие или обрабатываемые заказы с этим способом оплаты"
+    },
+    "messages": {
+      "notFound": "Способ оплаты не найден",
+      "disabled": "Способ оплаты не существует или отключён",
+      "siteUrlRequired": "Укажите URL сайта в настройках перед добавлением способов оплаты",
+      "saveFailed": "Не удалось сохранить способ оплаты"
+    },
     "table": {
       "columns": {
         "id": "ID",

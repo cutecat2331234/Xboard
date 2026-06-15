@@ -916,8 +916,8 @@ class UserController extends Controller
         $request->validate([
             'id' => 'required|exists:App\Models\User,id'
         ], [
-            'id.required' => '用户ID不能为空',
-            'id.exists' => '用户不存在'
+            'id.required' => __('User ID cannot be empty'),
+            'id.exists' => __('The user does not exist'),
         ]);
         $userId = (int) $request->input('id');
         $userPreview = User::find($userId);
