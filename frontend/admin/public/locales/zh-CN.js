@@ -594,6 +594,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "cancel": "取消",
         "submit": "提交",
         "success": "提交成功"
+      },
+      "validation": {
+        "title_required": "标题不能为空",
+        "content_required": "内容不能为空",
+        "img_url_format": "图片URL格式不正确",
+        "tags_array": "标签格式不正确"
       }
     }
   },
@@ -1836,6 +1842,23 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "error": {
         "saveFailed": "保存优惠券失败"
       },
+      "validation": {
+        "name_required": "名称不能为空",
+        "type_required": "类型不能为空",
+        "type_invalid": "类型格式有误",
+        "value_required": "金额或比例不能为空",
+        "value_format": "金额或比例格式有误",
+        "started_at_required": "开始时间不能为空",
+        "started_at_format": "开始时间格式有误",
+        "ended_at_required": "结束时间不能为空",
+        "ended_at_format": "结束时间格式有误",
+        "limit_use_format": "最大使用次数格式有误",
+        "limit_use_with_user_format": "限制用户使用次数格式有误",
+        "limit_plan_ids_array": "指定订阅格式有误",
+        "limit_period_array": "指定周期格式有误",
+        "generate_count_integer": "生成数量必须为数字",
+        "generate_count_max": "生成数量最大为500个"
+      },
       "timeRange": {
         "quickSet": "快速设置",
         "presets": {
@@ -2975,6 +2998,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "save": "保存排序",
         "sortModeHint": "拖拽套餐进行排序，完成后点击保存"
       },
+      "sortValidation": {
+        "ids_required": "订阅计划ID不能为空",
+        "id_format": "订阅计划ID格式有误"
+      },
       "columns": {
         "id": "ID",
         "show": "显示",
@@ -3178,7 +3205,32 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "edit": {
       "negativeBalance": "余额不能为负数",
-      "negativeCommission": "佣金余额不能为负数"
+      "negativeCommission": "佣金余额不能为负数",
+      "validation": {
+        "email_required": "邮箱不能为空",
+        "email_format": "邮箱格式不正确",
+        "traffic_format": "流量格式不正确",
+        "expired_at_format": "到期时间格式不正确",
+        "ban_status_format": "是否封禁格式不正确",
+        "admin_status_required": "是否管理员不能为空",
+        "admin_status_format": "是否管理员格式不正确",
+        "staff_status_required": "是否员工不能为空",
+        "staff_status_format": "是否员工格式不正确",
+        "plan_format": "订阅计划格式不正确",
+        "commission_rate_format": "推荐返利比例格式不正确",
+        "commission_rate_min": "推荐返利比例最小为0",
+        "commission_rate_max": "推荐返利比例最大为100",
+        "discount_rate_format": "专属折扣比例格式不正确",
+        "discount_rate_min": "专属折扣比例最小为0",
+        "discount_rate_max": "专属折扣比例最大为100",
+        "upload_traffic_format": "上行流量格式不正确",
+        "download_traffic_format": "下行流量格式不正确",
+        "balance_format": "余额格式不正确",
+        "commission_balance_format": "佣金格式不正确",
+        "password_min": "密码长度最小8位",
+        "speed_limit_format": "限速格式不正确",
+        "device_limit_format": "设备数量格式不正确"
+      }
     },
     "columns": {
       "is_admin": "管理员",
@@ -3540,7 +3592,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "apply_system_notice": "套用系统通知模板",
       "available_vars": "可用变量",
       "sending": "发送中...",
-      "send": "发送"
+      "send": "发送",
+      "validation": {
+        "subject_required": "主题不能为空",
+        "content_required": "发送内容不能为空"
+      }
     },
     "dialog": {
       "title": "用户详情",
@@ -4026,6 +4082,29 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "sortModeHint": "拖拽知识条目进行排序，完成后点击保存",
       "editSort": "编辑排序",
       "saveSort": "保存排序"
+    },
+    "validation": {
+      "title_required": "标题不能为空",
+      "category_required": "分类不能为空",
+      "body_required": "内容不能为空",
+      "language_required": "语言不能为空",
+      "language_invalid": "知识库语言无效",
+      "show_boolean": "显示状态必须为布尔值",
+      "category_name_required": "分类名称不能为空",
+      "category_language_required": "分类语言不能为空",
+      "ids_required": "知识ID不能为空",
+      "ids_format": "知识ID格式有误",
+      "category_list_required": "分类列表不能为空",
+      "category_list_format": "分类格式有误"
+    }
+  },
+  "mail": {
+    "validation": {
+      "type_required": "发送类型不能为空",
+      "type_invalid": "发送类型格式有误",
+      "subject_required": "主题不能为空",
+      "content_required": "内容不能为空",
+      "receiver_array": "收件人格式有误"
     }
   }
 };

@@ -29,6 +29,7 @@ class KnowledgeSave extends FormRequest
             'category.required' => __('Category cannot be empty'),
             'body.required' => __('Content cannot be empty'),
             'language.required' => __('Language cannot be empty'),
+            'language.in' => __('Invalid knowledge language'),
             'show.boolean' => __('Display status must be boolean'),
         ];
     }

@@ -595,6 +595,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "cancel": "Cancel",
         "submit": "Submit",
         "success": "Successfully submitted"
+      },
+      "validation": {
+        "title_required": "Title cannot be empty",
+        "content_required": "Content cannot be empty",
+        "img_url_format": "Image URL format is invalid",
+        "tags_array": "Tags must be an array"
       }
     }
   },
@@ -1815,6 +1821,23 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "error": {
         "saveFailed": "Failed to save coupon"
       },
+      "validation": {
+        "name_required": "Name cannot be empty",
+        "type_required": "Coupon type cannot be empty",
+        "type_invalid": "Coupon type format is invalid",
+        "value_required": "Amount or percent cannot be empty",
+        "value_format": "Amount or percent format is invalid",
+        "started_at_required": "Start time cannot be empty",
+        "started_at_format": "Start time format is invalid",
+        "ended_at_required": "End time cannot be empty",
+        "ended_at_format": "End time format is invalid",
+        "limit_use_format": "Max usage format is invalid",
+        "limit_use_with_user_format": "Per-user usage limit format is invalid",
+        "limit_plan_ids_array": "Applicable plans must be an array",
+        "limit_period_array": "Applicable periods must be an array",
+        "generate_count_integer": "Generate count must be an integer",
+        "generate_count_max": "Generate count cannot exceed 500"
+      },
       "timeRange": {
         "quickSet": "Quick Set",
         "presets": {
@@ -2949,6 +2972,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "save": "Save Sort",
         "sortModeHint": "Drag plans to reorder, then click save"
       },
+      "sortValidation": {
+        "ids_required": "Plan IDs cannot be empty",
+        "id_format": "Plan ID format is invalid"
+      },
       "columns": {
         "id": "ID",
         "show": "Show",
@@ -3152,7 +3179,32 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "edit": {
       "negativeBalance": "Balance cannot be negative.",
-      "negativeCommission": "Commission balance cannot be negative."
+      "negativeCommission": "Commission balance cannot be negative.",
+      "validation": {
+        "email_required": "Email cannot be empty",
+        "email_format": "Email format is invalid",
+        "traffic_format": "Traffic format is invalid",
+        "expired_at_format": "Expiry time format is invalid",
+        "ban_status_format": "Ban status format is invalid",
+        "admin_status_required": "Admin status cannot be empty",
+        "admin_status_format": "Admin status format is invalid",
+        "staff_status_required": "Staff status cannot be empty",
+        "staff_status_format": "Staff status format is invalid",
+        "plan_format": "Plan format is invalid",
+        "commission_rate_format": "Commission rate format is invalid",
+        "commission_rate_min": "Commission rate must be at least 0",
+        "commission_rate_max": "Commission rate cannot exceed 100",
+        "discount_rate_format": "Discount rate format is invalid",
+        "discount_rate_min": "Discount rate must be at least 0",
+        "discount_rate_max": "Discount rate cannot exceed 100",
+        "upload_traffic_format": "Upload traffic format is invalid",
+        "download_traffic_format": "Download traffic format is invalid",
+        "balance_format": "Balance format is invalid",
+        "commission_balance_format": "Commission balance format is invalid",
+        "password_min": "Password must be at least 8 characters",
+        "speed_limit_format": "Speed limit format is invalid",
+        "device_limit_format": "Device limit format is invalid"
+      }
     },
     "columns": {
       "is_admin": "Admin",
@@ -3514,7 +3566,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "apply_system_notice": "Apply system notice template",
       "available_vars": "Available variables",
       "sending": "Sending...",
-      "send": "Send"
+      "send": "Send",
+      "validation": {
+        "subject_required": "Email subject cannot be empty",
+        "content_required": "Mail content cannot be empty"
+      }
     },
     "dialog": {
       "title": "User Details",
@@ -3997,6 +4053,29 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "sortModeHint": "Drag knowledge items to sort, click save when done",
       "editSort": "Edit Sort",
       "saveSort": "Save Sort"
+    },
+    "validation": {
+      "title_required": "Title cannot be empty",
+      "category_required": "Category cannot be empty",
+      "body_required": "Content cannot be empty",
+      "language_required": "Language cannot be empty",
+      "language_invalid": "Invalid knowledge language",
+      "show_boolean": "Display status must be boolean",
+      "category_name_required": "Category name cannot be empty",
+      "category_language_required": "Category language cannot be empty",
+      "ids_required": "Knowledge IDs cannot be empty",
+      "ids_format": "Knowledge ID format is invalid",
+      "category_list_required": "Category list cannot be empty",
+      "category_list_format": "Category format is invalid"
+    }
+  },
+  "mail": {
+    "validation": {
+      "type_required": "Send type cannot be empty",
+      "type_invalid": "Send type format is invalid",
+      "subject_required": "Email subject cannot be empty",
+      "content_required": "Content cannot be empty",
+      "receiver_array": "Recipients must be an array"
     }
   }
 };
