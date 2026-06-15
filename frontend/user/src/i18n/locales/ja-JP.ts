@@ -59,6 +59,10 @@ export default {
     clientImportTitle: "ワンクリックインポート",
     clientImportHint: "クライアントアプリに購読をインポート",
     popupNoticeTags: "ポップアップ,モーダル",
+    deviceLimit: 'Device limit: {count}',
+    speedLimit: 'Speed limit: {speed} Mbps',
+    invitedUsers: 'You have invited {count} user(s)',
+    noSubscribeUrl: 'No active subscription link. Purchase a plan first.',
     protocolTypes: {
       auto: "自動",
       anytls: "Anytls",

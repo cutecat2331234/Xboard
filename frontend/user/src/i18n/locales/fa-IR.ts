@@ -59,6 +59,10 @@ export default {
     clientImportTitle: "اشتراک سریع",
     clientImportHint: "اشتراک را به برنامه کلاینت خود وارد کنید",
     popupNoticeTags: "popup,modal",
+    deviceLimit: 'Device limit: {count}',
+    speedLimit: 'Speed limit: {speed} Mbps',
+    invitedUsers: 'You have invited {count} user(s)',
+    noSubscribeUrl: 'No active subscription link. Purchase a plan first.',
     protocolTypes: {
       auto: "خودکار",
       anytls: "Anytls",

@@ -187,7 +187,7 @@ class CheckCommission extends Command
                         }
 
                         $invitee = User::find($entry->user_id);
-                        if (!$invitee || !$this->validateCommissionChain($invitee->invite_user_id)) {
+                        if (!$invitee || !$this->validateCommissionChain($entry->invite_user_id)) {
                             $entry->update(['credited_at' => time(), 'get_amount' => 0, 'order_amount' => 0]);
                             return;
                         }

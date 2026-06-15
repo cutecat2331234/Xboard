@@ -15,10 +15,10 @@ export interface OrderItem {
 }
 
 export function canCancelOrder(row: OrderItem) {
-  if (row.status === 0 && !row.paid_at) {
+  if (Number(row.status) === 0 && !row.paid_at) {
     return true
   }
-  return row.status === 1 && !row.paid_at
+  return Number(row.status) === 1 && !row.paid_at
 }
 
 export async function fetchOrders(params?: {

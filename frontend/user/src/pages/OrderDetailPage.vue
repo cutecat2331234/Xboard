@@ -289,7 +289,7 @@ async function load() {
 
     order.value = await fetchOrderDetail(tradeNo)
 
-    if (order.value.status === 0) {
+    if (Number(order.value.status) === 0) {
 
       try {
 

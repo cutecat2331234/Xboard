@@ -251,7 +251,8 @@ class UserController extends Controller
                     throw new \Exception(__('The user does not exist'));
                 }
                 if (
-                    \App\Models\Ticket::where('user_id', $user->id)
+                    AppFeature::ticketEnabled()
+                    && \App\Models\Ticket::where('user_id', $user->id)
                         ->where('status', 0)
                         ->exists()
                 ) {

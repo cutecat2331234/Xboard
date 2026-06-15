@@ -189,7 +189,7 @@ function refreshCommConfig() {
       commConfigLoaded.value = true
       redirectIfGatedRouteDisabled()
       try {
-        await loadCurrency()
+        await loadCurrency({ force: true })
       } catch {
         /* keep last currency */
       }

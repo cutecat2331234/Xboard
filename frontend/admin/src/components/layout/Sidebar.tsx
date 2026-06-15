@@ -211,7 +211,7 @@ export const Sidebar = memo(function Sidebar() {
             className="shrink-0 rounded-sm p-1 hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:hidden"
             onClick={() => setMobileOpen(true)}
             aria-expanded={mobileOpen}
-            aria-label="Open navigation menu"
+            aria-label={t('sidebar.openNavMenu')}
           >
             <IconMenu2 className="tabler-icon tabler-icon-menu-2 h-5 w-5" stroke={2} aria-hidden="true" />
           </button>

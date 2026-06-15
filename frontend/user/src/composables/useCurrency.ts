@@ -6,8 +6,9 @@ const code = ref('CNY')
 let loading: Promise<void> | null = null
 
 export function useCurrency() {
-  async function load() {
-    if (loading) return loading
+  async function load(options?: { force?: boolean }) {
+    if (loading && !options?.force) return loading
+    if (options?.force) loading = null
     loading = fetchUserCommConfig()
       .then((cfg) => {
         symbol.value = cfg.currency_symbol ?? cfg.currency ?? '¥'
@@ -16,6 +17,8 @@ export function useCurrency() {
       .catch(() => {
         symbol.value = '¥'
         code.value = 'CNY'
+      })
+      .finally(() => {
         loading = null
       })
     return loading

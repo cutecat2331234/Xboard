@@ -59,6 +59,10 @@ export default {
     clientImportTitle: "빠른 구독",
     clientImportHint: "클라이언트를 선택해 구독을 가져오고, 프로토콜 유형으로 필터링할 수 있습니다",
     popupNoticeTags: "팝업",
+    deviceLimit: 'Device limit: {count}',
+    speedLimit: 'Speed limit: {speed} Mbps',
+    invitedUsers: 'You have invited {count} user(s)',
+    noSubscribeUrl: 'No active subscription link. Purchase a plan first.',
     protocolTypes: {
       auto: "자동",
       anytls: "Anytls",

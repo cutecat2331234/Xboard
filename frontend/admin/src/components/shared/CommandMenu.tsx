@@ -49,7 +49,7 @@ export function CommandMenu() {
       >
         <Search className="h-4 w-4 xl:mr-2" />
         <span className="hidden xl:inline-flex">{t('search.placeholder')}</span>
-        <span className="sr-only">Search</span>
+        <span className="sr-only">{t('search.srLabel')}</span>
         <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 xl:flex">
           {t('search.shortcut.key')}
         </kbd>
