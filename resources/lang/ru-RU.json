@@ -645,5 +645,6 @@
     "Invalid order event type": "Неверный тип события заказа",
     "Invalid sidebar theme": "Неверная тема боковой панели",
     "Invalid header theme": "Неверная тема верхней панели",
-    "Invalid frontend theme color": "Неверный цвет темы фронтенда"
+    "Invalid frontend theme color": "Неверный цвет темы фронтенда",
+    "Invalid email verification purpose": "Неверное назначение проверки email"
 }
