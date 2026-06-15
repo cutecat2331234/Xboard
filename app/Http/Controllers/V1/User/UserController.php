@@ -259,6 +259,7 @@ class UserController extends Controller
                     'trade_no' => 'transfer:' . \App\Utils\Helper::guid(),
                     'order_amount' => $amount,
                     'get_amount' => $netAmount,
+                    'credited_at' => time(),
                 ]);
             });
         } catch (\Exception $e) {

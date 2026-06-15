@@ -126,6 +126,7 @@ class TicketService
             return true;
         }
         $log->get_amount = $netCents;
+        $log->credited_at = time();
         return $log->save();
     }
 

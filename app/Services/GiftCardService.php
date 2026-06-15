@@ -329,6 +329,10 @@ class GiftCardService
             return false;
         }
 
+        if (GiftCardUsage::where('user_id', $this->user->id)->whereNotNull('invite_rewards')->exists()) {
+            return false;
+        }
+
         return !CommissionLog::where('user_id', $this->user->id)
             ->where('trade_no', 'like', 'giftcard:%')
             ->where('get_amount', '>', 0)

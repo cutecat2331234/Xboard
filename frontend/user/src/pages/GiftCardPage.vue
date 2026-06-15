@@ -235,6 +235,7 @@ onMounted(async () => {
     <n-empty v-if="!loadingHistory && history.length === 0" :description="t('giftCard.historyEmpty')" />
     <n-data-table
       v-else
+      remote
       :columns="columns"
       :data="history"
       :loading="loadingHistory"

@@ -23,6 +23,7 @@ class CacheKey
         'USER_SESSIONS' => '用户session',
         'FORGET_REQUEST_LIMIT' => '找回密码次数限制',
         'PAYMENT_ORPHAN_CREDIT' => '支付孤儿入账幂等',
+        'PAYMENT_ORPHAN_CREDIT_DONE' => '支付孤儿入账按订单幂等',
         'ORDER_CHECKOUT' => '订单结账进行中',
         'ORDER_OPEN_REFUNDED' => '订单开通失败已退款',
     ];

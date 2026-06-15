@@ -442,6 +442,7 @@ onMounted(async () => {
   <n-card :title="t('invite.incomeRecord')" v-if="showCommissionFinance" class="mt-4 rounded-md">
     <n-data-table
       class="invite-data-table"
+      remote
       :columns="detailColumns"
       :data="details"
       :bordered="true"
