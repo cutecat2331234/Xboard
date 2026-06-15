@@ -28,20 +28,18 @@ class PluginController extends Controller
      */
     public function types()
     {
-        return response()->json([
-            'data' => [
-                [
-                    'value' => Plugin::TYPE_FEATURE,
-                    'label' => '功能',
-                    'description' => '提供功能扩展的插件，如Telegram登录、邮件通知等',
-                    'icon' => '🔧'
-                ],
-                [
-                    'value' => Plugin::TYPE_PAYMENT,
-                    'label' => '支付方式',
-                    'description' => '提供支付接口的插件，如支付宝、微信支付等',
-                    'icon' => '💳'
-                ]
+        return $this->success([
+            [
+                'value' => Plugin::TYPE_FEATURE,
+                'label' => __('plugin.type.feature.label'),
+                'description' => __('plugin.type.feature.description'),
+                'icon' => '🔧'
+            ],
+            [
+                'value' => Plugin::TYPE_PAYMENT,
+                'label' => __('plugin.type.payment.label'),
+                'description' => __('plugin.type.payment.description'),
+                'icon' => '💳'
             ]
         ]);
     }
@@ -124,9 +122,7 @@ class PluginController extends Controller
             }
         }
 
-        return response()->json([
-            'data' => $plugins
-        ]);
+        return $this->success($plugins);
     }
 
     /**
@@ -140,13 +136,9 @@ class PluginController extends Controller
 
         try {
             $this->pluginManager->install($request->input('code'));
-            return response()->json([
-                'message' => __('Plugin installed successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin install failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin install failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -162,20 +154,14 @@ class PluginController extends Controller
         $code = $request->input('code');
         $plugin = Plugin::where('code', $code)->first();
         if ($plugin && $plugin->is_enabled) {
-            return response()->json([
-                'message' => __('Disable the plugin before uninstalling'),
-            ], 400);
+            return $this->fail([400, __('Disable the plugin before uninstalling')]);
         }
 
         try {
             $this->pluginManager->uninstall($code);
-            return response()->json([
-                'message' => __('Plugin uninstalled successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin uninstall failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin uninstall failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -189,13 +175,9 @@ class PluginController extends Controller
         ]);
         try {
             $this->pluginManager->update($request->input('code'));
-            return response()->json([
-                'message' => __('Plugin upgraded successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin upgrade failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin upgrade failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -210,13 +192,9 @@ class PluginController extends Controller
 
         try {
             $this->pluginManager->enable($request->input('code'));
-            return response()->json([
-                'message' => __('Plugin enabled successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin enable failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin enable failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -231,13 +209,9 @@ class PluginController extends Controller
 
         try {
             $this->pluginManager->disable($request->input('code'));
-            return response()->json([
-                'message' => __('Plugin disabled successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin disable failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin disable failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -252,13 +226,9 @@ class PluginController extends Controller
 
         try {
             $config = $this->configService->getConfig($request->input('code'));
-            return response()->json([
-                'data' => $config
-            ]);
+            return $this->success($config);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Failed to load plugin config: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Failed to load plugin config: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -278,13 +248,9 @@ class PluginController extends Controller
                 $request->input('config')
             );
 
-            return response()->json([
-                'message' => __('Plugin config updated successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin config update failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin config update failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -309,13 +275,9 @@ class PluginController extends Controller
 
         try {
             $this->pluginManager->upload($request->file('file'));
-            return response()->json([
-                'message' => __('Plugin uploaded successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin upload failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin upload failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 
@@ -350,20 +312,14 @@ class PluginController extends Controller
 
         // 检查是否为核心插件
         if ($this->pluginManager->isCorePlugin($code)) {
-            return response()->json([
-                'message' => __('Core plugins cannot be deleted'),
-            ], 403);
+            return $this->fail([403, __('Core plugins cannot be deleted')]);
         }
 
         try {
             $this->pluginManager->delete($code);
-            return response()->json([
-                'message' => __('Plugin deleted successfully'),
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => __('Plugin delete failed: :error', ['error' => $e->getMessage()]),
-            ], 400);
+            return $this->fail([400, __('Plugin delete failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 }

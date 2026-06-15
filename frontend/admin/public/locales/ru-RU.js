@@ -306,7 +306,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "type": {
       "placeholder": "Выберите тип плагина",
-      "all": "Все типы"
+      "all": "Все типы",
+      "feature": "Функциональный",
+      "payment": "Способ оплаты"
     },
     "tabs": {
       "all": "Все плагины",
@@ -2560,6 +2562,13 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     }
   },
   "mailTemplate": {
+    "labels": {
+      "verify": "Код подтверждения email",
+      "notify": "Уведомление сайта",
+      "remindExpire": "Напоминание об истечении",
+      "remindTraffic": "Напоминание о трафике",
+      "mailLogin": "Вход по email"
+    },
     "messages": {
       "notFound": "Шаблон письма не найден",
       "sendFailed": "Не удалось отправить тестовое письмо"

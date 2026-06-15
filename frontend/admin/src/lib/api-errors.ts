@@ -145,6 +145,8 @@ const MESSAGE_MAP: Record<string, string> = {
   'No updatable fields': 'server.manage.messages.noUpdatableFields',
   'Batch update failed': 'server.manage.messages.batchUpdateFailed',
   'Mail template does not exist': 'mailTemplate.messages.notFound',
+  'mail_template.missing_placeholder': 'settings.email_template.placeholder_hint',
+  'mail_template.unknown': 'mailTemplate.messages.notFound',
   'Server machine does not exist': 'server.machine.messages.notFound',
   'Disable the plugin before uninstalling': 'plugin.messages.disableBeforeUninstall',
   'path parameter cannot be empty': 'plugin.runtime.pageNotFoundDescription',

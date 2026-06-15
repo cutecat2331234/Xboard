@@ -311,7 +311,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "type": {
       "placeholder": "选择插件类型",
-      "all": "全部类型"
+      "all": "全部类型",
+      "feature": "功能",
+      "payment": "支付方式"
     },
     "tabs": {
       "all": "所有插件",
@@ -2637,6 +2639,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     }
   },
   "mailTemplate": {
+    "labels": {
+      "verify": "邮箱验证码",
+      "notify": "站点通知",
+      "remindExpire": "到期提醒",
+      "remindTraffic": "流量提醒",
+      "mailLogin": "邮件登录"
+    },
     "messages": {
       "notFound": "模板不存在",
       "sendFailed": "发送失败"

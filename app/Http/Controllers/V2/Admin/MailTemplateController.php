@@ -20,7 +20,7 @@ class MailTemplateController extends Controller
             $db = $dbTemplates->get($name);
             $result[] = [
                 'name' => $name,
-                'label' => $meta['label'],
+                'label' => MailTemplate::getLabel($name),
                 'customized' => $db !== null,
                 'subject' => $db?->subject,
                 'updated_at' => $db?->updated_at?->timestamp,
@@ -42,7 +42,7 @@ class MailTemplateController extends Controller
 
         return $this->success([
             'name' => $name,
-            'label' => $meta['label'],
+            'label' => MailTemplate::getLabel($name),
             'required_vars' => $meta['required_vars'],
             'optional_vars' => $meta['optional_vars'],
             'customized' => $db !== null,
@@ -123,14 +123,9 @@ class MailTemplateController extends Controller
     private function getTestSubject(string $name): string
     {
         $appName = admin_setting('app_name', 'XBoard');
-        return match ($name) {
-            'verify' => "{$appName} - 验证码测试",
-            'notify' => "{$appName} - 通知测试",
-            'remindExpire' => "{$appName} - 到期提醒测试",
-            'remindTraffic' => "{$appName} - 流量提醒测试",
-            'mailLogin' => "{$appName} - 登录链接测试",
-            default => "{$appName} - 邮件测试",
-        };
+        $key = 'mail_template.test_subject.' . $name;
+        $subject = __($key, ['app' => $appName]);
+        return $subject === $key ? __('mail_template.test_subject.default', ['app' => $appName]) : $subject;
     }
 
     private function getTestVars(string $name): array
@@ -146,7 +141,7 @@ class MailTemplateController extends Controller
             ],
             'notify' => [
                 'name' => $appName,
-                'content' => '这是一封测试通知邮件。',
+                'content' => __('mail_template.test_content.notify'),
                 'url' => $appUrl,
             ],
             'remindExpire' => [
@@ -169,14 +164,9 @@ class MailTemplateController extends Controller
     private function getDefaultSubject(string $name): string
     {
         $appName = admin_setting('app_name', 'XBoard');
-        return match ($name) {
-            'verify' => "{$appName} - 邮箱验证码",
-            'notify' => "{$appName} - 站点通知",
-            'remindExpire' => "{$appName} - 服务即将到期",
-            'remindTraffic' => "{$appName} - 流量使用提醒",
-            'mailLogin' => "{$appName} - 邮件登录",
-            default => "{$appName}",
-        };
+        $key = 'mail_template.default_subject.' . $name;
+        $subject = __($key, ['app' => $appName]);
+        return $subject === $key ? $appName : $subject;
     }
 
     private function getDefaultContent(string $name): string
@@ -213,6 +203,9 @@ class MailTemplateController extends Controller
 
     private static function hardcodedDefault(string $name): string
     {
+        $greeting = __('mail_template.default.greeting');
+        $returnLink = __('mail_template.default.return_link');
+
         $layout = fn($title, $body) => <<<HTML
 <div style="background: #eee">
     <table width="600" border="0" align="center" cellpadding="0" cellspacing="0">
@@ -232,7 +225,7 @@ class MailTemplateController extends Controller
                         </tr>
                         <tr>
                             <td style="font-size:14px;color:#333;padding:24px 40px 0 40px">
-                                尊敬的用户您好！<br /><br />{$body}
+                                {$greeting}<br /><br />{$body}
                             </td>
                         </tr>
                         </tbody>
@@ -242,7 +235,7 @@ class MailTemplateController extends Controller
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tbody>
                         <tr>
-                            <td style="padding:20px 40px;font-size:12px;color:#999;line-height:20px;background:#f7f7f7"><a href="{{url}}" style="font-size:14px;color:#929292">返回{{name}}</a></td>
+                            <td style="padding:20px 40px;font-size:12px;color:#999;line-height:20px;background:#f7f7f7"><a href="{{url}}" style="font-size:14px;color:#929292">{$returnLink}</a></td>
                         </tr>
                         </tbody>
                     </table>
@@ -254,13 +247,17 @@ class MailTemplateController extends Controller
 </div>
 HTML;
 
-        return match ($name) {
-            'verify' => $layout('邮箱验证码', '您的验证码是：{{code}}，请在 5 分钟内进行验证。如果该验证码不为您本人申请，请无视。'),
-            'notify' => $layout('网站通知', '{{content}}'),
-            'remindExpire' => $layout('服务到期提醒', '您的服务即将在24小时内到期，如需继续使用请及时续费。'),
-            'remindTraffic' => $layout('流量使用提醒', '您的流量使用已达到80%，请注意流量使用情况。'),
-            'mailLogin' => $layout('登入到{{name}}', '您正在登入到{{name}}, 请在 5 分钟内点击下方链接进行登入。如果您未授权该登入请求，请无视。<a href="{{link}}">{{link}}</a>'),
-            default => $layout('通知', '{{content}}'),
-        };
+        $titleKey = 'mail_template.default.title.' . $name;
+        $bodyKey = 'mail_template.default.body.' . $name;
+        $title = __($titleKey);
+        $body = __($bodyKey);
+        if ($title === $titleKey) {
+            $title = __('mail_template.default.title.default');
+        }
+        if ($body === $bodyKey) {
+            $body = __('mail_template.default.body.default');
+        }
+
+        return $layout($title, $body);
     }
 }

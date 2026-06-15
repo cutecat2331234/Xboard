@@ -510,16 +510,16 @@ class UserController extends Controller
 
             // 写入CSV头部
             $headers = [
-                '邮箱',
-                '余额',
-                '推广佣金',
-                '总流量',
-                '剩余流量',
-                '套餐到期时间',
-                '订阅计划',
+                __('csv.user.email'),
+                __('csv.user.balance'),
+                __('csv.user.commission_balance'),
+                __('csv.user.total_traffic'),
+                __('csv.user.remaining_traffic'),
+                __('csv.user.plan_expires_at'),
+                __('csv.user.plan_name'),
             ];
             if ($includeSubscribeUrl) {
-                $headers[] = '订阅地址';
+                $headers[] = __('csv.user.subscribe_url');
             }
             fputcsv($output, $headers);
 
@@ -533,8 +533,8 @@ class UserController extends Controller
                             number_format($user->commission_balance / 100, 2),
                             Helper::trafficConvert($user->transfer_enable),
                             Helper::trafficConvert($user->transfer_enable - ($user->u + $user->d)),
-                            $user->expired_at ? date('Y-m-d H:i:s', $user->expired_at) : '长期有效',
-                            $user->plan ? $user->plan->name : '无订阅',
+                            $user->expired_at ? date('Y-m-d H:i:s', $user->expired_at) : __('Unlimited'),
+                            $user->plan ? $user->plan->name : __('No subscription'),
                         ];
                         if ($includeSubscribeUrl) {
                             $row[] = Helper::getSubscribeUrl($user->token);
@@ -652,10 +652,17 @@ class UserController extends Controller
             ];
             $callback = function () use ($users, $request) {
                 $handle = fopen('php://output', 'w');
-                fputcsv($handle, ['账号', '密码', '过期时间', 'UUID', '创建时间', '订阅地址']);
+                fputcsv($handle, [
+                    __('csv.user_generate.account'),
+                    __('csv.user_generate.password'),
+                    __('csv.user_generate.expires_at'),
+                    __('csv.user_generate.uuid'),
+                    __('csv.user_generate.created_at'),
+                    __('csv.user_generate.subscribe_url'),
+                ]);
                 foreach ($users as $user) {
                     $user = $user->refresh();
-                    $expireDate = $user['expired_at'] === NULL ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']);
+                    $expireDate = $user['expired_at'] === NULL ? __('Unlimited') : date('Y-m-d H:i:s', $user['expired_at']);
                     $createDate = date('Y-m-d H:i:s', $user['created_at']);
                     $password = $request->input('password') ?? $user['email'];
                     $subscribeUrl = Helper::getSubscribeUrl($user['token']);
@@ -718,10 +725,17 @@ class UserController extends Controller
             ];
             $callback = function () use ($users, $request) {
                 $handle = fopen('php://output', 'w');
-                fputcsv($handle, ['账号', '密码', '过期时间', 'UUID', '创建时间', '订阅地址']);
+                fputcsv($handle, [
+                    __('csv.user_generate.account'),
+                    __('csv.user_generate.password'),
+                    __('csv.user_generate.expires_at'),
+                    __('csv.user_generate.uuid'),
+                    __('csv.user_generate.created_at'),
+                    __('csv.user_generate.subscribe_url'),
+                ]);
                 foreach ($users as $user) {
                     $user = $user->refresh();
-                    $expireDate = $user['expired_at'] === NULL ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']);
+                    $expireDate = $user['expired_at'] === NULL ? __('Unlimited') : date('Y-m-d H:i:s', $user['expired_at']);
                     $createDate = date('Y-m-d H:i:s', $user['created_at']);
                     $password = $request->input('password') ?? $user['email'];
                     $subscribeUrl = Helper::getSubscribeUrl($user['token']);
