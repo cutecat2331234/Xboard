@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { IconBuilding, IconRefresh } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { resolveApiError, toastApiError } from '@/lib/api-errors'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
+import { resetAdminCurrency } from '@/lib/currency'
 import { configFieldLabelCls, configSubFieldLabelCls, inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { Switch } from '@/components/ui/switch'
@@ -186,6 +188,11 @@ export default function ConfigPage() {
   const [plans, setPlans] = useState<Array<{ id?: number; name?: string }>>([])
   const [loading, setLoading] = useState(true)
   const [section, setSection] = useState<SectionId>(() => pathToSection(location.pathname))
+  const configRef = useRef<Record<string, Record<string, unknown>>>({})
+
+  useEffect(() => {
+    configRef.current = config
+  }, [config])
 
   useEffect(() => {
     setSection(pathToSection(location.pathname))
@@ -194,27 +201,71 @@ export default function ConfigPage() {
   useEffect(() => {
     fetchConfig()
       .then((data) => setConfig(data as Record<string, Record<string, unknown>>))
-      .catch(() => toast.error(t('common.error')))
+      .catch((err) => toastApiError(err, toast, t, t('common.error')))
       .finally(() => setLoading(false))
     fetchJsonList('/plan/fetch')
       .then((rows) => setPlans(rows as Array<{ id?: number; name?: string }>))
-      .catch(() => setPlans([]))
+      .catch((err) => {
+        setPlans([])
+        toastApiError(err, toast, t, t('common.error'))
+      })
   }, [t])
 
-  function update(sec: string, key: string, value: unknown) {
-    setConfig((prev) => ({ ...prev, [sec]: { ...prev[sec], [key]: value } }))
+  function update(sec: string, key: string, value: unknown, persist = false) {
+    setConfig((prev) => {
+      const next = { ...prev, [sec]: { ...prev[sec], [key]: value } }
+      configRef.current = next
+      return next
+    })
+    if (persist) {
+      queueMicrotask(() => void persistSection())
+    }
   }
 
-  async function onBlurSave() {
+  async function persistSection() {
     try {
-      const flat: Record<string, unknown> = {}
-      for (const sec of Object.values(config)) {
-        if (sec && typeof sec === 'object') Object.assign(flat, sec)
+      const sec = configRef.current[section] ?? {}
+      if (section === 'invite' && sec.commission_distribution_enable) {
+        const l1 = Number(sec.commission_distribution_l1 ?? 0)
+        const l2 = Number(sec.commission_distribution_l2 ?? 0)
+        const l3 = Number(sec.commission_distribution_l3 ?? 0)
+        if (l1 + l2 + l3 !== 100) {
+          toast.error(t('settings.invite.commission_distribution.sum_error'))
+          return
+        }
       }
-      await saveConfig(flat)
-    } catch {
-      toast.error(t('common.error'))
+      const payload = normalizeSectionPayload(section, sec)
+      await saveConfig(payload)
+      if (section === 'site') {
+        resetAdminCurrency()
+      }
+      toast.success(t('common.success'))
+    } catch (err) {
+      toastApiError(err, toast, t, t('common.error'))
     }
+  }
+
+  async function onBlurSave(e: React.FocusEvent<HTMLDivElement>) {
+    const related = e.relatedTarget as HTMLElement | null
+    if (related?.closest('[data-radix-popper-content-wrapper], [data-radix-select-content], [role="listbox"]')) {
+      return
+    }
+    if (related && e.currentTarget.contains(related)) return
+    await persistSection()
+  }
+
+  function normalizeSectionPayload(secId: string, sec: Record<string, unknown>): Record<string, unknown> {
+    const payload = { ...sec }
+    if (secId === 'safe') {
+      const raw = payload.email_whitelist_suffix
+      if (typeof raw === 'string') {
+        payload.email_whitelist_suffix = raw
+          .split(/[\n,，]/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      }
+    }
+    return payload
   }
 
   const active = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0]
@@ -321,7 +372,7 @@ export default function ConfigPage() {
                         label={t('settings.site.form.forceHttps.label')}
                         description={t('settings.site.form.forceHttps.description')}
                         checked={Boolean(site.force_https)}
-                        onChange={(v) => update('site', 'force_https', v)}
+                        onChange={(v) => update('site', 'force_https', v, true)}
                       />
                       <FormField
                         label={t('settings.site.form.logo.label')}
@@ -348,13 +399,87 @@ export default function ConfigPage() {
                         label={t('settings.site.form.stopRegister.label')}
                         description={t('settings.site.form.stopRegister.description')}
                         checked={Boolean(site.stop_register)}
-                        onChange={(v) => update('site', 'stop_register', v)}
+                        onChange={(v) => update('site', 'stop_register', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureRegister.label')}
+                        description={t('settings.site.form.featureRegister.description')}
+                        checked={Boolean(site.app_enable_register ?? true)}
+                        onChange={(v) => update('site', 'app_enable_register', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureCoupon.label')}
+                        description={t('settings.site.form.featureCoupon.description')}
+                        checked={Boolean(site.app_enable_coupon_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_coupon_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureTicket.label')}
+                        description={t('settings.site.form.featureTicket.description')}
+                        checked={Boolean(site.app_enable_ticket_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_ticket_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureCommission.label')}
+                        description={t('settings.site.form.featureCommission.description')}
+                        checked={Boolean(site.app_enable_commission_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_commission_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureInvite.label')}
+                        description={t('settings.site.form.featureInvite.description')}
+                        checked={Boolean(site.app_enable_invite_system ?? true)}
+                        onChange={(v) => update('site', 'app_enable_invite_system', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureGiftCard.label')}
+                        description={t('settings.site.form.featureGiftCard.description')}
+                        checked={Boolean(site.app_enable_gift_card ?? true)}
+                        onChange={(v) => update('site', 'app_enable_gift_card', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureTrafficLog.label')}
+                        description={t('settings.site.form.featureTrafficLog.description')}
+                        checked={Boolean(site.app_enable_traffic_log ?? true)}
+                        onChange={(v) => update('site', 'app_enable_traffic_log', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureKnowledgeBase.label')}
+                        description={t('settings.site.form.featureKnowledgeBase.description')}
+                        checked={Boolean(site.app_enable_knowledge_base ?? true)}
+                        onChange={(v) => update('site', 'app_enable_knowledge_base', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.featureAnnouncements.label')}
+                        description={t('settings.site.form.featureAnnouncements.description')}
+                        checked={Boolean(site.app_enable_announcements ?? true)}
+                        onChange={(v) => update('site', 'app_enable_announcements', v, true)}
                       />
                       <SwitchField
                         label={t('settings.site.form.ticketMustWaitReply.label')}
                         description={t('settings.site.form.ticketMustWaitReply.description')}
                         checked={Boolean(site.ticket_must_wait_reply)}
-                        onChange={(v) => update('site', 'ticket_must_wait_reply', v)}
+                        onChange={(v) => update('site', 'ticket_must_wait_reply', v, true)}
+                      />
+                      <FormField
+                        type="number"
+                        label={t('settings.site.form.trafficWarnRate.label')}
+                        description={t('settings.site.form.trafficWarnRate.description')}
+                        value={String(site.traffic_warn_rate ?? 70)}
+                        placeholder={t('settings.site.form.trafficWarnRate.placeholder')}
+                        onChange={(v) => update('site', 'traffic_warn_rate', Number(v))}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.loginWithMailLink.label')}
+                        description={t('settings.site.form.loginWithMailLink.description')}
+                        checked={Boolean(site.login_with_mail_link_enable)}
+                        onChange={(v) => update('site', 'login_with_mail_link_enable', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.site.form.tryOutEnable.label')}
+                        description={t('settings.site.form.tryOutEnable.description')}
+                        checked={Boolean(site.try_out_enable ?? true)}
+                        onChange={(v) => update('site', 'try_out_enable', v, true)}
                       />
                       <ConfigFormSelect
                         label={t('settings.site.form.tryOut.label')}
@@ -400,7 +525,7 @@ export default function ConfigPage() {
                         label={t('settings.invite.invite_force.title')}
                         description={t('settings.invite.invite_force.description')}
                         checked={Boolean(invite.invite_force)}
-                        onChange={(v) => update('invite', 'invite_force', v)}
+                        onChange={(v) => update('invite', 'invite_force', v, true)}
                       />
                       <FormField
                         label={t('settings.invite.invite_commission.title')}
@@ -420,19 +545,29 @@ export default function ConfigPage() {
                         label={t('settings.invite.invite_never_expire.title')}
                         description={t('settings.invite.invite_never_expire.description')}
                         checked={Boolean(invite.invite_never_expire)}
-                        onChange={(v) => update('invite', 'invite_never_expire', v)}
+                        onChange={(v) => update('invite', 'invite_never_expire', v, true)}
                       />
+                      {invite.invite_never_expire ? (
+                        <FormField
+                          type="number"
+                          label={t('settings.invite.invite_code_max_uses.title')}
+                          description={t('settings.invite.invite_code_max_uses.description')}
+                          value={String(invite.invite_code_max_uses ?? 0)}
+                          placeholder={t('settings.invite.invite_code_max_uses.placeholder')}
+                          onChange={(v) => update('invite', 'invite_code_max_uses', Number(v) || 0)}
+                        />
+                      ) : null}
                       <SwitchField
                         label={t('settings.invite.commission_first_time.title')}
                         description={t('settings.invite.commission_first_time.description')}
                         checked={Boolean(invite.commission_first_time_enable)}
-                        onChange={(v) => update('invite', 'commission_first_time_enable', v)}
+                        onChange={(v) => update('invite', 'commission_first_time_enable', v, true)}
                       />
                       <SwitchField
                         label={t('settings.invite.commission_auto_check.title')}
                         description={t('settings.invite.commission_auto_check.description')}
                         checked={Boolean(invite.commission_auto_check_enable)}
-                        onChange={(v) => update('invite', 'commission_auto_check_enable', v)}
+                        onChange={(v) => update('invite', 'commission_auto_check_enable', v, true)}
                       />
                       <FormField
                         label={t('settings.invite.commission_withdraw_limit.title')}
@@ -444,21 +579,50 @@ export default function ConfigPage() {
                       <FormField
                         label={t('settings.invite.commission_withdraw_method.title')}
                         description={t('settings.invite.commission_withdraw_method.description')}
-                        value={String(invite.commission_withdraw_method ?? '')}
+                        value={
+                          Array.isArray(invite.commission_withdraw_method)
+                            ? invite.commission_withdraw_method.join(', ')
+                            : String(invite.commission_withdraw_method ?? '')
+                        }
                         placeholder={t('settings.invite.commission_withdraw_method.placeholder')}
-                        onChange={(v) => update('invite', 'commission_withdraw_method', v)}
+                        onChange={(v) =>
+                          update(
+                            'invite',
+                            'commission_withdraw_method',
+                            v
+                              .split(/[,，]/)
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          )
+                        }
                       />
                       <SwitchField
                         label={t('settings.invite.withdraw_close.title')}
                         description={t('settings.invite.withdraw_close.description')}
                         checked={Boolean(invite.withdraw_close_enable)}
-                        onChange={(v) => update('invite', 'withdraw_close_enable', v)}
+                        onChange={(v) => update('invite', 'withdraw_close_enable', v, true)}
+                      />
+                      <FormField
+                        type="number"
+                        label={t('settings.invite.withdraw_ticket_stale_days.title')}
+                        description={t('settings.invite.withdraw_ticket_stale_days.description')}
+                        value={String(invite.withdraw_ticket_stale_days ?? 14)}
+                        placeholder={t('settings.invite.withdraw_ticket_stale_days.placeholder')}
+                        onChange={(v) => update('invite', 'withdraw_ticket_stale_days', Number(v) || 14)}
+                      />
+                      <FormField
+                        type="number"
+                        label={t('settings.invite.withdraw_fee_rate.title')}
+                        description={t('settings.invite.withdraw_fee_rate.description')}
+                        value={String(invite.app_withdraw_fee_rate ?? 0)}
+                        placeholder={t('settings.invite.withdraw_fee_rate.placeholder')}
+                        onChange={(v) => update('invite', 'app_withdraw_fee_rate', v)}
                       />
                       <SwitchField
                         label={t('settings.invite.commission_distribution.title')}
                         description={t('settings.invite.commission_distribution.description')}
                         checked={Boolean(invite.commission_distribution_enable)}
-                        onChange={(v) => update('invite', 'commission_distribution_enable', v)}
+                        onChange={(v) => update('invite', 'commission_distribution_enable', v, true)}
                       />
                       {invite.commission_distribution_enable ? (
                         <>
@@ -501,7 +665,7 @@ export default function ConfigPage() {
                         label={t('settings.subscribe.plan_change_enable.title')}
                         description={t('settings.subscribe.plan_change_enable.description')}
                         checked={Boolean(subscribe.plan_change_enable)}
-                        onChange={(v) => update('subscribe', 'plan_change_enable', v)}
+                        onChange={(v) => update('subscribe', 'plan_change_enable', v, true)}
                       />
                       <ConfigFormSelect
                         label={t('settings.subscribe.reset_traffic_method.title')}
@@ -521,14 +685,14 @@ export default function ConfigPage() {
                         label={t('settings.subscribe.surplus_enable.title')}
                         description={t('settings.subscribe.surplus_enable.description')}
                         checked={Boolean(subscribe.surplus_enable)}
-                        onChange={(v) => update('subscribe', 'surplus_enable', v)}
+                        onChange={(v) => update('subscribe', 'surplus_enable', v, true)}
                       />
                       <SwitchField
                         flat
                         label={t('settings.subscribe.surplus_traffic_ratio_enable.title')}
                         description={t('settings.subscribe.surplus_traffic_ratio_enable.description')}
                         checked={Boolean(subscribe.surplus_traffic_ratio_enable)}
-                        onChange={(v) => update('subscribe', 'surplus_traffic_ratio_enable', v)}
+                        onChange={(v) => update('subscribe', 'surplus_traffic_ratio_enable', v, true)}
                       />
                       <ConfigFormSelect
                         label={t('settings.subscribe.new_order_event.title')}
@@ -586,14 +750,26 @@ export default function ConfigPage() {
                         label={t('settings.subscribe.show_info_to_server.title')}
                         description={t('settings.subscribe.show_info_to_server.description')}
                         checked={Boolean(subscribe.show_info_to_server_enable)}
-                        onChange={(v) => update('subscribe', 'show_info_to_server_enable', v)}
+                        onChange={(v) => update('subscribe', 'show_info_to_server_enable', v, true)}
                       />
                       <SwitchField
                         flat
                         label={t('settings.subscribe.show_protocol_to_server.title')}
                         description={t('settings.subscribe.show_protocol_to_server.description')}
                         checked={Boolean(subscribe.show_protocol_to_server_enable)}
-                        onChange={(v) => update('subscribe', 'show_protocol_to_server_enable', v)}
+                        onChange={(v) => update('subscribe', 'show_protocol_to_server_enable', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.subscribe.default_remind_expire.title')}
+                        description={t('settings.subscribe.default_remind_expire.description')}
+                        checked={Boolean(subscribe.default_remind_expire)}
+                        onChange={(v) => update('subscribe', 'default_remind_expire', v, true)}
+                      />
+                      <SwitchField
+                        label={t('settings.subscribe.default_remind_traffic.title')}
+                        description={t('settings.subscribe.default_remind_traffic.description')}
+                        checked={Boolean(subscribe.default_remind_traffic)}
+                        onChange={(v) => update('subscribe', 'default_remind_traffic', v, true)}
                       />
                     </>
                   ) : null}
@@ -623,11 +799,21 @@ export default function ConfigPage() {
                         placeholder={t('settings.server.server_push_interval.placeholder')}
                         onChange={(v) => update('server', 'server_push_interval', v)}
                       />
+                      <ConfigFormSelect
+                        label={t('settings.server.device_limit_mode.title')}
+                        description={t('settings.server.device_limit_mode.description')}
+                        value={String(server.device_limit_mode ?? 0)}
+                        onChange={(v) => update('server', 'device_limit_mode', Number(v))}
+                        options={[
+                          { value: '0', label: t('settings.server.device_limit_mode.strict') },
+                          { value: '1', label: t('settings.server.device_limit_mode.relaxed') },
+                        ]}
+                      />
                       <ServerWsSwitchCard
                         label={t('settings.server.server_ws_enable.title')}
                         description={t('settings.server.server_ws_enable.description')}
                         checked={Boolean(server.server_ws_enable)}
-                        onChange={(v) => update('server', 'server_ws_enable', v)}
+                        onChange={(v) => update('server', 'server_ws_enable', v, true)}
                       />
                       <FormField
                         label={t('settings.server.server_ws_url.title')}

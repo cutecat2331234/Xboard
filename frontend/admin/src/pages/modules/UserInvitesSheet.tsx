@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { adminApi, type PaginatedResult } from '@/lib/api'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
@@ -17,11 +19,6 @@ type InvitedUserRow = {
 }
 
 type PlanRow = { id?: number; name?: string }
-
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleString()
-}
 
 type Props = {
   userId?: number
@@ -54,7 +51,7 @@ export function UserInvitesSheet({ userId, email, plans, open, onOpenChange }: P
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [userId, open, page, pageSize, t])
 
@@ -89,7 +86,12 @@ export function UserInvitesSheet({ userId, email, plans, open, onOpenChange }: P
       {
         accessorKey: 'created_at',
         header: () => t('user.columns.register_time'),
-        cell: ({ row }) => formatTs(row.original.created_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.created_at),
+      },
+      {
+        accessorKey: 'expired_at',
+        header: () => t('user.columns.expire_time'),
+        cell: ({ row }) => formatAdminDateTime(row.original.expired_at),
       },
     ],
     [t, plans],

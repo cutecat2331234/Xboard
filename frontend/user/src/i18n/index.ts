@@ -7,7 +7,9 @@ import {
   viVN as naiveViVN,
   zhTW as naiveZhTW,
   faIR as naiveFaIR,
+  ruRU as naiveRuRU,
   dateZhCN,
+  dateRuRU,
   dateJaJP,
   dateKoKR,
   dateViVN,
@@ -33,6 +35,8 @@ import zhTW from './locales/zh-TW'
 
 import faIR from './locales/fa-IR'
 
+import ruRU from './locales/ru-RU'
+
 
 
 const catalogs: Record<string, Record<string, unknown>> = {
@@ -51,6 +55,8 @@ const catalogs: Record<string, Record<string, unknown>> = {
 
   'fa-IR': faIR,
 
+  'ru-RU': ruRU,
+
 }
 
 
@@ -65,6 +71,7 @@ const naiveLocales: Record<string, NLocale> = {
   'vi-VN': naiveViVN,
   'zh-TW': naiveZhTW,
   'fa-IR': naiveFaIR,
+  'ru-RU': naiveRuRU,
 }
 
 const naiveDateLocales: Partial<Record<string, NDateLocale>> = {
@@ -74,6 +81,7 @@ const naiveDateLocales: Partial<Record<string, NDateLocale>> = {
   'vi-VN': dateViVN,
   'zh-TW': dateZhTW,
   'fa-IR': { name: 'fa-IR', locale: dateFnsFaIR },
+  'ru-RU': dateRuRU,
 }
 
 

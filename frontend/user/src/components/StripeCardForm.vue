@@ -7,13 +7,17 @@ import {
   type StripeElementStyle,
 } from '@stripe/stripe-js'
 import { fetchStripePublicKey } from '@/api/comm'
+import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const props = defineProps<{
   paymentId: number | null
 }>()
 
 const mountId = `stripe-card-${Math.random().toString(36).slice(2)}`
+const { t } = useI18n()
 const ready = ref(false)
+const mountError = ref<string | null>(null)
 let stripe: Stripe | null = null
 let card: StripeCardElement | null = null
 let themeObserver: MutationObserver | undefined
@@ -41,25 +45,30 @@ function syncCardStyle() {
 
 async function mount() {
   ready.value = false
+  mountError.value = null
   if (!props.paymentId) return
   try {
     const pk = await fetchStripePublicKey(props.paymentId)
     stripe = await loadStripe(pk)
-    if (!stripe) return
+    if (!stripe) {
+      mountError.value = t('order.stripeUnavailable')
+      return
+    }
     const elements = stripe.elements()
     card?.destroy()
     card = elements.create('card', { hidePostalCode: true, style: cardStyle() })
     card.mount(`#${mountId}`)
     ready.value = true
-  } catch {
+  } catch (e: unknown) {
     ready.value = false
+    mountError.value = resolveApiError(e, t, t('order.stripeLoadFailed'))
   }
 }
 
 async function createToken(): Promise<string | undefined> {
   if (!stripe || !card) return undefined
   const { token, error } = await stripe.createToken(card)
-  if (error) throw new Error(error.message || 'Stripe token failed')
+  if (error) throw new Error(resolveApiError(new Error(error.message || ''), t, t('order.stripeTokenFailed')))
   return token?.id
 }
 
@@ -75,12 +84,13 @@ onBeforeUnmount(() => {
   card = null
 })
 
-defineExpose({ createToken, ready })
+defineExpose({ createToken, ready, mountError })
 </script>
 
 <template>
   <div v-show="paymentId" class="stripe-card-wrap">
     <div :id="mountId" class="stripe-card-mount" />
+    <p v-if="mountError" class="stripe-error">{{ mountError }}</p>
   </div>
 </template>
 
@@ -94,5 +104,10 @@ defineExpose({ createToken, ready })
 }
 .stripe-card-mount {
   min-height: 40px;
+}
+.stripe-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--n-error-color, #d03050);
 }
 </style>

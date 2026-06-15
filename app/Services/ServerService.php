@@ -119,6 +119,27 @@ class ServerService
     }
 
     /**
+     * Keep only traffic entries for users allowed on this node (group membership).
+     */
+    public static function filterUserIdsByNodeGroups(Server $node, array $userIds): array
+    {
+        $groupIds = $node->group_ids ?? [];
+        if (empty($groupIds) || empty($userIds)) {
+            return [];
+        }
+
+        $userIds = array_values(array_unique(array_map('intval', $userIds)));
+
+        return User::toBase()
+            ->whereIn('id', $userIds)
+            ->whereIn('group_id', $groupIds)
+            ->where('banned', 0)
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    /**
      * 处理节点流量数据汇报
      */
     public static function processTraffic(Server $node, array $traffic): void
@@ -126,11 +147,20 @@ class ServerService
         $data = array_filter($traffic, fn($item) =>
             is_array($item) && count($item) === 2
             && is_numeric($item[0]) && is_numeric($item[1])
+            && (float) $item[0] >= 0 && (float) $item[1] >= 0
         );
 
         if (empty($data)) {
             return;
         }
+
+        $allowedIds = self::filterUserIdsByNodeGroups($node, array_keys($data));
+        if (empty($allowedIds)) {
+            return;
+        }
+
+        $allowedMap = array_flip($allowedIds);
+        $data = array_intersect_key($data, $allowedMap);
 
         $nodeType = strtoupper($node->type);
         $nodeId = $node->id;
@@ -144,11 +174,17 @@ class ServerService
     /**
      * 处理节点在线设备汇报
      */
-    public static function processAlive(int $nodeId, array $alive): void
+    public static function processAlive(Server $node, array $alive): void
     {
         $service = app(DeviceStateService::class);
+        $allowedIds = array_flip(self::filterUserIdsByNodeGroups($node, array_keys($alive)));
+
         foreach ($alive as $uid => $ips) {
-            $service->setDevices((int) $uid, $nodeId, (array) $ips);
+            $userId = (int) $uid;
+            if (!isset($allowedIds[$userId]) || !is_array($ips)) {
+                continue;
+            }
+            $service->setDevices($userId, $node->id, $ips);
         }
     }
 
@@ -160,9 +196,14 @@ class ServerService
         $cacheTime = max(300, (int) admin_setting('server_push_interval', 60) * 3);
         $nodeType = $node->type;
         $nodeId = $node->id;
+        $allowedIds = array_flip(self::filterUserIdsByNodeGroups($node, array_keys($online)));
 
         foreach ($online as $uid => $conn) {
-            $cacheKey = CacheKey::get("USER_ONLINE_CONN_{$nodeType}_{$nodeId}", $uid);
+            $userId = (int) $uid;
+            if (!isset($allowedIds[$userId])) {
+                continue;
+            }
+            $cacheKey = CacheKey::get("USER_ONLINE_CONN_{$nodeType}_{$nodeId}", $userId);
             Cache::put($cacheKey, (int) $conn, $cacheTime);
         }
     }

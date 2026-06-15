@@ -13,7 +13,6 @@ import {
   IconLayoutDashboard,
   IconLock,
   IconNews,
-  IconRefresh,
   IconRoute,
   IconServer,
   IconServerBolt,
@@ -44,7 +43,6 @@ const NAV_ICON_SUFFIX: Record<string, string> = {
   '/finance/gift-card': 'tabler-icon-gift',
   '/user/manage': 'tabler-icon-user',
   '/user/ticket': 'tabler-icon-ticket',
-  '/traffic-reset': 'tabler-icon-refresh',
 }
 
 const GROUP_ICON_SUFFIX: Record<string, string> = {
@@ -71,7 +69,6 @@ export const TABLER_NAV_ICONS: Record<string, ComponentType<IconProps>> = {
   '/finance/gift-card': IconGift,
   '/user/manage': IconUser,
   '/user/ticket': IconTicket,
-  '/traffic-reset': IconRefresh,
 }
 
 export const TABLER_GROUP_ICONS: Record<string, ComponentType<IconProps>> = {

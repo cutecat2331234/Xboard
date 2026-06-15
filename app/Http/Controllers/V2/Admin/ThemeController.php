@@ -90,7 +90,7 @@ class ThemeController extends Controller
     public function delete(Request $request)
     {
         $payload = $request->validate([
-            'name' => 'required'
+            'name' => ['required', 'string', 'regex:/^[a-zA-Z0-9_\-]+$/'],
         ]);
         $this->themeService->delete($payload['name']);
         return $this->success(true);

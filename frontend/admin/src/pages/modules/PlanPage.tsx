@@ -4,7 +4,9 @@ import { Pencil, Plus, Trash2, UserCheck, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { fetchJsonList, postJson } from '@/lib/api'
+import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import {
   dialogFieldInputCls,
   dialogFieldLabelCls,
@@ -115,7 +117,15 @@ function PlanStatsCell({ row }: { row: PlanRow }) {
   )
 }
 
-function PlanPriceCell({ row, t }: { row: PlanRow; t: (key: string) => string }) {
+function PlanPriceCell({
+  row,
+  t,
+  symbol,
+}: {
+  row: PlanRow
+  t: (key: string) => string
+  symbol: string
+}) {
   const prices = row.prices ?? {}
   const priced = PRICE_BADGE_PERIODS.filter(({ key }) => prices[key] != null)
   if (!priced.length) {
@@ -136,7 +146,7 @@ function PlanPriceCell({ row, t }: { row: PlanRow; t: (key: string) => string })
           variant="secondary"
           className="text-nowrap border border-border/50 px-2 py-0.5 font-medium"
         >
-          {t(`subscribe.plan.columns.price_period.${key}`)} ¥{prices[key]}
+          {t(`subscribe.plan.columns.price_period.${key}`)} {symbol}{prices[key]}
           {unitKey ? t(`subscribe.plan.columns.price_period.unit.${unitKey}`) : ''}
         </Badge>
       ))}
@@ -168,6 +178,7 @@ export default function PlanPage() {
   const [forceUpdate, setForceUpdate] = useState(false)
   const [showContentPreview, setShowContentPreview] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const load = useCallback(() => {
     setLoading(true)
@@ -176,9 +187,13 @@ export default function PlanPage() {
         setData(plans as PlanRow[])
         setGroups(grps as GroupRow[])
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
+
+  useEffect(() => {
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
+  }, [])
 
   useEffect(() => {
     load()
@@ -195,8 +210,13 @@ export default function PlanPage() {
   function openEdit(row: PlanRow) {
     setEditing(row)
     setForceUpdate(false)
+    const trafficGb =
+      row.transfer_enable && row.transfer_enable > 1073741824
+        ? Math.round(row.transfer_enable / 1073741824)
+        : row.transfer_enable ?? 100
     setForm({
       ...row,
+      transfer_enable: trafficGb,
       prices: { ...(row.prices ?? {}) },
       tags: row.tags ?? [],
     })
@@ -204,6 +224,15 @@ export default function PlanPage() {
   }
 
   async function savePlan() {
+    if (!form.name?.trim()) {
+      toast.error(t('subscribe.plan.form.name.label') + ': ' + t('common.error'))
+      return
+    }
+    const traffic = Number(form.transfer_enable)
+    if (!Number.isFinite(traffic) || traffic < 1) {
+      toast.error(t('subscribe.plan.form.transfer.invalid'))
+      return
+    }
     setSaving(true)
     try {
       const payload: Record<string, unknown> = {
@@ -216,7 +245,7 @@ export default function PlanPage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -227,7 +256,7 @@ export default function PlanPage() {
       await postJson('/plan/update', { id: row.id, [field]: !row[field] })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -244,7 +273,7 @@ export default function PlanPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -375,7 +404,7 @@ export default function PlanPage() {
       {
         id: 'prices',
         header: () => t('subscribe.plan.columns.price'),
-        cell: ({ row }) => <PlanPriceCell row={row.original} t={t} />,
+        cell: ({ row }) => <PlanPriceCell row={row.original} t={t} symbol={currencySymbol} />,
       },
       ...(!sort.sortMode
         ? [
@@ -408,7 +437,7 @@ export default function PlanPage() {
           ]
         : []),
     ],
-    [t, sort],
+    [t, sort, currencySymbol],
   )
 
   return (
@@ -612,7 +641,7 @@ export default function PlanPage() {
                       onChange={(e) => setBasePrice(e.target.value)}
                     />
                     <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                      ¥
+                      {currencySymbol}
                     </span>
                   </div>
                   <Button
@@ -704,7 +733,7 @@ export default function PlanPage() {
                   placeholder={t('subscribe.plan.form.content.placeholder')}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {t('subscribe.plan.form.content.markdown_hint', { defaultValue: '支持 Markdown 格式' })}
+                  {t('subscribe.plan.form.content.description')}
                 </p>
                 {showContentPreview && form.content ? (
                   <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap">

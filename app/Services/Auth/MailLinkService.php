@@ -37,7 +37,8 @@ class MailLinkService
         Cache::put($key, $user->id, 300);
         Cache::put(CacheKey::get('LAST_SEND_LOGIN_WITH_MAIL_LINK_TIMESTAMP', $email), time(), 60);
 
-        $redirectUrl = '/#/login?verify=' . $code . '&redirect=' . ($redirect ? $redirect : 'dashboard');
+        $redirect = Helper::sanitizeAppRedirect($redirect);
+        $redirectUrl = '/#/login?verify=' . $code . '&redirect=' . rawurlencode($redirect);
         if (admin_setting('app_url')) {
             $link = admin_setting('app_url') . $redirectUrl;
         } else {
@@ -81,7 +82,7 @@ class MailLinkService
     public function handleTokenLogin(string $token): ?int
     {
         $key = CacheKey::get('TEMP_TOKEN', $token);
-        $userId = Cache::get($key);
+        $userId = Cache::pull($key);
 
         if (!$userId) {
             return null;
@@ -93,8 +94,6 @@ class MailLinkService
             return null;
         }
 
-        Cache::forget($key);
-
-        return $userId;
+        return (int) $userId;
     }
 }

@@ -154,7 +154,7 @@ class StatServerJob implements ShouldQueue
         // Use parameter binding to avoid SQL injection and keep maintainability
         $sql = "INSERT INTO {$table} (record_at, server_id, server_type, record_type, u, d, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT (server_id, server_type, record_at)
+                ON CONFLICT (server_id, server_type, record_at, record_type)
                 DO UPDATE SET
                     u = {$table}.u + EXCLUDED.u,
                     d = {$table}.d + EXCLUDED.d,

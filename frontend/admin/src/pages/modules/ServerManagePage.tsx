@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 
 import { toast } from 'sonner'
 
+import { toastApiError } from '@/lib/api-errors'
 import { fetchJsonList, generateEchKey, postJson } from '@/lib/api'
 
 import { cn } from '@/lib/utils'
@@ -248,7 +249,7 @@ type ServerForm = {
   rate_time_enable: boolean
 }
 
-function defaultCreatePayload(form: ServerForm) {
+function defaultCreatePayload(form: ServerForm, show = 1) {
 
   const type = form.type || 'shadowsocks'
 
@@ -268,7 +269,7 @@ function defaultCreatePayload(form: ServerForm) {
 
     rate: Number(form.rate) || 1,
 
-    show: 1,
+    show,
 
     group_ids: form.group_ids,
 
@@ -392,7 +393,7 @@ export default function ServerManagePage() {
 
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
@@ -530,9 +531,11 @@ export default function ServerManagePage() {
 
             ...editing,
 
-            ...defaultCreatePayload(form),
+            ...defaultCreatePayload(form, Number(editing.show ?? 1)),
 
             id: editing.id,
+
+            show: Number(editing.show ?? 1),
 
             protocol_settings,
 
@@ -556,7 +559,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     } finally {
 
@@ -578,7 +581,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -598,7 +601,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -629,7 +632,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -649,7 +652,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -721,7 +724,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('server.toolbar.batch_delete_error'))
+      toastApiError(e, toast, t, t('server.toolbar.batch_delete_error'))
 
     }
 
@@ -743,7 +746,7 @@ export default function ServerManagePage() {
       setSelectedIds(new Set())
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t(errorKey))
+      toastApiError(e, toast, t, t(errorKey))
     }
   }
 
@@ -759,7 +762,7 @@ export default function ServerManagePage() {
       }))
       toast.success(t('common.success'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setEchGenerating(false)
     }
@@ -811,11 +814,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(
-
-        e instanceof Error ? e.message : t('server.toolbar.batch_reset_traffic_error'),
-
-      )
+      toastApiError(e, toast, t, t('server.toolbar.batch_reset_traffic_error'))
 
     }
 
@@ -865,7 +864,7 @@ export default function ServerManagePage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     } finally {
 

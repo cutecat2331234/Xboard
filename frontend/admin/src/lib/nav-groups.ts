@@ -9,7 +9,6 @@ import {
   Megaphone,
   Network,
   Palette,
-  RefreshCw,
   Route,
   Server,
   Settings,
@@ -75,8 +74,8 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: Users,
     items: [
       { path: '/user/manage', labelKey: 'nav.userManagement', icon: Users },
+      { path: '/user/traffic-reset', labelKey: 'nav.trafficResetLogs', icon: Users },
       { path: '/user/ticket', labelKey: 'nav.ticketManagement', icon: Ticket },
-      { path: '/traffic-reset', labelKey: 'nav.trafficResetLogs', icon: RefreshCw },
     ],
   },
 ]

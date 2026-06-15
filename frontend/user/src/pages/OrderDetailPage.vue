@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
 
@@ -22,6 +22,8 @@ import {
 
   cancelOrder,
 
+  canCancelOrder,
+
   type OrderDetail,
 
   type PaymentMethod,
@@ -32,11 +34,12 @@ import { PERIOD_OPTIONS } from '@/api/plan'
 
 import { orderStatusLabel } from '@/lib/order-status'
 
-import { formatFixedDateTime } from '@/lib/format-date'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
 import { useCurrency } from '@/composables/useCurrency'
+import { formatPlanTrafficGb } from '@/lib/format-traffic'
 
 import QRCode from 'qrcode'
 
@@ -114,6 +117,7 @@ const qrOpen = ref(false)
 const qrDataUrl = ref('')
 
 let pollTimer: ReturnType<typeof setInterval> | null = null
+let pollFailures = 0
 
 
 
@@ -122,8 +126,6 @@ const selectedPayment = computed(() => methods.value.find((m) => m.id === select
 const isStripe = computed(() => selectedPayment.value?.payment === 'StripeCredit')
 
 const stripeFormRef = ref<InstanceType<typeof StripeCardForm> | null>(null)
-
-
 
 const periodLabel = computed(() => {
 
@@ -136,6 +138,40 @@ const periodLabel = computed(() => {
   return hit ? t(hit.labelKey) : p
 
 })
+
+const orderTypeLabel = computed(() => {
+  const type = order.value?.type
+  if (!type) return ''
+  const keyByType: Record<number, string> = {
+    1: 'order.typeNew',
+    2: 'order.typeRenew',
+    3: 'order.typeUpgrade',
+    4: 'order.typeReset',
+  }
+  const key = keyByType[type]
+  return key ? t(key) : String(type)
+})
+
+function resetCheckoutState() {
+  stopPoll()
+  qrOpen.value = false
+  qrDataUrl.value = ''
+  methods.value = []
+  selectedMethod.value = null
+  selectedMethodIndex.value = 0
+  paying.value = false
+  pollFailures = 0
+}
+
+async function copyTradeNo() {
+  if (!order.value?.trade_no) return
+  try {
+    await navigator.clipboard.writeText(order.value.trade_no)
+    msg.success(t('order.tradeNoCopied'))
+  } catch {
+    msg.error(t('errors.requestFailed'))
+  }
+}
 
 
 
@@ -157,7 +193,7 @@ const handlingPreview = computed(() => {
 
   const m = selectedPayment.value
 
-  const base = periodPlanPrice.value ?? order.value?.total_amount ?? 0
+  const base = order.value?.total_amount ?? 0
 
   if (!m) return 0
 
@@ -167,9 +203,39 @@ const handlingPreview = computed(() => {
 
 
 
+const lockedPaymentId = computed(() => {
+  const pid = order.value?.payment_id
+  if (pid == null || pid === 0) return null
+  return Number(pid)
+})
+
+function applyPaymentSelection() {
+  if (!methods.value.length) return
+  const locked = lockedPaymentId.value
+  if (locked) {
+    const idx = methods.value.findIndex((m) => m.id === locked)
+    if (idx >= 0) {
+      selectedMethodIndex.value = idx
+      selectedMethod.value = locked
+      return
+    }
+    selectedMethodIndex.value = -1
+    selectedMethod.value = null
+    return
+  }
+  selectedMethodIndex.value = 0
+  selectedMethod.value = methods.value[0]?.id ?? null
+}
+
+const lockedPaymentMissing = computed(() => {
+  const locked = lockedPaymentId.value
+  if (!locked || !methods.value.length) return false
+  return !methods.value.some((m) => m.id === locked)
+})
+
 const isPending = computed(() => Number(order.value?.status) === 0)
 
-
+const canCancel = computed(() => (order.value ? canCancelOrder(order.value) : false))
 
 /** Paid orders store handling on the order; pending uses live payment-method preview. */
 const orderHandlingDisplay = computed(() => {
@@ -186,7 +252,7 @@ const orderHandlingDisplay = computed(() => {
 
 
 
-const checkoutBase = computed(() => periodPlanPrice.value ?? order.value?.total_amount ?? 0)
+const checkoutBase = computed(() => order.value?.total_amount ?? 0)
 
 
 
@@ -194,17 +260,9 @@ const payTotal = computed(() => {
 
   const base = checkoutBase.value
 
-  const surplus = order.value?.surplus_amount ?? 0
-
-  const discount = order.value?.discount_amount ?? 0
-
-  const refund = order.value?.surplus_credit ?? 0
-
-  const balance = order.value?.balance_amount ?? 0
-
   const handling = order.value?.handling_amount ?? handlingPreview.value
 
-  return Math.max(0, base - surplus - discount - refund - balance + (handling || 0))
+  return Math.max(0, base + (handling || 0))
 
 })
 
@@ -233,13 +291,15 @@ async function load() {
 
     if (order.value.status === 0) {
 
-      methods.value = await fetchPaymentMethods()
+      try {
 
-      if (methods.value.length) {
+        methods.value = await fetchPaymentMethods()
 
-        selectedMethod.value = methods.value[0].id
+        applyPaymentSelection()
 
-        selectedMethodIndex.value = 0
+      } catch (e: unknown) {
+
+        msg.warning(resolveApiError(e, t))
 
       }
 
@@ -261,9 +321,15 @@ async function load() {
 
 function selectMethod(index: number) {
 
+  const locked = lockedPaymentId.value
+  const target = methods.value[index]?.id ?? null
+  if (locked && target && target !== locked) {
+    msg.warning(t('order.paymentLocked'))
+    return
+  }
   selectedMethodIndex.value = index
 
-  selectedMethod.value = methods.value[index]?.id ?? null
+  selectedMethod.value = target
 
 }
 
@@ -273,11 +339,15 @@ function startPoll(tradeNo: string) {
 
   stopPoll()
 
+  pollFailures = 0
+
   pollTimer = setInterval(async () => {
 
     try {
 
       const status = await checkOrderStatus(tradeNo)
+
+      pollFailures = 0
 
       if (status !== 0) {
 
@@ -285,15 +355,38 @@ function startPoll(tradeNo: string) {
 
         qrOpen.value = false
 
-        msg.success(t('order.paySuccess'))
+        if (status === 2) {
 
-        await load()
+          msg.warning(t('order.cancelledDuringPay'))
+
+          await load()
+
+          return
+
+        }
+
+        if (status === 3) {
+          msg.success(t('order.paySuccess'))
+          await load()
+        } else if (status === 1) {
+          await load()
+        } else if (status === 4) {
+          await load()
+        }
 
       }
 
-    } catch {
+    } catch (e: unknown) {
 
-      /* ignore */
+      pollFailures += 1
+
+      if (pollFailures >= 3) {
+
+        stopPoll()
+
+        msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+
+      }
 
     }
 
@@ -314,6 +407,10 @@ function stopPoll() {
   }
 
 }
+
+watch(qrOpen, (open) => {
+  if (!open) stopPoll()
+})
 
 
 
@@ -345,7 +442,12 @@ async function handleCheckoutResult(res: { type: number; data: string | boolean 
 
   if (res.type === 1 && typeof res.data === 'string') {
 
-    window.open(res.data, '_blank')
+    const opened = window.open(res.data, '_blank')
+    if (!opened) {
+      msg.warning(t('order.redirectPopupBlocked'))
+    } else {
+      msg.info(t('order.redirectPaymentHint'))
+    }
 
     startPoll(order.value.trade_no)
 
@@ -363,7 +465,7 @@ async function handleCheckoutResult(res: { type: number; data: string | boolean 
 
   }
 
-  msg.info(String(res.data))
+  msg.warning(t('errors.requestFailed'))
 
   startPoll(order.value.trade_no)
 
@@ -399,6 +501,11 @@ async function pay() {
 
   }
 
+  if (lockedPaymentMissing.value) {
+    msg.error(t('errors.paymentMethodUnavailable'))
+    return
+  }
+
   if (selectedMethod.value == null) {
 
     msg.warning(t('order.selectPayment'))
@@ -414,7 +521,14 @@ async function pay() {
     let token: string | undefined
 
     if (isStripe.value) {
-
+      if (stripeFormRef.value?.mountError) {
+        msg.error(stripeFormRef.value.mountError)
+        return
+      }
+      if (!stripeFormRef.value?.ready) {
+        msg.error(t('order.stripeRequired'))
+        return
+      }
       token = await stripeFormRef.value?.createToken()
 
       if (!token) {
@@ -458,15 +572,14 @@ function confirmClose() {
     negativeText: t('common.cancel'),
 
     onPositiveClick: async () => {
-
       if (!order.value) return
-
-      await cancelOrder(order.value.trade_no)
-
-      msg.success(t('order.closeSuccess'))
-
-      await load()
-
+      try {
+        await cancelOrder(order.value.trade_no)
+        msg.success(t('order.closeSuccess'))
+        await load()
+      } catch (e: unknown) {
+        msg.error(resolveApiError(e, t))
+      }
     },
 
   })
@@ -482,6 +595,14 @@ onMounted(async () => {
   await load()
 
 })
+
+watch(
+  () => route.params.trade_no,
+  () => {
+    resetCheckoutState()
+    void load()
+  },
+)
 
 onUnmounted(stopPoll)
 
@@ -534,7 +655,7 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.productTraffic') }}：</div>
 
-          <div class="info-value">{{ order.plan?.transfer_enable ?? 0 }} GB</div>
+          <div class="info-value">{{ formatPlanTrafficGb(order.plan?.transfer_enable ?? 0, t('common.units.gb')) }}</div>
 
         </div>
 
@@ -544,7 +665,7 @@ onUnmounted(stopPoll)
 
       <n-card class="order-info-card mt-5 rounded-md" :title="t('order.orderInfo')">
 
-        <template v-if="isPending" #header-extra>
+        <template v-if="canCancel" #header-extra>
 
           <n-button color="#db4619" size="small" round strong @click="confirmClose">
 
@@ -558,7 +679,18 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.tradeNo') }}：</div>
 
-          <div class="info-value">{{ order.trade_no }}</div>
+          <div class="info-value trade-no-row">
+            <span>{{ order.trade_no }}</span>
+            <n-button size="tiny" tertiary @click="copyTradeNo">{{ t('order.copyTradeNo') }}</n-button>
+          </div>
+
+        </div>
+
+        <div v-if="orderTypeLabel" class="info-row">
+
+          <div class="info-label">{{ t('order.orderType') }}：</div>
+
+          <div class="info-value">{{ orderTypeLabel }}</div>
 
         </div>
 
@@ -630,7 +762,7 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.createdAt') }}：</div>
 
-          <div class="info-value">{{ formatFixedDateTime(order.created_at) }}</div>
+          <div class="info-value">{{ formatLocaleDateTime(order.created_at, locale) }}</div>
 
         </div>
 
@@ -650,6 +782,13 @@ onUnmounted(stopPoll)
 
       >
 
+        <n-empty v-if="!methods.length" class="pay-empty" :description="t('order.noPaymentMethods')" />
+
+        <n-alert v-else-if="lockedPaymentMissing" type="error" :show-icon="true" class="pay-empty">
+          {{ t('order.paymentLocked') }}
+        </n-alert>
+
+        <template v-else>
         <div
 
           v-for="(m, index) in methods"
@@ -658,7 +797,10 @@ onUnmounted(stopPoll)
 
           class="border-2 rounded-md p-5 border-solid flex pay-option"
 
-          :class="selectedMethodIndex === index ? 'border-primary' : 'border-transparent'"
+          :class="[
+            selectedMethodIndex === index ? 'border-primary' : 'border-transparent',
+            lockedPaymentId && m.id !== lockedPaymentId ? 'pay-option--disabled' : '',
+          ]"
 
           @click="selectMethod(index)"
 
@@ -675,6 +817,7 @@ onUnmounted(stopPoll)
         </div>
 
         <StripeCardForm v-if="isStripe" ref="stripeFormRef" :payment-id="selectedMethod" class="pay-stripe" />
+        </template>
 
       </n-card>
 
@@ -694,7 +837,7 @@ onUnmounted(stopPoll)
 
           <div v-if="periodPlanPrice != null" class="summary-panel__plan-price">
 
-            {{ symbol }}{{ (periodPlanPrice / 100).toFixed(2) }}
+            {{ formatPrice(periodPlanPrice) }}
 
           </div>
 
@@ -704,7 +847,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.surplus') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.surplus_amount / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.surplus_amount) }}</span>
 
         </div>
 
@@ -712,7 +855,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.discountLabel') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.discount_amount / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.discount_amount) }}</span>
 
         </div>
 
@@ -720,7 +863,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.refund') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.surplus_credit / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.surplus_credit) }}</span>
 
         </div>
 
@@ -728,7 +871,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.balancePay') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.balance_amount / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.balance_amount) }}</span>
 
         </div>
 
@@ -736,7 +879,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.handlingFee') }}</span>
 
-          <span class="summary-panel__amount">+{{ symbol }}{{ (handlingPreview / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">+{{ formatPrice(handlingPreview) }}</span>
 
         </div>
 
@@ -744,7 +887,7 @@ onUnmounted(stopPoll)
 
           <div class="summary-panel__muted">{{ t('order.grandTotal') }}</div>
 
-          <div class="summary-panel__grand">{{ symbol }} {{ (payTotal / 100).toFixed(2) }} {{ code }}</div>
+          <div class="summary-panel__grand">{{ formatPrice(payTotal) }}</div>
 
         </div>
 
@@ -757,6 +900,7 @@ onUnmounted(stopPoll)
           strong
 
           :loading="paying"
+          :disabled="payTotal > 0 && (!methods.length || lockedPaymentMissing)"
 
           icon-placement="left"
 
@@ -891,6 +1035,13 @@ onUnmounted(stopPoll)
 
 }
 
+.trade-no-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
 .try-out-alert {
 
   margin-bottom: 12px;
@@ -915,6 +1066,10 @@ onUnmounted(stopPoll)
 
 }
 
+.pay-option--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .pay-option {
 
   cursor: pointer;

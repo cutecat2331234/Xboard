@@ -15,6 +15,7 @@ class CouponGenerate extends FormRequest
     {
         return [
             'generate_count' => 'nullable|integer|max:500',
+            'id' => 'nullable|integer',
             'name' => 'required',
             'type' => 'required|in:1,2',
             'value' => 'required|integer',

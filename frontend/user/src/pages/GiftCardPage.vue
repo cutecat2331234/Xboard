@@ -6,6 +6,7 @@ import {
   NDataTable,
   NDescriptions,
   NDescriptionsItem,
+  NEmpty,
   NInput,
   NModal,
   NSpace,
@@ -25,7 +26,9 @@ import {
 } from '@/api/gift-card'
 import { useCurrency } from '@/composables/useCurrency'
 import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatTrafficGbFromBytes } from '@/lib/format-traffic'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const msg = useMessage()
 const { t, locale } = useI18n()
@@ -47,6 +50,13 @@ const detailOpen = ref(false)
 const detailLoading = ref(false)
 const detail = ref<GiftCardDetail | null>(null)
 
+function formatPreview(rewards?: GiftCardRewards | { type?: string; pool_size?: number } | null) {
+  if (rewards && typeof rewards === 'object' && 'type' in rewards && rewards.type === 'mystery') {
+    return t('giftCard.mysteryPreview', { count: rewards.pool_size ?? 0 })
+  }
+  return formatRewards(rewards as GiftCardRewards | null | undefined)
+}
+
 function formatRewards(rewards?: GiftCardRewards | null) {
   if (!rewards) return '—'
   const parts: string[] = []
@@ -54,7 +64,7 @@ function formatRewards(rewards?: GiftCardRewards | null) {
     parts.push(`${t('giftCard.rewardBalance')}: ${formatPrice(rewards.balance)}`)
   }
   if (rewards.transfer_enable && rewards.transfer_enable > 0) {
-    parts.push(`${t('giftCard.rewardTraffic')}: ${rewards.transfer_enable} GB`)
+    parts.push(`${t('giftCard.rewardTraffic')}: ${formatTrafficGbFromBytes(rewards.transfer_enable, t('common.units.gb'))}`)
   }
   if (rewards.expire_days && rewards.expire_days > 0) {
     parts.push(`${t('giftCard.rewardExpireDays')}: ${rewards.expire_days}`)
@@ -72,6 +82,12 @@ function formatRewards(rewards?: GiftCardRewards | null) {
   return parts.length ? parts.join(' · ') : '—'
 }
 
+function mapGiftCardReason(reason?: string | null): string {
+  if (!reason) return ''
+  const mapped = resolveApiError(new Error(reason), t)
+  return mapped !== reason ? mapped : reason
+}
+
 async function loadHistory() {
   loadingHistory.value = true
   try {
@@ -79,7 +95,7 @@ async function loadHistory() {
     history.value = res.data ?? []
     total.value = res.pagination?.total ?? 0
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     loadingHistory.value = false
   }
@@ -102,7 +118,7 @@ async function doCheck() {
   try {
     checkResult.value = await checkGiftCard(code)
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     checking.value = false
   }
@@ -121,7 +137,7 @@ async function doRedeem() {
     page.value = 1
     await loadHistory()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     redeeming.value = false
   }
@@ -145,7 +161,7 @@ async function openDetail(id: number) {
   try {
     detail.value = await fetchGiftCardDetail(id)
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
     detailOpen.value = false
   } finally {
     detailLoading.value = false
@@ -216,7 +232,10 @@ onMounted(async () => {
   </n-card>
 
   <n-card :title="t('giftCard.historyTitle')" class="mt-4 rounded-md">
+    <n-empty v-if="!loadingHistory && history.length === 0" :description="t('giftCard.historyEmpty')" />
     <n-data-table
+      v-else
+      remote
       :columns="columns"
       :data="history"
       :loading="loadingHistory"
@@ -264,10 +283,10 @@ onMounted(async () => {
       <n-tag size="small" round>{{ checkResult.code_info.template.type_name }}</n-tag>
       <div class="gift-card-preview__rewards">
         <span class="gift-card-preview__label">{{ t('giftCard.rewardPreview') }}</span>
-        {{ formatRewards(checkResult.reward_preview) }}
+        {{ formatPreview(checkResult.reward_preview) }}
       </div>
       <div v-if="!checkResult.can_redeem && checkResult.reason" class="gift-card-preview__warn">
-        {{ checkResult.reason }}
+        {{ mapGiftCardReason(checkResult.reason) }}
       </div>
       <n-space v-if="checkResult.can_redeem" class="gift-card-modal-actions" justify="end">
         <n-button type="primary" :loading="redeeming" @click="doRedeem">
@@ -306,7 +325,7 @@ onMounted(async () => {
           ×{{ detail.multiplier_applied }}
         </n-descriptions-item>
         <n-descriptions-item :label="t('giftCard.redeemedAt')">
-          {{ formatLocaleDateTime(detail.created_at, locale) }}
+          {{ formatLocaleDateTime(detail.created_at, locale.value) }}
         </n-descriptions-item>
       </n-descriptions>
     </template>

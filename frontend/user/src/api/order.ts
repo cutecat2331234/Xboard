@@ -7,12 +7,46 @@ export interface OrderItem {
   period: string
   total_amount: number
   status: number
+  type?: number
+  payment_id?: number | null
   created_at: number
+  paid_at?: number | null
   plan?: { name: string }
 }
 
-export async function fetchOrders() {
-  return request<OrderItem[]>(api.get('/user/order/fetch'))
+export function canCancelOrder(row: OrderItem) {
+  if (row.status === 0 && !row.paid_at) {
+    return true
+  }
+  return row.status === 1 && !row.paid_at
+}
+
+export async function fetchOrders(params?: {
+  status?: number
+  page?: number
+  pageSize?: number
+}) {
+  const query: Record<string, number> = {
+    current: params?.page ?? 1,
+    page_size: params?.pageSize ?? 20,
+  }
+  if (params?.status !== undefined && params.status !== null) {
+    query.status = params.status
+  }
+  return request<{
+    data: OrderItem[]
+    total: number
+    current_page: number
+    page_size: number
+  }>(api.get('/user/order/fetch', { params: query }))
+}
+
+export async function fetchFirstBlockingOrder(): Promise<OrderItem | null> {
+  for (const status of [0, 1]) {
+    const res = await fetchOrders({ status, page: 1, pageSize: 1 })
+    if (res.data[0]) return res.data[0]
+  }
+  return null
 }
 
 export async function saveOrder(payload: { plan_id: number; period: string; coupon_code?: string }) {

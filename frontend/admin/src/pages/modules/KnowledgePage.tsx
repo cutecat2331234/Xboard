@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { adminApi, buildQuery, fetchJsonList, postJson } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { useIdListSort } from '@/lib/use-id-list-sort'
@@ -37,7 +38,7 @@ type KnowledgeRow = {
   show?: boolean | number
 }
 
-const LANGUAGES = ['zh-CN', 'en-US', 'ja-JP', 'vi-VN', 'ko-KR'] as const
+const LANGUAGES = ['zh-CN', 'en-US', 'ja-JP', 'vi-VN', 'ko-KR', 'zh-TW', 'ru-RU', 'fa-IR'] as const
 
 export default function KnowledgePage() {
   const { t } = useTranslation()
@@ -61,7 +62,7 @@ export default function KnowledgePage() {
         setData(rows as KnowledgeRow[])
         setCategories(cats as string[])
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -85,7 +86,7 @@ export default function KnowledgePage() {
       setForm({ ...detail, show: detail.show ?? true })
       setDialogOpen(true)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -97,7 +98,7 @@ export default function KnowledgePage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -108,7 +109,7 @@ export default function KnowledgePage() {
       await postJson('/knowledge/show', { id: row.id })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -126,7 +127,7 @@ export default function KnowledgePage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 

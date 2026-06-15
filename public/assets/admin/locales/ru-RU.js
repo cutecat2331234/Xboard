@@ -1,5 +1,10 @@
 window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
 window.XBOARD_TRANSLATIONS['ru-RU'] = {
+  "errors": {
+    "notFoundTitle": "Страница не найдена",
+    "notFoundDesc": "Запрашиваемая страница не существует или была удалена.",
+    "backHome": "На главную"
+  },
   "theme": {
     "title": "Конфигурация тем",
     "description": "Конфигурация тем, включая цвета, размеры шрифтов и т.д. Если вы развернули Xboard с раздельным фронтендом и бэкендом, конфигурация тем не вступит в силу.",
@@ -211,6 +216,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "toggleNavigation": "Переключить навигацию",
     "toggleSidebar": "Переключить боковую панель",
     "search": "Поиск...",
+    "select": "Выберите",
     "theme": {
       "light": "Светлая",
       "dark": "Темная",
@@ -228,8 +234,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "submit": "Отправить",
     "saving": "Сохранение...",
+    "none": "Нет",
     "days": "д",
     "table": {
+      "columns": {
+        "actions": "Действия"
+      },
       "noData": "Нет данных",
       "pagination": {
         "selected": "Выбрано {{selected}} из {{total}}",
@@ -464,6 +474,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "forgotPassword": "Забыли пароль?",
       "submit": "Войти",
       "rememberMe": "Запомнить меня",
+      "invalidCredentials": "Неверный email или пароль",
+      "accountSuspended": "Ваша учётная запись заблокирована",
+      "notAdmin": "Эта учётная запись не является администратором",
       "resetPassword": {
         "title": "Сброс пароля",
         "description": "Выполните следующую команду в директории сайта, чтобы сбросить пароль",
@@ -581,8 +594,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "commission": {
       "PENDING": "Ожидание",
-      "PROCESSING": "В обработке",
-      "VALID": "Действительна",
+      "VALID": "Проверена",
+      "SETTLED": "Выплачена",
       "INVALID": "Недействительна"
     },
     "actions": {
@@ -590,6 +603,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "cancel": "Отменить заказ",
       "openMenu": "Открыть меню",
       "reset": "Сбросить"
+    },
+    "filters": {
+      "userId": "ID пользователя: {{id}}",
+      "commissionBalance": "Баланс комиссии: {{value}}",
+      "clearAll": "Сбросить все фильтры"
     },
     "search": {
       "placeholder": "Поиск заказов..."
@@ -655,6 +673,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "todayRegistered": "Зарегистрировано сегодня",
       "monthlyRegistered": "Зарегистрировано за месяц",
       "onlineUsers": "Онлайн",
+      "onlineDevices": "Устройств онлайн",
+      "onlineNodes": "Узлов онлайн",
+      "onlineSnapshot": "За последние 10 минут",
       "pendingTickets": "Открытых тикетов",
       "hasPendingTickets": "Есть тикеты, требующие ответа",
       "noPendingTickets": "Нет открытых тикетов",
@@ -663,6 +684,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "noPendingCommission": "Нет комиссий на выплату",
       "monthlyNewUsers": "Новых за месяц",
       "monthlyDownload": "Скачано за месяц",
+      "monthlyCommissionPayout": "Комиссии за месяц",
+      "totalTraffic": "Общий трафик",
       "todayTraffic": "Сегодня: {{value}}",
       "activeUserTrend": "Тренды активности",
       "realtimeUsers": "Пользователи в реальном времени",
@@ -775,6 +798,33 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "empty": "Задач не найдено",
       "loading": "Загрузка статуса очередей...",
       "error": "Ошибка загрузки статуса"
+    },
+    "systemStatus": {
+      "title": "Состояние системы",
+      "schedule": "Планировщик",
+      "scheduleLastRun": "Последний запуск: {{time}}",
+      "horizon": "Horizon",
+      "horizonHint": "Состояние очередей"
+    },
+    "queueWorkload": {
+      "title": "Нагрузка очередей",
+      "description": "Ожидающие задачи и число worker по очередям",
+      "empty": "Нет данных о нагрузке",
+      "summary": "Ожидание {{wait}} с · {{processes}} worker"
+    },
+    "auditLog": {
+      "title": "Журнал действий админа",
+      "description": "Последние API-действия администраторов",
+      "keywordPlaceholder": "Поиск по действию, URI, IP…",
+      "columns": {
+        "id": "ID",
+        "admin": "Админ",
+        "action": "Действие",
+        "method": "Метод",
+        "uri": "URI",
+        "ip": "IP",
+        "time": "Время"
+      }
     },
     "common": {
       "refresh": "Обновить",
@@ -1802,13 +1852,27 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "title": "Отключить вывод средств",
         "description": "Если включено, пользователи не могут запрашивать вывод, комиссия идет сразу на баланс."
       },
+      "withdraw_ticket_stale_days": {
+        "title": "Дней до автозакрытия тикета вывода",
+        "description": "Тикеты вывода без ответа админа столько дней автоматически закрываются с возвратом комиссии.",
+        "placeholder": "Дней до автовосстановления (по умолчанию 14)"
+      },
+      "withdraw_fee_rate": {
+        "title": "Комиссия за вывод / перевод",
+        "description": "Ставка комиссии при выводе или переводе на баланс. 0 — без комиссии.",
+        "placeholder": "0.05 означает 5%"
+      },
       "commission_distribution": {
         "title": "Трехуровневая система",
         "description": "Распределение комиссии по трем уровням пригласителей. Сумма не должна превышать 100%.",
         "l1": "Уровень 1 (%)",
+        "l1_description": "Доля комиссии для прямого пригласителя.",
         "l2": "Уровень 2 (%)",
+        "l2_description": "Доля комиссии для пригласителя 2-го уровня.",
         "l3": "Уровень 3 (%)",
-        "placeholder": "Введите процент"
+        "l3_description": "Доля комиссии для пригласителя 3-го уровня.",
+        "placeholder": "Введите процент",
+        "sum_error": "Сумма долей L1 + L2 + L3 должна быть равна 100%"
       },
       "saving": "Сохранение..."
     },
@@ -1854,9 +1918,49 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "label": "Отключить регистрацию",
           "description": "Запретить регистрацию новых пользователей."
         },
+        "featureRegister": {
+          "label": "Модуль регистрации",
+          "description": "Скрывает регистрацию на пользовательском сайте (работает вместе с «Отключить регистрацию»)."
+        },
+        "featureCoupon": {
+          "label": "Купоны",
+          "description": "Отключить использование купонов при оплате."
+        },
+        "featureTicket": {
+          "label": "Тикеты",
+          "description": "Скрыть страницы тикетов для пользователей."
+        },
+        "featureCommission": {
+          "label": "Комиссии",
+          "description": "Скрыть функции комиссий для пользователей."
+        },
+        "featureInvite": {
+          "label": "Приглашения",
+          "description": "Скрыть страницу приглашений."
+        },
+        "featureGiftCard": {
+          "label": "Подарочные карты",
+          "description": "Скрыть страницу подарочных карт."
+        },
+        "featureTrafficLog": {
+          "label": "Журнал трафика",
+          "description": "Скрыть страницу журнала трафика."
+        },
+        "featureKnowledgeBase": {
+          "label": "База знаний",
+          "description": "Скрыть страницу базы знаний."
+        },
+        "featureAnnouncements": {
+          "label": "Объявления",
+          "description": "Скрыть объявления и всплывающие уведомления на сайте."
+        },
         "ticketMustWaitReply": {
           "label": "Ожидание ответа в тикетах",
           "description": "Пользователь не может отправить новое сообщение, пока админ не ответит."
+        },
+        "tryOutEnable": {
+          "label": "Включить пробный период",
+          "description": "При отключении новые пользователи не получат пробную подписку при регистрации."
         },
         "tryOut": {
           "label": "Тестовый период",
@@ -1868,6 +1972,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
             "description": "Время действия пробного периода."
           }
         },
+        "tryOutHour": {
+          "label": "Длительность триала (часов)",
+          "description": "Время действия пробного периода."
+        },
         "currency": {
           "label": "Код валюты",
           "placeholder": "RUB",
@@ -1877,6 +1985,15 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "label": "Символ валюты",
           "placeholder": "₽",
           "description": "Отображаемый символ (влияет на весь интерфейс)."
+        },
+        "trafficWarnRate": {
+          "label": "Порог предупреждения о трафике (%)",
+          "placeholder": "70",
+          "description": "Показывать предупреждение, когда пользователь израсходовал указанный процент трафика."
+        },
+        "loginWithMailLink": {
+          "label": "Вход по ссылке из письма",
+          "description": "Позволяет входить по магической ссылке из email без пароля."
         }
       }
     },
@@ -2252,7 +2369,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "bot_token": {
         "title": "Токен бота",
         "description": "Получите у @BotFather.",
-        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx"
+        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx",
+        "required": "Сначала укажите Telegram Bot Token"
       },
       "webhook_url": {
         "title": "Webhook Base URL",
@@ -2422,6 +2540,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "status": "Статус",
       "updated_at": "Обновлен",
       "created_at": "Создан",
+      "reply_status": "Статус ответа",
       "actions": "Действия"
     },
     "status": {
@@ -2433,24 +2552,38 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "level": {
       "low": "Низкий",
       "medium": "Средний",
-      "high": "Высокий"
+      "high": "Высокий",
+      "withdraw": "Вывод"
     },
     "filter": {
       "placeholder": "Поиск {field}...",
       "no_results": "Результатов не найдено",
       "selected": "Выбрано: {count}",
-      "clear": "Очистить фильтры"
+      "clear": "Очистить фильтры",
+      "reply_status_all": "Все статусы ответа"
     },
     "actions": {
       "view_details": "Детали",
+      "reply": "Ответить",
+      "close": "Закрыть тикет",
+      "close_reject_withdraw": "Отклонить вывод и закрыть",
+      "approve_withdraw": "Одобрить вывод и закрыть",
       "close_ticket": "Закрыть тикет",
       "close_confirm_title": "Подтверждение закрытия",
       "close_confirm_description": "Вы уверены, что хотите закрыть этот тикет? Он переместится в список закрытых, но отвечать в нем все равно можно.",
       "close_confirm_button": "Закрыть тикет",
       "close_success": "Тикет успешно закрыт",
-      "view_ticket": "Посмотреть тикет"
+      "view_ticket": "Посмотреть тикет",
+      "approve_withdraw_confirm_title": "Одобрить вывод?",
+      "approve_withdraw_confirm_description": "Тикет будет закрыт, вывод отмечен как выплаченный. Комиссия не будет восстановлена.",
+      "reject_withdraw_confirm_title": "Отклонить вывод?",
+      "reject_withdraw_confirm_description": "Тикет будет закрыт, удержанная комиссия будет возвращена пользователю."
+    },
+    "reply": {
+      "label": "Ответ"
     },
     "detail": {
+      "title": "Детали тикета",
       "no_messages": "Сообщений нет",
       "created_at": "Создан",
       "sender_admin": "Админ",
@@ -2811,6 +2944,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "token": "Токен",
         "banned": "Статус аккаунта",
         "remark": "Примечание",
+        "remarks": "Примечание",
         "inviter_email": "Email пригласителя",
         "invite_user_id": "ID пригласителя",
         "is_admin": "Админ",
@@ -2896,6 +3030,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "speed_limit_placeholder": "Оставьте пустым для безлимита",
         "device_limit": "Лимит устройств",
         "device_limit_placeholder": "Оставьте пустым для безлимита",
+        "device_limit_unit": "устр.",
         "is_admin": "Админ",
         "is_staff": "Персонал",
         "remarks": "Примечания",
@@ -2929,12 +3064,15 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       },
       "batch_ban": {
         "success": "Пакетный бан выполнен",
-        "failed": "Ошибка пакетного бана"
+        "failed": "Ошибка пакетного бана",
+        "required_scope": "Выберите пользователей или задайте фильтр перед пакетным баном"
       },
       "send_mail": {
         "success": "Email отправлен",
         "failed": "Ошибка отправки email",
-        "required_fields": "Пожалуйста, заполните обязательные поля"
+        "required_fields": "Пожалуйста, заполните обязательные поля",
+        "required_selected": "Выберите хотя бы одного пользователя",
+        "required_filtered": "Сначала задайте условия фильтра"
       }
     },
     "traffic_reset": {
@@ -2981,6 +3119,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "auto_resets": "Автоматические",
         "manual_resets": "Ручные",
         "cron_resets": "По расписанию/Cron",
+        "order_resets": "Сброс по заказу",
+        "gift_card_resets": "Сброс по подарочной карте",
         "in_period": "За последние {{days}} дн.",
         "breakdown": "Разбивка по типам",
         "breakdown_description": "Процентное соотношение различных типов операций сброса",
@@ -3051,8 +3191,20 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "send_mail": {
       "title": "Отправить Email",
       "description": "Отправить сообщение выбранным или отфильтрованным пользователям",
+      "scope": "Область отправки",
+      "scope_selected": "Выбранные пользователи ({{count}})",
+      "scope_filtered": "Текущие результаты фильтра",
+      "scope_all": "Все пользователи",
       "subject": "Тема",
+      "subject_placeholder": "Тема письма, поддерживаются плейсхолдеры вроде {{name}}",
+      "subject_placeholder_hint": "В теме можно использовать плейсхолдеры",
       "content": "Содержимое",
+      "content_placeholder": "Текст письма (plain text)",
+      "content_plain_hint": "Только plain text, HTML не поддерживается",
+      "system_notice_subject": "Системное уведомление",
+      "system_notice_content": "Уважаемый пользователь!\\n\\nЭто системное уведомление.\\n\\n{{app.name}}",
+      "apply_system_notice": "Применить шаблон уведомления",
+      "available_vars": "Доступные переменные",
       "sending": "Отправка...",
       "send": "Отправить"
     },
@@ -3202,6 +3354,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "title": "Ограничения",
           "max_use_per_user": {
             "label": "Макс. использований на пользователя",
+            "placeholder": "Оставьте пустым для безлимита"
+          },
+          "max_total_uses": {
+            "label": "Общий лимит активаций",
             "placeholder": "Оставьте пустым для безлимита"
           },
           "cooldown_hours": {

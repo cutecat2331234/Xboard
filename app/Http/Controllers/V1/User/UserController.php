@@ -7,9 +7,11 @@ use App\Http\Requests\User\UserChangePassword;
 use App\Http\Requests\User\UserTransfer;
 use App\Http\Requests\User\UserUpdate;
 use App\Models\Order;
+use App\Http\Resources\PlanResource;
 use App\Models\Plan;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Services\Auth\LoginService;
 use App\Services\AuthService;
 use App\Services\Plugin\HookManager;
@@ -17,6 +19,7 @@ use App\Services\UserService;
 use App\Utils\CacheKey;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -39,9 +42,15 @@ class UserController extends Controller
 
     public function removeActiveSession(Request $request)
     {
+        $request->validate([
+            'session_id' => 'required|string',
+        ]);
         $user = $request->user();
         $authService = new AuthService($user);
-        return $this->success($authService->removeSession($request->input('session_id')));
+        if (!$authService->removeSession($request->input('session_id'))) {
+            return $this->fail([404, __('Record not found')]);
+        }
+        return $this->success(true);
     }
 
     public function logout(Request $request)
@@ -118,20 +127,25 @@ class UserController extends Controller
             return $this->fail([400, __('The user does not exist')]);
         }
         $user['avatar_url'] = 'https://cdn.v2ex.com/gravatar/' . md5($user->email) . '?s=64&d=identicon';
+        if (!AppFeature::commissionEnabled()) {
+            unset($user['commission_balance'], $user['commission_rate']);
+        }
         return $this->success($user);
     }
 
     public function getStat(Request $request)
     {
+        $openTickets = AppFeature::ticketEnabled()
+            ? Ticket::where('status', 0)->where('user_id', $request->user()->id)->count()
+            : 0;
         $stat = [
-            Order::where('status', 0)
+            Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
                 ->where('user_id', $request->user()->id)
                 ->count(),
-            Ticket::where('status', 0)
-                ->where('user_id', $request->user()->id)
-                ->count(),
-            User::where('invite_user_id', $request->user()->id)
-                ->count()
+            $openTickets,
+            AppFeature::inviteEnabled()
+                ? User::where('invite_user_id', $request->user()->id)->count()
+                : 0,
         ];
         return $this->success($stat);
     }
@@ -157,10 +171,11 @@ class UserController extends Controller
             return $this->fail([400, __('The user does not exist')]);
         }
         if ($user->plan_id) {
-            $user['plan'] = Plan::find($user->plan_id);
-            if (!$user['plan']) {
+            $plan = Plan::find($user->plan_id);
+            if (!$plan) {
                 return $this->fail([400, __('Subscription plan does not exist')]);
             }
+            $user['plan'] = PlanResource::make($plan);
         }
         $user['subscribe_url'] = Helper::getSubscribeUrl($user['token']);
         $userService = new UserService();
@@ -172,12 +187,30 @@ class UserController extends Controller
     public function resetSecurity(Request $request)
     {
         $user = $request->user();
-        $user->uuid = Helper::guid(true);
-        $user->token = Helper::guid();
-        if (!$user->save()) {
-            return $this->fail([400, __('Reset failed')]);
+        $rateKey = 'reset-security:' . $user->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Too many attempts')]);
         }
-        return $this->success(Helper::getSubscribeUrl($user->token));
+        RateLimiter::hit($rateKey, 3600);
+
+        try {
+            $subscribeUrl = DB::transaction(function () use ($user) {
+                $locked = User::where('id', $user->id)->lockForUpdate()->first();
+                if (!$locked) {
+                    throw new \RuntimeException(__('The user does not exist'));
+                }
+                $locked->uuid = Helper::guid(true);
+                $locked->token = Helper::guid();
+                if (!$locked->save()) {
+                    throw new \RuntimeException(__('Reset failed'));
+                }
+                return Helper::getSubscribeUrl($locked->token);
+            });
+        } catch (\RuntimeException $e) {
+            return $this->fail([400, $e->getMessage()]);
+        }
+
+        return $this->success($subscribeUrl);
     }
 
     public function update(UserUpdate $request)
@@ -199,6 +232,17 @@ class UserController extends Controller
 
     public function transfer(UserTransfer $request)
     {
+        if (!AppFeature::commissionEnabled()) {
+            return $this->fail([403, __('Unsupported withdraw')]);
+        }
+        if ((int) admin_setting('withdraw_close_enable', 0)) {
+            return $this->fail([400, __('Unsupported withdraw')]);
+        }
+        $rateKey = 'commission-transfer:' . $request->user()->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($rateKey, 60);
         $amount = $request->input('transfer_amount');
         try {
             DB::transaction(function () use ($request, $amount) {
@@ -206,14 +250,40 @@ class UserController extends Controller
                 if (!$user) {
                     throw new \Exception(__('The user does not exist'));
                 }
+                if (
+                    \App\Models\Ticket::where('user_id', $user->id)
+                        ->where('status', 0)
+                        ->where('level', 2)
+                        ->exists()
+                ) {
+                    throw new \Exception(__('You already have a pending withdrawal request'));
+                }
                 if ($amount > $user->commission_balance) {
                     throw new \Exception(__('Insufficient commission balance'));
                 }
+                $limit = (int) admin_setting('commission_withdraw_limit', 100);
+                if ($limit > 0 && $limit > ($amount / 100)) {
+                    throw new \Exception(__('The current required minimum withdrawal commission is :limit', ['limit' => $limit]));
+                }
+                $feeRate = max(0, min(1, (float) admin_setting('app_withdraw_fee_rate', 0)));
+                $feeAmount = $feeRate > 0 ? (int) round($amount * $feeRate) : 0;
+                $netAmount = $amount - $feeAmount;
+                if ($netAmount <= 0) {
+                    throw new \Exception(__('Insufficient commission balance'));
+                }
                 $user->commission_balance -= $amount;
-                $user->balance += $amount;
+                $user->balance += $netAmount;
                 if (!$user->save()) {
                     throw new \Exception(__('Transfer failed'));
                 }
+                \App\Models\CommissionLog::create([
+                    'invite_user_id' => $user->id,
+                    'user_id' => $user->id,
+                    'trade_no' => 'transfer:' . \App\Utils\Helper::guid(),
+                    'order_amount' => $amount,
+                    'get_amount' => $netAmount,
+                    'credited_at' => time(),
+                ]);
             });
         } catch (\Exception $e) {
             return $this->fail([400, $e->getMessage()]);
@@ -224,6 +294,11 @@ class UserController extends Controller
     public function getQuickLoginUrl(Request $request)
     {
         $user = $request->user();
+        $rateKey = 'quick-login:' . $user->id . ':' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($rateKey, 60);
 
         $url = $this->loginService->generateQuickLoginUrl($user, $request->input('redirect'));
         return $this->success($url);

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { fetchPaginatedList } from '@/lib/api'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
@@ -32,11 +34,6 @@ function formatBytes(n?: number) {
   return `${kb.toFixed(2)} KB`
 }
 
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleString()
-}
-
 type Props = {
   userId?: number
   email?: string
@@ -64,7 +61,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [userId, open, page, pageSize, t])
 
@@ -83,7 +80,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
       {
         accessorKey: 'record_at',
         header: () => t('traffic.trafficRecord.time'),
-        cell: ({ row }) => formatTs(row.original.record_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.record_at),
       },
       {
         accessorKey: 'u',
@@ -110,7 +107,10 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
       {
         id: 'total',
         header: () => t('traffic.trafficRecord.total'),
-        cell: ({ row }) => formatBytes((row.original.u ?? 0) + (row.original.d ?? 0)),
+        cell: ({ row }) => {
+          const rate = Number(row.original.server_rate) || 1
+          return formatBytes(((row.original.u ?? 0) + (row.original.d ?? 0)) / rate)
+        },
       },
     ],
     [t],

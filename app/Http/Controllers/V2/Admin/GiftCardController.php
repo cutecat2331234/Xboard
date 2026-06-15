@@ -22,7 +22,7 @@ class GiftCardController extends Controller
             'type' => 'integer|min:1|max:10',
             'status' => 'integer|in:0,1',
             'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1|max:1000',
+            'per_page' => 'integer|min:1|max:100',
         ]);
 
         $query = GiftCardTemplate::query();
@@ -100,6 +100,12 @@ class GiftCardController extends Controller
         ]);
 
         try {
+            GiftCardTemplate::assertRewardsValid((int) $request->input('type'), $request->input('rewards'));
+        } catch (\InvalidArgumentException $e) {
+            return $this->fail([422, $e->getMessage()]);
+        }
+
+        try {
             $template = GiftCardTemplate::create([
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
@@ -158,6 +164,15 @@ class GiftCardController extends Controller
         $template = GiftCardTemplate::find($validatedData['id']);
         if (!$template) {
             return $this->fail([404, '模板不存在']);
+        }
+
+        $rewardType = (int) ($validatedData['type'] ?? $template->type);
+        if (isset($validatedData['rewards'])) {
+            try {
+                GiftCardTemplate::assertRewardsValid($rewardType, $validatedData['rewards']);
+            } catch (\InvalidArgumentException $e) {
+                return $this->fail([422, $e->getMessage()]);
+            }
         }
 
         try {
@@ -344,7 +359,7 @@ class GiftCardController extends Controller
             'batch_id' => 'string',
             'status' => 'integer|in:0,1,2,3',
             'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1|max:500',
+            'per_page' => 'integer|min:1|max:100',
         ]);
 
         $query = GiftCardCode::with(['template', 'user']);
@@ -383,6 +398,8 @@ class GiftCardController extends Controller
             ];
         })->values();
 
+        $codes->setCollection($data);
+
         return $this->paginate($codes);
     }
 
@@ -405,7 +422,13 @@ class GiftCardController extends Controller
             if ($request->input('action') === 'disable') {
                 $code->markAsDisabled();
             } else {
+                if ($code->status === GiftCardCode::STATUS_USED) {
+                    return $this->fail([400, '兑换码已使用，无法启用']);
+                }
                 if ($code->status === GiftCardCode::STATUS_DISABLED) {
+                    if ($code->expires_at && $code->expires_at < time()) {
+                        return $this->fail([400, '兑换码已过期，无法启用']);
+                    }
                     $code->status = GiftCardCode::STATUS_UNUSED;
                     $code->save();
                 }
@@ -448,7 +471,7 @@ class GiftCardController extends Controller
             'template_id' => 'integer|exists:v2_gift_card_template,id',
             'user_id' => 'integer|exists:v2_user,id',
             'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1|max:500',
+            'per_page' => 'integer|min:1|max:100',
         ]);
 
         $query = GiftCardUsage::with(['template', 'code', 'user', 'inviteUser']);
@@ -464,19 +487,22 @@ class GiftCardController extends Controller
         $perPage = $request->input('per_page', 15);
         $usages = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        $usages->transform(function ($usage) {
-            return [
-                'id' => $usage->id,
-                'code' => $usage->code->code ?? '',
-                'template_name' => $usage->template->name ?? '',
-                'user_email' => $usage->user->email ?? '',
-                'invite_user_email' => $usage->inviteUser ? (substr($usage->inviteUser->email ?? '', 0, 3) . '***@***') : null,
-                'rewards_given' => $usage->rewards_given,
-                'invite_rewards' => $usage->invite_rewards,
-                'multiplier_applied' => $usage->multiplier_applied,
-                'created_at' => $usage->created_at,
-            ];
-        })->values();
+        $usages->setCollection(
+            $usages->getCollection()->map(function ($usage) {
+                return [
+                    'id' => $usage->id,
+                    'code' => $usage->code->code ?? '',
+                    'template_name' => $usage->template->name ?? '',
+                    'user_email' => $usage->user->email ?? '',
+                    'invite_user_email' => $usage->inviteUser ? (substr($usage->inviteUser->email ?? '', 0, 3) . '***@***') : null,
+                    'rewards_given' => $usage->rewards_given,
+                    'invite_rewards' => $usage->invite_rewards,
+                    'multiplier_applied' => $usage->multiplier_applied,
+                    'created_at' => $usage->created_at,
+                ];
+            })
+        );
+
         return $this->paginate($usages);
     }
 
@@ -517,11 +543,12 @@ class GiftCardController extends Controller
             ->orderBy('date')
             ->get();
 
-        // 类型统计
-        $typeStats = GiftCardUsage::with('template')
+        // 类型统计（与每日统计使用相同日期范围）
+        $typeStatsQuery = GiftCardUsage::with('template')
             ->selectRaw('template_id, COUNT(*) as count')
-            ->groupBy('template_id')
-            ->get()
+            ->whereRaw("{$dateExpression} BETWEEN ? AND ?", [$startDate, $endDate])
+            ->groupBy('template_id');
+        $typeStats = $typeStatsQuery->get()
             ->map(function ($item) {
                 return [
                     'template_name' => $item->template->name ?? '',
@@ -567,6 +594,16 @@ class GiftCardController extends Controller
 
             if (empty($updateData)) {
                 return $this->success($code);
+            }
+
+            if (isset($updateData['status']) && (int) $updateData['status'] === GiftCardCode::STATUS_UNUSED) {
+                if ((int) $code->usage_count > 0 || (int) $code->status === GiftCardCode::STATUS_USED) {
+                    return $this->fail([400, '该兑换码已有使用记录，无法改回未使用状态']);
+                }
+            }
+
+            if (isset($updateData['max_usage']) && (int) $updateData['max_usage'] < (int) $code->usage_count) {
+                return $this->fail([400, '最大使用次数不能小于已使用次数']);
             }
 
             $updateData['updated_at'] = time();

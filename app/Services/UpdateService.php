@@ -392,11 +392,33 @@ class UpdateService
 
             $output = $statusResult->output();
             if (str_contains($output, 'Octane server is running')) {
-                Log::info('Restarting Octane server after update...');
-                // Update version cache before restart
+                Log::info('Reloading Octane server after update...');
                 $this->updateVersionCache();
+                $reload = Process::run('php artisan octane:reload');
+                if ($reload->successful()) {
+                    Log::info('Octane server reloaded successfully.');
+                    return;
+                }
+
+                Log::warning('Octane reload failed, falling back to stop/start.');
                 Process::run('php artisan octane:stop');
-                Log::info('Octane server restarted successfully.');
+                sleep(2);
+
+                $server = config('octane.server', 'swoole');
+                $host = env('OCTANE_HOST', '127.0.0.1');
+                $port = env('OCTANE_PORT', '8000');
+                $startResult = Process::run(sprintf(
+                    'php artisan octane:start --server=%s --host=%s --port=%s --daemonize',
+                    $server,
+                    $host,
+                    $port
+                ));
+
+                if (!$startResult->successful()) {
+                    Log::error('Failed to start Octane after update: ' . trim($startResult->errorOutput() ?: $startResult->output()));
+                } else {
+                    Log::info('Octane server restarted successfully.');
+                }
             } else {
                 Log::info('Octane is not running, skipping restart.');
             }

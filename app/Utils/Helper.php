@@ -287,4 +287,75 @@ class Helper
     {
         return str_replace(['_', '*', '`', '['], ['\_', '\*', '\`', '\['], $text);
     }
+
+    /**
+     * Telegram Webhook URL access_token（HMAC，替代弱 MD5）
+     */
+    public static function telegramWebhookAccessToken(?string $botToken = null): string
+    {
+        $token = (string) ($botToken ?? admin_setting('telegram_bot_token', ''));
+        return hash_hmac('sha256', $token, (string) config('app.key'));
+    }
+
+    /**
+     * 校验 Telegram Webhook access_token（兼容旧 MD5 链接）
+     */
+    public static function verifyTelegramWebhookAccessToken(?string $provided, ?string $botToken = null): bool
+    {
+        if ($provided === null || $provided === '') {
+            return false;
+        }
+
+        $token = (string) ($botToken ?? admin_setting('telegram_bot_token', ''));
+        if ($token === '') {
+            return false;
+        }
+
+        $candidates = [
+            self::telegramWebhookAccessToken($token),
+            md5($token),
+        ];
+
+        foreach ($candidates as $expected) {
+            if (hash_equals($expected, $provided)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Allow only in-app hash-router paths for post-login redirect.
+     */
+    public static function sanitizeAppRedirect(?string $redirect, string $default = 'dashboard'): string
+    {
+        if ($redirect === null || $redirect === '') {
+            return $default;
+        }
+
+        $redirect = trim($redirect);
+        if (
+            str_contains($redirect, '://')
+            || str_starts_with($redirect, '//')
+            || str_starts_with($redirect, '/')
+            || str_contains($redirect, '..')
+            || !preg_match('/^[a-zA-Z0-9_\-\/]+$/', $redirect)
+        ) {
+            return $default;
+        }
+
+        return $redirect;
+    }
+
+    /**
+     * @return array{0: int, 1: int} [current, pageSize]
+     */
+    public static function paginateParams(mixed $current, mixed $pageSize, int $maxPageSize = 100): array
+    {
+        $page = max(1, (int) ($current ?: 1));
+        $size = min($maxPageSize, max(1, (int) ($pageSize ?: 10)));
+
+        return [$page, $size];
+    }
 }

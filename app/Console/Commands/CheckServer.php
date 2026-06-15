@@ -50,6 +50,10 @@ class CheckServer extends Command
         foreach ($servers as $server) {
             if ($server['parent_id']) continue;
             if ($server['last_check_at'] && (time() - $server['last_check_at']) > 1800) {
+                $alertKey = CacheKey::get('SERVER_OFFLINE_ALERT', $server['id']);
+                if (Cache::get($alertKey)) {
+                    continue;
+                }
                 $telegramService = new TelegramService();
                 $message = sprintf(
                     "节点掉线通知\r\n----\r\n节点名称：%s\r\n节点地址：%s\r\n",
@@ -57,6 +61,7 @@ class CheckServer extends Command
                     $server['host']
                 );
                 $telegramService->sendMessageWithAdmin($message);
+                Cache::put($alertKey, 1, 6 * 3600);
                 Cache::forget(CacheKey::get(sprintf("SERVER_%s_LAST_CHECK_AT", strtoupper($server['type'])), $server->id));
             }
         }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import DOMPurify from 'dompurify'
-import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NSpin, NTabs, NTabPane, useMessage } from 'naive-ui'
+import { NButton, NCard, NCollapse, NCollapseItem, NEmpty, NInput, NSpin, NTabs, NTabPane, NAlert, useMessage } from 'naive-ui'
 import { fetchKnowledge, fetchKnowledgeCategories, type KnowledgeItem } from '@/api/knowledge'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
@@ -28,7 +28,8 @@ const activeCategory = ref(ALL_CATEGORY)
 const keyword = ref('')
 const query = ref('')
 const loading = ref(true)
-const { t } = useI18n()
+const loadError = ref(false)
+const { t, locale } = useI18n()
 const msg = useMessage()
 
 const filtered = computed(() => {
@@ -53,20 +54,54 @@ function search() {
   query.value = keyword.value
 }
 
-onMounted(async () => {
+const KNOWLEDGE_LOCALES = ['zh-CN', 'en-US', 'ja-JP', 'ko-KR', 'zh-TW', 'vi-VN', 'fa-IR', 'ru-RU'] as const
+
+function resolveKnowledgeLang(loc: string): string {
+  if ((KNOWLEDGE_LOCALES as readonly string[]).includes(loc)) return loc
+  if (loc.startsWith('zh')) {
+    return loc.includes('TW') || loc.includes('Hant') ? 'zh-TW' : 'zh-CN'
+  }
+  if (loc.startsWith('ja')) return 'ja-JP'
+  if (loc.startsWith('ko')) return 'ko-KR'
+  if (loc.startsWith('vi')) return 'vi-VN'
+  if (loc.startsWith('fa')) return 'fa-IR'
+  if (loc.startsWith('ru')) return 'ru-RU'
+  return 'en-US'
+}
+
+async function loadKnowledge() {
   loading.value = true
+  loadError.value = false
   try {
-    const [list, cats] = await Promise.all([
-      fetchKnowledge(),
-      fetchKnowledgeCategories().catch(() => []),
-    ])
+    const lang = resolveKnowledgeLang(locale.value)
+    const list = await fetchKnowledge(lang)
     items.value = list
-    categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]
+    try {
+      const cats = await fetchKnowledgeCategories(lang)
+      categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]
+    } catch {
+      categories.value = [...new Set(list.map((k) => k.category).filter(Boolean))]
+      msg.warning(t('errors.requestFailed'))
+    }
   } catch (e: unknown) {
+    items.value = []
+    categories.value = []
+    loadError.value = true
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
   }
+}
+
+watch(locale, () => {
+  activeCategory.value = ALL_CATEGORY
+  keyword.value = ''
+  query.value = ''
+  void loadKnowledge()
+})
+
+onMounted(() => {
+  void loadKnowledge()
 })
 </script>
 
@@ -81,12 +116,13 @@ onMounted(async () => {
       <n-tab-pane :name="ALL_CATEGORY" :tab="categoryTabLabel(ALL_CATEGORY)" />
       <n-tab-pane v-for="c in categories" :key="c" :name="c" :tab="categoryTabLabel(c)" />
     </n-tabs>
-    <n-collapse v-if="filtered.length">
+    <n-alert v-if="loadError" type="error" :bordered="false">{{ t('errors.requestFailed') }}</n-alert>
+    <n-collapse v-else-if="filtered.length">
       <n-collapse-item v-for="k in filtered" :key="k.id" :title="k.title" :name="String(k.id)">
         <div v-html="sanitizeHtml(k.body)" />
       </n-collapse-item>
     </n-collapse>
-    <n-empty v-else :description="t('knowledge.empty')" />
+    <n-empty v-else-if="!loadError" :description="t('knowledge.empty')" />
     </n-spin>
   </n-card>
 </template>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { TFunction } from 'i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { setTelegramWebhook } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 
@@ -32,15 +33,18 @@ export function TelegramConfigFields({ t, telegram, update, FormField, SwitchFie
   const handleSetWebhook = async () => {
     const token = String(telegram.telegram_bot_token ?? '').trim()
     if (!token) {
-      toast.error(t('settings.telegram.bot_token.description'))
+      toast.error(t('settings.telegram.bot_token.required'))
       return
     }
     setWebhookLoading(true)
     try {
-      await setTelegramWebhook(token)
+      await setTelegramWebhook(
+        token,
+        String(telegram.telegram_webhook_url ?? '').trim() || undefined,
+      )
       toast.success(t('settings.telegram.webhook.success'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setWebhookLoading(false)
     }
@@ -68,6 +72,13 @@ export function TelegramConfigFields({ t, telegram, update, FormField, SwitchFie
         value={String(telegram.telegram_discuss_link ?? '')}
         placeholder={t('settings.telegram.discuss_link.placeholder')}
         onChange={(v) => update('telegram', 'telegram_discuss_link', v)}
+      />
+      <FormField
+        label={t('settings.telegram.webhook_url.title')}
+        description={t('settings.telegram.webhook_url.description')}
+        value={String(telegram.telegram_webhook_url ?? '')}
+        placeholder={t('settings.telegram.webhook_url.placeholder')}
+        onChange={(v) => update('telegram', 'telegram_webhook_url', v)}
       />
       <div className="xb-stack-2">
         <label className="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base">

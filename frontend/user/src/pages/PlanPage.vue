@@ -2,16 +2,23 @@
 import { onMounted, ref } from 'vue'
 import { NCard, NGrid, NGi, NButton, NTag, NEmpty, NSkeleton, useMessage } from 'naive-ui'
 import { fetchPlans, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
-import { resolveTryOutPlanId } from '@/api/comm'
+import { resolveTryOutPlanId, fetchUserCommConfig } from '@/api/comm'
+import { getAuthData } from '@/api'
+import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 import { useCurrency } from '@/composables/useCurrency'
+import { formatPlanTrafficGb } from '@/lib/format-traffic'
 
 const plans = ref<PlanItem[]>([])
 const tryOutPlanId = ref(0)
+const planChangeDisabled = ref(false)
+const commLoadFailed = ref(false)
 const loaded = ref(false)
 const msg = useMessage()
 const router = useRouter()
+const auth = useAuthStore()
 const { t } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 
@@ -36,7 +43,7 @@ function priceLabel(p: PlanItem) {
 }
 
 function transferGb(p: PlanItem) {
-  return (p.transfer_enable / 1073741824).toFixed(0)
+  return formatPlanTrafficGb(p.transfer_enable ?? 0, t('common.units.gb'))
 }
 
 function showCapacity(p: PlanItem) {
@@ -46,7 +53,13 @@ function showCapacity(p: PlanItem) {
 function capacityLabel(p: PlanItem) {
   const limit = p.capacity_limit
   if (limit === null || limit === undefined) return ''
-  if (typeof limit === 'string') return limit
+  if (typeof limit === 'string') {
+    if (/sold\s*out|售罄/i.test(limit)) return t('errors.planSoldOut')
+    const parsed = Number(limit.replace(/[^\d.-]/g, ''))
+    if (Number.isFinite(parsed) && parsed <= 0) return t('errors.planSoldOut')
+    return limit
+  }
+  if (typeof limit === 'number' && limit <= 0) return t('errors.planSoldOut')
   return t('plan.capacityRemaining', { count: limit })
 }
 
@@ -62,14 +75,32 @@ function openPlan(planId: number) {
   router.push(`/plan/${planId}`)
 }
 
+function hasActiveSubscription() {
+  const user = auth.user
+  if (!user?.plan_id) return false
+  const now = Math.floor(Date.now() / 1000)
+  return user.expired_at === null || user.expired_at > now
+}
+
 onMounted(async () => {
   await loadCurrency()
+  if (getAuthData()) {
+    await auth.loadUser()
+  }
   try {
     const [planList, trialPlanId] = await Promise.all([fetchPlans(), resolveTryOutPlanId()])
     plans.value = planList
     tryOutPlanId.value = trialPlanId
+    if (getAuthData()) {
+      try {
+        const comm = await fetchUserCommConfig()
+        planChangeDisabled.value = comm.plan_change_enable === 0 && hasActiveSubscription()
+      } catch {
+        commLoadFailed.value = true
+      }
+    }
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('plan.loadFailed'))
+    msg.error(resolveApiError(e, t, t('plan.loadFailed')))
   } finally {
     loaded.value = true
   }
@@ -78,6 +109,8 @@ onMounted(async () => {
 
 <template>
   <h2 v-if="loaded && plans.length > 0" class="plan-list-title">{{ t('plan.chooseTitle') }}</h2>
+  <p v-if="loaded && commLoadFailed" class="plan-change-hint plan-change-hint--error">{{ t('errors.requestFailed') }}</p>
+  <p v-else-if="loaded && planChangeDisabled" class="plan-change-hint">{{ t('errors.planChangeDisabled') }}</p>
   <n-grid v-if="!loaded" :cols="gridCols" :x-gap="12" :y-gap="12">
     <n-gi v-for="i in 2" :key="i">
       <n-card>
@@ -103,7 +136,7 @@ onMounted(async () => {
         <p v-if="hasPeriodPrices(p)" class="plan-period-hint">{{ t('plan.periodPricesHint') }}</p>
         <p class="plan-price">{{ priceLabel(p) }}</p>
         <div class="plan-tags">
-          <n-tag v-if="p.transfer_enable > 0" size="small" type="info">{{ transferGb(p) }} GB</n-tag>
+          <n-tag v-if="p.transfer_enable > 0" size="small" type="info">{{ transferGb(p) }}</n-tag>
           <n-tag v-if="showCapacity(p)" size="small" :type="capacityTagType(p)">
             {{ capacityLabel(p) }}
           </n-tag>
@@ -123,6 +156,11 @@ onMounted(async () => {
   font-weight: 500;
   line-height: 32px;
   color: var(--xb-text);
+}
+.plan-change-hint {
+  margin: -8px 0 16px;
+  font-size: 13px;
+  color: var(--xb-text-muted);
 }
 .plan-header {
   display: flex;

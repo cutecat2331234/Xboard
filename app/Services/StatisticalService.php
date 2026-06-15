@@ -59,14 +59,13 @@ class StatisticalService
         $data['order_total'] = Order::where('created_at', '>=', $startAt)
             ->where('created_at', '<', $endAt)
             ->sum('total_amount');
-        $data['paid_count'] = Order::where('paid_at', '>=', $startAt)
+        $paidOrderQuery = Order::where('paid_at', '>=', $startAt)
             ->where('paid_at', '<', $endAt)
-            ->whereNotIn('status', [0, 2])
-            ->count();
-        $data['paid_total'] = Order::where('paid_at', '>=', $startAt)
-            ->where('paid_at', '<', $endAt)
-            ->whereNotIn('status', [0, 2])
-            ->sum('total_amount');
+            ->where('status', Order::STATUS_COMPLETED);
+        $data['paid_count'] = (clone $paidOrderQuery)->count();
+        $data['paid_total'] = (clone $paidOrderQuery)
+            ->selectRaw('SUM(total_amount + balance_amount) as total')
+            ->value('total') ?? 0;
         $commissionLogBuilder = CommissionLog::where('created_at', '>=', $startAt)
             ->where('created_at', '<', $endAt);
         $data['commission_count'] = $commissionLogBuilder->count();
@@ -78,8 +77,8 @@ class StatisticalService
             ->where('created_at', '<', $endAt)
             ->whereNotNull('invite_user_id')
             ->count();
-        $data['transfer_used_total'] = StatServer::where('created_at', '>=', $startAt)
-            ->where('created_at', '<', $endAt)
+        $data['transfer_used_total'] = StatServer::where('record_at', '>=', $startAt)
+            ->where('record_at', '<', $endAt)
             ->select(DB::raw('SUM(u) + SUM(d) as total'))
             ->value('total') ?? 0;
         return $data;
@@ -263,8 +262,8 @@ class StatisticalService
 
     public static function getServerRank(...$times)
     {
-        $startAt = 0;
-        $endAt = Carbon::tomorrow()->endOfDay()->timestamp;
+        $startAt = Carbon::today()->startOfDay()->timestamp;
+        $endAt = Carbon::today()->endOfDay()->timestamp;
 
         if (count($times) == 1) {
             switch ($times[0]) {
@@ -294,8 +293,16 @@ class StatisticalService
                     ->where('record_type', 'd');
             }
         )
-            ->withSum('stats as u', 'u') // 预加载 u 的总和
-            ->withSum('stats as d', 'd') // 预加载 d 的总和
+            ->withSum(['stats as u' => function ($query) use ($startAt, $endAt) {
+                $query->where('record_at', '>=', $startAt)
+                    ->where('record_at', '<', $endAt)
+                    ->where('record_type', 'd');
+            }], 'u')
+            ->withSum(['stats as d' => function ($query) use ($startAt, $endAt) {
+                $query->where('record_at', '>=', $startAt)
+                    ->where('record_at', '<', $endAt)
+                    ->where('record_type', 'd');
+            }], 'd')
             ->get()
             ->map(function ($item) {
                 return [

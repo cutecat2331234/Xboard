@@ -3,10 +3,17 @@
 namespace App\Http\Controllers\V1\Guest;
 
 use App\Http\Controllers\Controller;
+use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\Plan;
 use App\Services\OrderService;
 use App\Services\PaymentService;
+use App\Services\PlanService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
+use App\Utils\CacheKey;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\Plugin\HookManager;
 
@@ -45,31 +52,292 @@ class PaymentController extends Controller
             return false;
         }
 
-        $order = Order::where('trade_no', $tradeNo)->first();
-        if (!$order) {
-            Log::warning('Payment notify: order not found', ['trade_no' => $tradeNo]);
-            return false;
-        }
-        if ($order->status !== Order::STATUS_PENDING) {
+        return DB::transaction(function () use ($verify, $tradeNo, $callbackNo) {
+            $order = Order::where('trade_no', $tradeNo)->lockForUpdate()->first();
+            if (!$order) {
+                Log::warning('Payment notify: order not found', ['trade_no' => $tradeNo]);
+                return false;
+            }
+
+            if (in_array((int) $order->status, [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED], true)) {
+                return $this->handleTerminalOrderNotify($order, $verify, $callbackNo);
+            }
+
+            if ($order->status === Order::STATUS_CANCELLED) {
+                if ($order->paid_at) {
+                    return $this->handleTerminalOrderNotify($order, $verify, $callbackNo);
+                }
+                if (!isset($verify['amount']) || !$this->verifyAmount($order, (int) $verify['amount'])) {
+                    Log::warning('Payment notify: cancelled order with invalid amount', [
+                        'trade_no' => $tradeNo,
+                        'expected' => $this->expectedAmountCents($order),
+                        'received' => $verify['amount'] ?? null,
+                    ]);
+                    return false;
+                }
+                return $this->reactivateCancelledOrder($order, $callbackNo, $verify);
+            }
+
+            if ($order->status === Order::STATUS_PROCESSING) {
+                if (!$order->paid_at) {
+                    Log::warning('Payment notify: processing order without paid_at', [
+                        'trade_no' => $tradeNo,
+                    ]);
+                    return false;
+                }
+                try {
+                    $statusBeforeOpen = (int) $order->status;
+                    $orderService = new OrderService($order->fresh());
+                    $orderService->open();
+                    $order->refresh();
+                    if ((int) $order->status === Order::STATUS_PROCESSING) {
+                        if (!$orderService->failOpenAndRefund('Order remained in processing after payment notify retry')) {
+                            $order->refresh();
+                            Log::warning('Payment notify: open failed after pay, refund also failed — gateway will retry', [
+                                'trade_no' => $tradeNo,
+                                'paid_at' => $order->paid_at,
+                            ]);
+                            return false;
+                        }
+                        $order->refresh();
+                        return (int) $order->status !== Order::STATUS_PROCESSING;
+                    }
+                    if (
+                        $statusBeforeOpen === Order::STATUS_PROCESSING
+                        && (int) $order->status === Order::STATUS_COMPLETED
+                    ) {
+                        HookManager::call('payment.notify.success', $order);
+                    }
+                    return true;
+                } catch (\Throwable $e) {
+                    Log::warning('Payment notify: retry open failed for processing order', [
+                        'trade_no' => $tradeNo,
+                        'error' => $e->getMessage(),
+                    ]);
+                    $orderService = new OrderService($order->fresh());
+                    if ($orderService->failOpenAndRefund($e->getMessage())) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
+            if ($order->status !== Order::STATUS_PENDING) {
+                return $this->handleTerminalOrderNotify($order, $verify, $callbackNo);
+            }
+
+            if (!isset($verify['amount'])) {
+                Log::warning('Payment notify: missing amount', [
+                    'trade_no' => $tradeNo,
+                    'expected' => $this->expectedAmountCents($order),
+                ]);
+                return false;
+            }
+
+            if (!$this->verifyAmount($order, (int) $verify['amount'])) {
+                Log::warning('Payment notify: amount mismatch', [
+                    'trade_no' => $tradeNo,
+                    'expected' => $this->expectedAmountCents($order),
+                    'received' => (int) $verify['amount'],
+                ]);
+                return false;
+            }
+
+            $orderService = new OrderService($order);
+            if (!$orderService->paid($callbackNo)) {
+                return false;
+            }
+
+            $order->refresh();
+            if ((int) $order->status === Order::STATUS_COMPLETED) {
+                HookManager::call('payment.notify.success', $order);
+            }
+
             return true;
+        });
+    }
+
+    private function reactivateCancelledOrder(Order $order, string $callbackNo, array $verify): bool
+    {
+        if (in_array((int) $order->type, [Order::TYPE_NEW_PURCHASE, Order::TYPE_UPGRADE], true)) {
+            $plan = Plan::find($order->plan_id);
+            if ($plan && !(new PlanService($plan))->hasCapacity($plan, $order)) {
+                $this->creditOrphanPaymentOnce($order, $callbackNo, $verify, 'cancelled order reactivation blocked by sold out plan');
+                return true;
+            }
         }
 
-        if (isset($verify['amount']) && !$this->verifyAmount($order, (int) $verify['amount'])) {
-            Log::warning('Payment notify: amount mismatch', [
-                'trade_no' => $tradeNo,
-                'expected' => $this->expectedAmountCents($order),
-                'received' => (int) $verify['amount'],
-            ]);
+        Log::info('Payment notify: reactivating cancelled order after verified payment', [
+            'trade_no' => $order->trade_no,
+            'callback_no' => $callbackNo,
+        ]);
+
+        $order->status = Order::STATUS_PENDING;
+        if (!$order->save()) {
             return false;
         }
 
         $orderService = new OrderService($order);
-        if (!$orderService->paid($callbackNo)) {
-            return false;
+        try {
+            if (!$orderService->paid($callbackNo)) {
+                $this->revertReactivatedOrder($order);
+                $this->creditOrphanPaymentOnce($order, $callbackNo, $verify, 'cancelled order reactivation failed');
+                return true;
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Payment notify: cancelled order reactivation threw', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+                'error' => $e->getMessage(),
+            ]);
+            $this->revertReactivatedOrder($order->fresh() ?? $order);
+            $this->creditOrphanPaymentOnce($order, $callbackNo, $verify, 'cancelled order reactivation exception');
+            return true;
         }
 
-        HookManager::call('payment.notify.success', $order);
+        $order->refresh();
+        if ((int) $order->status === Order::STATUS_COMPLETED) {
+            HookManager::call('payment.notify.success', $order);
+        }
+
         return true;
+    }
+
+    private function revertReactivatedOrder(Order $order): void
+    {
+        if ((int) $order->status !== Order::STATUS_PENDING) {
+            return;
+        }
+        $order->status = Order::STATUS_CANCELLED;
+        $order->paid_at = null;
+        $order->callback_no = null;
+        $order->save();
+    }
+
+    private function handleTerminalOrderNotify(Order $order, array $verify, string $callbackNo): bool
+    {
+        if ($order->callback_no && $order->callback_no === $callbackNo) {
+            return true;
+        }
+
+        Log::warning('Payment notify: duplicate or late payment for terminal order', [
+            'trade_no' => $order->trade_no,
+            'status' => $order->status,
+            'callback_no' => $callbackNo,
+            'stored_callback_no' => $order->callback_no,
+        ]);
+
+        if (isset($verify['amount']) && $this->verifyAmount($order, (int) $verify['amount'])) {
+            if (Cache::has(CacheKey::get('ORDER_OPEN_REFUNDED', $order->trade_no))) {
+                Log::info('Payment notify: skipping orphan credit; order already refunded after open failure', [
+                    'trade_no' => $order->trade_no,
+                    'callback_no' => $callbackNo,
+                ]);
+                return true;
+            }
+            if (Cache::has(CacheKey::get('PAYMENT_ORPHAN_CREDIT_DONE', $order->trade_no))) {
+                Log::info('Payment notify: skipping orphan credit; already credited for terminal order', [
+                    'trade_no' => $order->trade_no,
+                    'callback_no' => $callbackNo,
+                ]);
+                return true;
+            }
+            $this->creditOrphanPaymentOnce(
+                $order,
+                $callbackNo,
+                $verify,
+                'terminal order status ' . $order->status
+            );
+        }
+
+        return true;
+    }
+
+    private function creditOrphanPaymentOnce(Order $order, string $callbackNo, array $verify, string $reason): void
+    {
+        if (Cache::has(CacheKey::get('ORDER_OPEN_REFUNDED', $order->trade_no))) {
+            Log::info('Payment notify: orphan credit skipped; order already refunded after open failure', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+            ]);
+            return;
+        }
+
+        $cacheKey = $this->orphanCreditCacheKey($order->trade_no, $callbackNo);
+        if (Cache::has($cacheKey)) {
+            Log::info('Payment notify: orphan credit already processed', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+            ]);
+            return;
+        }
+
+        if (!Cache::add($cacheKey, 1)) {
+            Log::info('Payment notify: orphan credit claim skipped (concurrent)', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+            ]);
+            return;
+        }
+
+        try {
+            $this->creditOrphanPayment($order, $callbackNo, $verify, $reason);
+            $this->markOrphanCreditProcessed($order->trade_no, $callbackNo);
+        } catch (\Throwable $e) {
+            Cache::forget($cacheKey);
+            throw $e;
+        }
+    }
+
+    private function isOrphanCreditProcessed(string $tradeNo, string $callbackNo): bool
+    {
+        return Cache::has($this->orphanCreditCacheKey($tradeNo, $callbackNo));
+    }
+
+    private function markOrphanCreditProcessed(string $tradeNo, string $callbackNo): void
+    {
+        Cache::forever($this->orphanCreditCacheKey($tradeNo, $callbackNo), 1);
+        Cache::forever(CacheKey::get('PAYMENT_ORPHAN_CREDIT_DONE', $tradeNo), 1);
+    }
+
+    private function orphanCreditCacheKey(string $tradeNo, string $callbackNo): string
+    {
+        return CacheKey::get('PAYMENT_ORPHAN_CREDIT', $tradeNo . ':' . $callbackNo);
+    }
+
+    private function creditOrphanPayment(Order $order, string $callbackNo, array $verify, string $reason): void
+    {
+        if (isset($verify['amount']) && $this->verifyAmount($order, (int) $verify['amount'])) {
+            $creditCents = (int) $verify['amount'];
+        } else {
+            $creditCents = (int) $order->total_amount + (int) ($order->handling_amount ?? 0);
+        }
+        if ($creditCents <= 0) {
+            Log::warning('Payment notify: orphan payment with nothing to credit', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+                'reason' => $reason,
+            ]);
+            return;
+        }
+
+        $userService = new UserService();
+        if (!$userService->addBalance($order->user_id, $creditCents)) {
+            Log::error('Payment notify: failed to credit orphan payment to balance', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+                'credit_cents' => $creditCents,
+                'reason' => $reason,
+            ]);
+            throw new \RuntimeException('Failed to credit orphan payment to balance');
+        }
+
+        Log::warning('Payment notify: credited orphan payment to user balance', [
+            'trade_no' => $order->trade_no,
+            'callback_no' => $callbackNo,
+            'credit_cents' => $creditCents,
+            'reason' => $reason,
+        ]);
     }
 
     private function expectedAmountCents(Order $order): int

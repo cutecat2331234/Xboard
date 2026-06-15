@@ -3,6 +3,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import AuthPage from '../pages/AuthPage.vue'
 
 import { getAuthData } from '@/api'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { featureEnabled } from '@/lib/feature-flags'
 import { useAuthStore } from '@/stores/auth'
 import { getSessionCache, invalidateSessionCache, setSessionCache } from '@/lib/session-cache'
 
@@ -102,6 +104,28 @@ router.beforeEach(async (to) => {
     }
     if (valid && publicPaths.includes(to.path) && !hasTokenLogin) {
       return { path: '/dashboard' }
+    }
+    if (valid && (to.path === '/gift-card' || to.path === '/invite' || to.path === '/ticket' || to.path.startsWith('/ticket/') || to.path === '/knowledge' || to.path === '/traffic')) {
+      try {
+        const comm = await useUserCommConfig().load({ force: true })
+        if (to.path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) {
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
+        }
+        if (to.path === '/invite' && !featureEnabled(comm.invite_enable, true)) {
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
+        }
+        if ((to.path === '/ticket' || to.path.startsWith('/ticket/')) && !featureEnabled(comm.ticket_enable, true)) {
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
+        }
+        if (to.path === '/knowledge' && !featureEnabled(comm.knowledge_enable, true)) {
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
+        }
+        if (to.path === '/traffic' && !featureEnabled(comm.traffic_log_enable, true)) {
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
+        }
+      } catch {
+        return { path: '/dashboard', query: { comm_error: '1' } }
+      }
     }
     return true
   }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Guest;
 
 use App\Http\Controllers\Controller;
+use App\Support\AppFeature;
 use App\Services\Plugin\HookManager;
 use App\Utils\Dict;
 use App\Utils\Helper;
@@ -14,6 +15,8 @@ class CommController extends Controller
     {
         $data = [
             'tos_url' => admin_setting('tos_url'),
+            'app_name' => admin_setting('app_name'),
+            'stop_register' => (int) admin_setting('stop_register', 0) ? 1 : 0,
             'is_email_verify' => (int) admin_setting('email_verify', 0) ? 1 : 0,
             'is_invite_force' => (int) admin_setting('invite_force', 0) ? 1 : 0,
             'email_whitelist_suffix' => (int) admin_setting('email_whitelist_enable', 0)
@@ -31,8 +34,21 @@ class CommController extends Controller
             // 保持向后兼容
             'is_recaptcha' => (int) admin_setting('captcha_enable', 0) ? 1 : 0,
             'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
+            'try_out_enable' => (int) admin_setting('try_out_enable', 1),
             'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
             'login_with_mail_link_enable' => (int) admin_setting('login_with_mail_link_enable', 0) ? 1 : 0,
+            'telegram_login_enable' => (int) admin_setting('telegram_bot_enable', 0) ? 1 : 0,
+            'telegram_bot_username' => admin_setting('telegram_bot_username'),
+            'telegram_login_domain' => admin_setting('telegram_login_domain'),
+            'invite_enable' => (int) AppFeature::inviteEnabled(),
+            'commission_enable' => (int) AppFeature::commissionEnabled(),
+            'gift_card_enable' => (int) AppFeature::giftCardEnabled(),
+            'coupon_enable' => (int) AppFeature::couponEnabled(),
+            'register_enable' => (int) AppFeature::registerEnabled(),
+            'ticket_enable' => (int) AppFeature::ticketEnabled(),
+            'knowledge_enable' => (int) admin_setting('app_enable_knowledge_base', 1),
+            'traffic_log_enable' => (int) admin_setting('app_enable_traffic_log', 1),
+            'announcement_enable' => (int) admin_setting('app_enable_announcements', 1),
         ];
 
         $data = HookManager::filter('guest_comm_config', $data);

@@ -53,8 +53,10 @@ class CouponController extends Controller
     }
     public function fetch(Request $request)
     {
-        $current = $request->input('current', 1);
-        $pageSize = $request->input('pageSize', 10);
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current', 1),
+            $request->input('pageSize', 10)
+        );
         $builder = Coupon::query();
         $this->applyFiltersAndSorts($request, $builder);
         $coupons = $builder
@@ -76,11 +78,13 @@ class CouponController extends Controller
             DB::beginTransaction();
             $coupon = Coupon::find($request->input('id'));
             if (!$coupon) {
-                throw new ApiException(400201, '优惠券不存在');
+                throw new ApiException('优惠券不存在', 400201);
             }
             $coupon->update($params);
             DB::commit();
             return $this->success(true);
+        } catch (ApiException $e) {
+            return $this->fail([$e->getCode(), $e->getMessage()]);
         } catch (\Exception $e) {
             \Log::error($e);
             return $this->fail([500, '保存失败']);
@@ -109,8 +113,7 @@ class CouponController extends Controller
     public function generate(CouponGenerate $request)
     {
         if ($request->input('generate_count')) {
-            $this->multiGenerate($request);
-            return;
+            return $this->multiGenerate($request);
         }
 
         $params = $request->validated();
@@ -122,8 +125,12 @@ class CouponController extends Controller
                 return $this->fail([500, '创建失败']);
             }
         } else {
+            $coupon = Coupon::find($request->input('id'));
+            if (!$coupon) {
+                return $this->fail([400202, '优惠券不存在']);
+            }
             try {
-                Coupon::find($request->input('id'))->update($params);
+                $coupon->update($params);
             } catch (\Exception $e) {
                 \Log::error($e);
                 return $this->fail([500, '保存失败']);
@@ -150,10 +157,10 @@ class CouponController extends Controller
                 !Coupon::insert(array_map(function ($item) use ($coupon) {
                     // format data
                     if (isset($item['limit_plan_ids']) && is_array($item['limit_plan_ids'])) {
-                        $item['limit_plan_ids'] = json_encode($coupon['limit_plan_ids']);
+                        $item['limit_plan_ids'] = json_encode($item['limit_plan_ids']);
                     }
                     if (isset($item['limit_period']) && is_array($item['limit_period'])) {
-                        $item['limit_period'] = json_encode($coupon['limit_period']);
+                        $item['limit_period'] = json_encode($item['limit_period']);
                     }
                     return $item;
                 }, $coupons))
@@ -177,7 +184,12 @@ class CouponController extends Controller
             $limitPlanIds = isset($coupon['limit_plan_ids']) ? implode("/", $coupon['limit_plan_ids']) : '不限制';
             $data .= "{$coupon['name']},{$type},{$value},{$startTime},{$endTime},{$limitUse},{$limitPlanIds},{$coupon['code']},{$createTime}\r\n";
         }
-        echo $data;
+
+        return response()->streamDownload(function () use ($data) {
+            echo $data;
+        }, 'coupons.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function drop(Request $request)

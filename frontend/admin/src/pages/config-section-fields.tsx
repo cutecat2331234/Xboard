@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { TFunction } from 'i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { postJson } from '@/lib/api'
 import { ConfigFormSelect } from '@/components/shared/ConfigFormSelect'
 import { inputCls } from '@/lib/form-styles'
@@ -10,7 +11,7 @@ import { TelegramConfigFields } from '@/pages/TelegramConfigFields'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-type UpdateFn = (sec: string, key: string, value: unknown) => void
+type UpdateFn = (sec: string, key: string, value: unknown, persist?: boolean) => void
 
 type FieldProps = {
   t: TFunction
@@ -66,19 +67,19 @@ export function ConfigSectionFields({
           label={t('settings.safe.form.emailVerify.label')}
           description={t('settings.safe.form.emailVerify.description')}
           checked={Boolean(safe.email_verify)}
-          onChange={(v) => update('safe', 'email_verify', v)}
+          onChange={(v) => update('safe', 'email_verify', v, true)}
         />
         <SwitchField
           label={t('settings.safe.form.gmailLimit.label')}
           description={t('settings.safe.form.gmailLimit.description')}
           checked={Boolean(safe.email_gmail_limit_enable)}
-          onChange={(v) => update('safe', 'email_gmail_limit_enable', v)}
+          onChange={(v) => update('safe', 'email_gmail_limit_enable', v, true)}
         />
         <SwitchField
           label={t('settings.safe.form.safeMode.label')}
           description={t('settings.safe.form.safeMode.description')}
           checked={Boolean(safe.safe_mode_enable)}
-          onChange={(v) => update('safe', 'safe_mode_enable', v)}
+          onChange={(v) => update('safe', 'safe_mode_enable', v, true)}
         />
         <FormField
           label={t('settings.safe.form.securePath.label')}
@@ -91,13 +92,17 @@ export function ConfigSectionFields({
           label={t('settings.safe.form.emailWhitelist.label')}
           description={t('settings.safe.form.emailWhitelist.description')}
           checked={Boolean(safe.email_whitelist_enable)}
-          onChange={(v) => update('safe', 'email_whitelist_enable', v)}
+          onChange={(v) => update('safe', 'email_whitelist_enable', v, true)}
         />
         {safe.email_whitelist_enable ? (
           <FormTextarea
             label={t('settings.safe.form.emailWhitelist.suffixes.label')}
             description={t('settings.safe.form.emailWhitelist.suffixes.description')}
-            value={String(safe.email_whitelist_suffix ?? '')}
+            value={
+              Array.isArray(safe.email_whitelist_suffix)
+                ? safe.email_whitelist_suffix.join('\n')
+                : String(safe.email_whitelist_suffix ?? '')
+            }
             placeholder={t('settings.safe.form.emailWhitelist.suffixes.placeholder')}
             onChange={(v) => update('safe', 'email_whitelist_suffix', v)}
           />
@@ -106,7 +111,7 @@ export function ConfigSectionFields({
           label={t('settings.safe.form.captcha.enable.label')}
           description={t('settings.safe.form.captcha.enable.description')}
           checked={Boolean(safe.captcha_enable)}
-          onChange={(v) => update('safe', 'captcha_enable', v)}
+          onChange={(v) => update('safe', 'captcha_enable', v, true)}
         />
         {safe.captcha_enable ? (
           <>
@@ -188,7 +193,7 @@ export function ConfigSectionFields({
           label={t('settings.safe.form.registerLimit.enable.label')}
           description={t('settings.safe.form.registerLimit.enable.description')}
           checked={Boolean(safe.register_limit_by_ip_enable)}
-          onChange={(v) => update('safe', 'register_limit_by_ip_enable', v)}
+          onChange={(v) => update('safe', 'register_limit_by_ip_enable', v, true)}
         />
         {safe.register_limit_by_ip_enable ? (
           <>
@@ -212,7 +217,7 @@ export function ConfigSectionFields({
           label={t('settings.safe.form.passwordLimit.enable.label')}
           description={t('settings.safe.form.passwordLimit.enable.description')}
           checked={Boolean(safe.password_limit_enable)}
-          onChange={(v) => update('safe', 'password_limit_enable', v)}
+          onChange={(v) => update('safe', 'password_limit_enable', v, true)}
         />
         {safe.password_limit_enable ? (
           <>
@@ -296,7 +301,7 @@ export function ConfigSectionFields({
             label={t('settings.email.remind_mail.title')}
             description={t('settings.email.remind_mail.description')}
             checked={Boolean(email.remind_mail_enable)}
-            onChange={(v) => update('email', 'remind_mail_enable', v)}
+            onChange={(v) => update('email', 'remind_mail_enable', v, true)}
           />
           <div className="pt-2">
             <Button
@@ -306,7 +311,7 @@ export function ConfigSectionFields({
               onClick={() =>
                 postJson('/config/testSendMail')
                   .then(() => toast.success(t('settings.email.test.success')))
-                  .catch((e) => toast.error(e instanceof Error ? e.message : t('settings.email.test.error')))
+                  .catch((e) => toastApiError(e, toast, t, t('settings.email.test.error')))
               }
             >
               {t('settings.email.test.title')}

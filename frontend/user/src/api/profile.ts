@@ -9,7 +9,7 @@ export async function updateUser(payload: Record<string, unknown>) {
 }
 
 export async function resetSecurity() {
-  return request<null>(api.get('/user/resetSecurity'))
+  return request<string>(api.post('/user/resetSecurity'))
 }
 
 export interface ActiveSession {

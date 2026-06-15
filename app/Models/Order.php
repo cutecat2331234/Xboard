@@ -18,19 +18,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $total_amount
  * @property int|null $handling_amount
  * @property int|null $balance_amount
+ * @property bool $balance_deducted
  * @property int|null $surplus_credit
  * @property int|null $surplus_amount
  * @property int $type
  * @property int $status
  * @property array|null $surplus_order_ids
  * @property int|null $coupon_id
+ * @property bool $coupon_consumed
  * @property int $created_at
  * @property int $updated_at
  * @property int|null $commission_status
  * @property int|null $invite_user_id
  * @property int|null $actual_commission_balance
- * @property int|null $commission_rate
- * @property int|null $commission_auto_check
  * @property int|null $commission_balance
  * @property int|null $discount_amount
  * @property int|null $paid_at
@@ -50,7 +50,9 @@ class Order extends Model
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'surplus_order_ids' => 'array',
-        'handling_amount' => 'integer'
+        'handling_amount' => 'integer',
+        'balance_deducted' => 'boolean',
+        'coupon_consumed' => 'boolean',
     ];
 
     const STATUS_PENDING = 0; // 待支付
@@ -58,6 +60,11 @@ class Order extends Model
     const STATUS_CANCELLED = 2; // 已取消
     const STATUS_COMPLETED = 3; // 已完成
     const STATUS_DISCOUNTED = 4; // 已折抵
+
+    const COMMISSION_STATUS_PENDING = 0;
+    const COMMISSION_STATUS_VALID = 1;
+    const COMMISSION_STATUS_PAID = 2;
+    const COMMISSION_STATUS_INVALID = 3;
 
     public static $statusMap = [
         self::STATUS_PENDING => '待支付',

@@ -12,14 +12,26 @@ export interface GuestConfig {
   recaptcha_v3_score_threshold?: number
   turnstile_site_key?: string
   app_description?: string
+  app_name?: string
+  stop_register?: number
+  register_enable?: number
   app_url?: string
   logo?: string
   telegram_login_enable?: number
   telegram_bot_username?: string
   telegram_login_domain?: string
   try_out_plan_id?: number
+  try_out_enable?: number
   traffic_warn_rate?: number
   login_with_mail_link_enable?: number
+  invite_enable?: number
+  commission_enable?: number
+  gift_card_enable?: number
+  coupon_enable?: number
+  ticket_enable?: number
+  knowledge_enable?: number
+  traffic_log_enable?: number
+  announcement_enable?: number
 }
 
 export interface UserCommConfig {
@@ -35,7 +47,21 @@ export interface UserCommConfig {
   commission_distribution_l2?: number | string
   commission_distribution_l3?: number | string
   try_out_plan_id?: number
+  try_out_enable?: number
   traffic_warn_rate?: number
+  ticket_must_wait_reply?: number
+  plan_change_enable?: number
+  withdraw_fee_rate?: number
+  commission_withdraw_limit?: number | string
+  invite_enable?: number
+  commission_enable?: number
+  gift_card_enable?: number
+  coupon_enable?: number
+  register_enable?: number
+  ticket_enable?: number
+  knowledge_enable?: number
+  traffic_log_enable?: number
+  announcement_enable?: number
 }
 
 const DEFAULT_TRAFFIC_WARN_RATE = 70
@@ -45,6 +71,10 @@ export function resolveTrafficWarnRate(config?: { traffic_warn_rate?: number } |
   if (rate == null) return DEFAULT_TRAFFIC_WARN_RATE
   const n = Number(rate)
   return Number.isFinite(n) ? n : DEFAULT_TRAFFIC_WARN_RATE
+}
+
+export function resetCommCaches(): void {
+  cachedTryOutPlanId = null
 }
 
 let cachedTryOutPlanId: number | null = null
@@ -57,7 +87,12 @@ export async function resolveTryOutPlanId(): Promise<number> {
   if (cachedTryOutPlanId !== null) return cachedTryOutPlanId
   try {
     const config = getAuthData() ? await fetchUserCommConfig() : await fetchGuestConfig()
-    if (config.try_out_plan_id != null) {
+    const enabled = (config as GuestConfig).try_out_enable
+    if (enabled !== undefined && Number(enabled) === 0) {
+      cacheTryOutPlanId(0)
+      return 0
+    }
+    if (config.try_out_plan_id != null && config.try_out_plan_id > 0) {
       cacheTryOutPlanId(config.try_out_plan_id)
       return config.try_out_plan_id
     }
@@ -92,8 +127,8 @@ export async function fetchUserCommConfig() {
   return request<UserCommConfig>(api.get('/user/comm/config'))
 }
 
-export async function sendEmailVerify(email: string, captcha?: CaptchaPayload) {
-  return request<null>(api.post('/passport/comm/sendEmailVerify', { email, ...formatEmailVerifyCaptcha(captcha) }))
+export async function sendEmailVerify(email: string, captcha?: CaptchaPayload, purpose: 'register' | 'forget' = 'register') {
+  return request<null>(api.post('/passport/comm/sendEmailVerify', { email, purpose, ...formatEmailVerifyCaptcha(captcha) }))
 }
 
 export async function fetchStripePublicKey(paymentId: number) {

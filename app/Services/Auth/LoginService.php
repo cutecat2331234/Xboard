@@ -3,6 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Models\User;
+use App\Services\AuthService;
 use App\Services\Plugin\HookManager;
 use App\Utils\CacheKey;
 use App\Utils\Helper;
@@ -17,7 +18,7 @@ class LoginService
      * @param string $password 用户密码
      * @return array [成功状态, 用户对象或错误信息]
      */
-    public function login(string $email, string $password): array
+    public function login(string $email, string $password, ?string $clientIp = null): array
     {
         // 检查密码错误限制
         if ((int) admin_setting('password_limit_enable', true)) {
@@ -59,6 +60,10 @@ class LoginService
                     60 * (int) admin_setting('password_limit_expire', 60)
                 );
             }
+            if ($clientIp) {
+                $loginIpKey = 'login-ip:' . $clientIp;
+                \Illuminate\Support\Facades\RateLimiter::hit($loginIpKey, 60);
+            }
             return [false, [400, __('Incorrect email or password')]];
         }
 
@@ -70,6 +75,10 @@ class LoginService
         // 更新最后登录时间
         $user->last_login_at = time();
         $user->save();
+
+        if ((int) admin_setting('password_limit_enable', true)) {
+            Cache::forget(CacheKey::get('PASSWORD_ERROR_LIMIT', $email));
+        }
 
         HookManager::call('user.login.after', $user);
         return [true, $user];
@@ -93,7 +102,7 @@ class LoginService
         }
 
         // 验证邮箱验证码
-        $cachedEmailCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE', $email));
+        $cachedEmailCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE_FORGET', $email));
         if ($cachedEmailCode === null || !hash_equals((string) $cachedEmailCode, $emailCode)) {
             Cache::put($forgetRequestLimitKey, $forgetRequestLimit ? $forgetRequestLimit + 1 : 1, 300);
             return [false, [400, __('Incorrect email verification code')]];
@@ -114,10 +123,12 @@ class LoginService
             return [false, [500, __('Reset failed')]];
         }
 
+        (new AuthService($user))->removeAllSessions();
+
         HookManager::call('user.password.reset.after', $user);
 
         // 清除邮箱验证码
-        Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE', $email));
+        Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE_FORGET', $email));
 
         return [true, true];
     }
@@ -141,7 +152,7 @@ class LoginService
 
         Cache::put($key, $user->id, 60);
 
-        $redirect = $redirect ?: 'dashboard';
+        $redirect = Helper::sanitizeAppRedirect($redirect);
         $loginRedirect = '/#/login?verify=' . $code . '&redirect=' . rawurlencode($redirect);
 
         if (admin_setting('app_url')) {

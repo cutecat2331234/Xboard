@@ -1,3 +1,5 @@
+import { shouldForceAdminLogoutOn403 } from '@/lib/auth-forbidden'
+import { invalidateAdminSessionCache } from '@/lib/session-cache'
 import { getAdminApiPrefix, getPassportApiPrefix, getSettings } from '@/lib/settings'
 
 const AUTH_STORAGE_KEY = 'xboard_admin_auth_data'
@@ -58,8 +60,18 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
 
   const response = await fetch(url, { ...options, headers })
   if (response.status === 403) {
-    clearAuthData()
-    window.location.hash = '#/sign-in'
+    let message: string | undefined
+    try {
+      const payload = (await response.clone().json()) as ApiResponse
+      message = payload.message
+    } catch {
+      // ignore
+    }
+    if (shouldForceAdminLogoutOn403(message)) {
+      clearAuthData()
+      invalidateAdminSessionCache()
+      window.location.hash = '#/sign-in'
+    }
   }
   if (!response.ok) {
     let message = response.statusText
@@ -264,8 +276,18 @@ export async function downloadAdminFile(
   })
 
   if (response.status === 403) {
-    clearAuthData()
-    window.location.hash = '#/sign-in'
+    let message: string | undefined
+    try {
+      const payload = (await response.clone().json()) as ApiResponse
+      message = payload.message
+    } catch {
+      // ignore
+    }
+    if (shouldForceAdminLogoutOn403(message)) {
+      clearAuthData()
+      invalidateAdminSessionCache()
+      window.location.hash = '#/sign-in'
+    }
   }
 
   if (!response.ok) {
@@ -297,6 +319,10 @@ export interface DashboardStats {
   currentMonthIncome?: number
   lastMonthIncome?: number
   monthIncomeGrowth?: number
+  lastMonthIncomeGrowth?: number
+  currentMonthCommissionPayout?: number
+  lastMonthCommissionPayout?: number
+  commissionGrowth?: number
   ticketPendingTotal?: number
   commissionPendingTotal?: number
   currentMonthNewUsers?: number
@@ -308,6 +334,7 @@ export interface DashboardStats {
   onlineNodes?: number
   todayTraffic?: { upload?: number; download?: number; total?: number }
   monthTraffic?: { upload?: number; download?: number; total?: number }
+  totalTraffic?: { upload?: number; download?: number; total?: number }
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
@@ -421,9 +448,13 @@ export interface TelegramWebhookResult {
   webhook_base_url?: string
 }
 
-export async function setTelegramWebhook(telegramBotToken?: string): Promise<TelegramWebhookResult> {
+export async function setTelegramWebhook(
+  telegramBotToken?: string,
+  telegramWebhookUrl?: string,
+): Promise<TelegramWebhookResult> {
   return postJson<TelegramWebhookResult>('/config/setTelegramWebhook', {
     telegram_bot_token: telegramBotToken,
+    telegram_webhook_url: telegramWebhookUrl,
   })
 }
 
@@ -433,8 +464,9 @@ export interface EchKeyPair {
 }
 
 export async function generateEchKey(publicName?: string): Promise<EchKeyPair> {
-  const qs = publicName ? buildQuery({ public_name: publicName }) : ''
-  return fetchJsonObject<EchKeyPair>(`/server/manage/generateEchKey${qs}`)
+  return postJson<EchKeyPair>('/server/manage/generateEchKey', {
+    public_name: publicName ?? '',
+  })
 }
 
 export async function fetchConfig(): Promise<Record<string, unknown>> {

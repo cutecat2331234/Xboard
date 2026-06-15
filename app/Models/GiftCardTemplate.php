@@ -159,6 +159,13 @@ class GiftCardTemplate extends Model
             }
         }
 
+        // 检查禁止的套餐
+        if (isset($conditions['disallowed_plans']) && $user->plan_id) {
+            if (in_array($user->plan_id, $conditions['disallowed_plans'])) {
+                return false;
+            }
+        }
+
         // 检查是否需要邀请人
         if (isset($conditions['require_invite']) && $conditions['require_invite']) {
             if (!$user->invite_user_id) {
@@ -181,17 +188,22 @@ class GiftCardTemplate extends Model
         if ($this->type === self::TYPE_MYSTERY && isset($this->rewards['random_rewards'])) {
             $randomRewards = $this->rewards['random_rewards'];
             $totalWeight = array_sum(array_column($randomRewards, 'weight'));
+            if ($totalWeight <= 0) {
+                throw new \App\Exceptions\ApiException('盲盒奖励池配置无效');
+            }
             $random = mt_rand(1, $totalWeight);
             $currentWeight = 0;
 
             foreach ($randomRewards as $reward) {
-                $currentWeight += $reward['weight'];
+                $currentWeight += (int) ($reward['weight'] ?? 0);
                 if ($random <= $currentWeight) {
-                    $actualRewards = array_merge($actualRewards, $reward);
-                    unset($actualRewards['weight']);
+                    $picked = $reward;
+                    unset($picked['weight']);
+                    $actualRewards = array_merge($actualRewards, $picked);
                     break;
                 }
             }
+            unset($actualRewards['random_rewards']);
         }
 
         // 处理节日等特殊奖励(通用逻辑)
@@ -214,32 +226,52 @@ class GiftCardTemplate extends Model
             }
         }
 
+        $limits = $this->limits ?? [];
+        if (!isset($actualRewards['invite_reward_rate']) && isset($limits['invite_reward_rate'])) {
+            $actualRewards['invite_reward_rate'] = $limits['invite_reward_rate'];
+        }
+
         return $actualRewards;
     }
 
     /**
      * 检查使用频率限制
+     *
+     * @param bool $forUpdate 事务内重检时加行锁，避免并发兑换突破 per-user 上限
      */
-    public function checkUsageLimit(User $user): bool
+    public function checkUsageLimit(User $user, bool $forUpdate = false): bool
     {
         $limits = $this->limits ?? [];
+        $usageQuery = fn () => $this->usages()->where('user_id', $user->id);
+
+        if (isset($limits['max_total_uses']) && (int) $limits['max_total_uses'] > 0) {
+            $totalQuery = $this->usages();
+            if ($forUpdate) {
+                $totalQuery->lockForUpdate();
+            }
+            if ($totalQuery->count() >= (int) $limits['max_total_uses']) {
+                return false;
+            }
+        }
 
         // 检查每用户最大使用次数
         if (isset($limits['max_use_per_user'])) {
-            $usedCount = $this->usages()
-                ->where('user_id', $user->id)
-                ->count();
-            if ($usedCount >= $limits['max_use_per_user']) {
+            $query = $usageQuery();
+            if ($forUpdate) {
+                $query->lockForUpdate();
+            }
+            if ($query->count() >= $limits['max_use_per_user']) {
                 return false;
             }
         }
 
         // 检查冷却时间
         if (isset($limits['cooldown_hours'])) {
-            $lastUsage = $this->usages()
-                ->where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->first();
+            $query = $usageQuery()->orderBy('created_at', 'desc');
+            if ($forUpdate) {
+                $query->lockForUpdate();
+            }
+            $lastUsage = $query->first();
 
             if ($lastUsage && isset($lastUsage->created_at)) {
                 $cooldownTime = $lastUsage->created_at + ($limits['cooldown_hours'] * 3600);
@@ -250,5 +282,49 @@ class GiftCardTemplate extends Model
         }
 
         return true;
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public static function assertRewardsValid(int $type, array $rewards): void
+    {
+        if ($type === self::TYPE_MYSTERY) {
+            $pool = $rewards['random_rewards'] ?? [];
+            if (!is_array($pool) || count($pool) === 0) {
+                throw new \InvalidArgumentException('盲盒奖池不能为空');
+            }
+            $totalWeight = 0;
+            foreach ($pool as $index => $item) {
+                if (!is_array($item)) {
+                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项格式无效');
+                }
+                $weight = (int) ($item['weight'] ?? 0);
+                if ($weight <= 0) {
+                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项权重必须大于 0');
+                }
+                $totalWeight += $weight;
+                $hasReward = (!empty($item['balance']) && (int) $item['balance'] > 0)
+                    || (!empty($item['transfer_enable']) && (int) $item['transfer_enable'] > 0)
+                    || !empty($item['plan_id'])
+                    || !empty($item['expire_days'])
+                    || !empty($item['device_limit'])
+                    || !empty($item['reset_package']);
+                if (!$hasReward) {
+                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项至少配置一种奖励');
+                }
+            }
+            if ($totalWeight <= 0) {
+                throw new \InvalidArgumentException('盲盒奖池总权重必须大于 0');
+            }
+            return;
+        }
+
+        if ($type === self::TYPE_PLAN) {
+            $planId = $rewards['plan_id'] ?? null;
+            if (!$planId || !Plan::find($planId)) {
+                throw new \InvalidArgumentException('套餐礼品卡必须选择有效套餐');
+            }
+        }
     }
 }

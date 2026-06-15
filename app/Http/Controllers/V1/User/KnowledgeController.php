@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\V1\User;
 
-use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\KnowledgeResource;
 use App\Models\Knowledge;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Services\Plugin\HookManager;
 use App\Services\UserService;
 use App\Utils\Helper;
@@ -23,6 +23,10 @@ class KnowledgeController extends Controller
 
     public function fetch(Request $request)
     {
+        if (!AppFeature::knowledgeEnabled()) {
+            return $this->fail([403, __('Feature is disabled')]);
+        }
+
         $request->validate([
             'id' => 'nullable|sometimes|integer|min:1',
             'language' => 'nullable|sometimes|string|max:10',
@@ -36,8 +40,12 @@ class KnowledgeController extends Controller
 
     public function getCategory(Request $request)
     {
+        if (!AppFeature::knowledgeEnabled()) {
+            return $this->fail([403, __('Feature is disabled')]);
+        }
+
         $request->validate([
-            'language' => 'nullable|sometimes|string|max:10',
+            'language' => 'nullable|sometimes|string|in:en-US,zh-CN,zh-TW,ru-RU',
         ]);
 
         $builder = Knowledge::query()
@@ -65,7 +73,7 @@ class KnowledgeController extends Controller
             ->first();
 
         if (!$knowledge) {
-            return $this->fail([500, __('Article does not exist')]);
+            return $this->fail([404, __('Article does not exist')]);
         }
 
         $knowledge = $knowledge->toArray();
@@ -92,7 +100,7 @@ class KnowledgeController extends Controller
             });
         }
 
-        $knowledges = $builder->get()
+        $knowledges = $builder->limit(300)->get()
             ->map(function ($knowledge) use ($request) {
                 $knowledge = $knowledge->toArray();
                 $knowledge = $this->processKnowledgeContent($knowledge, $request->user());

@@ -89,8 +89,8 @@ export default function App() {
           <Route path="finance/coupon" element={<CouponPage />} />
           <Route path="finance/gift-card" element={<GiftCardPage />} />
           <Route path="user/manage" element={<UserPage />} />
+          <Route path="user/traffic-reset" element={<TrafficResetPage />} />
           <Route path="user/ticket" element={<TicketPage />} />
-          <Route path="traffic-reset" element={<TrafficResetPage />} />
           {/* legacy redirects */}
           <Route path="config" element={<Navigate to="/config/system" replace />} />
           <Route path="plugin" element={<Navigate to="/config/plugin" replace />} />

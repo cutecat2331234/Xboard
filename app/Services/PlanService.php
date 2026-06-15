@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
 use App\Exceptions\ApiException;
@@ -85,6 +86,10 @@ class PlanService
             return;
         }
 
+        if ($user->plan_id !== $this->plan->id && !$this->plan->sell) {
+            throw new ApiException(__('This subscription has been sold out, please choose another subscription'));
+        }
+
         if ($user->plan_id !== $this->plan->id && !$this->hasCapacity($this->plan)) {
             throw new ApiException(__('Current product is sold out'));
         }
@@ -129,6 +134,17 @@ class PlanService
     }
 
     /**
+     * All period values accepted from API input (legacy + new keys).
+     */
+    public static function allowedPeriodInputs(): array
+    {
+        return array_values(array_unique(array_merge(
+            array_keys(Plan::LEGACY_PERIOD_MAPPING),
+            self::getNewPeriods()
+        )));
+    }
+
+    /**
      * 获取旧版周期格式
      *
      * @param string $period
@@ -142,7 +158,7 @@ class PlanService
 
     protected function validateResetTrafficPurchase(User $user): void
     {
-        if (!app(UserService::class)->isAvailable($user) || $this->plan->id !== $user->plan_id) {
+        if (!$user->isActive() || $this->plan->id !== $user->plan_id) {
             throw new ApiException(__('Subscription has expired or no active subscription, unable to purchase Data Reset Package'));
         }
     }
@@ -154,7 +170,10 @@ class PlanService
         }
 
         if (!$this->plan->renew && $user->plan_id == $this->plan->id) {
-            throw new ApiException(__('This subscription cannot be renewed, please change to another subscription'));
+            $stillActive = $user->expired_at === null || (int) $user->expired_at > time();
+            if ($stillActive) {
+                throw new ApiException(__('This subscription cannot be renewed, please change to another subscription'));
+            }
         }
 
         if (!$this->plan->show && $this->plan->renew && !app(UserService::class)->isAvailable($user)) {
@@ -162,20 +181,31 @@ class PlanService
         }
     }
 
-    public function hasCapacity(Plan $plan): bool
+    public function hasCapacity(Plan $plan, ?Order $forOrder = null): bool
     {
-        if ($plan->capacity_limit === null) {
+        if ($plan->capacity_limit === null || (int) $plan->capacity_limit <= 0) {
             return true;
         }
 
         $activeUserCount = User::where('plan_id', $plan->id)
+            ->where('banned', 0)
             ->where(function ($query) {
                 $query->where('expired_at', '>=', time())
                     ->orWhereNull('expired_at');
             })
             ->count();
 
-        return ($plan->capacity_limit - $activeUserCount) > 0;
+        $inFlightQuery = Order::where('plan_id', $plan->id)
+            ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+            ->whereIn('type', [Order::TYPE_NEW_PURCHASE, Order::TYPE_UPGRADE]);
+
+        if ($forOrder) {
+            $inFlightQuery->where('id', '!=', $forOrder->id);
+        }
+
+        $inFlightCount = $inFlightQuery->count();
+
+        return ((int) $plan->capacity_limit - $activeUserCount - $inFlightCount) > 0;
     }
 
     public function getAvailablePeriods(Plan $plan): array

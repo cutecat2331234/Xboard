@@ -16,6 +16,7 @@ import {
   NLayoutSider,
   NMenu,
   useDialog,
+  useMessage,
 } from 'naive-ui'
 import type { DropdownOption, MenuOption } from 'naive-ui'
 import { getSettings } from '@/utils/settings'
@@ -23,13 +24,20 @@ import { useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/i18n'
 import { toggleColorScheme } from '@/lib/theme'
 import { LANG_LABELS } from '@/lib/lang-labels'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { useCurrency } from '@/composables/useCurrency'
+import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
 
 const s = getSettings()
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const dialog = useDialog()
+const msg = useMessage()
 const { t, locale, setLocale } = useI18n()
+const { config: commConfig, load: loadCommConfig } = useUserCommConfig()
+const commConfigLoaded = ref(false)
 
 const isDark = ref(document.documentElement.classList.contains('dark'))
 
@@ -54,18 +62,38 @@ const ThemeIcon = renderCarbonIcon(HEADER_ICON_PATHS.theme, '0 0 24 24', 'inline
 const LangIcon = renderCarbonIcon(HEADER_ICON_PATHS.language, '0 0 24 24', 'inline')
 const ExpandIcon = renderCarbonIcon(HEADER_ICON_PATHS.expand, '0 0 1024 1024', 'inline')
 
-const menuOptions = computed<MenuOption[]>(() => [
+const menuOptions = computed<MenuOption[]>(() => {
+  const billingChildren: MenuOption[] = [
+    { label: t('nav.order'), key: '/order', icon: renderIcon(MENU_ICON_PATHS.order) },
+  ]
+  if (featureEnabled(commConfig.value?.invite_enable, commConfigLoaded.value)) {
+    billingChildren.push({ label: t('nav.invite'), key: '/invite', icon: renderIcon(MENU_ICON_PATHS.invite) })
+  }
+  if (featureEnabled(commConfig.value?.gift_card_enable, commConfigLoaded.value)) {
+    billingChildren.push({ label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) })
+  }
+  const accountChildren: MenuOption[] = [
+    { label: t('nav.profile'), key: '/profile', icon: renderIcon(MENU_ICON_PATHS.profile) },
+  ]
+  if (featureEnabled(commConfig.value?.ticket_enable, commConfigLoaded.value)) {
+    accountChildren.push({ label: t('nav.ticket'), key: '/ticket', icon: renderIcon(MENU_ICON_PATHS.ticket) })
+  }
+  if (featureEnabled(commConfig.value?.traffic_log_enable, commConfigLoaded.value)) {
+    accountChildren.push({ label: t('nav.traffic'), key: '/traffic', icon: renderIcon(MENU_ICON_PATHS.traffic) })
+  }
+  const topLevel: MenuOption[] = [
   { label: t('nav.dashboard'), key: '/dashboard', icon: renderIcon(MENU_ICON_PATHS.dashboard) },
-  { label: t('nav.knowledge'), key: '/knowledge', icon: renderIcon(MENU_ICON_PATHS.knowledge) },
+  ]
+  if (featureEnabled(commConfig.value?.knowledge_enable, commConfigLoaded.value)) {
+    topLevel.push({ label: t('nav.knowledge'), key: '/knowledge', icon: renderIcon(MENU_ICON_PATHS.knowledge) })
+  }
+  return [
+  ...topLevel,
   {
     type: 'group',
     label: () => t('nav.groupBilling'),
     key: 'g-billing',
-    children: [
-      { label: t('nav.order'), key: '/order', icon: renderIcon(MENU_ICON_PATHS.order) },
-      { label: t('nav.invite'), key: '/invite', icon: renderIcon(MENU_ICON_PATHS.invite) },
-      { label: t('nav.giftCard'), key: '/gift-card', icon: renderIcon(MENU_ICON_PATHS.giftCard) },
-    ],
+    children: billingChildren,
   },
   {
     type: 'group',
@@ -80,13 +108,10 @@ const menuOptions = computed<MenuOption[]>(() => [
     type: 'group',
     label: () => t('nav.groupAccount'),
     key: 'g-account',
-    children: [
-      { label: t('nav.profile'), key: '/profile', icon: renderIcon(MENU_ICON_PATHS.profile) },
-      { label: t('nav.ticket'), key: '/ticket', icon: renderIcon(MENU_ICON_PATHS.ticket) },
-      { label: t('nav.traffic'), key: '/traffic', icon: renderIcon(MENU_ICON_PATHS.traffic) },
-    ],
+    children: accountChildren,
   },
-])
+]
+})
 
 const collapsed = ref(false)
 const mobileDrawerOpen = ref(false)
@@ -142,7 +167,53 @@ function updateMobile() {
 
 let themeObserver: MutationObserver | undefined
 
-onMounted(() => {
+function redirectIfGatedRouteDisabled() {
+  const comm = commConfig.value
+  if (!comm) return
+  const path = route.path
+  const blocked =
+    (path === '/invite' && !featureEnabled(comm.invite_enable, true)) ||
+    (path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) ||
+    ((path === '/ticket' || path.startsWith('/ticket/')) && !featureEnabled(comm.ticket_enable, true)) ||
+    (path === '/knowledge' && !featureEnabled(comm.knowledge_enable, true)) ||
+    (path === '/traffic' && !featureEnabled(comm.traffic_log_enable, true))
+  if (blocked) {
+    router.replace({ path: '/dashboard', query: { feature_disabled: '1' } })
+  }
+}
+
+function refreshCommConfig() {
+  const { load: loadCurrency } = useCurrency()
+  loadCommConfig({ force: true })
+    .then(async () => {
+      commConfigLoaded.value = true
+      redirectIfGatedRouteDisabled()
+      try {
+        await loadCurrency()
+      } catch {
+        /* keep last currency */
+      }
+    })
+    .catch((e: unknown) => {
+      msg.warning(resolveApiError(e, t, t('errors.commConfigFailed')))
+    })
+}
+
+onMounted(async () => {
+  try {
+    await loadCommConfig()
+  } catch (e: unknown) {
+    msg.warning(resolveApiError(e, t, t('errors.commConfigFailed')))
+    setTimeout(() => {
+      void loadCommConfig().catch((retryErr: unknown) => {
+        msg.warning(resolveApiError(retryErr, t, t('errors.commConfigFailed')))
+      })
+    }, 3000)
+  } finally {
+    commConfigLoaded.value = true
+    redirectIfGatedRouteDisabled()
+  }
+  window.addEventListener('focus', refreshCommConfig)
   updateMobile()
   mobileQuery.addEventListener('change', updateMobile)
   themeObserver = new MutationObserver(() => {
@@ -157,6 +228,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('focus', refreshCommConfig)
   mobileQuery.removeEventListener('change', updateMobile)
   themeObserver?.disconnect()
   removeMenuRouterGuard?.()
@@ -323,7 +395,7 @@ const MenuToggleIcon = {
       </header>
       <n-layout-content class="app-main-outer" :content-style="{ padding: 0, background: 'var(--xb-page-bg)' }">
         <section class="cus-scroll-y app-scroll-main shell-main">
-          <router-view />
+          <router-view :key="route.fullPath" />
         </section>
       </n-layout-content>
     </n-layout>

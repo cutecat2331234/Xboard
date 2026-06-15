@@ -5,18 +5,17 @@ namespace App\Services;
 use App\Jobs\StatServerJob;
 use App\Jobs\StatUserJob;
 use App\Jobs\TrafficFetchJob;
+use App\Exceptions\ApiException;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\Server;
 use App\Models\User;
-use App\Services\OrderService;
 use App\Services\Plugin\HookManager;
 use App\Services\TrafficResetService;
 use App\Models\TrafficResetLog;
 use App\Utils\Helper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class UserService
 {
@@ -50,10 +49,7 @@ class UserService
 
     public function isAvailable(User $user)
     {
-        if (!$user->banned && $user->transfer_enable && ($user->expired_at > time() || $user->expired_at === NULL)) {
-            return true;
-        }
-        return false;
+        return $user->isAvailable();
     }
 
     public function getAvailableUsers()
@@ -110,33 +106,17 @@ class UserService
 
     public function isNotCompleteOrderByUserId(int $userId): bool
     {
-        $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
-            ->where('user_id', $userId)
-            ->first();
-        if (!$order) {
-            return false;
-        }
-
-        if ((int) $order->status === Order::STATUS_PROCESSING) {
-            $paidAt = (int) ($order->paid_at ?? 0);
-            if ($paidAt > 0 && (time() - $paidAt) > 120) {
-                try {
-                    (new OrderService($order))->open();
-                    $order->refresh();
-                    if ((int) $order->status === Order::STATUS_COMPLETED) {
-                        return false;
-                    }
-                } catch (\Throwable $e) {
-                    Log::warning('Failed to recover stale processing order', [
-                        'trade_no' => $order->trade_no,
-                        'user_id' => $userId,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
+        return DB::transaction(function () use ($userId) {
+            $order = Order::whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                ->where('user_id', $userId)
+                ->lockForUpdate()
+                ->first();
+            if (!$order) {
+                return false;
             }
-        }
 
-        return true;
+            return true;
+        });
     }
 
     public function trafficFetch(Server $server, string $protocol, array $data)
@@ -207,7 +187,7 @@ class UserService
         if (isset($data['plan_id'])) {
             $this->setPlanForUser($user, $data['plan_id'], $data['expired_at'] ?? null);
         } else {
-            $this->setTryOutPlan(user: $user);
+            $this->setTryOutPlan($user, $data['register_ip'] ?? null);
         }
 
         return $user;
@@ -240,8 +220,14 @@ class UserService
     private function setPlanForUser(User $user, int $planId, ?int $expiredAt = null): void
     {
         $plan = Plan::find($planId);
-        if (!$plan)
+        if (!$plan) {
             return;
+        }
+
+        if ((int) ($user->plan_id ?? 0) !== (int) $plan->id
+            && !(new PlanService($plan))->hasCapacity($plan)) {
+            throw new ApiException(__('Current product is sold out'));
+        }
 
         $user->plan_id = $plan->id;
         $user->group_id = $plan->group_id;
@@ -295,19 +281,37 @@ class UserService
     /**
      * 设置试用计划
      */
-    private function setTryOutPlan(User $user): void
+    private function setTryOutPlan(User $user, ?string $registerIp = null): void
     {
-        if (!(int) admin_setting('try_out_plan_id', 0))
+        if (!(int) admin_setting('try_out_enable', 1)) {
             return;
+        }
+        if (!(int) admin_setting('try_out_plan_id', 0)) {
+            return;
+        }
+
+        if ($registerIp) {
+            $key = \App\Utils\CacheKey::get('TRY_OUT_IP_LIMIT', $registerIp);
+            $hours = max(1, (int) admin_setting('try_out_hour', 1));
+            if (!\Illuminate\Support\Facades\Cache::add($key, 1, $hours * 3600)) {
+                return;
+            }
+        }
 
         $plan = Plan::find(admin_setting('try_out_plan_id'));
-        if (!$plan)
+        if (!$plan) {
             return;
+        }
+
+        if (!(new PlanService($plan))->hasCapacity($plan)) {
+            return;
+        }
 
         $user->transfer_enable = $plan->transfer_enable * 1073741824;
         $user->plan_id = $plan->id;
         $user->group_id = $plan->group_id;
         $user->expired_at = time() + (admin_setting('try_out_hour', 1) * 3600);
         $user->speed_limit = $plan->speed_limit;
+        $user->device_limit = $plan->device_limit;
     }
 }

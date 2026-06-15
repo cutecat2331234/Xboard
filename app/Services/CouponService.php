@@ -28,7 +28,10 @@ class CouponService
         return new self(Coupon::where('code', $code)->lockForUpdate()->first());
     }
 
-    public function use(Order $order): bool
+    /**
+     * Validate coupon and compute discount on the order (does not consume global limit_use).
+     */
+    public function applyToOrder(Order $order): bool
     {
         $this->setPlanId($order->plan_id);
         $this->setUserId($order->user_id);
@@ -39,22 +42,39 @@ class CouponService
                 $order->discount_amount = $this->coupon->value;
                 break;
             case 2:
-                $order->discount_amount = $order->total_amount * ($this->coupon->value / 100);
+                $order->discount_amount = (int) round($order->total_amount * ($this->coupon->value / 100));
                 break;
+            default:
+                return false;
         }
         if ($order->discount_amount > $order->total_amount) {
             $order->discount_amount = $order->total_amount;
         }
-        if ($this->coupon->limit_use !== NULL) {
-            if ($this->coupon->limit_use <= 0) {
-                return false;
-            }
-            $this->coupon->limit_use = $this->coupon->limit_use - 1;
-            if (!$this->coupon->save()) {
-                return false;
-            }
-        }
         return true;
+    }
+
+    /**
+     * Consume one global coupon use (idempotent when called on already-consumed orders).
+     */
+    public function consumeLimit(): bool
+    {
+        if ($this->coupon->limit_use === null) {
+            return true;
+        }
+        if ($this->coupon->limit_use <= 0) {
+            return false;
+        }
+        $this->coupon->limit_use = $this->coupon->limit_use - 1;
+        return (bool) $this->coupon->save();
+    }
+
+    /** @deprecated Use applyToOrder() + consumeLimit() at checkout */
+    public function use(Order $order): bool
+    {
+        if (!$this->applyToOrder($order)) {
+            return false;
+        }
+        return $this->consumeLimit();
     }
 
     public function getId()
@@ -88,7 +108,13 @@ class CouponService
     {
         $usedCount = Order::where('coupon_id', $this->coupon->id)
             ->where('user_id', $this->userId)
-            ->whereNotIn('status', [0, 2])
+            ->where(function ($query) {
+                $query->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
+                    ->orWhere(function ($pending) {
+                        $pending->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                            ->where('coupon_consumed', true);
+                    });
+            })
             ->count();
         if ($usedCount >= $this->coupon->limit_use_with_user) {
             return false;
@@ -116,7 +142,7 @@ class CouponService
             }
         }
         if ($this->coupon->limit_period && $this->period) {
-            if (!in_array($this->period, $this->coupon->limit_period)) {
+            if (!$this->periodAllowed($this->coupon->limit_period, $this->period)) {
                 throw new ApiException(__('The coupon code cannot be used for this period'));
             }
         }
@@ -127,5 +153,17 @@ class CouponService
                 ]));
             }
         }
+    }
+
+    private function periodAllowed(array $limitPeriod, string $period): bool
+    {
+        $normalizedPeriod = PlanService::getPeriodKey($period);
+        foreach ($limitPeriod as $allowed) {
+            if (PlanService::getPeriodKey((string) $allowed) === $normalizedPeriod) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

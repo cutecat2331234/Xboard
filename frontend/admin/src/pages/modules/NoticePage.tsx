@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { fetchJsonList, postJson } from '@/lib/api'
 import { useIdListSort } from '@/lib/use-id-list-sort'
 import { DataTable } from '@/components/shared/DataTable'
@@ -56,7 +57,7 @@ export default function NoticePage() {
     setLoading(true)
     fetchJsonList('/notice/fetch')
       .then((rows) => setData(rows as NoticeRow[]))
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
@@ -66,7 +67,7 @@ export default function NoticePage() {
 
   function openCreate() {
     setEditing(null)
-    setForm({ show: 1, title: '', content: '', img_url: '', tags: [] })
+    setForm({ show: 1, popup: 0, title: '', content: '', img_url: '', tags: [] })
     setDialogOpen(true)
   }
 
@@ -96,7 +97,7 @@ export default function NoticePage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -107,7 +108,7 @@ export default function NoticePage() {
       await postJson('/notice/show', { id: row.id })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -124,7 +125,7 @@ export default function NoticePage() {
       toast.success(t('notice.table.actions.delete.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -298,6 +299,13 @@ export default function NoticePage() {
                 onCheckedChange={(v) => setForm((f) => ({ ...f, show: v ? 1 : 0 }))}
               />
               <Label>{t('notice.form.fields.show.label')}</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={Boolean(form.popup)}
+                onCheckedChange={(v) => setForm((f) => ({ ...f, popup: v ? 1 : 0 }))}
+              />
+              <Label>{t('notice.form.fields.popup.label')}</Label>
             </div>
           </div>
           <DialogFooter>

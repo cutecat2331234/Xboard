@@ -5,6 +5,7 @@ import { ArrowUpDown, Filter, Mail, Plus, Send, ShieldBan, SlidersHorizontal } f
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import {
   adminApi,
   downloadAdminFile,
@@ -33,6 +34,8 @@ import {
   textareaCls,
 } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
+import { getAdminCurrencySymbol, formatAdminMoneyFromMajor, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminDateTime, formatAdminDateTimeValue } from '@/lib/format-datetime'
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
@@ -143,7 +146,7 @@ const FILTER_FIELDS = [
   'uuid',
   'token',
   'banned',
-  'remark',
+  'remarks',
   'inviter_email',
   'invite_user_id',
   'is_admin',
@@ -228,19 +231,8 @@ function trafficGbToBytes(gb: number | string) {
   return Math.round(TRAFFIC_GB * n)
 }
 
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleString()
-}
-
-function formatDateTime(value?: string | number | null) {
-  if (!value) return '—'
-  if (typeof value === 'number') return formatTs(value)
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
-}
-
 const GB_FILTER_FIELDS = new Set(['transfer_enable', 'total_used'])
+const MONEY_FILTER_FIELDS = new Set(['balance', 'commission_balance'])
 
 function filterValueForApi(cond: FilterCondition): string | number {
   const raw = cond.value.trim()
@@ -251,6 +243,11 @@ function filterValueForApi(cond: FilterCondition): string | number {
     const gb = parseFloat(raw)
     if (!Number.isNaN(gb)) {
       numeric = String(Math.round(gb * 1024 * 1024 * 1024))
+    }
+  } else if (MONEY_FILTER_FIELDS.has(cond.field)) {
+    const yuan = parseFloat(raw)
+    if (!Number.isNaN(yuan)) {
+      numeric = String(Math.round(yuan * 100))
     }
   }
   return `${cond.operator}:${numeric}`
@@ -305,6 +302,9 @@ export default function UserPage() {
   const [banOpen, setBanOpen] = useState(false)
   const [banning, setBanning] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
+  const [exportIncludeSubscribe, setExportIncludeSubscribe] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const [trafficResetUser, setTrafficResetUser] = useState<UserRow | null>(null)
   const [trafficResetTab, setTrafficResetTab] = useState<'reset' | 'history'>('reset')
@@ -361,12 +361,18 @@ export default function UserPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, filters, sorts, t])
 
   useEffect(() => {
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
+  }, [])
+
+  useEffect(() => {
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
   }, [])
 
   useEffect(() => {
@@ -383,7 +389,7 @@ export default function UserPage() {
         )
         setTrafficResetHistory(data)
       } catch (e) {
-        toast.error(e instanceof Error ? e.message : t('common.error'))
+        toastApiError(e, toast, t, t('common.error'))
         setTrafficResetHistory(null)
       } finally {
         setTrafficResetHistoryLoading(false)
@@ -471,16 +477,20 @@ export default function UserPage() {
     try {
       await downloadAdminFile(
         '/user/dumpCSV',
-        { method: 'POST', jsonBody: buildBulkBody() },
+        {
+          method: 'POST',
+          jsonBody: {
+            ...buildBulkBody(),
+            include_subscribe_url: exportIncludeSubscribe,
+          },
+        },
         'users.csv',
       )
       toast.success(t('user.messages.export.success'))
+      setExportOpen(false)
+      setExportIncludeSubscribe(false)
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.messages.export.failed'),
-      )
+      toastApiError(e, toast, t, t('user.messages.export.failed'))
     } finally {
       setExporting(false)
     }
@@ -502,15 +512,17 @@ export default function UserPage() {
           toast.error(t('user.messages.send_mail.required_selected'))
           return
         }
-        for (const id of selectedIds) {
-          await postJson('/user/sendMail', {
-            scope: 'filtered',
-            filter: [{ id: 'id', value: `eq:${id}` }],
-            subject,
-            content,
-          })
-        }
+        await postJson('/user/sendMail', {
+          scope: 'selected',
+          user_ids: Array.from(selectedIds),
+          subject,
+          content,
+        })
       } else if (mailScope === 'filtered') {
+        if (filters.length === 0) {
+          toast.error(t('user.messages.send_mail.required_filtered'))
+          return
+        }
         await postJson('/user/sendMail', {
           scope: 'filtered',
           filter: filters,
@@ -528,30 +540,35 @@ export default function UserPage() {
       setMailSubject('')
       setMailContent('')
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.messages.send_mail.failed'),
-      )
+      toastApiError(e, toast, t, t('user.messages.send_mail.failed'))
     } finally {
       setMailSending(false)
     }
   }
 
   async function batchBan() {
+    const body = buildBulkBody()
+    if (body.scope === 'all') {
+      toast.error(t('user.messages.batch_ban.required_scope'))
+      return
+    }
+    if (body.scope === 'selected' && selectedIds.size === 0) {
+      toast.error(t('user.messages.send_mail.required_selected'))
+      return
+    }
+    if (body.scope === 'filtered' && filters.length === 0) {
+      toast.error(t('user.messages.send_mail.required_filtered'))
+      return
+    }
     setBanning(true)
     try {
-      await postJson('/user/ban', buildBulkBody())
+      await postJson('/user/ban', body)
       toast.success(t('user.messages.batch_ban.success'))
       setBanOpen(false)
       setSelectedIds(new Set())
       load()
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.messages.batch_ban.failed'),
-      )
+      toastApiError(e, toast, t, t('user.messages.batch_ban.failed'))
     } finally {
       setBanning(false)
     }
@@ -624,11 +641,7 @@ export default function UserPage() {
       setTrafficResetReason('')
       load()
     } catch (e) {
-      toast.error(
-        e instanceof Error
-          ? e.message
-          : t('user.traffic_reset.reset_failed'),
-      )
+      toastApiError(e, toast, t, t('user.traffic_reset.reset_failed'))
     } finally {
       setTrafficResetting(false)
     }
@@ -653,7 +666,7 @@ export default function UserPage() {
       setAssignUser(null)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setAssigning(false)
     }
@@ -685,7 +698,7 @@ export default function UserPage() {
       setDialogMode(null)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -704,7 +717,7 @@ export default function UserPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -713,7 +726,7 @@ export default function UserPage() {
       await postJson('/user/resetSecret', { id: row.id })
       toast.success(t('common.success'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -842,29 +855,29 @@ export default function UserPage() {
       {
         accessorKey: 'balance',
         header: () => sortHeader('balance', t('user.columns.balance')),
-        cell: ({ row }) => Number(row.original.balance ?? 0).toFixed(2),
+        cell: ({ row }) => formatAdminMoneyFromMajor(row.original.balance ?? 0),
       },
       {
         accessorKey: 'expired_at',
         header: () => sortHeader('expired_at', t('user.columns.expire_time')),
-        cell: ({ row }) => formatTs(row.original.expired_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.expired_at),
       },
       {
         id: 'commission',
         accessorKey: 'commission_balance',
         header: () => sortHeader('commission_balance', t('user.columns.commission')),
-        cell: ({ row }) => Number(row.original.commission_balance ?? 0).toFixed(2),
+        cell: ({ row }) => formatAdminMoneyFromMajor(row.original.commission_balance ?? 0),
       },
       {
         accessorKey: 'created_at',
         header: () => sortHeader('created_at', t('user.columns.register_time')),
-        cell: ({ row }) => formatTs(row.original.created_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.created_at),
       },
       {
         id: 'next_reset_at',
         accessorKey: 'next_reset_at',
         header: () => sortHeader('next_reset_at', t('user.columns.next_reset_at')),
-        cell: ({ row }) => formatTs(row.original.next_reset_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.next_reset_at),
       },
       {
         id: 'actions',
@@ -921,7 +934,7 @@ export default function UserPage() {
         ),
       },
     ],
-    [t, plans, selectedIds, allPageSelected, sorts],
+    [t, plans, selectedIds, allPageSelected, sorts, data, load],
   )
 
   const trafficResetHistoryColumns = useMemo<ColumnDef<TrafficResetHistoryRow, unknown>[]>(
@@ -930,7 +943,7 @@ export default function UserPage() {
         accessorKey: 'reset_time',
         header: () =>
           t('user.traffic_reset.history.reset_time'),
-        cell: ({ row }) => formatDateTime(row.original.reset_time),
+        cell: ({ row }) => formatAdminDateTimeValue(row.original.reset_time),
       },
       {
         accessorKey: 'reset_type_name',
@@ -993,7 +1006,7 @@ export default function UserPage() {
                   <Mail className="mr-2 h-4 w-4" />
                   {t('user.actions.send_email')}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={exportCsv} disabled={exporting}>
+                <DropdownMenuItem onClick={() => setExportOpen(true)} disabled={exporting}>
                   {t('user.actions.export_csv')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setBanOpen(true)}>
@@ -1253,6 +1266,34 @@ export default function UserPage() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('user.actions.export_confirm.title')}</DialogTitle>
+            <DialogDescription>{t('user.actions.export_confirm.description')}</DialogDescription>
+          </DialogHeader>
+          <div className={editSheetSwitchFieldCls} data-mask-switch-row>
+            <Label className={sheetFieldLabelCls}>
+              {t('user.actions.export_confirm.include_subscribe')}
+            </Label>
+            <div className={editSheetSwitchWrapCls}>
+              <Switch
+                checked={exportIncludeSubscribe}
+                onCheckedChange={setExportIncludeSubscribe}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExportOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={exportCsv} disabled={exporting}>
+              {exporting ? t('user.actions.export_confirm.exporting') : t('user.actions.export_csv')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={banOpen} onOpenChange={setBanOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -1450,7 +1491,7 @@ export default function UserPage() {
                     {t('user.edit.form.balance')}
                   </Label>
                   <SuffixInput
-                    suffix="¥"
+                    suffix={currencySymbol}
                     type="number"
                     value={Number(form.balance ?? 0)}
                     onChange={(e) => setForm((f) => ({ ...f, balance: Number(e.target.value) }))}
@@ -1462,7 +1503,7 @@ export default function UserPage() {
                     {t('user.edit.form.commission_balance')}
                   </Label>
                   <SuffixInput
-                    suffix="¥"
+                    suffix={currencySymbol}
                     type="number"
                     value={Number(form.commission_balance ?? 0)}
                     onChange={(e) =>
@@ -1635,7 +1676,7 @@ export default function UserPage() {
                   {t('user.edit.form.device_limit')}
                 </Label>
                 <SuffixInput
-                  suffix="台"
+                  suffix={t('user.edit.form.device_limit_unit')}
                   type="number"
                   value={form.device_limit != null ? Number(form.device_limit) : ''}
                   onChange={(e) =>
@@ -1745,7 +1786,7 @@ export default function UserPage() {
                   </p>
                   <p className="text-sm font-medium">
                     {trafficResetHistory?.user?.last_reset_at
-                      ? formatTs(trafficResetHistory.user.last_reset_at)
+                      ? formatAdminDateTime(trafficResetHistory.user.last_reset_at)
                       : t('user.traffic_reset.history.never')}
                   </p>
                 </div>
@@ -1755,7 +1796,7 @@ export default function UserPage() {
                   </p>
                   <p className="text-sm font-medium">
                     {trafficResetHistory?.user?.next_reset_at
-                      ? formatTs(trafficResetHistory.user.next_reset_at)
+                      ? formatAdminDateTime(trafficResetHistory.user.next_reset_at)
                       : t('user.traffic_reset.history.no_schedule')}
                   </p>
                 </div>
@@ -1816,7 +1857,7 @@ export default function UserPage() {
                 value={assignForm.plan_id}
                 onChange={(e) => setAssignForm((f) => ({ ...f, plan_id: e.target.value }))}
               >
-                <option value="">{t('common.none')}</option>
+                <option value="">{t('order.dialog.fields.subscriptionPlan')}</option>
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -1825,7 +1866,7 @@ export default function UserPage() {
               </select>
             </div>
                   <div className="space-y-2">
-              <Label>{t('order.form.period')}</Label>
+              <Label>{t('order.dialog.fields.orderPeriod')}</Label>
               <select
                 className={inputCls}
                 value={assignForm.period}
@@ -1833,13 +1874,13 @@ export default function UserPage() {
               >
                 {ORDER_PERIODS.map((period) => (
                   <option key={period} value={period}>
-                    {period}
+                    {t(`order.period.${period}`)}
                   </option>
                 ))}
               </select>
             </div>
                   <div className="space-y-2">
-              <Label>{t('order.form.total_amount')}</Label>
+              <Label>{t('order.dialog.fields.paymentAmount')}</Label>
               <input
                 type="number"
                 className={inputCls}

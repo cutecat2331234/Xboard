@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\OrderUpdate;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
+use App\Models\CommissionLog;
 use App\Services\OrderService;
 use App\Services\PlanService;
 use App\Services\UserService;
@@ -17,10 +18,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use App\Traits\SafeQueryColumns;
+use App\Traits\QueryOperators;
 
 class OrderController extends Controller
 {
     use SafeQueryColumns;
+    use QueryOperators;
 
     private const QUERY_COLUMNS = [
         'id', 'trade_no', 'user_id', 'plan_id', 'period', 'type', 'status',
@@ -29,6 +32,9 @@ class OrderController extends Controller
     ];
     public function detail(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer|min:1',
+        ]);
         $order = Order::with(['user', 'plan', 'commission_log', 'invite_user'])->find($request->input('id'));
         if (!$order)
             return $this->fail([400202, '订单不存在']);
@@ -41,8 +47,10 @@ class OrderController extends Controller
 
     public function fetch(Request $request)
     {
-        $current = $request->input('current', 1);
-        $pageSize = $request->input('pageSize', 10);
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current', 1),
+            $request->input('pageSize', 10)
+        );
         $orderModel = Order::with('plan:id,name');
 
         if ($request->boolean('is_commission')) {
@@ -118,23 +126,7 @@ class OrderController extends Controller
                 : (int) $filterValue;
         }
 
-        // Apply operator
-        $query->where($field, match (strtolower($operator)) {
-            'eq' => '=',
-            'gt' => '>',
-            'gte' => '>=',
-            'lt' => '<',
-            'lte' => '<=',
-            'like' => 'like',
-            'notlike' => 'not like',
-            'null' => static fn($q) => $q->whereNull($field),
-            'notnull' => static fn($q) => $q->whereNotNull($field),
-            default => 'like'
-        }, match (strtolower($operator)) {
-            'like', 'notlike' => "%{$filterValue}%",
-            'null', 'notnull' => null,
-            default => $filterValue
-        });
+        $this->applyQueryCondition($query, $field, $operator, $filterValue);
     }
 
     private function applySorting(Request $request, Builder $builder): void
@@ -155,36 +147,59 @@ class OrderController extends Controller
 
     public function paid(Request $request)
     {
-        $order = Order::where('trade_no', $request->input('trade_no'))
-            ->first();
-        if (!$order) {
-            return $this->fail([400202, '订单不存在']);
-        }
-        if ($order->status !== 0)
-            return $this->fail([400, '只能对待支付的订单进行操作']);
+        $request->validate([
+            'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
+        ]);
 
-        $orderService = new OrderService($order);
-        if (!$orderService->paid('manual_operation')) {
-            return $this->fail([500, '更新失败']);
-        }
-        return $this->success(true);
+        return DB::transaction(function () use ($request) {
+            $order = Order::where('trade_no', $request->input('trade_no'))
+                ->lockForUpdate()
+                ->first();
+            if (!$order) {
+                return $this->fail([400202, '订单不存在']);
+            }
+            if ($order->status !== 0) {
+                return $this->fail([400, '只能对待支付的订单进行操作']);
+            }
+
+            $orderService = new OrderService($order);
+            if (!$orderService->paid('manual_operation')) {
+                return $this->fail([500, '更新失败']);
+            }
+            $order->refresh();
+            if ((int) $order->status !== Order::STATUS_COMPLETED) {
+                return $this->fail([500, '订单开通失败']);
+            }
+            return $this->success(true);
+        });
     }
 
     public function cancel(Request $request)
     {
-        $order = Order::where('trade_no', $request->input('trade_no'))
-            ->first();
-        if (!$order) {
-            return $this->fail([400202, '订单不存在']);
-        }
-        if ($order->status !== 0)
-            return $this->fail([400, '只能对待支付的订单进行操作']);
+        $request->validate([
+            'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
+        ]);
 
-        $orderService = new OrderService($order);
-        if (!$orderService->cancel()) {
-            return $this->fail([400, '更新失败']);
-        }
-        return $this->success(true);
+        return DB::transaction(function () use ($request) {
+            $order = Order::where('trade_no', $request->input('trade_no'))
+                ->lockForUpdate()
+                ->first();
+            if (!$order) {
+                return $this->fail([400202, '订单不存在']);
+            }
+            if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
+                return $this->fail([400, '只能对待支付或处理中的订单进行操作']);
+            }
+            if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
+                return $this->fail([400, '已支付订单不可取消，请先处理退款']);
+            }
+
+            $orderService = new OrderService($order);
+            if (!$orderService->cancel()) {
+                return $this->fail([400, '更新失败']);
+            }
+            return $this->success(true);
+        });
     }
 
     public function update(OrderUpdate $request)
@@ -193,79 +208,138 @@ class OrderController extends Controller
             'commission_status'
         ]);
 
-        $order = Order::where('trade_no', $request->input('trade_no'))
-            ->first();
-        if (!$order) {
-            return $this->fail([400202, '订单不存在']);
-        }
-
         try {
-            $order->update($params);
+            return DB::transaction(function () use ($request, $params) {
+                $order = Order::where('trade_no', $request->input('trade_no'))
+                    ->lockForUpdate()
+                    ->first();
+                if (!$order) {
+                    return $this->fail([400202, '订单不存在']);
+                }
+
+                if (
+                    isset($params['commission_status'])
+                    && (int) $params['commission_status'] === 2
+                    && (int) $order->commission_status !== 2
+                ) {
+                    return $this->fail([400, '佣金状态不可手动标记为已结算']);
+                }
+
+                if (
+                    (int) $order->commission_status === 2
+                    && isset($params['commission_status'])
+                    && (int) $params['commission_status'] !== 2
+                ) {
+                    return $this->fail([400, '已结算的佣金不可回退']);
+                }
+
+                if (
+                    isset($params['commission_status'])
+                    && (int) $params['commission_status'] === 1
+                    && CommissionLog::where('trade_no', $order->trade_no)->exists()
+                ) {
+                    return $this->fail([400, '该订单已有佣金记录，不可重新标记为待确认']);
+                }
+
+                if (
+                    isset($params['commission_status'])
+                    && (int) $params['commission_status'] === 3
+                    && (int) $order->commission_status === 2
+                ) {
+                    return $this->fail([400, '已结算的佣金不可标记为无效']);
+                }
+
+                $order->update($params);
+                return $this->success(true);
+            });
         } catch (\Exception $e) {
             Log::error($e);
             return $this->fail([500, '更新失败']);
         }
-
-        return $this->success(true);
     }
 
     public function assign(OrderAssign $request)
     {
-        $plan = Plan::find($request->input('plan_id'));
-        $user = User::byEmail($request->input('email'))->first();
-
-        if (!$user) {
-            return $this->fail([400202, '该用户不存在']);
-        }
-
-        if (!$plan) {
-            return $this->fail([400202, '该订阅不存在']);
-        }
-
-        $userService = new UserService();
-        if ($userService->isNotCompleteOrderByUserId($user->id)) {
-            return $this->fail([400, '该用户还有待支付的订单，无法分配']);
-        }
-
         try {
-            DB::beginTransaction();
-            $order = new Order();
-            $orderService = new OrderService($order);
-            $order->user_id = $user->id;
-            $order->plan_id = $plan->id;
-            $period = $request->input('period');
-            $order->period = PlanService::getPeriodKey((string) $period);
-            $order->trade_no = Helper::guid();
-            $order->total_amount = $request->input('total_amount');
+            $tradeNo = DB::transaction(function () use ($request) {
+                $user = User::byEmail($request->input('email'))->lockForUpdate()->first();
+                $plan = Plan::where('id', $request->input('plan_id'))->lockForUpdate()->first();
 
-            if (PlanService::getPeriodKey((string) $order->period) === Plan::PERIOD_RESET_TRAFFIC) {
-                $order->type = Order::TYPE_RESET_TRAFFIC;
-            } else if ($user->plan_id !== NULL && $order->plan_id !== $user->plan_id) {
-                $order->type = Order::TYPE_UPGRADE;
-            } else if ($user->expired_at !== null && $user->expired_at > time() && $order->plan_id == $user->plan_id) {
-                $order->type = Order::TYPE_RENEWAL;
-            } else {
-                $order->type = Order::TYPE_NEW_PURCHASE;
+                if (!$user) {
+                    throw new \RuntimeException('该用户不存在');
+                }
+
+                if ($user->banned) {
+                    throw new \RuntimeException('该用户已被封禁，无法分配订阅');
+                }
+
+                if (!$plan) {
+                    throw new \RuntimeException('该订阅不存在');
+                }
+
+                $userService = new UserService();
+                if ($userService->isNotCompleteOrderByUserId($user->id)) {
+                    throw new \RuntimeException('该用户还有待支付的订单，无法分配');
+                }
+
+                $periodKey = PlanService::getPeriodKey((string) $request->input('period'));
+                $price = $plan->prices[$periodKey] ?? null;
+                if ($price === null) {
+                    throw new \RuntimeException('该订阅周期不可购买');
+                }
+
+                $planService = new PlanService($plan);
+                $planService->validatePurchase($user, (string) $request->input('period'));
+
+                $order = new Order();
+                $orderService = new OrderService($order);
+                $order->user_id = $user->id;
+                $order->plan_id = $plan->id;
+                $order->period = $periodKey;
+                $order->trade_no = Helper::generateOrderNo();
+                $maxTotal = (int) round($price * 100);
+                $adminTotal = (int) $request->input('total_amount');
+                if ($adminTotal > $maxTotal) {
+                    throw new \RuntimeException('支付金额不能超过订阅标价');
+                }
+                $order->total_amount = $adminTotal;
+                $order->discount_amount = 0;
+
+                $orderService->setOrderType($user);
+                $order->surplus_amount = 0;
+                $order->surplus_credit = 0;
+                $order->surplus_order_ids = null;
+
+                $orderService->setInvite($user);
+
+                if (!$order->save()) {
+                    throw new \RuntimeException('订单创建失败');
+                }
+
+                $orderService = new OrderService($order->fresh());
+                if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
+                    throw new \RuntimeException('订单开通失败');
+                }
+                $order->refresh();
+                if ((int) $order->status !== Order::STATUS_COMPLETED) {
+                    throw new \RuntimeException('订单开通失败');
+                }
+
+                return $order->trade_no;
+            });
+
+            return $this->success($tradeNo);
+        } catch (\App\Exceptions\ApiException $e) {
+            return $this->fail([400, $e->getMessage()]);
+        } catch (\RuntimeException $e) {
+            $message = $e->getMessage();
+            if ($message === '该用户不存在' || $message === '该订阅不存在') {
+                return $this->fail([400202, $message]);
             }
-
-            $orderService->setInvite($user);
-
-            if (!$order->save()) {
-                DB::rollBack();
-                return $this->fail([500, '订单创建失败']);
-            }
-            DB::commit();
+            return $this->fail([500, $message]);
         } catch (\Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-
-        $orderService = new OrderService($order->fresh());
-        if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
-            $order->delete();
+            Log::error($e);
             return $this->fail([500, '订单开通失败']);
         }
-
-        return $this->success($order->trade_no);
     }
 }

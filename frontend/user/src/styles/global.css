@@ -302,6 +302,9 @@ html, body, #app {
 .status-dot--info {
   background: var(--xb-status-info);
 }
+.status-dot--warn {
+  background: #f59e0b;
+}
 .items-center {
   align-items: center;
 }

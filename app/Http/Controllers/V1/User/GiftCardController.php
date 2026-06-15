@@ -8,16 +8,42 @@ use App\Http\Requests\User\GiftCardCheckRequest;
 use App\Http\Requests\User\GiftCardRedeemRequest;
 use App\Models\GiftCardUsage;
 use App\Services\GiftCardService;
+use App\Support\AppFeature;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class GiftCardController extends Controller
 {
+    private function ensureEnabled()
+    {
+        if (!AppFeature::giftCardEnabled()) {
+            return $this->fail([403, __('Gift card is not available')]);
+        }
+        return null;
+    }
+
+    private function throttleGiftCard(Request $request, string $action): ?\Illuminate\Http\JsonResponse
+    {
+        $key = sprintf('gift-card:%s:%d:%s', $action, $request->user()->id, $request->ip());
+        if (RateLimiter::tooManyAttempts($key, 20)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($key, 60);
+        return null;
+    }
+
     /**
      * 查询兑换码信息
      */
     public function check(GiftCardCheckRequest $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
+        if ($limited = $this->throttleGiftCard($request, 'check')) {
+            return $limited;
+        }
         try {
             $giftCardService = new GiftCardService($request->input('code'));
             $giftCardService->setUser($request->user());
@@ -40,7 +66,6 @@ class GiftCardController extends Controller
             ]);
 
         } catch (ApiException $e) {
-            // 这里只捕获 validateIsActive 抛出的异常
             return $this->fail([400, $e->getMessage()]);
         } catch (\Exception $e) {
             Log::error('礼品卡查询失败', [
@@ -48,7 +73,7 @@ class GiftCardController extends Controller
                 'user_id' => $request->user()->id,
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '查询失败，请稍后重试']);
+            return $this->fail([500, __('Query failed, please try again later')]);
         }
     }
 
@@ -57,6 +82,12 @@ class GiftCardController extends Controller
      */
     public function redeem(GiftCardRedeemRequest $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
+        if ($limited = $this->throttleGiftCard($request, 'redeem')) {
+            return $limited;
+        }
         try {
             $giftCardService = new GiftCardService($request->input('code'));
             $giftCardService->setUser($request->user());
@@ -64,7 +95,7 @@ class GiftCardController extends Controller
 
             // 使用礼品卡
             $result = $giftCardService->redeem([
-                // 'ip_address' => $request->ip(),
+                'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
 
@@ -75,7 +106,6 @@ class GiftCardController extends Controller
             ]);
 
             return $this->success([
-                'message' => '兑换成功！',
                 'rewards' => $result['rewards'],
                 'invite_rewards' => $result['invite_rewards'],
                 'template_name' => $result['template_name'],
@@ -90,7 +120,7 @@ class GiftCardController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return $this->fail([500, '兑换失败，请稍后重试']);
+            return $this->fail([500, __('Redemption failed, please try again later')]);
         }
     }
 
@@ -99,6 +129,9 @@ class GiftCardController extends Controller
      */
     public function history(Request $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         $request->validate([
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
@@ -126,7 +159,7 @@ class GiftCardController extends Controller
                 'created_at' => $usage->created_at,
             ];
         })->values();
-        return response()->json([
+        return $this->success([
             'data' => $data,
             'pagination' => [
                 'current_page' => $usages->currentPage(),
@@ -142,8 +175,11 @@ class GiftCardController extends Controller
      */
     public function detail(Request $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         $request->validate([
-            'id' => 'required|integer|exists:v2_gift_card_usage,id',
+            'id' => 'required|integer|min:1',
         ]);
 
         $usage = GiftCardUsage::with(['template', 'code', 'inviteUser'])
@@ -152,12 +188,14 @@ class GiftCardController extends Controller
             ->first();
 
         if (!$usage) {
-            return $this->fail([404, '记录不存在']);
+            return $this->fail([404, __('Record not found')]);
         }
 
         return $this->success([
             'id' => $usage->id,
-            'code' => $usage->code->code ?? '',
+            'code' => ($usage->code instanceof \App\Models\GiftCardCode && $usage->code->code)
+                ? (substr($usage->code->code, 0, 8) . '****')
+                : '',
             'template' => [
                 'name' => $usage->template->name ?? '',
                 'description' => $usage->template->description ?? '',
@@ -169,13 +207,11 @@ class GiftCardController extends Controller
             'rewards_given' => $usage->rewards_given,
             'invite_rewards' => $usage->invite_rewards,
             'invite_user' => $usage->inviteUser ? [
-                'id' => $usage->inviteUser->id ?? '',
                 'email' => isset($usage->inviteUser->email) ? (substr($usage->inviteUser->email, 0, 3) . '***@***') : '',
             ] : null,
             'user_level_at_use' => $usage->user_level_at_use,
             'plan_id_at_use' => $usage->plan_id_at_use,
             'multiplier_applied' => $usage->multiplier_applied,
-            // 'ip_address' => $usage->ip_address,
             'notes' => $usage->notes,
             'created_at' => $usage->created_at,
         ]);
@@ -186,6 +222,9 @@ class GiftCardController extends Controller
      */
     public function types(Request $request)
     {
+        if ($denied = $this->ensureEnabled()) {
+            return $denied;
+        }
         return $this->success([
             'types' => \App\Models\GiftCardTemplate::getTypeMap(),
         ]);

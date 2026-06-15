@@ -11,6 +11,8 @@ use App\Services\Auth\LoginService;
 use App\Services\Auth\MailLinkService;
 use App\Services\Auth\RegisterService;
 use App\Services\AuthService;
+use App\Services\Plugin\HookManager;
+use App\Services\CaptchaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -35,6 +37,18 @@ class AuthController extends Controller
      */
     public function loginWithMailLink(Request $request)
     {
+        $captchaService = app(CaptchaService::class);
+        [$captchaValid, $captchaError] = $captchaService->verify($request);
+        if (!$captchaValid) {
+            return $this->fail($captchaError);
+        }
+
+        $rateKey = 'mail-link:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 10)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 60);
+
         $params = $request->validate([
             'email' => 'required|email:strict',
             'redirect' => 'nullable'
@@ -72,10 +86,21 @@ class AuthController extends Controller
      */
     public function login(AuthLogin $request)
     {
+        $captchaService = app(CaptchaService::class);
+        [$captchaValid, $captchaError] = $captchaService->verify($request);
+        if (!$captchaValid) {
+            return $this->fail($captchaError);
+        }
+
         $email = $request->input('email');
         $password = $request->input('password');
 
-        [$success, $result] = $this->loginService->login($email, $password);
+        $loginIpKey = 'login-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($loginIpKey, 60)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+
+        [$success, $result] = $this->loginService->login($email, $password, $request->ip());
 
         if (!$success) {
             return $this->fail($result);
@@ -92,7 +117,16 @@ class AuthController extends Controller
     {
         // 处理直接通过token重定向
         if ($token = $request->input('token')) {
-            $redirect = '/#/login?verify=' . $token . '&redirect=' . ($request->input('redirect', 'dashboard'));
+            $rateKey = 'token2login-redirect:' . $request->ip();
+            if (RateLimiter::tooManyAttempts($rateKey, 60)) {
+                return response()->json([
+                    'message' => __('Too many attempts'),
+                ], 429);
+            }
+            RateLimiter::hit($rateKey, 60);
+
+            $safeRedirect = rawurlencode(\App\Utils\Helper::sanitizeAppRedirect($request->input('redirect')));
+            $redirect = '/#/login?verify=' . $token . '&redirect=' . $safeRedirect;
 
             return redirect()->to(
                 admin_setting('app_url')
@@ -127,6 +161,11 @@ class AuthController extends Controller
                 ], 400);
             }
 
+            $user->last_login_at = time();
+            $user->save();
+
+            HookManager::call('user.login.after', $user);
+
             $authService = new AuthService($user);
 
             return response()->json([
@@ -160,6 +199,12 @@ class AuthController extends Controller
             ], 401);
         }
 
+        $rateKey = 'passport-quick-login:' . $user->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($rateKey, 60);
+
         $url = $this->loginService->generateQuickLoginUrl($user, $request->input('redirect'));
         return $this->success($url);
     }
@@ -169,6 +214,12 @@ class AuthController extends Controller
      */
     public function forget(AuthForget $request)
     {
+        $captchaService = app(CaptchaService::class);
+        [$captchaValid, $captchaError] = $captchaService->verify($request);
+        if (!$captchaValid) {
+            return $this->fail($captchaError);
+        }
+
         [$success, $result] = $this->loginService->resetPassword(
             $request->input('email'),
             $request->input('email_code'),

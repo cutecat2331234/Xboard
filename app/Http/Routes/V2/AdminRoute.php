@@ -94,7 +94,7 @@ class AdminRoute
                 $router->post('/batchUpdate', [ManageController::class, 'batchUpdate']);
                 $router->post('/resetTraffic', [ManageController::class, 'resetTraffic']);
                 $router->post('/batchResetTraffic', [ManageController::class, 'batchResetTraffic']);
-                $router->get('/generateEchKey', [ManageController::class, 'generateEchKey']);
+                $router->post('/generateEchKey', [ManageController::class, 'generateEchKey']);
             });
 
             // 机器管理接口
@@ -105,7 +105,7 @@ class AdminRoute
                 $router->post('/save', [MachineController::class, 'save']);
                 $router->post('/drop', [MachineController::class, 'drop']);
                 $router->post('/resetToken', [MachineController::class, 'resetToken']);
-                $router->get('/getToken', [MachineController::class, 'getToken']);
+                $router->post('/getToken', [MachineController::class, 'getToken']);
                 $router->get('/installCommand', [MachineController::class, 'installCommand']);
                 $router->get('/nodes', [MachineController::class, 'nodes']);
                 $router->get('/history', [MachineController::class, 'history']);

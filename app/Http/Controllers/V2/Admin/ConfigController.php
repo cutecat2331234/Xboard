@@ -51,14 +51,24 @@ class ConfigController extends Controller
     }
     public function setTelegramWebhook(Request $request)
     {
-        $hookUrl = $this->resolveTelegramWebhookUrl();
+        $request->validate([
+            'telegram_bot_token' => 'nullable|string|max:255',
+            'telegram_webhook_url' => 'nullable|string|max:512',
+        ]);
+        $baseOverride = trim((string) $request->input('telegram_webhook_url', ''));
+        $hookUrl = $this->resolveTelegramWebhookUrl($baseOverride !== '' ? $baseOverride : null);
         if (blank($hookUrl)) {
             return $this->fail([422, 'Telegram Webhook地址未配置']);
         }
+        $botToken = trim((string) $request->input('telegram_bot_token', ''))
+            ?: admin_setting('telegram_bot_token');
+        if (blank($botToken)) {
+            return $this->fail([422, 'Telegram Bot Token 未配置']);
+        }
         $hookUrl .= '?' . http_build_query([
-            'access_token' => md5(admin_setting('telegram_bot_token', $request->input('telegram_bot_token')))
+            'access_token' => \App\Utils\Helper::telegramWebhookAccessToken($botToken),
         ]);
-        $telegramService = new TelegramService($request->input('telegram_bot_token'));
+        $telegramService = new TelegramService($botToken);
         $telegramService->getMe();
         $telegramService->setWebhook(url: $hookUrl);
         $telegramService->registerBotCommands();
@@ -93,6 +103,8 @@ class ConfigController extends Controller
                 'invite_commission' => admin_setting('invite_commission', 10),
                 'invite_gen_limit' => admin_setting('invite_gen_limit', 5),
                 'invite_never_expire' => (bool) admin_setting('invite_never_expire', 0),
+                'invite_code_max_uses' => (int) admin_setting('invite_code_max_uses', 0),
+                'withdraw_ticket_stale_days' => (int) admin_setting('withdraw_ticket_stale_days', 14),
                 'commission_first_time_enable' => (bool) admin_setting('commission_first_time_enable', 1),
                 'commission_auto_check_enable' => (bool) admin_setting('commission_auto_check_enable', 1),
                 'commission_withdraw_limit' => admin_setting('commission_withdraw_limit', 100),
@@ -101,7 +113,8 @@ class ConfigController extends Controller
                 'commission_distribution_enable' => (bool) admin_setting('commission_distribution_enable', 0),
                 'commission_distribution_l1' => admin_setting('commission_distribution_l1'),
                 'commission_distribution_l2' => admin_setting('commission_distribution_l2'),
-                'commission_distribution_l3' => admin_setting('commission_distribution_l3')
+                'commission_distribution_l3' => admin_setting('commission_distribution_l3'),
+                'app_withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
             ],
             'site' => [
                 'logo' => admin_setting('logo'),
@@ -113,10 +126,22 @@ class ConfigController extends Controller
                 'subscribe_url' => admin_setting('subscribe_url'),
                 'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
                 'try_out_hour' => (int) admin_setting('try_out_hour', 1),
+                'try_out_enable' => (bool) admin_setting('try_out_enable', 1),
+                'login_with_mail_link_enable' => (bool) admin_setting('login_with_mail_link_enable', 0),
                 'tos_url' => admin_setting('tos_url'),
                 'currency' => admin_setting('currency', 'CNY'),
                 'currency_symbol' => admin_setting('currency_symbol', '¥'),
                 'ticket_must_wait_reply' => (bool) admin_setting('ticket_must_wait_reply', 0),
+                'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
+                'app_enable_register' => (bool) admin_setting('app_enable_register', 1),
+                'app_enable_coupon_system' => (bool) admin_setting('app_enable_coupon_system', 1),
+                'app_enable_ticket_system' => (bool) admin_setting('app_enable_ticket_system', 1),
+                'app_enable_commission_system' => (bool) admin_setting('app_enable_commission_system', 1),
+                'app_enable_invite_system' => (bool) admin_setting('app_enable_invite_system', 1),
+                'app_enable_gift_card' => (bool) admin_setting('app_enable_gift_card', 1),
+                'app_enable_traffic_log' => (bool) admin_setting('app_enable_traffic_log', 1),
+                'app_enable_knowledge_base' => (bool) admin_setting('app_enable_knowledge_base', 1),
+                'app_enable_announcements' => (bool) admin_setting('app_enable_announcements', 1),
             ],
             'subscribe' => [
                 'plan_change_enable' => (bool) admin_setting('plan_change_enable', 1),
@@ -213,6 +238,25 @@ class ConfigController extends Controller
     {
         $data = $request->validated();
 
+        $distributionEnabled = array_key_exists('commission_distribution_enable', $data)
+            ? !empty($data['commission_distribution_enable'])
+            : (bool) admin_setting('commission_distribution_enable', 0);
+        if ($distributionEnabled) {
+            $l1 = (int) ($data['commission_distribution_l1'] ?? admin_setting('commission_distribution_l1', 0));
+            $l2 = (int) ($data['commission_distribution_l2'] ?? admin_setting('commission_distribution_l2', 0));
+            $l3 = (int) ($data['commission_distribution_l3'] ?? admin_setting('commission_distribution_l3', 0));
+            if ($l1 + $l2 + $l3 !== 100) {
+                return $this->fail([422, '三级分销比例合计必须等于100%']);
+            }
+        }
+
+        if (array_key_exists('invite_commission', $data)) {
+            $rate = (int) $data['invite_commission'];
+            if ($rate < 0 || $rate > 100) {
+                return $this->fail([422, '邀请佣金比例必须在0-100之间']);
+            }
+        }
+
         $templateKeys = [
             'subscribe_template_singbox' => 'singbox',
             'subscribe_template_clash' => 'clash',
@@ -223,6 +267,12 @@ class ConfigController extends Controller
         ];
 
         foreach ($data as $k => $v) {
+            if ($k === 'commission_withdraw_method') {
+                $v = $this->normalizeWithdrawMethods($v);
+            }
+            if ($k === 'email_whitelist_suffix') {
+                $v = $this->normalizeEmailWhitelistSuffix($v);
+            }
             if (isset($templateKeys[$k])) {
                 SubscribeTemplate::setContent($templateKeys[$k], $v);
                 continue;
@@ -235,6 +285,38 @@ class ConfigController extends Controller
         }
 
         return $this->success(true);
+    }
+
+    /**
+     * @param mixed $value
+     * @return list<string>
+     */
+    private function normalizeWithdrawMethods(mixed $value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map(static fn ($item) => trim((string) $item), $value)));
+        }
+        if (is_string($value)) {
+            return array_values(array_filter(array_map('trim', preg_split('/[,，]/', $value) ?: [])));
+        }
+
+        return [];
+    }
+
+    /**
+     * @param mixed $value
+     * @return list<string>
+     */
+    private function normalizeEmailWhitelistSuffix(mixed $value): array
+    {
+        if (is_array($value)) {
+            return array_values(array_filter(array_map(static fn ($item) => trim((string) $item), $value)));
+        }
+        if (is_string($value)) {
+            return array_values(array_filter(array_map('trim', preg_split('/[\n,，]/', $value) ?: [])));
+        }
+
+        return [];
     }
 
     /**
@@ -284,9 +366,11 @@ class ConfigController extends Controller
         return null;
     }
 
-    private function resolveTelegramWebhookUrl(): ?string
+    private function resolveTelegramWebhookUrl(?string $baseOverride = null): ?string
     {
-        $baseUrl = $this->getTelegramWebhookBaseUrl();
+        $baseUrl = $baseOverride !== null && $baseOverride !== ''
+            ? rtrim($baseOverride, '/')
+            : $this->getTelegramWebhookBaseUrl();
         if (!$baseUrl) {
             return null;
         }

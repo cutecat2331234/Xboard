@@ -27,21 +27,22 @@ class PaymentService
         if ($id) {
             $paymentModel = Payment::find($id);
             if (!$paymentModel) {
-                throw new ApiException('payment not found');
+                throw new ApiException(__('Payment method is not available'));
             }
             $payment = $paymentModel->makeVisible('config')->toArray();
         }
         if ($uuid) {
             $paymentModel = Payment::where('uuid', $uuid)->first();
             if (!$paymentModel) {
-                throw new ApiException('payment not found');
+                throw new ApiException(__('Payment method is not available'));
             }
             $payment = $paymentModel->makeVisible('config')->toArray();
         }
 
         $this->config = [];
         if (isset($payment)) {
-            $this->config = is_string($payment['config']) ? json_decode($payment['config'], true) : $payment['config'];
+            $decoded = is_string($payment['config']) ? json_decode($payment['config'], true) : $payment['config'];
+            $this->config = is_array($decoded) ? $decoded : [];
             $this->config['enable'] = $payment['enable'];
             $this->config['id'] = $payment['id'];
             $this->config['uuid'] = $payment['uuid'];
@@ -69,8 +70,8 @@ class PaymentService
         if (!$this->payment) {
             throw new ApiException(__('Payment gateway is not configured'));
         }
-        if (!$this->config['enable']) {
-            throw new ApiException('gate is not enable');
+        if (!($this->config['enable'] ?? 0)) {
+            throw new ApiException(__('Payment method is not available'));
         }
         return $this->payment->notify($params);
     }
@@ -79,6 +80,9 @@ class PaymentService
     {
         if (!$this->payment) {
             throw new ApiException(__('Payment gateway is not configured'));
+        }
+        if (!($this->config['enable'] ?? 0)) {
+            throw new ApiException(__('Payment method is not available'));
         }
         // custom notify domain name
         $notifyUrl = url("/api/v1/guest/payment/notify/{$this->method}/{$this->config['uuid']}");

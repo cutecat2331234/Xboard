@@ -65,10 +65,6 @@ class CaptchaService
      */
     private function verifyRecaptchaV3(Request $request): array
     {
-        if ($request->input('skip_recaptcha_v3')) {
-            return [true, null];
-        }
-
         $recaptchaV3Token = $request->input('recaptcha_v3_token');
         if (!$recaptchaV3Token) {
             return [false, [400, __('Invalid code is incorrect')]];

@@ -10,6 +10,8 @@ import {
 
   Bell,
 
+  ChevronDown,
+
   Eye,
 
   MessageSquare,
@@ -21,6 +23,14 @@ import {
   User,
 
   Users,
+
+  Wallet,
+
+  Wifi,
+
+  MonitorSmartphone,
+
+  ServerCog,
 
 } from 'lucide-react'
 
@@ -76,6 +86,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
+import { i18n } from '@/lib/i18n'
 
 import {
 
@@ -95,7 +107,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-import { formatAdminMoney, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminMoney, formatAdminMoneyFromMajor, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminDateTimeValue } from '@/lib/format-datetime'
 
 
 
@@ -106,61 +119,19 @@ function formatMoney(cents?: number) {
 
 
 function formatFailedAt(value?: string | number) {
-
-  if (value == null || value === '') return '—'
-
-  let ts: number
-
-  if (typeof value === 'string') {
-
-    ts = parseInt(value, 10)
-
-    if (Number.isNaN(ts)) return value
-
-  } else {
-
-    ts = value
-
-  }
-
-  const date = ts.toString().length === 10 ? new Date(ts * 1000) : new Date(ts)
-
-  return date.toLocaleString('zh-CN', {
-
-    year: 'numeric',
-
-    month: '2-digit',
-
-    day: '2-digit',
-
-    hour: '2-digit',
-
-    minute: '2-digit',
-
-    second: '2-digit',
-
-  })
-
+  return formatAdminDateTimeValue(value)
 }
 
 
 
 function formatBytes(n?: number) {
-
-  if (!n) return '0 B'
-
+  if (!n) return `0 ${i18n.t('common.units.b')}`
   const gb = n / 1073741824
-
-  if (gb >= 1) return `${gb.toFixed(2)} GB`
-
+  if (gb >= 1) return `${gb.toFixed(2)} ${i18n.t('common.units.gb')}`
   const mb = n / 1048576
-
-  if (mb >= 1) return `${mb.toFixed(2)} MB`
-
+  if (mb >= 1) return `${mb.toFixed(2)} ${i18n.t('common.units.mb')}`
   const kb = n / 1024
-
-  return `${kb.toFixed(2)} KB`
-
+  return `${kb.toFixed(2)} ${i18n.t('common.units.kb')}`
 }
 
 
@@ -234,7 +205,11 @@ export default function DashboardPage() {
     from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd'),
   }))
-  const [rankCustom, setRankCustom] = useState(() => ({
+  const [nodeRankCustom, setNodeRankCustom] = useState(() => ({
+    from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
+    to: format(new Date(), 'yyyy-MM-dd'),
+  }))
+  const [userRankCustom, setUserRankCustom] = useState(() => ({
     from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd'),
   }))
@@ -249,16 +224,19 @@ export default function DashboardPage() {
 
     fetchDashboardStats()
       .then(setStats)
-      .catch(() => toast.error(t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
     fetchQueueStats()
       .then(setQueueStats)
-      .catch(() => toast.error(t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
     const timer = window.setInterval(() => {
       fetchDashboardStats()
         .then(setStats)
-        .catch(() => {})
+        .catch((e) => toastApiError(e, toast, t, t('common.error')))
+      fetchQueueStats()
+        .then(setQueueStats)
+        .catch((e) => toastApiError(e, toast, t, t('common.error')))
     }, 60_000)
 
     return () => window.clearInterval(timer)
@@ -274,28 +252,34 @@ export default function DashboardPage() {
         setChartData(d.list)
         setSummary(d.summary)
       })
-      .catch(() => {})
-  }, [overviewRange, overviewCustom])
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
+  }, [overviewRange, overviewCustom, t])
 
 
 
   const loadNodeRank = useCallback(() => {
-    const { start, end } = trafficRankWindow(nodeRankRange, rankCustom)
+    const { start, end } = trafficRankWindow(nodeRankRange, nodeRankCustom)
     setNodeRankLoading(true)
     fetchTrafficRank('node', start, end)
       .then(setNodeRank)
-      .catch(() => setNodeRank([]))
+      .catch((e) => {
+        setNodeRank([])
+        toastApiError(e, toast, t, t('common.error'))
+      })
       .finally(() => setNodeRankLoading(false))
-  }, [nodeRankRange, rankCustom])
+  }, [nodeRankRange, nodeRankCustom, t])
 
   const loadUserRank = useCallback(() => {
-    const { start, end } = trafficRankWindow(userRankRange, rankCustom)
+    const { start, end } = trafficRankWindow(userRankRange, userRankCustom)
     setUserRankLoading(true)
     fetchTrafficRank('user', start, end)
       .then(setUserRank)
-      .catch(() => setUserRank([]))
+      .catch((e) => {
+        setUserRank([])
+        toastApiError(e, toast, t, t('common.error'))
+      })
       .finally(() => setUserRankLoading(false))
-  }, [userRankRange, rankCustom])
+  }, [userRankRange, userRankCustom, t])
 
   useEffect(() => {
     loadNodeRank()
@@ -315,7 +299,7 @@ export default function DashboardPage() {
 
         date: String(row.date ?? ''),
 
-        value: chartMode === 'amount' ? Number(row.paid_total ?? 0) / 100 : Number(row.paid_count ?? 0),
+        value: chartMode === 'amount' ? Number(row.paid_total ?? 0) : Number(row.paid_count ?? 0),
 
       })),
 
@@ -499,6 +483,64 @@ export default function DashboardPage() {
 
         />
 
+        <StatCard
+
+          title={t('dashboard.stats.monthlyCommissionPayout')}
+
+          value={formatMoney(stats.currentMonthCommissionPayout)}
+
+          growth={stats.commissionGrowth}
+
+          growthLabel={t('dashboard.stats.vsLastMonth')}
+
+          icon={Wallet}
+
+          iconClassName="text-violet-500"
+
+        />
+
+        <StatCard
+
+          title={t('dashboard.stats.totalTraffic')}
+
+          value={formatBytes(stats.totalTraffic?.total)}
+
+          subtitle={t('dashboard.stats.todayTraffic', {
+
+            value: formatBytes(stats.todayTraffic?.total),
+
+          })}
+
+          icon={BarChart3}
+
+          iconClassName="text-orange-500"
+
+        />
+
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          title={t('dashboard.stats.onlineUsers')}
+          value={String(stats.onlineUsers ?? 0)}
+          subtitle={t('dashboard.stats.onlineSnapshot')}
+          icon={Wifi}
+          iconClassName="text-emerald-500"
+        />
+        <StatCard
+          title={t('dashboard.stats.onlineDevices')}
+          value={String(stats.onlineDevices ?? 0)}
+          subtitle={t('dashboard.stats.onlineSnapshot')}
+          icon={MonitorSmartphone}
+          iconClassName="text-blue-500"
+        />
+        <StatCard
+          title={t('dashboard.stats.onlineNodes')}
+          value={String(stats.onlineNodes ?? 0)}
+          subtitle={t('dashboard.stats.onlineSnapshot')}
+          icon={ServerCog}
+          iconClassName="text-amber-500"
+        />
       </div>
 
       <Card className="rounded-xl border bg-card text-card-foreground shadow">
@@ -556,17 +598,17 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="xb-stack-1">
               <div className="text-sm text-muted-foreground">{t('dashboard.overview.totalIncome')}</div>
-              <div className="text-2xl font-bold">{formatMoney(paidTotal)}</div>
+              <div className="text-2xl font-bold">{formatAdminMoneyFromMajor(paidTotal)}</div>
               <div className="text-xs text-muted-foreground">
                 {t('dashboard.overview.totalTransactions', { count: paidCount })}
               </div>
               <div className="text-xs text-muted-foreground">
-                {t('dashboard.overview.avgOrderAmount')} {formatMoney(avgOrder)}
+                {t('dashboard.overview.avgOrderAmount')} {formatAdminMoneyFromMajor(avgOrder)}
               </div>
             </div>
             <div className="xb-stack-1">
               <div className="text-sm text-muted-foreground">{t('dashboard.overview.totalCommission')}</div>
-              <div className="text-2xl font-bold">{formatMoney(commissionTotal)}</div>
+              <div className="text-2xl font-bold">{formatAdminMoneyFromMajor(commissionTotal)}</div>
               <div className="text-xs text-muted-foreground">
                 {t('dashboard.overview.totalTransactions', { count: commissionCount })}
               </div>
@@ -606,22 +648,24 @@ export default function DashboardPage() {
 
         <RankCard
           title={t('dashboard.trafficRank.nodeTrafficRank')}
+          variant="node"
           rows={nodeRank}
           loading={nodeRankLoading}
           range={nodeRankRange}
           onRangeChange={setNodeRankRange}
-          customRange={rankCustom}
-          onCustomRangeChange={setRankCustom}
+          customRange={nodeRankCustom}
+          onCustomRangeChange={setNodeRankCustom}
         />
 
         <RankCard
           title={t('dashboard.trafficRank.userTrafficRank')}
+          variant="user"
           rows={userRank}
           loading={userRankLoading}
           range={userRankRange}
           onRangeChange={setUserRankRange}
-          customRange={rankCustom}
-          onCustomRangeChange={setRankCustom}
+          customRange={userRankCustom}
+          onCustomRangeChange={setUserRankCustom}
         />
 
       </div>
@@ -648,7 +692,10 @@ export default function DashboardPage() {
       <FailedJobsDialog
         open={failedJobsOpen}
         onOpenChange={setFailedJobsOpen}
-        onViewDetail={setFailedJobDetail}
+        onViewDetail={(job) => {
+          setFailedJobsOpen(false)
+          setFailedJobDetail(job)
+        }}
       />
 
       <FailedJobDetailDialog job={failedJobDetail} onOpenChange={(open) => !open && setFailedJobDetail(null)} />
@@ -663,6 +710,7 @@ export default function DashboardPage() {
 
 function RankCard({
   title,
+  variant = 'node',
   rows,
   loading,
   range,
@@ -671,6 +719,7 @@ function RankCard({
   onCustomRangeChange,
 }: {
   title: string
+  variant?: 'node' | 'user'
   rows: unknown[]
   loading?: boolean
   range: TrafficRankRange
@@ -731,8 +780,8 @@ function RankCard({
         <div className="flex h-[400px] flex-col">
           <div className="grid grid-cols-[48px_1fr_auto] gap-2 border-b px-2 pb-2 text-xs font-medium text-muted-foreground">
             <span>{t('dashboard.traffic.rank')}</span>
-            <span>{t('dashboard.traffic.domain')}</span>
-            <span>{t('dashboard.traffic.todayTraffic')}</span>
+            <span>{variant === 'user' ? t('user.columns.email') : t('dashboard.traffic.domain')}</span>
+            <span>{t('dashboard.trafficRank.currentTraffic')}</span>
           </div>
           <div className="flex-1 overflow-auto">
             {loading ? (
@@ -754,7 +803,7 @@ function RankCard({
                     >
                       <span>{i + 1}</span>
                       <span className="truncate">{String(r.name ?? r.email ?? r.server_name ?? '-')}</span>
-                      <span className="text-right">{formatBytes(Number(r.total ?? r.traffic ?? 0))}</span>
+                      <span className="text-right">{formatBytes(Number(r.value ?? r.total ?? r.traffic ?? 0))}</span>
                     </div>
                   )
                 })}
@@ -929,11 +978,7 @@ function QueueDetailsCard({
 
             <span className="text-muted-foreground">{t('dashboard.queue.details.activeProcesses')}</span>
 
-            <span>
-
-              {processes} / {processes}
-
-            </span>
+            <span>{processes}</span>
 
           </div>
 
@@ -991,23 +1036,24 @@ function FailedJobsDialog({
 
       })
 
-      .catch(() => {
-
+      .catch((e) => {
         setRows([])
-
         setTotal(0)
-
+        toastApiError(e, toast, t, t('common.error'))
       })
 
       .finally(() => setLoading(false))
 
-  }, [page, pageSize])
+  }, [page, pageSize, t])
 
 
 
   useEffect(() => {
 
-    if (!open) return
+    if (!open) {
+      setPage(1)
+      return
+    }
 
     load()
 
@@ -1153,7 +1199,7 @@ function FailedJobsDialog({
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                {t('common.pagination.previous')}
+                {t('common.table.pagination.previousPage')}
               </Button>
 
               <Button
@@ -1163,7 +1209,7 @@ function FailedJobsDialog({
                 disabled={page >= pageCount}
                 onClick={() => setPage((p) => p + 1)}
               >
-                {t('common.pagination.next')}
+                {t('common.table.pagination.nextPage')}
               </Button>
 
             </div>

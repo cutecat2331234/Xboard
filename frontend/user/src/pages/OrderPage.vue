@@ -1,23 +1,37 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NDataTable, NDivider, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
-import { fetchOrders, cancelOrder, type OrderItem } from '@/api/order'
+import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
+import { fetchOrders, cancelOrder, fetchFirstBlockingOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
-import { orderStatusLabel } from '@/lib/order-status'
-import { formatFixedDateTime } from '@/lib/format-date'
+import { ORDER_STATUS_KEYS, orderStatusLabel } from '@/lib/order-status'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { useCurrency } from '@/composables/useCurrency'
+
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
+const statusFilter = ref<number | null>(null)
+const page = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
 const msg = useMessage()
 const dialog = useDialog()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const { formatPrice, load: loadCurrency } = useCurrency()
+
 function formatOrderAmount(cents: number) {
-  const value = typeof cents === 'string' ? parseFloat(cents) : cents
-  if (!Number.isFinite(value)) return '0.00'
-  return (value / 100).toFixed(2)
+  return formatPrice(cents)
+}
+
+function orderStatusDotClass(status: number) {
+  if (status === 3) return 'status-dot status-dot--ok'
+  if (status === 4) return 'status-dot status-dot--info'
+  if (status === 1) return 'status-dot status-dot--info'
+  if (status === 0) return 'status-dot status-dot--warn'
+  return 'status-dot status-dot--bad'
 }
 
 function periodLabel(period?: string) {
@@ -25,6 +39,14 @@ function periodLabel(period?: string) {
   const hit = PERIOD_OPTIONS.find((o) => o.key === period)
   return hit ? t(hit.labelKey) : period
 }
+
+const statusOptions = computed(() => [
+  { label: t('order.filterAll'), value: null as number | null },
+  ...Object.entries(ORDER_STATUS_KEYS).map(([value, key]) => ({
+    label: t(key),
+    value: Number(value),
+  })),
+])
 
 function renderTradeNoCell(row: OrderItem) {
   const tradeNo = row.trade_no
@@ -49,9 +71,9 @@ function confirmCancel(tradeNo: string) {
       try {
         await cancelOrder(tradeNo)
         msg.success(t('order.closeSuccess'))
-        rows.value = await fetchOrders()
+        await loadOrders()
       } catch (e: unknown) {
-        msg.error(resolveApiError(e, t, t('order.cancelFailed')))
+        msg.error(resolveApiError(e, t, t('errors.cancelFailed')))
       }
     },
   })
@@ -62,6 +84,11 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
     title: t('order.listTradeNo'),
     key: 'trade_no',
     render: (row) => renderTradeNoCell(row),
+  },
+  {
+    title: t('order.productName'),
+    key: 'plan',
+    render: (row) => row.plan?.name ?? '—',
   },
   {
     title: t('order.period'),
@@ -79,7 +106,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
     render: (row) =>
       h('div', { class: 'flex items-center' }, [
         h('div', {
-          class: ['status-dot', row.status === 3 ? 'status-dot--ok' : 'status-dot--bad'],
+          class: orderStatusDotClass(row.status),
         }),
         t(orderStatusLabel(row.status)),
       ]),
@@ -87,7 +114,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.createdAt'),
     key: 'created_at',
-    render: (row) => formatFixedDateTime(row.created_at),
+    render: (row) => formatLocaleDateTime(row.created_at, locale.value),
   },
   {
     title: t('common.actions'),
@@ -95,6 +122,18 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
     fixed: 'right',
     render: (row) =>
       h('div', { class: 'order-actions' }, [
+        row.status === 0
+          ? h(
+              NButton,
+              {
+                text: true,
+                type: 'primary',
+                onClick: () => router.push(`/order/${row.trade_no}`),
+              },
+              { default: () => t('order.pay') },
+            )
+          : null,
+        row.status === 0 ? h(NDivider, { vertical: true }) : null,
         h(
           NButton,
           {
@@ -110,7 +149,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
           {
             text: true,
             type: 'primary',
-            disabled: row.status !== 0,
+            disabled: !canCancelOrder(row),
             onClick: () => confirmCancel(row.trade_no),
           },
           { default: () => t('common.cancel') },
@@ -119,25 +158,91 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   },
 ])
 
-onMounted(async () => {
+async function loadOrders() {
   loading.value = true
   try {
-    rows.value = await fetchOrders()
+    const res = await fetchOrders({
+      status: statusFilter.value ?? undefined,
+      page: page.value,
+      pageSize: pageSize.value,
+    })
+    rows.value = res.data ?? []
+    total.value = res.total ?? 0
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
   }
+}
+
+function onPageChange(p: number) {
+  page.value = p
+  void loadOrders()
+}
+
+function onPageSizeChange(size: number) {
+  pageSize.value = size
+  page.value = 1
+  void loadOrders()
+}
+
+watch(statusFilter, () => {
+  page.value = 1
+  void loadOrders()
+})
+
+onMounted(async () => {
+  try {
+    await loadCurrency()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
+  await loadOrders()
 })
 </script>
 
 <template>
-  <n-data-table
-    class="order-list-table"
-    :columns="columns"
-    :data="rows"
-    :bordered="false"
-    :scroll-x="800"
-    :loading="loading"
-  />
+  <div class="order-page">
+    <div class="order-page__toolbar">
+      <n-select
+        v-model:value="statusFilter"
+        :options="statusOptions"
+        :placeholder="t('order.filterAll')"
+        class="order-page__filter"
+        clearable
+      />
+    </div>
+    <n-empty v-if="!loading && rows.length === 0" :description="t('order.empty')" />
+    <n-data-table
+      v-else
+      remote
+      class="order-list-table"
+      :columns="columns"
+      :data="rows"
+      :bordered="false"
+      :scroll-x="960"
+      :loading="loading"
+      :pagination="{
+        page,
+        pageSize,
+        itemCount: total,
+        showSizePicker: true,
+        pageSizes: [10, 20, 50],
+        onUpdatePage: onPageChange,
+        onUpdatePageSize: onPageSizeChange,
+      }"
+    />
+  </div>
 </template>
+
+<style scoped>
+.order-page__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+.order-page__filter {
+  width: 200px;
+  max-width: 100%;
+}
+</style>

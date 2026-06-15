@@ -4,6 +4,8 @@ import { IconDots } from '@tabler/icons-react'
 import { MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { adminApi, buildQuery, postJson, type PaginatedResult } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
@@ -23,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type TicketRow = {
@@ -39,6 +42,8 @@ type TicketMessage = {
   id?: number
   message?: string
   is_me?: boolean
+  is_from_user?: boolean
+  is_from_admin?: boolean
   created_at?: number
 }
 
@@ -47,9 +52,15 @@ type TicketDetail = TicketRow & {
   user?: { email?: string }
 }
 
-function formatTs(ts?: number) {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleString()
+function normalizeTicketDetail(raw: TicketDetail | null | undefined): TicketDetail | null {
+  if (!raw) return null
+  return {
+    ...raw,
+    messages: (raw.messages ?? []).map((msg) => ({
+      ...msg,
+      is_me: Boolean(msg.is_from_admin ?? !msg.is_from_user),
+    })),
+  }
 }
 
 function statusLabel(t: (key: string) => string, status?: number) {
@@ -67,8 +78,39 @@ function replyStatusLabel(
   return String(replyStatus ?? '—')
 }
 
+function isOfficialWithdrawTicket(row: TicketRow): boolean {
+  return Number(row.level) === 2 && Boolean(row.subject?.includes('[withdraw_ticket]'))
+}
+
+function isWithdrawTicketRow(row: TicketRow): boolean {
+  return isOfficialWithdrawTicket(row) || isLegacyWithdrawTicket(row)
+}
+
+function isLegacyWithdrawTicket(row: TicketRow): boolean {
+  if (Number(row.level) !== 2 || isOfficialWithdrawTicket(row)) {
+    return false
+  }
+  const subject = row.subject ?? ''
+  return (
+    subject.includes('Commission Withdrawal Request')
+    || subject.includes('Commission withdrawal')
+    || subject.includes('佣金提现')
+  )
+}
+
+function levelLabel(t: (key: string) => string, level?: number, subject?: string) {
+  if (level === 2 && isWithdrawTicketRow({ level, subject })) {
+    return t('ticket.level.withdraw')
+  }
+  if (level === 0) return t('ticket.level.low')
+  if (level === 1) return t('ticket.level.medium')
+  if (level === 2) return t('ticket.level.high')
+  return String(level ?? '—')
+}
+
 export default function TicketPage() {
   const { t } = useTranslation()
+  const { confirm, ConfirmDialog } = useConfirmDialog()
   const [data, setData] = useState<TicketRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -101,7 +143,7 @@ export default function TicketPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, search, statusTab, replyStatusFilter, t])
 
@@ -114,11 +156,11 @@ export default function TicketPage() {
       const result = await adminApi<{ data?: TicketDetail }>(
         `/ticket/fetch${buildQuery({ id: row.id })}`,
       )
-      setDetail(result.data ?? null)
+      setDetail(normalizeTicketDetail(result.data ?? null))
       setReply('')
       setDetailOpen(true)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -131,23 +173,50 @@ export default function TicketPage() {
       const result = await adminApi<{ data?: TicketDetail }>(
         `/ticket/fetch${buildQuery({ id: detail.id })}`,
       )
-      setDetail(result.data ?? null)
+      setDetail(normalizeTicketDetail(result.data ?? null))
       setReply('')
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
   }
 
-  async function closeTicket(row: TicketRow) {
+  async function closeTicket(
+    row: TicketRow,
+    options?: { withdrawPaid?: boolean; withdrawRejected?: boolean },
+  ) {
+    const needsConfirm = isOfficialWithdrawTicket(row) || isLegacyWithdrawTicket(row)
+    if (needsConfirm) {
+      const title = options?.withdrawPaid
+        ? t('ticket.actions.approve_withdraw_confirm_title')
+        : t('ticket.actions.reject_withdraw_confirm_title')
+      const description = options?.withdrawPaid
+        ? t('ticket.actions.approve_withdraw_confirm_description')
+        : t('ticket.actions.reject_withdraw_confirm_description')
+      if (!(await confirm(title, description, { destructive: !options?.withdrawPaid }))) {
+        return
+      }
+    } else if (!(await confirm(
+      t('ticket.actions.close_confirm_title'),
+      t('ticket.actions.close_confirm_description'),
+    ))) {
+      return
+    }
     try {
-      await postJson('/ticket/close', { id: row.id })
+      const payload: Record<string, unknown> = { id: row.id }
+      if (options?.withdrawPaid) {
+        payload.withdraw_paid = true
+      }
+      if (options?.withdrawRejected) {
+        payload.withdraw_rejected = true
+      }
+      await postJson('/ticket/close', payload)
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -155,7 +224,7 @@ export default function TicketPage() {
     () => [
       { accessorKey: 'id', header: () => t('ticket.columns.id') },
       { accessorKey: 'subject', header: () => t('ticket.columns.subject') },
-      { accessorKey: 'level', header: () => t('ticket.columns.level') },
+      { accessorKey: 'level', header: () => t('ticket.columns.level'), cell: ({ row }) => levelLabel(t, row.original.level, row.original.subject) },
       {
         accessorKey: 'status',
         header: () => t('ticket.columns.status'),
@@ -169,7 +238,12 @@ export default function TicketPage() {
       {
         accessorKey: 'updated_at',
         header: () => t('ticket.columns.updated_at'),
-        cell: ({ row }) => formatTs(row.original.updated_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.updated_at),
+      },
+      {
+        accessorKey: 'created_at',
+        header: () => t('ticket.columns.created_at'),
+        cell: ({ row }) => formatAdminDateTime(row.original.created_at),
       },
       {
         id: 'actions',
@@ -186,9 +260,20 @@ export default function TicketPage() {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 {t('ticket.actions.reply')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => closeTicket(row.original)}>
-                {t('ticket.actions.close')}
-              </DropdownMenuItem>
+              {isWithdrawTicketRow(row.original) ? (
+                <>
+                  <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawPaid: true })}>
+                    {t('ticket.actions.approve_withdraw')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => closeTicket(row.original, { withdrawRejected: true })}>
+                    {t('ticket.actions.close_reject_withdraw')}
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem onClick={() => closeTicket(row.original)}>
+                  {t('ticket.actions.close_ticket')}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ),
@@ -278,29 +363,34 @@ export default function TicketPage() {
                   className={`rounded-md p-2 text-sm ${msg.is_me ? 'bg-primary/10' : 'bg-muted'}`}
                 >
                   <p>{msg.message}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{formatTs(msg.created_at)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{formatAdminDateTime(msg.created_at)}</p>
                 </div>
               ))}
             </div>
             <div className="flex flex-col gap-2">
               <Label>{t('ticket.reply.label')}</Label>
-              <textarea
-                className={textareaCls}
-                value={reply}
-                onChange={(e) => setReply(e.target.value)}
-              />
+              {detail?.status === 1 ? (
+                <p className="text-sm text-muted-foreground">{t('ticket.status.closed')}</p>
+              ) : (
+                <textarea
+                  className={textareaCls}
+                  value={reply}
+                  onChange={(e) => setReply(e.target.value)}
+                />
+              )}
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailOpen(false)}>
               {t('common.cancel')}
             </Button>
-            <Button onClick={sendReply} disabled={saving || !reply.trim()}>
+            <Button onClick={sendReply} disabled={saving || !reply.trim() || detail?.status === 1}>
               {t('ticket.actions.reply')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog />
     </div>
   )
 }

@@ -12,6 +12,7 @@ use App\Models\StatUser;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\StatisticalService;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 
 class StatController extends Controller
@@ -21,6 +22,17 @@ class StatController extends Controller
     {
         $this->service = $service;
     }
+    private function paidIncomeQuery()
+    {
+        return Order::where('status', Order::STATUS_COMPLETED)
+            ->whereNotNull('paid_at');
+    }
+
+    private function sumPaidIncome($query): int
+    {
+        return (int) ((clone $query)->selectRaw('COALESCE(SUM(total_amount + balance_amount), 0) as income')->value('income') ?? 0);
+    }
+
     public function getOverride(Request $request)
     {
         // 获取在线节点数
@@ -53,10 +65,11 @@ class StatController extends Controller
 
         return [
             'data' => [
-                'month_income' => Order::where('created_at', '>=', strtotime(date('Y-m-1')))
-                    ->where('created_at', '<', time())
-                    ->whereNotIn('status', [0, 2])
-                    ->sum('total_amount'),
+                'month_income' => $this->sumPaidIncome(
+                    $this->paidIncomeQuery()
+                        ->where('paid_at', '>=', strtotime(date('Y-m-1')))
+                        ->where('paid_at', '<', time())
+                ),
                 'month_register_total' => User::where('created_at', '>=', strtotime(date('Y-m-1')))
                     ->where('created_at', '<', time())
                     ->count(),
@@ -64,17 +77,19 @@ class StatController extends Controller
                     ->count(),
                 'commission_pending_total' => Order::where('commission_status', 0)
                     ->where('invite_user_id', '!=', NULL)
-                    ->whereNotIn('status', [0, 2])
+                    ->where('status', Order::STATUS_COMPLETED)
                     ->where('commission_balance', '>', 0)
                     ->count(),
-                'day_income' => Order::where('created_at', '>=', strtotime(date('Y-m-d')))
-                    ->where('created_at', '<', time())
-                    ->whereNotIn('status', [0, 2])
-                    ->sum('total_amount'),
-                'last_month_income' => Order::where('created_at', '>=', strtotime('-1 month', strtotime(date('Y-m-1'))))
-                    ->where('created_at', '<', strtotime(date('Y-m-1')))
-                    ->whereNotIn('status', [0, 2])
-                    ->sum('total_amount'),
+                'day_income' => $this->sumPaidIncome(
+                    $this->paidIncomeQuery()
+                        ->where('paid_at', '>=', strtotime(date('Y-m-d')))
+                        ->where('paid_at', '<', time())
+                ),
+                'last_month_income' => $this->sumPaidIncome(
+                    $this->paidIncomeQuery()
+                        ->where('paid_at', '>=', strtotime('-1 month', strtotime(date('Y-m-1'))))
+                        ->where('paid_at', '<', strtotime(date('Y-m-1')))
+                ),
                 'commission_month_payout' => CommissionLog::where('created_at', '>=', strtotime(date('Y-m-1')))
                     ->where('created_at', '<', time())
                     ->sum('get_amount'),
@@ -145,34 +160,45 @@ class StatController extends Controller
         $dailyStats = [];
         foreach ($statistics as $statistic) {
             $date = date('Y-m-d', $statistic['record_at']);
+            $paidTotal = round($statistic['paid_total'] / 100, 2);
+            $commissionTotal = round($statistic['commission_total'] / 100, 2);
 
             // Update summary
-            $summary['paid_total'] += $statistic['paid_total'];
+            $summary['paid_total'] += $paidTotal;
             $summary['paid_count'] += $statistic['paid_count'];
-            $summary['commission_total'] += $statistic['commission_total'];
+            $summary['commission_total'] += $commissionTotal;
             $summary['commission_count'] += $statistic['commission_count'];
 
             // Calculate daily stats
             $dailyData = [
                 'date' => $date,
-                'paid_total' => $statistic['paid_total'],
+                'paid_total' => $paidTotal,
                 'paid_count' => $statistic['paid_count'],
-                'commission_total' => $statistic['commission_total'],
+                'commission_total' => $commissionTotal,
                 'commission_count' => $statistic['commission_count'],
-                'avg_order_amount' => $statistic['paid_count'] > 0 ? round($statistic['paid_total'] / $statistic['paid_count'], 2) : 0,
-                'avg_commission_amount' => $statistic['commission_count'] > 0 ? round($statistic['commission_total'] / $statistic['commission_count'], 2) : 0
+                'avg_order_amount' => $statistic['paid_count'] > 0 ? round($paidTotal / $statistic['paid_count'], 2) : 0,
+                'avg_commission_amount' => $statistic['commission_count'] > 0 ? round($commissionTotal / $statistic['commission_count'], 2) : 0
             ];
 
             if ($request->input('type')) {
+                $type = $request->input('type');
+                $value = $statistic[$type];
+                if (in_array($type, ['paid_total', 'commission_total'], true)) {
+                    $value = round($value / 100, 2);
+                }
                 $dailyStats[] = [
                     'date' => $date,
-                    'value' => $statistic[$request->input('type')],
-                    'type' => $this->getTypeLabel($request->input('type'))
+                    'value' => $value,
+                    'type' => $this->getTypeLabel($type)
                 ];
             } else {
                 $dailyStats[] = $dailyData;
             }
         }
+
+        // Round summary totals for display consistency
+        $summary['paid_total'] = round($summary['paid_total'], 2);
+        $summary['commission_total'] = round($summary['commission_total'], 2);
 
         // Calculate averages for summary
         if ($summary['paid_count'] > 0) {
@@ -233,7 +259,7 @@ class StatController extends Controller
             'user_id' => 'required|integer'
         ]);
 
-        $pageSize = $request->input('pageSize', 10);
+        $pageSize = Helper::paginateParams(1, $request->input('pageSize', 10))[1];
         $records = StatUser::orderBy('record_at', 'DESC')
             ->where('user_id', $request->input('user_id'))
             ->paginate($pageSize);
@@ -247,6 +273,15 @@ class StatController extends Controller
 
     public function getStatRecord(Request $request)
     {
+        $request->validate([
+            'start_time' => 'nullable|integer|min:1000000000|max:9999999999',
+            'end_time' => 'nullable|integer|min:1000000000|max:9999999999',
+        ]);
+        $startDate = (int) $request->input('start_time', strtotime('-30 days'));
+        $endDate = (int) $request->input('end_time', time());
+        $this->service->setStartAt($startDate);
+        $this->service->setEndAt($endDate);
+
         return [
             'data' => $this->service->getStatRecord($request->input('type'))
         ];
@@ -293,28 +328,18 @@ class StatController extends Controller
             ->first();
 
         // Today's income
-        $todayIncome = Order::where('created_at', '>=', $todayStart)
-            ->where('created_at', '<', time())
-            ->whereNotIn('status', [0, 2])
-            ->sum('total_amount');
-
-        // Yesterday's income for day growth calculation
-        $yesterdayIncome = Order::where('created_at', '>=', $yesterdayStart)
-            ->where('created_at', '<', $todayStart)
-            ->whereNotIn('status', [0, 2])
-            ->sum('total_amount');
-
-        // Current month income
-        $currentMonthIncome = Order::where('created_at', '>=', $currentMonthStart)
-            ->where('created_at', '<', time())
-            ->whereNotIn('status', [0, 2])
-            ->sum('total_amount');
-
-        // Last month income
-        $lastMonthIncome = Order::where('created_at', '>=', $lastMonthStart)
-            ->where('created_at', '<', $currentMonthStart)
-            ->whereNotIn('status', [0, 2])
-            ->sum('total_amount');
+        $todayIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $todayStart)->where('paid_at', '<', time())
+        );
+        $yesterdayIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $yesterdayStart)->where('paid_at', '<', $todayStart)
+        );
+        $currentMonthIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $currentMonthStart)->where('paid_at', '<', time())
+        );
+        $lastMonthIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $lastMonthStart)->where('paid_at', '<', $currentMonthStart)
+        );
 
         // Last month commission payout
         $lastMonthCommissionPayout = CommissionLog::where('created_at', '>=', $lastMonthStart)
@@ -335,16 +360,17 @@ class StatController extends Controller
         $totalUsers = User::count();
 
         // Active users (users with valid subscription)
-        $activeUsers = User::where(function ($query) {
-            $query->where('expired_at', '>=', time())
-                ->orWhere('expired_at', NULL);
-        })->count();
+        $activeUsers = User::where('banned', 0)
+            ->whereNotNull('plan_id')
+            ->where(function ($query) {
+                $query->where('expired_at', '>=', time())
+                    ->orWhere('expired_at', NULL);
+            })->count();
 
         // Previous month income for growth calculation
-        $twoMonthsAgoIncome = Order::where('created_at', '>=', $twoMonthsAgoStart)
-            ->where('created_at', '<', $lastMonthStart)
-            ->whereNotIn('status', [0, 2])
-            ->sum('total_amount');
+        $twoMonthsAgoIncome = $this->sumPaidIncome(
+            $this->paidIncomeQuery()->where('paid_at', '>=', $twoMonthsAgoStart)->where('paid_at', '<', $lastMonthStart)
+        );
 
         // Previous month commission for growth calculation
         $twoMonthsAgoCommission = CommissionLog::where('created_at', '>=', $twoMonthsAgoStart)
@@ -511,10 +537,16 @@ class StatController extends Controller
         $request->validate([
             'type' => 'nullable|string|in:server_traffic_rank,user_consumption_rank,invite_rank',
             'limit' => 'nullable|integer|min:1|max:100',
+            'start_time' => 'nullable|integer|min:1000000000|max:9999999999',
+            'end_time' => 'nullable|integer|min:1000000000|max:9999999999',
         ]);
 
         $type = $request->input('type', 'server_traffic_rank');
         $limit = (int) $request->input('limit', 20);
+        $startDate = (int) $request->input('start_time', strtotime('today'));
+        $endDate = (int) $request->input('end_time', strtotime('tomorrow'));
+        $this->service->setStartAt($startDate);
+        $this->service->setEndAt($endDate);
 
         return $this->success($this->service->getRanking($type, $limit));
     }

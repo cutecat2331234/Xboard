@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { adminApi, buildQuery, fetchJsonList, postJson } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { Button } from '@/components/ui/button'
@@ -44,8 +45,8 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
         setList(items)
         if (!selected && items[0]?.name) setSelected(items[0].name!)
       })
-      .catch(() => setList([]))
-  }, [selected])
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
+  }, [selected, t, toast])
 
   const loadDetail = useCallback((name: string) => {
     if (!name) return
@@ -56,7 +57,8 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
         setDetail(d)
         setSavedDetail(d)
       })
-      .catch(() => {
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
         setDetail({})
         setSavedDetail({})
       })
@@ -82,7 +84,7 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
       setSavedDetail({ ...detail })
       loadList()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -100,7 +102,7 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
       loadDetail(selected)
       loadList()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -118,7 +120,7 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
       })
       toast.success(t('settings.email_template.test_success'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setTesting(false)
     }

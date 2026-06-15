@@ -24,8 +24,12 @@ import CaptchaWidget from '@/components/CaptchaWidget.vue'
 import TelegramLoginWidget from '@/components/TelegramLoginWidget.vue'
 import { forgetPassword, loginWithMailLink, token2Login } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
+import { invalidateAppConfigCaches } from '@/lib/invalidate-app-config'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
+import { resolveAssetUrl } from '@/lib/asset-url'
+import { storeInviteCode, recordPageView } from '@/api/pv'
 
 const LoginIcon = {
   render() {
@@ -77,7 +81,7 @@ const confirmPassword = ref('')
 const inviteCode = ref('')
 const emailCode = ref('')
 const lockInvite = ref(false)
-const agreed = ref(true)
+const agreed = ref(false)
 const errorText = ref('')
 const sending = ref(false)
 const tokenLoading = ref(false)
@@ -86,6 +90,18 @@ const mailLinkLoading = ref(false)
 const forgetLoading = ref(false)
 
 const showMailLink = computed(() => Boolean(config.value?.login_with_mail_link_enable))
+const registerClosed = computed(
+  () => config.value == null || Number(config.value.register_enable) === 0,
+)
+const brandLogo = computed(() =>
+  resolveAssetUrl(config.value?.logo || settings.value.logo || '', config.value?.app_url),
+)
+const telegramAuthUrl = computed(() => {
+  const domain = config.value?.telegram_login_domain
+  if (!domain) return undefined
+  const resolved = resolveAssetUrl(domain, config.value?.app_url)
+  return resolved || undefined
+})
 const showTelegram = computed(
   () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
 )
@@ -93,12 +109,23 @@ const showCaptcha = computed(() => Boolean(config.value?.is_captcha) && !isRegis
 const showTerms = computed(() => Boolean(config.value?.tos_url))
 const showEmailVerify = computed(() => Boolean(config.value?.is_email_verify))
 const inviteRequired = computed(() => Boolean(config.value?.is_invite_force))
+const inviteVisible = computed(() => featureEnabled(config.value?.invite_enable, config.value != null))
+
+const pageTitle = computed(() => {
+  if (isForget.value) return t('forgotPassword')
+  return settings.value.title || config.value?.app_name || t('auth.defaultTitle')
+})
+
+const pageSubtitle = computed(() => {
+  return settings.value.description || config.value?.app_description || t('auth.defaultDescription')
+})
 
 function applyInviteFromQuery() {
   const code = route.query.code
   if (typeof code === 'string' && code) {
     inviteCode.value = code
     lockInvite.value = true
+    storeInviteCode(code)
   }
 }
 
@@ -108,6 +135,7 @@ async function tryTokenLogin() {
   tokenLoading.value = true
   try {
     await token2Login(verify)
+    invalidateAppConfigCaches()
     await auth.loadUser()
     router.replace(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
@@ -118,8 +146,17 @@ async function tryTokenLogin() {
 }
 
 onMounted(async () => {
-  await loadGuest()
+  try {
+    await loadGuest({ force: true })
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
+  if (registerClosed.value && isRegister.value) {
+    msg.warning(t('errors.registrationClosed'))
+    backToLoginTab()
+  }
   applyInviteFromQuery()
+  recordPageView()
   await tryTokenLogin()
 })
 
@@ -132,6 +169,11 @@ watch(
     confirmPassword.value = ''
     emailCode.value = ''
     applyInviteFromQuery()
+    if (registerClosed.value && isRegister.value) {
+      msg.warning(t('errors.registrationClosed'))
+      backToLoginTab()
+      return
+    }
     if (!isRegister.value && !isForget.value) tryTokenLogin()
   },
 )
@@ -142,7 +184,7 @@ async function sendCode() {
   sending.value = true
   try {
     const captcha = await captchaRef.value?.getPayload()
-    await sendEmailVerify(addr, captcha)
+    await sendEmailVerify(addr, captcha, isForget.value ? 'forget' : 'register')
     msg.success(t('common.success'))
     captchaRef.value?.reset()
   } catch (e: unknown) {
@@ -159,12 +201,15 @@ async function submitMailLink() {
   if (!addr) return
   mailLinkLoading.value = true
   try {
-    await loginWithMailLink(addr)
+    const captcha = await captchaRef.value?.getPayload()
+    await loginWithMailLink(addr, captcha)
     msg.success(t('mailLinkSent'))
+    captchaRef.value?.reset()
   } catch (e: unknown) {
     const message = resolveApiError(e, t)
     errorText.value = message
     msg.error(message)
+    captchaRef.value?.reset()
   } finally {
     mailLinkLoading.value = false
   }
@@ -175,7 +220,7 @@ async function submitLogin() {
   try {
     const captcha = await captchaRef.value?.getPayload()
     await auth.login({ email: resolvedEmail(), password: password.value, ...captcha })
-    msg.success(t('login'))
+    msg.success(t('common.success'))
     router.push(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
     const message = resolveApiError(e, t, t('auth.loginFailed'))
@@ -187,12 +232,20 @@ async function submitLogin() {
 
 async function submitRegister() {
   errorText.value = ''
+  if (registerClosed.value) {
+    errorText.value = t('errors.registrationClosed')
+    return
+  }
   if (showTerms.value && !agreed.value) {
     errorText.value = t('termsRequired')
     return
   }
   if (password.value !== confirmPassword.value) {
     errorText.value = t('passwordMismatch')
+    return
+  }
+  if (password.value.length < 8) {
+    errorText.value = t('errors.passwordTooShort')
     return
   }
   if (inviteRequired.value && !inviteCode.value.trim()) {
@@ -208,7 +261,7 @@ async function submitRegister() {
       email_code: showEmailVerify.value ? emailCode.value : undefined,
       ...captcha,
     })
-    msg.success(t('register'))
+    msg.success(t('common.success'))
     router.push('/dashboard')
   } catch (e: unknown) {
     const message = resolveApiError(e, t, t('auth.registerFailed'))
@@ -222,6 +275,10 @@ async function submitForget() {
   errorText.value = ''
   if (password.value !== confirmPassword.value) {
     errorText.value = t('passwordMismatch')
+    return
+  }
+  if (password.value.length < 8) {
+    errorText.value = t('errors.passwordTooShort')
     return
   }
   forgetLoading.value = true
@@ -260,10 +317,11 @@ function submit() {
   <div class="auth-page" :style="authPageStyle">
     <n-card class="auth-card" :bordered="true">
       <div class="auth-card__body p-6">
+        <img v-if="brandLogo" :src="brandLogo" alt="" class="auth-card__logo" />
         <h1 class="auth-card__title-main">
-          {{ isForget ? t('forgotPassword') : settings.title || 'Xboard' }}
+          {{ pageTitle }}
         </h1>
-        <h5 class="auth-card__subtitle">{{ settings.description || 'Xboard is best' }}</h5>
+        <h5 class="auth-card__subtitle">{{ pageSubtitle }}</h5>
 
         <form v-if="!tokenLoading" @submit.prevent="submit">
           <div class="auth-field">
@@ -274,6 +332,13 @@ function submit() {
               :suffixes="config?.email_whitelist_suffix"
               autofocus
             />
+          </div>
+
+          <div
+            v-if="(isRegister && config?.is_captcha) || (isForget && showCaptcha)"
+            class="auth-field"
+          >
+            <CaptchaWidget ref="captchaRef" :config="config" />
           </div>
 
           <div
@@ -302,9 +367,6 @@ function submit() {
                 show-password-on="click"
               />
             </div>
-            <div v-if="showCaptcha" class="auth-field">
-              <CaptchaWidget ref="captchaRef" :config="config" />
-            </div>
           </template>
 
           <template v-else-if="isRegister">
@@ -317,16 +379,12 @@ function submit() {
               />
             </div>
 
-            <div class="auth-field">
+            <div v-if="inviteVisible" class="auth-field">
               <n-input
                 v-model:value="inviteCode"
                 :placeholder="inviteRequired ? t('inviteCodeRequiredPh') : t('inviteCode')"
                 :disabled="lockInvite"
               />
-            </div>
-
-            <div v-if="config?.is_captcha" class="auth-field">
-              <CaptchaWidget ref="captchaRef" :config="config" />
             </div>
 
             <div v-if="showTerms" class="auth-field auth-terms">
@@ -339,7 +397,7 @@ function submit() {
             </div>
           </template>
 
-          <div v-else-if="showCaptcha && !mailLinkMode" class="auth-field">
+          <div v-else-if="isLogin && showCaptcha" class="auth-field">
             <CaptchaWidget ref="captchaRef" :config="config" />
           </div>
 
@@ -381,6 +439,7 @@ function submit() {
           <TelegramLoginWidget
             v-if="showTelegram && config?.telegram_bot_username && !mailLinkMode && !isForget"
             :bot-username="config.telegram_bot_username"
+            :auth-url="telegramAuthUrl"
           />
         </form>
 
@@ -401,8 +460,8 @@ function submit() {
             </a>
           </template>
           <template v-else>
-            <router-link class="auth-footer-link text-gray-500" to="/register">{{ t('register') }}</router-link>
-            <n-divider vertical />
+            <router-link v-if="!registerClosed" class="auth-footer-link text-gray-500" to="/register">{{ t('register') }}</router-link>
+            <n-divider v-if="!registerClosed" vertical />
             <router-link class="auth-footer-link text-gray-500" to="/forgetpassword">{{ t('forgotPassword') }}</router-link>
             <template v-if="showMailLink">
               <n-divider vertical />
@@ -429,6 +488,13 @@ function submit() {
 <style scoped>
 .auth-card__body form {
   margin: 0;
+}
+.auth-card__logo {
+  display: block;
+  max-height: 48px;
+  max-width: 160px;
+  margin: 0 auto 12px;
+  object-fit: contain;
 }
 .auth-card__title-main {
   margin: 24.12px 0;

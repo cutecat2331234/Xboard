@@ -4,6 +4,7 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import {
   fetchJsonList,
   postJson,
@@ -62,14 +63,16 @@ export default function PaymentPage() {
     setLoading(true)
     fetchJsonList('/payment/fetch')
       .then((rows) => setData(rows as PaymentRow[]))
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
 
   useEffect(() => {
     load()
-    fetchJsonList('/payment/getPaymentMethods').then((rows) => setMethods(rows as string[]))
-  }, [load])
+    fetchJsonList('/payment/getPaymentMethods')
+      .then((rows) => setMethods(rows as string[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
+  }, [load, t])
 
   async function loadPaymentForm(payment: string, id?: number) {
     try {
@@ -78,16 +81,19 @@ export default function PaymentPage() {
         id,
       })
       setDynamicFields(Array.isArray(fields) ? fields : [])
-      const config: Record<string, unknown> = { ...(form.config ?? {}) }
-      for (const field of Array.isArray(fields) ? fields : []) {
-        const key = field.name ?? field.key
-        if (key && field.value !== undefined && config[key] === undefined) {
-          config[key] = field.value
+      setForm((f) => {
+        const config: Record<string, unknown> = {}
+        for (const field of Array.isArray(fields) ? fields : []) {
+          const key = field.name ?? field.key
+          if (key && field.value !== undefined) {
+            config[key] = field.value
+          }
         }
-      }
-      setForm((f) => ({ ...f, config }))
-    } catch {
+        return { ...f, config }
+      })
+    } catch (e) {
       setDynamicFields([])
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -116,7 +122,7 @@ export default function PaymentPage() {
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -127,7 +133,7 @@ export default function PaymentPage() {
       await postJson('/payment/show', { id: row.id })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -144,7 +150,7 @@ export default function PaymentPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -252,7 +258,7 @@ export default function PaymentPage() {
                 onClick={openCreate}
               >
                 <Plus className="h-4 w-4" />
-                <span>{t('payment.form.add')}</span>
+                <span>{t('payment.form.add.button')}</span>
               </Button>
             ) : null}
             <SortToolbar
@@ -288,7 +294,7 @@ export default function PaymentPage() {
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.name')}</Label>
+              <Label>{t('payment.form.fields.name.label')}</Label>
               <input
                 className={inputCls}
                 value={form.name ?? ''}
@@ -296,7 +302,7 @@ export default function PaymentPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.payment')}</Label>
+              <Label>{t('payment.form.fields.payment.label')}</Label>
               <select
                 className={inputCls}
                 value={form.payment ?? ''}
@@ -315,7 +321,7 @@ export default function PaymentPage() {
               </select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.icon')}</Label>
+              <Label>{t('payment.form.fields.icon.label')}</Label>
               <input
                 className={inputCls}
                 value={form.icon ?? ''}
@@ -354,7 +360,39 @@ export default function PaymentPage() {
               )
             })}
             <div className="flex flex-col gap-2">
-              <Label>{t('payment.form.fields.notify_domain')}</Label>
+              <Label>{t('payment.form.fields.handling_fee_percent.label')}</Label>
+              <input
+                className={inputCls}
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.handling_fee_percent ?? ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    handling_fee_percent: e.target.value === '' ? undefined : Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>{t('payment.form.fields.handling_fee_fixed.label')}</Label>
+              <input
+                className={inputCls}
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.handling_fee_fixed ?? ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    handling_fee_fixed: e.target.value === '' ? undefined : Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>{t('payment.form.fields.notify_domain.label')}</Label>
               <input
                 className={inputCls}
                 value={form.notify_domain ?? ''}

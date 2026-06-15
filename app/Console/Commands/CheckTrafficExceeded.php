@@ -38,12 +38,12 @@ class CheckTrafficExceeded extends Command
         $notifiedCount = 0;
 
         foreach ($groupedUsers as $groupId => $users) {
-            if (!$groupId) {
-                continue;
-            }
-
             $userIdsInGroup = $users->pluck('id')->toArray();
-            $servers = Server::whereJsonContains('group_ids', (string) $groupId)->get();
+            if (!$groupId) {
+                $servers = Server::all();
+            } else {
+                $servers = Server::whereJsonContains('group_ids', (string) $groupId)->get();
+            }
 
             foreach ($servers as $server) {
                 if (!NodeSyncService::isNodeOnline($server->id)) {

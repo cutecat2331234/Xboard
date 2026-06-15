@@ -9,6 +9,7 @@
     window.settings = {
       base_url: "/",
       title: "{{ $title }}",
+      description: @json($description ?? ''),
       version: "{{ $version }}",
       logo: "{{ $logo }}",
       secure_path: "{{ $secure_path }}",

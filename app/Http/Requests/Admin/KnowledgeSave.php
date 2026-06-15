@@ -15,7 +15,7 @@ class KnowledgeSave extends FormRequest
     {
         return [
             'category' => 'required',
-            'language' => 'required',
+            'language' => 'required|in:en-US,zh-CN,zh-TW,ru-RU',
             'title' => 'required',
             'body' => 'required',
             'show' => 'nullable|boolean'

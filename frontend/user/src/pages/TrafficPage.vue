@@ -4,7 +4,7 @@ import { NAlert, NCard, NDataTable, NEmpty, NIcon, NPopover, NTag, useMessage } 
 import { HelpCircleOutline } from '@vicons/ionicons5'
 import { fetchTrafficLog } from '@/api/traffic'
 import { formatBytes } from '@/lib/format-traffic'
-import { formatFixedDate } from '@/lib/format-date'
+import { formatLocaleDate } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
@@ -18,8 +18,17 @@ interface TrafficRow {
 
 const rows = ref<TrafficRow[]>([])
 const loading = ref(true)
+const loadError = ref(false)
 const msg = useMessage()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const trafficUnits = computed(() => ({
+  b: t('common.units.b'),
+  kb: t('common.units.kb'),
+  mb: t('common.units.mb'),
+  gb: t('common.units.gb'),
+  tb: t('common.units.tb'),
+}))
 
 function serverRate(row: TrafficRow): number {
   const raw = row.server_rate ?? row.rate ?? 1
@@ -31,17 +40,17 @@ const columns = computed(() => [
   {
     title: t('traffic.recordAt'),
     key: 'record_at',
-    render: (r: TrafficRow) => formatFixedDate(r.record_at),
+    render: (r: TrafficRow) => formatLocaleDate(r.record_at, locale.value),
   },
   {
     title: t('traffic.upload'),
     key: 'u',
-    render: (r: TrafficRow) => formatBytes(r.u / serverRate(r)),
+    render: (r: TrafficRow) => formatBytes(r.u / serverRate(r), trafficUnits.value),
   },
   {
     title: t('traffic.download'),
     key: 'd',
-    render: (r: TrafficRow) => formatBytes(r.d / serverRate(r)),
+    render: (r: TrafficRow) => formatBytes(r.d / serverRate(r), trafficUnits.value),
   },
   {
     title: t('traffic.rate'),
@@ -65,15 +74,18 @@ const columns = computed(() => [
       ]),
     key: 'total',
     fixed: 'right' as const,
-    render: (r: TrafficRow) => formatBytes(r.u + r.d),
+    render: (r: TrafficRow) => formatBytes((r.u + r.d) / serverRate(r), trafficUnits.value),
   },
 ])
 
 onMounted(async () => {
   loading.value = true
+  loadError.value = false
   try {
     rows.value = await fetchTrafficLog()
   } catch (e: unknown) {
+    loadError.value = true
+    rows.value = []
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
@@ -86,7 +98,10 @@ onMounted(async () => {
     <n-alert type="info" :bordered="false" class="traffic-alert">
       {{ t('traffic.hint') }}
     </n-alert>
-    <n-empty v-if="!loading && rows.length === 0" :description="t('traffic.empty')" />
+    <n-alert v-if="loadError" type="error" :bordered="false" class="traffic-alert">
+      {{ t('errors.requestFailed') }}
+    </n-alert>
+    <n-empty v-else-if="!loading && rows.length === 0" :description="t('traffic.empty')" />
     <n-data-table v-else :loading="loading" :columns="columns" :data="rows" :scroll-x="600" />
   </n-card>
 </template>

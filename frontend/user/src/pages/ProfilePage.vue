@@ -22,8 +22,11 @@ import {
   type ActiveSession,
 } from '@/api/profile'
 import { fetchTelegramBotInfo, unbindTelegram } from '@/api/telegram'
+import { fetchSubscribe } from '@/api/subscribe'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { useCurrency } from '@/composables/useCurrency'
 import { useI18n } from '@/i18n'
+import { formatLocaleDateTimeFromIso } from '@/lib/format-date'
 import { resolveApiError } from '@/lib/api-errors'
 
 const WalletIcon = renderCarbonIcon(
@@ -39,14 +42,26 @@ const confirmPassword = ref('')
 const remindExpire = ref(true)
 const remindTraffic = ref(true)
 const msg = useMessage()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
+const { code: currency, formatPrice, load: loadCurrency } = useCurrency()
+const telegramBotError = ref(false)
 const botUsername = ref('')
-const currency = ref('CNY')
 const sessions = ref<ActiveSession[]>([])
 const sessionsLoading = ref(false)
 const quickLoginLoading = ref(false)
+const subscribeToken = ref('')
 const dialog = useDialog()
+
+async function copyText(value: string, successKey = 'profile.copied') {
+  if (!value) return
+  try {
+    await navigator.clipboard.writeText(value)
+    msg.success(t(successKey))
+  } catch {
+    msg.error(t('errors.requestFailed'))
+  }
+}
 
 const switchStyle = {
   '--n-button-border-radius': '3px',
@@ -55,6 +70,10 @@ const switchStyle = {
 } as const
 
 async function submitPassword() {
+  if (newPassword.value.length < 8) {
+    msg.error(t('errors.passwordTooShort'))
+    return
+  }
   if (newPassword.value !== confirmPassword.value) {
     msg.error(t('passwordMismatch'))
     return
@@ -66,27 +85,49 @@ async function submitPassword() {
     newPassword.value = ''
     confirmPassword.value = ''
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
 async function reset() {
-  try {
-    await resetSecurity()
-    msg.success(t('common.success'))
-  } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
-  }
+  dialog.warning({
+    title: t('profile.resetSubscribe'),
+    content: t('profile.resetConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        const url = await resetSecurity()
+        if (url) {
+          dialog.success({
+            title: t('profile.resetSubscribe'),
+            content: t('profile.resetSuccessWithUrl', { url }),
+            positiveText: t('common.confirm'),
+          })
+        } else {
+          msg.success(t('common.success'))
+        }
+      } catch (e: unknown) {
+        msg.error(resolveApiError(e, t))
+      }
+    },
+  })
 }
 
 async function saveNotify() {
+  const prevExpire = remindExpire.value
+  const prevTraffic = remindTraffic.value
   try {
     await updateUser({
       remind_expire: remindExpire.value ? 1 : 0,
       remind_traffic: remindTraffic.value ? 1 : 0,
     })
+    msg.success(t('common.success'))
+    await auth.loadUser()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    remindExpire.value = Boolean(auth.user?.remind_expire ?? prevExpire)
+    remindTraffic.value = Boolean(auth.user?.remind_traffic ?? prevTraffic)
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -102,7 +143,7 @@ async function unbindTg() {
         await auth.loadUser()
         msg.success(t('common.success'))
       } catch (e: unknown) {
-        msg.error(e instanceof Error ? e.message : t('common.error'))
+        msg.error(resolveApiError(e, t))
       }
     },
   })
@@ -121,9 +162,7 @@ async function loadSessions() {
 }
 
 function formatTime(value: string | null) {
-  if (!value) return '-'
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString()
+  return formatLocaleDateTimeFromIso(value, locale.value)
 }
 
 function kickSession(row: ActiveSession) {
@@ -138,7 +177,7 @@ function kickSession(row: ActiveSession) {
         msg.success(t('common.success'))
         await loadSessions()
       } catch (e: unknown) {
-        msg.error(e instanceof Error ? e.message : t('common.error'))
+        msg.error(resolveApiError(e, t))
       }
     },
   })
@@ -151,7 +190,7 @@ async function generateQuickLogin() {
     await navigator.clipboard.writeText(url)
     msg.success(t('profile.quickLoginCopied'))
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     quickLoginLoading.value = false
   }
@@ -185,16 +224,30 @@ onMounted(async () => {
   await auth.loadUser()
   remindExpire.value = Boolean(auth.user?.remind_expire ?? 1)
   remindTraffic.value = Boolean(auth.user?.remind_traffic ?? 1)
-  const cfg = await loadComm()
-  currency.value = cfg.currency ?? 'CNY'
-  await loadSessions()
-  if (cfg.is_telegram) {
-    try {
-      const bot = await fetchTelegramBotInfo()
-      botUsername.value = bot.username
-    } catch {
-      botUsername.value = ''
+  try {
+    await Promise.all([loadComm(), loadCurrency()])
+    const cfg = commConfig.value
+    if (cfg?.is_telegram) {
+      try {
+        const bot = await fetchTelegramBotInfo()
+        botUsername.value = bot.username
+        telegramBotError.value = false
+      } catch (e: unknown) {
+        botUsername.value = ''
+        telegramBotError.value = true
+        msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+      }
     }
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
+  await loadSessions()
+  try {
+    const sub = await fetchSubscribe()
+    subscribeToken.value = sub.token ?? ''
+  } catch (e: unknown) {
+    subscribeToken.value = ''
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
 })
 </script>
@@ -205,10 +258,49 @@ onMounted(async () => {
       <WalletIcon class="text-4xl text-gray-500" />
     </template>
     <div>
-      <span class="text-5xl font-normal">{{ ((auth.user?.balance ?? 0) / 100).toFixed(2) }}</span>
+      <span class="text-5xl font-normal">{{ formatPrice(auth.user?.balance ?? 0) }}</span>
       <span class="ml-2.5 text-xl text-gray-500 md:ml-5">{{ currency }}</span>
     </div>
     <div class="text-gray-500">{{ t('profile.balanceHint') }}</div>
+  </n-card>
+
+  <n-card :title="t('profile.accountInfo')" class="mt-5 rounded-md">
+    <div class="account-row">
+      <span class="account-label">{{ t('profile.email') }}</span>
+      <span class="account-value">{{ auth.user?.email ?? '—' }}</span>
+      <n-button
+        v-if="auth.user?.email"
+        size="tiny"
+        tertiary
+        @click="copyText(auth.user!.email)"
+      >
+        {{ t('common.copy') }}
+      </n-button>
+    </div>
+    <div class="account-row">
+      <span class="account-label">{{ t('profile.uuid') }}</span>
+      <span class="account-value account-value--mono">{{ auth.user?.uuid ?? '—' }}</span>
+      <n-button
+        v-if="auth.user?.uuid"
+        size="tiny"
+        tertiary
+        @click="copyText(auth.user!.uuid)"
+      >
+        {{ t('common.copy') }}
+      </n-button>
+    </div>
+    <div class="account-row">
+      <span class="account-label">{{ t('profile.subscribeToken') }}</span>
+      <span class="account-value account-value--mono">{{ subscribeToken || '—' }}</span>
+      <n-button
+        v-if="subscribeToken"
+        size="tiny"
+        tertiary
+        @click="copyText(subscribeToken)"
+      >
+        {{ t('common.copy') }}
+      </n-button>
+    </div>
   </n-card>
 
   <n-card :title="t('profile.changePassword')" class="mt-5 rounded-md">
@@ -222,7 +314,7 @@ onMounted(async () => {
     </div>
     <div class="mt-2.5 max-w-125">
       <label>{{ t('profile.confirmNewPassword') }}</label>
-      <n-input v-model:value="confirmPassword" type="password" :placeholder="t('profile.newPasswordPh')" show-password-on="click" />
+      <n-input v-model:value="confirmPassword" type="password" :placeholder="t('profile.confirmPasswordPh')" show-password-on="click" />
     </div>
     <n-button type="primary" class="mt-5" @click="submitPassword">{{ t('common.save') }}</n-button>
   </n-card>
@@ -250,6 +342,9 @@ onMounted(async () => {
     >
       {{ t('profile.telegramUnbind') }}
     </n-button>
+    <template v-else-if="telegramBotError">
+      <n-alert type="warning" :bordered="false">{{ t('profile.telegramBotUnavailable') }}</n-alert>
+    </template>
     <template v-else-if="botUsername">
       <p class="text-gray-500">{{ t('profile.telegramHint') }}</p>
       <a :href="`https://t.me/${botUsername}`" target="_blank" rel="noopener" class="tg-link">@{{ botUsername }}</a>
@@ -316,5 +411,29 @@ onMounted(async () => {
 }
 .block {
   display: block;
+}
+.account-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.account-row:last-child {
+  margin-bottom: 0;
+}
+.account-label {
+  min-width: 120px;
+  color: var(--xb-text-secondary);
+}
+.account-value {
+  flex: 1;
+  min-width: 0;
+  word-break: break-all;
+}
+.account-value--mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
 }
 </style>

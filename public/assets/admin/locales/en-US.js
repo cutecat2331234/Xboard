@@ -1,5 +1,10 @@
 window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
 window.XBOARD_TRANSLATIONS['en-US'] = {
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundDesc": "The page you're looking for does not exist or may have been removed.",
+    "backHome": "Back to Home"
+  },
   "theme": {
     "title": "Theme Configuration",
     "description": "Theme configuration, including theme colors, font sizes, etc. If you deploy V2board in a front-end and back-end separated way, theme configuration will not take effect.",
@@ -211,6 +216,14 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "toggleNavigation": "Toggle Navigation",
     "toggleSidebar": "Toggle Sidebar",
     "search": "Search...",
+    "back": "Go Back",
+    "units": {
+      "b": "B",
+      "kb": "KB",
+      "mb": "MB",
+      "gb": "GB"
+    },
+    "select": "Please select",
     "theme": {
       "light": "Light",
       "dark": "Dark",
@@ -228,8 +241,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "submit": "Submit",
     "saving": "Saving...",
+    "none": "None",
     "days": "d",
     "table": {
+      "columns": {
+        "actions": "Actions"
+      },
       "noData": "No data available",
       "pagination": {
         "selected": "{{selected}} of {{total}} items selected",
@@ -464,6 +481,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "forgotPassword": "Forgot Password?",
       "submit": "Sign In",
       "rememberMe": "Remember me",
+      "invalidCredentials": "Incorrect email or password",
+      "accountSuspended": "Your account has been suspended",
+      "notAdmin": "This account is not an administrator",
       "resetPassword": {
         "title": "Reset Password",
         "description": "Execute the following command in the site directory to reset your password",
@@ -527,6 +547,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "show": {
           "label": "Display"
         },
+        "popup": {
+          "label": "Popup notice"
+        },
         "tags": {
           "label": "Tags",
           "placeholder": "Press Enter to add tags"
@@ -581,8 +604,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "commission": {
       "PENDING": "Pending",
-      "PROCESSING": "Processing",
-      "VALID": "Valid",
+      "VALID": "Validated",
+      "SETTLED": "Settled",
       "INVALID": "Invalid"
     },
     "actions": {
@@ -590,6 +613,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "cancel": "Cancel Order",
       "openMenu": "Open Menu",
       "reset": "Reset"
+    },
+    "filters": {
+      "userId": "User ID: {{id}}",
+      "commissionBalance": "Commission balance: {{value}}",
+      "clearAll": "Clear all filters"
     },
     "search": {
       "placeholder": "Search orders..."
@@ -654,6 +682,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "todayRegistered": "Today Registered",
       "monthlyRegistered": "Monthly Registered",
       "onlineUsers": "Online Users",
+      "onlineDevices": "Online Devices",
+      "onlineNodes": "Online Nodes",
+      "onlineSnapshot": "Last 10 minutes",
       "pendingTickets": "Pending Tickets",
       "hasPendingTickets": "There are tickets that need attention",
       "noPendingTickets": "No pending tickets",
@@ -662,6 +693,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "noPendingCommission": "No pending commission",
       "monthlyNewUsers": "Monthly New Users",
       "monthlyDownload": "Monthly Download",
+      "monthlyCommissionPayout": "Monthly Commission Payout",
+      "totalTraffic": "Total Traffic",
       "todayTraffic": "Today: {{value}}",
       "activeUserTrend": "Active User Trend",
       "realtimeUsers": "Realtime Users",
@@ -774,6 +807,33 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "empty": "No jobs in queue",
       "loading": "Loading queue status...",
       "error": "Failed to load queue status"
+    },
+    "systemStatus": {
+      "title": "System Status",
+      "schedule": "Scheduler",
+      "scheduleLastRun": "Last run: {{time}}",
+      "horizon": "Horizon",
+      "horizonHint": "Queue worker health"
+    },
+    "queueWorkload": {
+      "title": "Queue Workload",
+      "description": "Pending jobs and worker load per queue",
+      "empty": "No queue workload data",
+      "summary": "Wait {{wait}}s · {{processes}} workers"
+    },
+    "auditLog": {
+      "title": "Admin Audit Log",
+      "description": "Recent admin API actions",
+      "keywordPlaceholder": "Search action, URI, IP…",
+      "columns": {
+        "id": "ID",
+        "admin": "Admin",
+        "action": "Action",
+        "method": "Method",
+        "uri": "URI",
+        "ip": "IP",
+        "time": "Time"
+      }
     },
     "common": {
       "refresh": "Refresh",
@@ -1806,6 +1866,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Never Expire Invitation Code",
         "description": "When enabled, invitation codes will not expire after use, otherwise they will expire after being used."
       },
+      "invite_code_max_uses": {
+        "title": "Reusable Invite Code Max Uses",
+        "description": "When never-expire invite codes are enabled, each code can be used at most this many times (0 = unlimited).",
+        "placeholder": "Enter max uses per code"
+      },
       "commission_first_time": {
         "title": "First-time Commission Only",
         "description": "When enabled, commission will only be generated on the first payment of the invitee, can be configured individually in user management."
@@ -1828,13 +1893,27 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Disable Withdrawals",
         "description": "When enabled, users will be prohibited from requesting withdrawals, and invitation commissions will go directly to user balance."
       },
+      "withdraw_ticket_stale_days": {
+        "title": "Stale Withdraw Ticket Days",
+        "description": "Withdraw tickets with no admin reply for this many days are auto-restored and closed by the scheduled task.",
+        "placeholder": "Days before auto-restore (default 14)"
+      },
+      "withdraw_fee_rate": {
+        "title": "Withdrawal / Transfer Fee Rate",
+        "description": "Fee rate deducted when users withdraw or transfer commission to balance. 0 means no fee.",
+        "placeholder": "0.05 means 5%"
+      },
       "commission_distribution": {
         "title": "Three-level Distribution",
         "description": "When enabled, commission will be split according to the three set ratios, total should not exceed 100%.",
         "l1": "Level 1 Inviter Ratio",
+        "l1_description": "Commission ratio for the direct inviter.",
         "l2": "Level 2 Inviter Ratio",
+        "l2_description": "Commission ratio for the level-2 inviter.",
         "l3": "Level 3 Inviter Ratio",
-        "placeholder": "Enter ratio e.g. 50"
+        "l3_description": "Commission ratio for the level-3 inviter.",
+        "placeholder": "Enter ratio e.g. 50",
+        "sum_error": "Level 1 + Level 2 + Level 3 ratios must equal 100%"
       },
       "saving": "Saving..."
     },
@@ -1880,9 +1959,49 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "label": "Stop New User Registration",
           "description": "When enabled, no one will be able to register."
         },
+        "featureRegister": {
+          "label": "Enable Registration Module",
+          "description": "When disabled, registration is hidden on the user site (works together with Stop Registration)."
+        },
+        "featureCoupon": {
+          "label": "Enable Coupon System",
+          "description": "When disabled, users cannot apply coupons at checkout."
+        },
+        "featureTicket": {
+          "label": "Enable Ticket System",
+          "description": "When disabled, users cannot access ticket pages."
+        },
+        "featureCommission": {
+          "label": "Enable Commission System",
+          "description": "When disabled, commission-related features are hidden from users."
+        },
+        "featureInvite": {
+          "label": "Enable Invite System",
+          "description": "When disabled, users cannot access the invite page."
+        },
+        "featureGiftCard": {
+          "label": "Enable Gift Card",
+          "description": "When disabled, users cannot access the gift card page."
+        },
+        "featureTrafficLog": {
+          "label": "Enable Traffic Log",
+          "description": "When disabled, users cannot access the traffic log page."
+        },
+        "featureKnowledgeBase": {
+          "label": "Enable Knowledge Base",
+          "description": "When disabled, users cannot access the knowledge base page."
+        },
+        "featureAnnouncements": {
+          "label": "Enable Announcements",
+          "description": "When disabled, announcements and popup notices are hidden on the user site."
+        },
         "ticketMustWaitReply": {
           "label": "Reply Wait Restriction",
           "description": "When enabled, users cannot continue sending messages in the same ticket until an administrator replies."
+        },
+        "tryOutEnable": {
+          "label": "Enable Registration Trial",
+          "description": "When disabled, new users will not receive a trial subscription on registration."
         },
         "tryOut": {
           "label": "Registration Trial",
@@ -1894,6 +2013,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
             "description": "Trial duration in hours."
           }
         },
+        "tryOutHour": {
+          "label": "Trial Duration (hours)",
+          "description": "Trial duration in hours."
+        },
         "currency": {
           "label": "Currency Unit",
           "placeholder": "CNY",
@@ -1903,6 +2026,15 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "label": "Currency Symbol",
           "placeholder": "¥",
           "description": "For display only, changing this will affect all currency symbols in the system."
+        },
+        "trafficWarnRate": {
+          "label": "Traffic Warning Threshold (%)",
+          "placeholder": "70",
+          "description": "Show a warning when the user has consumed this percentage of their plan traffic."
+        },
+        "loginWithMailLink": {
+          "label": "Mail Link Login",
+          "description": "When enabled, users can sign in via a magic link sent by email without entering a password."
         }
       }
     },
@@ -2278,7 +2410,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "bot_token": {
         "title": "Bot Token",
         "description": "Please enter the token provided by Botfather.",
-        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx"
+        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx",
+        "required": "Please enter the Telegram Bot Token first"
       },
       "webhook_url": {
         "title": "Webhook Base URL",
@@ -2448,6 +2581,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "status": "Status",
       "updated_at": "Last Updated",
       "created_at": "Created At",
+      "reply_status": "Reply Status",
       "actions": "Actions"
     },
     "status": {
@@ -2459,24 +2593,40 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "level": {
       "low": "Low Priority",
       "medium": "Medium Priority",
-      "high": "High Priority"
+      "high": "High Priority",
+      "withdraw": "Withdrawal"
     },
     "filter": {
       "placeholder": "Search {field}...",
       "no_results": "No results found",
       "selected": "{count} selected",
-      "clear": "Clear filters"
+      "clear": "Clear filters",
+      "reply_status_all": "All reply statuses"
     },
     "actions": {
       "view_details": "View Details",
+      "reply": "Reply",
+      "close": "Close ticket",
+      "close_reject_withdraw": "Reject withdrawal and close",
+      "approve_withdraw": "Approve withdrawal and close",
       "close_ticket": "Close Ticket",
       "close_confirm_title": "Confirm Close Ticket",
       "close_confirm_description": "Are you sure you want to close this ticket? It will move to the closed list, but you can still reply later.",
       "close_confirm_button": "Confirm Close",
       "close_success": "Ticket closed successfully",
-      "view_ticket": "View Ticket"
+      "view_ticket": "View Ticket",
+      "approve_withdraw_confirm_title": "Approve withdrawal?",
+      "approve_withdraw_confirm_description": "This will close the ticket and mark the withdrawal as paid. Commission will not be restored.",
+      "reject_withdraw_confirm_title": "Reject withdrawal?",
+      "reject_withdraw_confirm_description": "This will close the ticket and restore the withheld commission to the user."
+    },
+    "alreadyClosed": "Ticket is already closed",
+    "withdrawCloseRequired": "Withdraw tickets must be approved or rejected before closing",
+    "reply": {
+      "label": "Reply"
     },
     "detail": {
+      "title": "Ticket Detail",
       "no_messages": "No messages yet",
       "created_at": "Created at",
       "sender_admin": "Admin",
@@ -2506,6 +2656,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   "payment": {
     "title": "Payment Configuration",
     "description": "Configure payment methods including Alipay, WeChat Pay, etc.",
+    "delete": {
+      "pendingOrders": "Cannot delete: pending or processing orders still use this payment method"
+    },
     "table": {
       "columns": {
         "id": "ID",
@@ -2743,10 +2896,42 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       }
     }
   },
+  "order": {
+    "assign": {
+      "amountExceedsPrice": "Payment amount cannot exceed the plan list price.",
+      "userBanned": "This user is banned and cannot receive a subscription.",
+      "createFailed": "Failed to create the order."
+    },
+    "commission": {
+      "alreadyPaid": "This order already has commission records and cannot be marked pending again."
+    }
+  },
+  "coupon": {
+    "notFound": "Coupon not found."
+  },
   "user": {
     "manage": {
       "title": "User Management",
       "description": "Here you can manage users, including adding, deleting, editing, and querying operations."
+    },
+    "delete": {
+      "pendingWithdraw": "User has a pending withdrawal ticket. Resolve it before deleting.",
+      "pendingOrder": "User has an order being processed. Wait for completion or refund before deleting.",
+      "nonZeroBalance": "User still has balance or commission. Clear balances before deleting.",
+      "openOrders": "User has open orders. Resolve orders before deleting.",
+      "failed": "Failed to delete user."
+    },
+    "generate": {
+      "missingParams": "Provide email_prefix or generate_count."
+    },
+    "invite": {
+      "selfInviter": "Cannot set yourself as inviter.",
+      "cycleDetected": "Invite chain cycle detected.",
+      "inviterBanned": "The inviter is banned and cannot be set."
+    },
+    "edit": {
+      "negativeBalance": "Balance cannot be negative.",
+      "negativeCommission": "Commission balance cannot be negative."
     },
     "columns": {
       "is_admin": "Admin",
@@ -2837,6 +3022,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "token": "Token",
         "banned": "Account Status",
         "remark": "Remark",
+        "remarks": "Remark",
         "inviter_email": "Inviter Email",
         "invite_user_id": "Inviter ID",
         "is_admin": "Admin",
@@ -2922,6 +3108,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "speed_limit_placeholder": "Leave empty for no speed limit",
         "device_limit": "Device Limit",
         "device_limit_placeholder": "Leave empty for no device limit",
+        "device_limit_unit": "devices",
         "is_admin": "Is Admin",
         "is_staff": "Is Staff",
         "remarks": "Remarks",
@@ -2944,6 +3131,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "cancel": "Cancel",
         "confirm": "Confirm Ban",
         "banning": "Banning..."
+      },
+      "export_confirm": {
+        "title": "Confirm User CSV Export",
+        "description": "By default, subscribe URLs are omitted. Enable the option below to include full subscribe links (with tokens). Handle exported files securely.",
+        "include_subscribe": "Include subscribe URLs",
+        "exporting": "Exporting..."
       }
     },
     "messages": {
@@ -2955,12 +3148,15 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       },
       "batch_ban": {
         "success": "Batch ban successful",
-        "failed": "Batch ban failed"
+        "failed": "Batch ban failed",
+        "required_scope": "Select users or set filters before batch ban. Banning all users requires an explicit filter."
       },
       "send_mail": {
         "success": "Email sent successfully",
         "failed": "Failed to send email",
-        "required_fields": "Please fill in all required fields"
+        "required_fields": "Please fill in all required fields",
+        "required_selected": "Please select at least one user",
+        "required_filtered": "Please set filter conditions first"
       }
     },
     "traffic_reset": {
@@ -3007,6 +3203,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "auto_resets": "Auto Resets",
         "manual_resets": "Manual Resets",
         "cron_resets": "Cron Resets",
+        "order_resets": "Order Resets",
+        "gift_card_resets": "Gift Card Resets",
         "in_period": "In the last {{days}} days",
         "breakdown": "Reset Type Breakdown",
         "breakdown_description": "Percentage breakdown of different reset operation types",
@@ -3061,6 +3259,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "cron": "Cron Job"
         }
       },
+      "pagination": {
+        "total": "{{total}} records"
+      },
       "actions": {
         "export": "Export Logs",
         "exporting": "Exporting...",
@@ -3077,8 +3278,20 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "send_mail": {
       "title": "Send Email",
       "description": "Send email to selected or filtered users",
+      "scope": "Send scope",
+      "scope_selected": "Selected users ({{count}})",
+      "scope_filtered": "Current filter results",
+      "scope_all": "All users",
       "subject": "Subject",
+      "subject_placeholder": "Email subject, supports placeholders like {{name}}",
+      "subject_placeholder_hint": "Subject supports placeholders replaced on send",
       "content": "Content",
+      "content_placeholder": "Email body (plain text)",
+      "content_plain_hint": "Plain text only, HTML is not supported",
+      "system_notice_subject": "System Notice",
+      "system_notice_content": "Dear user,\\n\\nThis is a system notice.\\n\\n{{app.name}}",
+      "apply_system_notice": "Apply system notice template",
+      "available_vars": "Available variables",
       "sending": "Sending...",
       "send": "Send"
     },
@@ -3228,6 +3441,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "title": "Usage Limits",
           "max_use_per_user": {
             "label": "Max Uses Per User",
+            "placeholder": "Leave empty for no limit"
+          },
+          "max_total_uses": {
+            "label": "Max Total Redemptions",
             "placeholder": "Leave empty for no limit"
           },
           "cooldown_hours": {
@@ -3475,7 +3692,15 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "updateTemplateFailed": "Failed to update template",
       "deleteTemplateFailed": "Failed to delete template",
       "loadDataFailed": "Failed to load data",
-      "codesGenerated": "Redemption codes generated successfully"
+      "codesGenerated": "Redemption codes generated successfully",
+      "createFailed": "Create failed",
+      "templateNotFound": "Template not found",
+      "codeExpiredEnable": "This code has expired and cannot be enabled",
+      "codeNotFound": "Redemption code not found",
+      "templateDisabled": "This gift card type is disabled",
+      "deleteFailed": "Delete failed",
+      "updateFailed": "Update failed",
+      "templateHasCodes": "Cannot delete: this template still has redemption codes"
     }
   },
   "knowledge": {

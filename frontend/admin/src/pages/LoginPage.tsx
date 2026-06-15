@@ -4,6 +4,7 @@ import { Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearAuthData, getAuthData, login } from '@/lib/api'
 import { ensureAdminSession } from '@/lib/admin-session'
+import { setAdminSessionCache } from '@/lib/session-cache'
 import { getSettings } from '@/lib/settings'
 import { ADMIN_LOCALES, localeLabel, setLocale } from '@/lib/i18n'
 import { InlineFlag } from '@/components/shared/InlineFlag'
@@ -25,6 +26,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+import { resolveApiError } from '@/lib/api-errors'
 import { cn } from '@/lib/utils'
 
 const emailInputCls =
@@ -76,9 +78,10 @@ export default function LoginPage() {
         setError(t('auth.signIn.notAdmin'))
         return
       }
+      setAdminSessionCache(true, Date.now())
       navigate('/')
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
+      setError(resolveApiError(err, t, t('common.error')))
     } finally {
       setLoading(false)
     }

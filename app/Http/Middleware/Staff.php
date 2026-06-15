@@ -9,19 +9,16 @@ use Closure;
 class Staff
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @return mixed
+     * Reserved for a future staff panel. No routes bind this middleware today;
+     * is_staff is used for Telegram alerts and admin user management only.
      */
     public function handle($request, Closure $next)
     {
         $authorization = $request->input('auth_data') ?? $request->header('authorization');
-        if (!$authorization) throw new ApiException( '未登录或登陆已过期', 403);
+        if (!$authorization) throw new ApiException(__('Unauthorized or session expired'), 403);
 
         $user = AuthService::decryptAuthData($authorization);
-        if (!$user || !$user['is_staff']) throw new ApiException('未登录或登陆已过期', 403);
+        if (!$user || !$user['is_staff']) throw new ApiException(__('Unauthorized or session expired'), 403);
         $request->merge([
             'user' => $user
         ]);

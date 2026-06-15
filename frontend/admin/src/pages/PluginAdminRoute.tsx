@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'sonner'
 
+import { toastApiError } from '@/lib/api-errors'
 function resolveTab(subpath: string, hasConfig: boolean): 'overview' | 'settings' {
   if (subpath === 'settings' && hasConfig) return 'settings'
   return 'overview'
@@ -269,7 +270,7 @@ function PluginSettingsPanel({ plugin }: { plugin: PluginRow }) {
       }
       setValues(nextValues)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setLoading(false)
     }
@@ -286,7 +287,7 @@ function PluginSettingsPanel({ plugin }: { plugin: PluginRow }) {
       await postJson('/plugin/config', { code: plugin.code, config: values })
       toast.success(t('common.success'))
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }

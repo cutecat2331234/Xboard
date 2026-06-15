@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { NAlert, NCard, NButton, NCarousel, NList, NListItem, NModal, NProgress, NSkeleton, NSpace, useMessage } from 'naive-ui'
 import ClientImportModal from '@/components/ClientImportModal.vue'
 import { renderCarbonIcon } from '@/utils/carbon-icon'
@@ -13,6 +13,7 @@ import { resolveTrafficWarnRate } from '@/api/comm'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
 import { resolvePopupNoticeTags } from '@/utils/settings'
 import DOMPurify from 'dompurify'
 
@@ -20,7 +21,16 @@ const auth = useAuthStore()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 const msg = useMessage()
 const router = useRouter()
+const route = useRoute()
 const { t, locale } = useI18n()
+
+const trafficUnits = computed(() => ({
+  b: t('common.units.b'),
+  kb: t('common.units.kb'),
+  mb: t('common.units.mb'),
+  gb: t('common.units.gb'),
+  tb: t('common.units.tb'),
+}))
 const subscribe = ref<SubscribeInfo | null>(null)
 const subscribeUrl = ref('')
 const hasPlan = ref(false)
@@ -30,6 +40,11 @@ const notices = ref<NoticeItem[]>([])
 const popupNotice = ref<NoticeItem | null>(null)
 const unpaidOrders = ref(0)
 const openTickets = ref(0)
+const inviteCount = ref(0)
+const ticketsEnabled = computed(() => featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null))
+const knowledgeEnabled = computed(() => featureEnabled(commConfig.value?.knowledge_enable, commConfig.value != null))
+const announcementsEnabled = computed(() => featureEnabled(commConfig.value?.announcement_enable, commConfig.value != null))
+const inviteEnabled = computed(() => featureEnabled(commConfig.value?.invite_enable, commConfig.value != null))
 
 const promoNotices = computed(() => notices.value.filter((n) => n.img_url))
 const popupNoticeTags = computed(() =>
@@ -43,21 +58,24 @@ const popupNoticeTags = computed(() =>
 const sanitizedPopupContent = computed(() =>
   popupNotice.value?.content ? DOMPurify.sanitize(popupNotice.value.content) : '',
 )
-const trafficPercent = computed(() => {
-  const u = auth.user
-  if (!u?.transfer_enable) return 0
-  return ((u.u + u.d) / u.transfer_enable) * 100
-})
-
 const hasActiveSubscription = computed(() => {
-  const expiredAt = subscribe.value?.expired_at
-  return Boolean(expiredAt && expiredAt > Date.now() / 1000)
+  const sub = subscribe.value
+  if (!sub?.plan) return false
+  const expiredAt = sub.expired_at
+  if (expiredAt === null) return true
+  return expiredAt > Date.now() / 1000
 })
 
 const trafficWarnThreshold = computed(() => resolveTrafficWarnRate(commConfig.value))
 
 const showTrafficAlert = computed(
-  () => !hasActiveSubscription.value && trafficPercent.value >= trafficWarnThreshold.value,
+  () => hasActiveSubscription.value && trafficUsagePercent.value >= trafficWarnThreshold.value,
+)
+const showDeviceLimit = computed(
+  () => hasActiveSubscription.value && subscribe.value?.device_limit != null && subscribe.value.device_limit > 0,
+)
+const showSpeedLimit = computed(
+  () => hasActiveSubscription.value && subscribe.value?.speed_limit != null && subscribe.value.speed_limit > 0,
 )
 
 async function load() {
@@ -76,8 +94,17 @@ async function load() {
   }
 }
 
+const BYTES_PER_GB = 1073741824
+
 const usedTraffic = computed(() => (subscribe.value?.u ?? 0) + (subscribe.value?.d ?? 0))
-const totalTraffic = computed(() => subscribe.value?.transfer_enable ?? subscribe.value?.plan?.transfer_enable ?? 0)
+const totalTraffic = computed(() => {
+  const sub = subscribe.value
+  if (!sub) return 0
+  const userQuota = sub.transfer_enable ?? 0
+  if (userQuota > 0) return userQuota
+  const planGb = sub.plan?.transfer_enable ?? 0
+  return planGb > 0 ? planGb * BYTES_PER_GB : 0
+})
 const trafficUsagePercent = computed(() => {
   if (!totalTraffic.value) return 0
   return Math.min(100, (usedTraffic.value / totalTraffic.value) * 100)
@@ -85,16 +112,26 @@ const trafficUsagePercent = computed(() => {
 
 function copySubscribe() {
   if (!subscribeUrl.value) return
-  navigator.clipboard.writeText(subscribeUrl.value)
-  msg.success(t('dashboard.copyLink'))
+  navigator.clipboard
+    .writeText(subscribeUrl.value)
+    .then(() => msg.success(t('profile.copied')))
+    .catch(() => msg.error(t('errors.requestFailed')))
 }
 
 function openClientImport() {
-  if (!subscribeUrl.value) return
+  if (!subscribeUrl.value) {
+    msg.warning(t('dashboard.noSubscribeUrl'))
+    return
+  }
   clientModalOpen.value = true
 }
 
 async function loadNotices() {
+  if (!announcementsEnabled.value) {
+    notices.value = []
+    popupNotice.value = null
+    return
+  }
   try {
     notices.value = await fetchNotices()
     const needles = popupNoticeTags.value
@@ -109,19 +146,37 @@ async function loadNotices() {
 }
 
 onMounted(async () => {
+  if (route.query.comm_error === '1') {
+    msg.warning(t('errors.commConfigFailed'))
+    router.replace({ path: route.path, query: {} })
+  }
+  if (route.query.feature_disabled === '1') {
+    msg.warning(t('errors.featureDisabled'))
+    router.replace({ path: route.path, query: {} })
+  }
   await auth.loadUser()
-  await Promise.all([load(), loadNotices(), loadComm()])
+  try {
+    await loadComm()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
+  await Promise.all([load(), loadNotices()])
   try {
     const stat = await fetchUserStat()
     unpaidOrders.value = stat[0] ?? 0
-    openTickets.value = stat[1] ?? 0
+    if (ticketsEnabled.value) {
+      openTickets.value = stat[1] ?? 0
+    }
+    inviteCount.value = stat[2] ?? 0
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
 })
 
-const shortcuts = [
-  {
+const shortcuts = computed(() => {
+  const items = []
+  if (knowledgeEnabled.value) {
+    items.push({
     icon: renderCarbonIcon(
       'M12 21.5c-1.35-.85-3.8-1.5-5.5-1.5c-1.65 0-3.35.3-4.75 1.05c-.1.05-.15.05-.25.05c-.25 0-.5-.25-.5-.5V6c.6-.45 1.25-.75 2-1c1.11-.35 2.33-.5 3.5-.5c1.95 0 4.05.4 5.5 1.5c1.45-1.1 3.55-1.5 5.5-1.5c1.17 0 2.39.15 3.5.5c.75.25 1.4.55 2 1v14.6c0 .25-.25.5-.5.5c-.1 0-.15 0-.25-.05c-1.4-.75-3.1-1.05-4.75-1.05c-1.7 0-4.15.65-5.5 1.5M12 8v11.5c1.35-.85 3.8-1.5 5.5-1.5c1.2 0 2.4.15 3.5.5V7c-1.1-.35-2.3-.5-3.5-.5c-1.7 0-4.15.65-5.5 1.5m1 3.5c1.11-.68 2.6-1 4.5-1c.91 0 1.76.09 2.5.28V9.23c-.87-.15-1.71-.23-2.5-.23q-2.655 0-4.5.84zm4.5.17c-1.71 0-3.21.26-4.5.79v1.69c1.11-.65 2.6-.99 4.5-.99c1.04 0 1.88.08 2.5.24v-1.5c-.87-.16-1.71-.23-2.5-.23m2.5 2.9c-.87-.16-1.71-.24-2.5-.24c-1.83 0-3.33.27-4.5.8v1.69c1.11-.66 2.6-.99 4.5-.99c1.04 0 1.88.08 2.5.24z',
       '0 0 24 24',
@@ -130,8 +185,9 @@ const shortcuts = [
     titleKey: 'dashboard.viewTutorial',
     descKey: 'dashboard.viewTutorialDesc',
     to: '/knowledge',
-  },
-  {
+    })
+  }
+  items.push({
     icon: renderCarbonIcon(
       'M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27zm0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93z',
       '0 0 24 24',
@@ -150,18 +206,21 @@ const shortcuts = [
     titleKey: 'dashboard.purchase',
     descKey: 'dashboard.purchaseDesc',
     to: '/plan',
-  },
-  {
-    icon: renderCarbonIcon(
-      'M20 2H4c-.53 0-1.04.21-1.41.59C2.21 2.96 2 3.47 2 4v12c0 .53.21 1.04.59 1.41c.37.38.88.59 1.41.59h4l4 4l4-4h4c.53 0 1.04-.21 1.41-.59S22 16.53 22 16V4c0-.53-.21-1.04-.59-1.41C21.04 2.21 20.53 2 20 2M4 16V4h16v12h-4.83L12 19.17L8.83 16m1.22-9.96c.54-.36 1.25-.54 2.14-.54c.94 0 1.69.21 2.23.62q.81.63.81 1.68c0 .44-.15.83-.44 1.2c-.29.36-.67.64-1.13.85c-.26.15-.43.3-.52.47c-.09.18-.14.4-.14.68h-2c0-.5.1-.84.29-1.08c.21-.24.55-.52 1.07-.84c.26-.14.47-.32.64-.54c.14-.21.22-.46.22-.74c0-.3-.09-.52-.27-.69c-.18-.18-.45-.26-.76-.26c-.27 0-.49.07-.69.21c-.16.14-.26.35-.26.63H9.27c-.05-.69.23-1.29.78-1.65M11 14v-2h2v2Z',
-      '0 0 24 24',
-      'inline',
-    ),
-    titleKey: 'dashboard.problem',
-    descKey: 'dashboard.problemDesc',
-    to: '/ticket',
-  },
-]
+  })
+  if (ticketsEnabled.value) {
+    items.push({
+      icon: renderCarbonIcon(
+        'M20 2H4c-.53 0-1.04.21-1.41.59C2.21 2.96 2 3.47 2 4v12c0 .53.21 1.04.59 1.41c.37.38.88.59 1.41.59h4l4 4l4-4h4c.53 0 1.04-.21 1.41-.59S22 16.53 22 16V4c0-.53-.21-1.04-.59-1.41C21.04 2.21 20.53 2 20 2M4 16V4h16v12h-4.83L12 19.17L8.83 16m1.22-9.96c.54-.36 1.25-.54 2.14-.54c.94 0 1.69.21 2.23.62q.81.63.81 1.68c0 .44-.15.83-.44 1.2c-.29.36-.67.64-1.13.85c-.26.15-.43.3-.52.47c-.09.18-.14.4-.14.68h-2c0-.5.1-.84.29-1.08c.21-.24.55-.52 1.07-.84c.26-.14.47-.32.64-.54c.14-.21.22-.46.22-.74c0-.3-.09-.52-.27-.69c-.18-.18-.45-.26-.76-.26c-.27 0-.49.07-.69.21c-.16.14-.26.35-.26.63H9.27c-.05-.69.23-1.29.78-1.65M11 14v-2h2v2Z',
+        '0 0 24 24',
+        'inline',
+      ),
+      titleKey: 'dashboard.problem',
+      descKey: 'dashboard.problemDesc',
+      to: '/ticket',
+    })
+  }
+  return items
+})
 
 function onShortcut(item: { to?: string; action?: () => void }) {
   if (item.action) item.action()
@@ -173,7 +232,18 @@ function onShortcut(item: { to?: string; action?: () => void }) {
   <div class="mb-1 md:mb-10">
   <div class="dash-alerts">
     <n-alert
-      v-if="openTickets > 0"
+      v-if="inviteEnabled && inviteCount > 0"
+      type="info"
+      :show-icon="false"
+      bordered
+      closable
+      class="mb-1"
+    >
+      {{ t('dashboard.invitedUsers', { count: inviteCount }) }}
+      <n-button text strong @click="router.push('/invite')">{{ t('dashboard.goView') }}</n-button>
+    </n-alert>
+    <n-alert
+      v-if="ticketsEnabled && openTickets > 0"
       type="warning"
       :show-icon="false"
       bordered
@@ -202,7 +272,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       closable
       class="mb-1"
     >
-      {{ t('dashboard.trafficWarning', { percent: trafficPercent.toFixed(0) }) }}
+      {{ t('dashboard.trafficWarning', { percent: trafficUsagePercent.toFixed(0) }) }}
       <n-button text @click="router.push('/plan')">
         <span class="dash-traffic-link">{{ t('dashboard.learnAndBuy') }}</span>
       </n-button>
@@ -236,19 +306,24 @@ function onShortcut(item: { to?: string; action?: () => void }) {
         <n-skeleton text style="height: 20px; width: 100%" />
       </n-space>
     </template>
-    <template v-else-if="hasPlan && subscribeUrl">
+    <template v-else-if="hasPlan">
       <div v-if="subscribe?.plan?.name" class="sub-plan-name">{{ subscribe.plan.name }}</div>
       <div class="sub-meta">
         <span>{{ t('dashboard.expireAt') }}: {{ formatExpire(subscribe?.expired_at, locale) }}</span>
         <span v-if="subscribe?.reset_day != null">{{ t('dashboard.resetDay', { day: subscribe.reset_day }) }}</span>
+        <span v-if="showDeviceLimit">{{ t('dashboard.deviceLimit', { count: subscribe!.device_limit! }) }}</span>
+        <span v-if="showSpeedLimit">{{ t('dashboard.speedLimit', { speed: subscribe!.speed_limit! }) }}</span>
       </div>
       <div class="sub-traffic">
-        <span>{{ formatBytes(usedTraffic) }} / {{ formatBytes(totalTraffic) }}</span>
+        <span>{{ formatBytes(usedTraffic, trafficUnits) }} / {{ formatBytes(totalTraffic, trafficUnits) }}</span>
         <n-progress type="line" :percentage="trafficUsagePercent" :show-indicator="false" status="success" />
       </div>
+      <n-alert v-if="!subscribeUrl" class="mb-3" type="warning" :show-icon="true">
+        {{ t('dashboard.noSubscribeUrl') }}
+      </n-alert>
       <n-space>
-        <n-button type="primary" @click="copySubscribe">{{ t('dashboard.copyLink') }}</n-button>
-        <n-button @click="openClientImport">{{ t('dashboard.quickSub') }}</n-button>
+        <n-button type="primary" :disabled="!subscribeUrl" @click="copySubscribe">{{ t('dashboard.copyLink') }}</n-button>
+        <n-button :disabled="!subscribeUrl" @click="openClientImport">{{ t('dashboard.quickSub') }}</n-button>
       </n-space>
     </template>
     <template v-else>

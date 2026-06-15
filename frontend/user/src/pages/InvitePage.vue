@@ -1,19 +1,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  NButton,
-  NCard,
-  NDataTable,
-  NIcon,
-  NModal,
-  NInput,
-  NNumberAnimation,
-  NPagination,
-  NSelect,
-  NSpace,
-  NSpin,
-  useMessage,
+import { NButton, NCard, NDataTable, NIcon, NModal, NInput, NNumberAnimation, NPagination, NSelect, NSpace, NSpin, NTag, useMessage,
   type DataTableColumns,
   type PaginationInfo,
 } from 'naive-ui'
@@ -26,9 +14,12 @@ import {
   type InviteCode,
 } from '@/api/invite'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
+import { useGuestConfig } from '@/composables/useGuestConfig'
 import { useCurrency } from '@/composables/useCurrency'
-import { formatFixedDateTime } from '@/lib/format-date'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
+import { featureEnabled } from '@/lib/feature-flags'
 
 const INVITE_PAGE_SIZE = 10
 
@@ -63,17 +54,25 @@ const detailsPage = ref(1)
 const detailsPageSize = ref(INVITE_PAGE_SIZE)
 const msg = useMessage()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { formatAmount, formatPriceSpaced, load: loadCurrency, code: currencyCode } = useCurrency()
 const transferOpen = ref(false)
 const withdrawOpen = ref(false)
 const transferAmount = ref('')
 const { config: commConfig, load: loadComm } = useUserCommConfig()
-const withdrawMethod = ref('Alipay')
+const { config: guestConfig, load: loadGuest } = useGuestConfig()
+const withdrawMethod = ref('')
 const withdrawAccount = ref('')
 const pageLoading = ref(true)
 
 const available = computed(() => (stat.value[4] ?? 0) / 100)
+const commReady = computed(() => commConfig.value != null)
+const showCommissionFinance = computed(
+  () =>
+    commReady.value &&
+    featureEnabled(commConfig.value?.commission_enable, true) &&
+    !featureEnabled(commConfig.value?.withdraw_close, true),
+)
 
 const showCodesPagination = computed(() => codes.value.length > INVITE_PAGE_SIZE)
 
@@ -88,7 +87,7 @@ const detailTablePagination = computed(() => ({
   pageSize: detailsPageSize.value,
   itemCount: detailsTotal.value,
   showSizePicker: true,
-  pageSizes: [10, 50, 100, 150],
+  pageSizes: [10, 50, 100],
   onUpdatePage: (page: number) => {
     detailsPage.value = page
   },
@@ -119,6 +118,15 @@ watch([detailsPage, detailsPageSize], () => {
   void loadDetails()
 })
 
+function parseTransferAmount(raw: string): number | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  if (!/^\d+(\.\d{1,2})?$/.test(trimmed)) return null
+  const amount = Number(trimmed)
+  if (!Number.isFinite(amount) || amount <= 0) return null
+  return amount
+}
+
 const commissionRateLabel = computed(() => {
   const base = stat.value[3] ?? 0
   const cfg = commConfig.value
@@ -126,13 +134,53 @@ const commissionRateLabel = computed(() => {
     const l1 = Math.floor((Number(cfg.commission_distribution_l1) || 0) * base / 100)
     const l2 = Math.floor((Number(cfg.commission_distribution_l2) || 0) * base / 100)
     const l3 = Math.floor((Number(cfg.commission_distribution_l3) || 0) * base / 100)
-    return `${l1}%,${l2}%,${l3}%`
+    return t('invite.commissionTiers', { l1, l2, l3 })
   }
   return `${base}%`
 })
 
+const withdrawLimitLabel = computed(() => {
+  const limit = Number(commConfig.value?.commission_withdraw_limit ?? 0)
+  if (!Number.isFinite(limit) || limit <= 0) return ''
+  return t('invite.withdrawLimitHint', { limit: formatPriceSpaced(limit * 100) })
+})
+
+const withdrawFeeLabel = computed(() => {
+  const rate = Number(commConfig.value?.withdraw_fee_rate ?? 0)
+  if (!Number.isFinite(rate) || rate <= 0) return ''
+  const percent = rate * 100
+  const display = Number.isInteger(percent) ? String(percent) : percent.toFixed(2).replace(/\.?0+$/, '')
+  return t('invite.withdrawFeeHint', { rate: display })
+})
+
+const transferMinLimit = computed(() => {
+  const limit = Number(commConfig.value?.commission_withdraw_limit ?? 0)
+  return Number.isFinite(limit) && limit > 0 ? limit : 0
+})
+
+const transferMinLabel = computed(() => {
+  if (!transferMinLimit.value) return ''
+  return t('invite.transferMinHint', { limit: formatPriceSpaced(transferMinLimit.value * 100) })
+})
+
+const transferNetPreview = computed(() => {
+  const amount = parseTransferAmount(transferAmount.value)
+  if (amount === null) return null
+  const rate = Number(commConfig.value?.withdraw_fee_rate ?? 0)
+  if (!Number.isFinite(rate) || rate <= 0) return null
+  const fee = amount * rate
+  const net = amount - fee
+  if (net <= 0) return null
+  return t('invite.transferNetHint', {
+    fee: formatPriceSpaced(Math.round(fee * 100)),
+    net: formatPriceSpaced(Math.round(net * 100)),
+  })
+})
+
 function inviteLink(code: string) {
-  return `${window.location.protocol}//${window.location.host}/#/register?code=${code}`
+  const appUrl = guestConfig.value?.app_url?.trim().replace(/\/+$/, '')
+  const base = appUrl || `${window.location.protocol}//${window.location.host}`
+  return `${base}/#/login?tab=register&code=${code}`
 }
 
 async function loadDetails() {
@@ -143,7 +191,7 @@ async function loadDetails() {
   } catch (e: unknown) {
     details.value = []
     detailsTotal.value = 0
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -153,9 +201,14 @@ async function load() {
     const data = await fetchInvite()
     codes.value = data.codes ?? []
     stat.value = data.stat ?? [0, 0, 0, 0, 0]
-    await loadDetails()
+    if (featureEnabled(commConfig.value?.commission_enable, true)) {
+      await loadDetails()
+    } else {
+      details.value = []
+      detailsTotal.value = 0
+    }
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     pageLoading.value = false
   }
@@ -165,18 +218,11 @@ async function generate() {
   try {
     await generateInviteCode()
     msg.success(t('common.success'))
+    codesPage.value = 1
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
-}
-
-function parseTransferAmount(raw: string): number | null {
-  const trimmed = raw.trim()
-  if (!trimmed) return null
-  const amount = Number(trimmed)
-  if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) return null
-  return amount
 }
 
 async function doTransfer() {
@@ -190,32 +236,60 @@ async function doTransfer() {
     msg.error(t('invite.transferAmountInvalid'))
     return
   }
+  if (Math.round(amount * 100) > Math.round(available.value * 100)) {
+    msg.error(t('errors.insufficientCommission'))
+    return
+  }
+  if (transferMinLimit.value > 0 && amount < transferMinLimit.value) {
+    msg.error(t('errors.withdrawMinimum', { limit: formatPriceSpaced(transferMinLimit.value * 100) }))
+    return
+  }
   try {
-    await transferCommission(amount)
+    await transferCommission(amount * 100)
     msg.success(t('common.success'))
     transferOpen.value = false
     transferAmount.value = ''
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
 async function doWithdraw() {
+  const account = withdrawAccount.value.trim()
+  if (!account) {
+    msg.error(t('invite.withdrawAccountRequired'))
+    return
+  }
+  if (!withdrawMethod.value.trim()) {
+    msg.error(t('invite.withdrawMethodRequired'))
+    return
+  }
+  const minLimit = transferMinLimit.value
+  if (minLimit > 0 && available.value < minLimit) {
+    msg.error(t('errors.withdrawMinimum', { limit: formatPriceSpaced(minLimit * 100) }))
+    return
+  }
   try {
-    await withdrawCommission({ withdraw_method: withdrawMethod.value, withdraw_account: withdrawAccount.value })
+    await withdrawCommission({ withdraw_method: withdrawMethod.value.trim(), withdraw_account: account })
     msg.success(t('invite.withdrawSuccess'))
     withdrawOpen.value = false
     withdrawAccount.value = ''
-    router.push('/ticket')
+    if (featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null)) {
+      router.push('/ticket')
+    } else {
+      await load()
+    }
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
 function copyLink(code: string) {
-  navigator.clipboard.writeText(inviteLink(code))
-  msg.success(t('common.success'))
+  navigator.clipboard.writeText(inviteLink(code)).then(
+    () => msg.success(t('profile.copied')),
+    () => msg.error(t('errors.requestFailed')),
+  )
 }
 
 const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
@@ -240,11 +314,28 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
       ]),
   },
   {
+    title: t('invite.pv'),
+    key: 'pv',
+    width: 80,
+    render: (r) => String(r.pv ?? 0),
+  },
+  {
+    title: t('invite.status'),
+    key: 'status',
+    width: 100,
+    render: (r) =>
+      h(
+        NTag,
+        { size: 'small', type: r.status ? 'default' : 'success', round: true },
+        { default: () => (r.status ? t('invite.statusUsed') : t('invite.statusUnused')) },
+      ),
+  },
+  {
     title: t('invite.createdAt'),
     key: 'created_at',
     fixed: 'right',
     align: 'right',
-    render: (r) => formatFixedDateTime(r.created_at),
+    render: (r) => formatLocaleDateTime(r.created_at, locale.value),
   },
 ])
 
@@ -252,31 +343,36 @@ const detailColumns = computed(() => [
   {
     title: t('invite.incomeTime'),
     key: 'created_at',
-    render: (r: { created_at?: number }) => formatFixedDateTime(r.created_at),
+    render: (r: { created_at?: number }) => formatLocaleDateTime(r.created_at, locale.value),
   },
   {
     title: t('invite.incomeAmount'),
     key: 'get_amount',
     fixed: 'right',
     align: 'right',
-    render: (r: { get_amount?: number }) => formatAmount(r.get_amount ?? 0),
+    render: (r: { get_amount?: number }) => formatPriceSpaced(r.get_amount ?? 0),
   },
 ])
 
 onMounted(async () => {
   await loadCurrency()
-  await load()
-  const cfg = await loadComm()
-  const methods = cfg.withdraw_methods
+  try {
+    await Promise.all([loadGuest(), loadComm()])
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  }
+  const cfg = commConfig.value
+  const methods = cfg?.withdraw_methods
   if (Array.isArray(methods) && methods.length) {
     withdrawMethod.value = String(methods[0])
   }
+  await load()
 })
 </script>
 
 <template>
   <n-spin :show="pageLoading">
-  <n-card :title="t('invite.title')" class="invite-balance-card rounded-md">
+  <n-card v-if="showCommissionFinance" :title="t('invite.title')" class="invite-balance-card rounded-md">
     <template #header-extra>
       <svg class="inline-block text-4xl text-gray-500" viewBox="0 0 24 24" width="1em" height="1em">
         <path
@@ -293,13 +389,13 @@ onMounted(async () => {
     </div>
     <div class="text-gray-500">{{ t('invite.available') }}</div>
     <n-space class="invite-balance-actions mt-2.5" :size="[12, 8]">
-      <n-button size="small" type="primary" @click="transferOpen = true">
+      <n-button v-if="showCommissionFinance" size="small" type="primary" @click="transferOpen = true">
         <template #icon>
           <n-icon><TransferIcon /></n-icon>
         </template>
         {{ t('invite.transfer') }}
       </n-button>
-      <n-button v-if="!commConfig?.withdraw_close" size="small" type="primary" @click="withdrawOpen = true">
+      <n-button v-if="showCommissionFinance" size="small" type="primary" @click="withdrawOpen = true">
         <template #icon>
           <n-icon><WithdrawIcon /></n-icon>
         </template>
@@ -308,7 +404,7 @@ onMounted(async () => {
     </n-space>
   </n-card>
 
-  <n-card class="mt-4 rounded-md" :bordered="true">
+  <n-card v-if="showCommissionFinance" class="mt-4 rounded-md" :bordered="true">
     <div class="flex justify-between pb-1 pt-1">
       <div>{{ t('invite.registered') }}</div>
       <div>{{ t('invite.peopleCount', { number: stat[0] ?? 0 }) }}</div>
@@ -344,9 +440,10 @@ onMounted(async () => {
     />
   </n-card>
 
-  <n-card :title="t('invite.incomeRecord')" class="mt-4 rounded-md">
+  <n-card :title="t('invite.incomeRecord')" v-if="showCommissionFinance" class="mt-4 rounded-md">
     <n-data-table
       class="invite-data-table"
+      remote
       :columns="detailColumns"
       :data="details"
       :bordered="true"
@@ -355,7 +452,10 @@ onMounted(async () => {
   </n-card>
 
   <n-modal v-model:show="transferOpen" preset="card" :title="t('invite.transfer')" style="width: 400px">
+    <p v-if="transferMinLabel" class="withdraw-hint">{{ transferMinLabel }}</p>
+    <p v-if="withdrawFeeLabel" class="withdraw-hint">{{ withdrawFeeLabel }}</p>
     <n-input v-model:value="transferAmount" :placeholder="t('invite.transferAmount')" />
+    <p v-if="transferNetPreview" class="withdraw-hint">{{ transferNetPreview }}</p>
     <div class="modal-actions">
       <n-button @click="transferOpen = false">{{ t('common.cancel') }}</n-button>
       <n-button type="primary" @click="doTransfer">{{ t('common.confirm') }}</n-button>
@@ -363,6 +463,9 @@ onMounted(async () => {
   </n-modal>
 
   <n-modal v-model:show="withdrawOpen" preset="card" :title="t('invite.withdraw')" style="width: 400px">
+    <p v-if="withdrawLimitLabel" class="withdraw-hint">{{ withdrawLimitLabel }}</p>
+    <p v-if="withdrawFeeLabel" class="withdraw-hint">{{ withdrawFeeLabel }}</p>
+    <p class="withdraw-hint">{{ t('invite.withdrawFullBalanceHint') }}</p>
     <n-select
       v-if="commConfig?.withdraw_methods?.length"
       v-model:value="withdrawMethod"
@@ -389,5 +492,10 @@ onMounted(async () => {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
+}
+.withdraw-hint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--xb-text-secondary, #666);
 }
 </style>

@@ -32,5 +32,26 @@ class ServerRoute
             $route->post('nodes', [MachineController::class, 'nodes']);
             $route->post('status', [MachineController::class, 'status']);
         });
+
+        // Legacy Tidalab node endpoints (parity with V1 ServerRoute).
+        $router->group([
+            'prefix' => 'server',
+        ], function ($route) {
+            $route->group([
+                'prefix' => 'ShadowsocksTidalab',
+                'middleware' => 'server:shadowsocks',
+            ], function ($route) {
+                $route->get('user', [ShadowsocksTidalabController::class, 'user']);
+                $route->post('submit', [ShadowsocksTidalabController::class, 'submit']);
+            });
+            $route->group([
+                'prefix' => 'TrojanTidalab',
+                'middleware' => 'server:trojan',
+            ], function ($route) {
+                $route->get('config', [TrojanTidalabController::class, 'config']);
+                $route->get('user', [TrojanTidalabController::class, 'user']);
+                $route->post('submit', [TrojanTidalabController::class, 'submit']);
+            });
+        });
     }
 }

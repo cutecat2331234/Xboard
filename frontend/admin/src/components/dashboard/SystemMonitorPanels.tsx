@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Activity, Clock, Layers, RefreshCw, Server } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 import {
   fetchAuditLog,
@@ -11,18 +12,13 @@ import {
   type QueueWorkloadItem,
   type SystemStatus,
 } from '@/lib/api'
+import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime, formatAdminDateTimeValue } from '@/lib/format-datetime'
 import { StatCard } from '@/components/shared/StatCard'
 import { DataTable } from '@/components/shared/DataTable'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-}
 
 function statusLabel(t: (key: string) => string, ok?: boolean) {
   return ok ? t('dashboard.queue.status.normal') : t('dashboard.queue.status.abnormal')
@@ -37,9 +33,12 @@ export function SystemStatusPanel() {
     setLoading(true)
     fetchSystemStatus()
       .then(setStatus)
-      .catch(() => setStatus({}))
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
+        setStatus({})
+      })
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   useEffect(() => {
     load()
@@ -59,7 +58,7 @@ export function SystemStatusPanel() {
           title={t('dashboard.systemStatus.schedule')}
           value={loading ? '…' : statusLabel(t, status.schedule)}
           subtitle={t('dashboard.systemStatus.scheduleLastRun', {
-            time: formatTs(status.schedule_last_runtime),
+            time: formatAdminDateTime(status.schedule_last_runtime),
           })}
           icon={Clock}
           iconClassName={status.schedule ? 'text-emerald-500' : 'text-red-500'}
@@ -85,9 +84,12 @@ export function QueueWorkloadPanel() {
     setLoading(true)
     fetchQueueWorkload()
       .then(setItems)
-      .catch(() => setItems([]))
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
+        setItems([])
+      })
       .finally(() => setLoading(false))
-  }, [])
+  }, [t])
 
   useEffect(() => {
     load()
@@ -149,12 +151,13 @@ export function AuditLogPanel() {
         setRows(res.data)
         setTotal(res.total)
       })
-      .catch(() => {
+      .catch((e) => {
+        toastApiError(e, toast, t, t('common.error'))
         setRows([])
         setTotal(0)
       })
       .finally(() => setLoading(false))
-  }, [page, search])
+  }, [page, search, t])
 
   useEffect(() => {
     load()
@@ -201,7 +204,7 @@ export function AuditLogPanel() {
       {
         accessorKey: 'created_at',
         header: t('dashboard.auditLog.columns.time'),
-        cell: ({ row }) => formatTs(row.original.created_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.created_at),
       },
     ],
     [t],

@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 
 import { toast } from 'sonner'
 
+import { toastApiError } from '@/lib/api-errors'
 import { downloadAdminFile, fetchJsonList, fetchJsonObject, fetchPaginatedList, postJson } from '@/lib/api'
 
 import {
@@ -19,7 +20,9 @@ import {
   inputCls,
 } from '@/lib/form-styles'
 
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { cn } from '@/lib/utils'
+import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
@@ -28,6 +31,15 @@ import { FormSelect } from '@/components/shared/FormSelect'
 import { SuffixInput } from '@/components/shared/SuffixInput'
 
 import { Button } from '@/components/ui/button'
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 import {
 
@@ -76,6 +88,9 @@ type UsageRow = Record<string, unknown>
 
 type PlanRow = { id?: number; name?: string }
 
+const TRAFFIC_BYTES_PER_GB = 1073741824
+const BALANCE_CENTS_PER_UNIT = 100
+
 
 
 type GiftCardRewards = {
@@ -94,6 +109,14 @@ type GiftCardRewards = {
 
   plan_validity_days?: number | null
 
+  random_rewards?: RandomRewardItem[]
+
+}
+
+type RandomRewardItem = {
+  weight: number
+  balance?: number
+  transfer_enable?: number
 }
 
 
@@ -117,6 +140,8 @@ type GiftCardConditions = {
 type GiftCardLimits = {
 
   max_use_per_user?: number | null
+
+  max_total_uses?: number | null
 
   cooldown_hours?: number | null
 
@@ -230,9 +255,9 @@ function parseRewards(raw: unknown): GiftCardRewards {
 
   return {
 
-    balance: Number(r.balance ?? 0),
+    balance: Number(r.balance ?? 0) / BALANCE_CENTS_PER_UNIT,
 
-    transfer_enable: r.transfer_enable != null ? Number(r.transfer_enable) : undefined,
+    transfer_enable: r.transfer_enable != null ? Number(r.transfer_enable) / TRAFFIC_BYTES_PER_GB : undefined,
 
     expire_days: r.expire_days != null ? Number(r.expire_days) : undefined,
 
@@ -243,6 +268,18 @@ function parseRewards(raw: unknown): GiftCardRewards {
     plan_id: r.plan_id != null ? Number(r.plan_id) : null,
 
     plan_validity_days: r.plan_validity_days != null ? Number(r.plan_validity_days) : null,
+
+    random_rewards: Array.isArray(r.random_rewards)
+      ? (r.random_rewards as RandomRewardItem[]).map((item) => ({
+          weight: Number(item.weight) || 1,
+          balance:
+            item.balance != null ? Number(item.balance) / BALANCE_CENTS_PER_UNIT : undefined,
+          transfer_enable:
+            item.transfer_enable != null
+              ? Number(item.transfer_enable) / TRAFFIC_BYTES_PER_GB
+              : undefined,
+        }))
+      : [{ weight: 100, balance: 1 }],
 
   }
 
@@ -304,6 +341,8 @@ function parseLimits(raw: unknown): GiftCardLimits {
 
     max_use_per_user: l.max_use_per_user != null ? Number(l.max_use_per_user) : null,
 
+    max_total_uses: l.max_total_uses != null ? Number(l.max_total_uses) : null,
+
     cooldown_hours: l.cooldown_hours != null ? Number(l.cooldown_hours) : null,
 
     invite_reward_rate: l.invite_reward_rate != null ? Number(l.invite_reward_rate) : null,
@@ -324,6 +363,10 @@ export default function GiftCardPage() {
 
   const [templates, setTemplates] = useState<TemplateRow[]>([])
 
+  const [templatesPage, setTemplatesPage] = useState(1)
+
+  const [templatesTotal, setTemplatesTotal] = useState(0)
+
   const [codes, setCodes] = useState<CodeRow[]>([])
 
   const [codesPage, setCodesPage] = useState(1)
@@ -337,6 +380,14 @@ export default function GiftCardPage() {
   const [usagesTotal, setUsagesTotal] = useState(0)
 
   const [stats, setStats] = useState<Record<string, unknown>>({})
+  const [dailyUsages, setDailyUsages] = useState<Array<{ date?: string; count?: number }>>([])
+  const [typeStats, setTypeStats] = useState<Array<{ template_name?: string; type_name?: string; count?: number }>>([])
+  const [statsStartDate, setStatsStartDate] = useState(() => {
+    const d = new Date()
+    d.setDate(d.getDate() - 30)
+    return d.toISOString().slice(0, 10)
+  })
+  const [statsEndDate, setStatsEndDate] = useState(() => new Date().toISOString().slice(0, 10))
 
   const [plans, setPlans] = useState<PlanRow[]>([])
 
@@ -353,6 +404,7 @@ export default function GiftCardPage() {
   const [form, setForm] = useState<TemplateForm>(emptyForm())
 
   const [saving, setSaving] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const [generateOpen, setGenerateOpen] = useState(false)
 
@@ -388,7 +440,11 @@ export default function GiftCardPage() {
 
   useEffect(() => {
 
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
+
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
     fetchJsonObject<Record<string, string>>('/gift-card/types')
 
@@ -412,7 +468,7 @@ export default function GiftCardPage() {
 
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
   }, [t])
 
@@ -422,15 +478,18 @@ export default function GiftCardPage() {
 
     setLoading(true)
 
-    fetchPaginatedList<TemplateRow>('/gift-card/templates', { per_page: 100 })
+    fetchPaginatedList<TemplateRow>('/gift-card/templates', { page: templatesPage, per_page: listPageSize })
 
-      .then((res) => setTemplates(res.data))
+      .then((res) => {
+        setTemplates(res.data)
+        setTemplatesTotal(res.total)
+      })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
-  }, [t])
+  }, [templatesPage, t])
 
 
 
@@ -448,7 +507,7 @@ export default function GiftCardPage() {
 
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
@@ -470,7 +529,7 @@ export default function GiftCardPage() {
 
       })
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
@@ -482,15 +541,25 @@ export default function GiftCardPage() {
 
     setLoading(true)
 
-    fetchJsonObject<{ total_stats?: Record<string, unknown> }>('/gift-card/statistics')
+    const qs = `?start_date=${encodeURIComponent(statsStartDate)}&end_date=${encodeURIComponent(statsEndDate)}`
 
-      .then((res) => setStats(res.total_stats ?? {}))
+    fetchJsonObject<{
+      total_stats?: Record<string, unknown>
+      daily_usages?: Array<{ date?: string; count?: number }>
+      type_stats?: Array<{ template_name?: string; type_name?: string; count?: number }>
+    }>(`/gift-card/statistics${qs}`)
 
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .then((res) => {
+        setStats(res.total_stats ?? {})
+        setDailyUsages(Array.isArray(res.daily_usages) ? res.daily_usages : [])
+        setTypeStats(Array.isArray(res.type_stats) ? res.type_stats : [])
+      })
+
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
-  }, [t])
+  }, [statsStartDate, statsEndDate, t])
 
 
 
@@ -588,7 +657,34 @@ export default function GiftCardPage() {
 
     const rewards: GiftCardRewards = { ...form.rewards }
 
-    if (form.type === 2) {
+    if (rewards.balance != null && rewards.balance > 0) {
+      rewards.balance = Math.round(Number(rewards.balance) * BALANCE_CENTS_PER_UNIT)
+    }
+
+    if (rewards.transfer_enable != null && rewards.transfer_enable > 0) {
+      rewards.transfer_enable = Math.round(Number(rewards.transfer_enable) * TRAFFIC_BYTES_PER_GB)
+    }
+
+    if (form.type === 3) {
+      const pool = (form.rewards.random_rewards ?? []).map((item) => {
+        const entry: Record<string, number> = { weight: Number(item.weight) || 1 }
+        if (item.balance != null && item.balance > 0) {
+          entry.balance = Math.round(Number(item.balance) * BALANCE_CENTS_PER_UNIT)
+        }
+        if (item.transfer_enable != null && item.transfer_enable > 0) {
+          entry.transfer_enable = Math.round(Number(item.transfer_enable) * TRAFFIC_BYTES_PER_GB)
+        }
+        return entry
+      })
+      rewards.random_rewards = pool
+      delete rewards.balance
+      delete rewards.transfer_enable
+      delete rewards.expire_days
+      delete rewards.device_limit
+      delete rewards.reset_package
+      delete rewards.plan_id
+      delete rewards.plan_validity_days
+    } else if (form.type === 2) {
 
       delete rewards.balance
 
@@ -648,6 +744,12 @@ export default function GiftCardPage() {
 
     }
 
+    if (form.limits.max_total_uses != null) {
+
+      limits.max_total_uses = form.limits.max_total_uses
+
+    }
+
     if (form.limits.cooldown_hours != null) {
 
       limits.cooldown_hours = form.limits.cooldown_hours
@@ -657,6 +759,8 @@ export default function GiftCardPage() {
     if (form.limits.invite_reward_rate != null) {
 
       limits.invite_reward_rate = form.limits.invite_reward_rate
+
+      rewards.invite_reward_rate = form.limits.invite_reward_rate
 
     }
 
@@ -715,6 +819,21 @@ export default function GiftCardPage() {
 
 
   async function saveTemplate() {
+    if (!form.name.trim()) {
+      toast.error(t('giftCard.template.form.name.required'))
+      return
+    }
+    if (form.type === 2 && !form.rewards.plan_id) {
+      toast.error(t('giftCard.messages.formInvalid'))
+      return
+    }
+    if (form.type === 3) {
+      const pool = form.rewards.random_rewards ?? []
+      if (!pool.length || pool.every((item) => !item || (item.weight ?? 0) <= 0)) {
+        toast.error(t('giftCard.messages.formInvalid'))
+        return
+      }
+    }
 
     setSaving(true)
 
@@ -740,7 +859,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     } finally {
 
@@ -810,7 +929,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     } finally {
 
@@ -840,7 +959,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -871,7 +990,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -899,7 +1018,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -911,10 +1030,10 @@ export default function GiftCardPage() {
 
     if (
       !(await confirm(
-        t('giftCard.template.actions.deleteConfirm.title'),
-        t('giftCard.template.actions.deleteConfirm.description'),
+        t('giftCard.code.actions.deleteConfirm.title'),
+        t('giftCard.code.actions.deleteConfirm.description'),
         {
-          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText'),
+          confirmLabel: t('giftCard.code.actions.deleteConfirm.confirmText'),
         },
       ))
     )
@@ -930,7 +1049,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
 
     }
 
@@ -992,11 +1111,7 @@ export default function GiftCardPage() {
 
     } catch (e) {
 
-      toast.error(
-
-        e instanceof Error ? e.message : t('giftCard.messages.updateCodeStatusFailed'),
-
-      )
+      toastApiError(e, toast, t, t('giftCard.messages.updateCodeStatusFailed'))
 
     } finally {
 
@@ -1038,7 +1153,9 @@ export default function GiftCardPage() {
 
       { accessorKey: 'type_name', header: () => t('giftCard.template.table.columns.type') },
 
-      { accessorKey: 'status', header: () => t('giftCard.template.table.columns.status') },
+      { accessorKey: 'status', header: () => t('giftCard.template.table.columns.status'), cell: ({ row }) => (
+        row.original.status ? t('giftCard.common.enabled') : t('giftCard.common.disabled')
+      ) },
 
       {
 
@@ -1115,15 +1232,17 @@ export default function GiftCardPage() {
 
     () => [
 
-      { accessorKey: 'id', header: 'ID' },
+      { accessorKey: 'id', header: () => t('giftCard.code.table.columns.id') },
 
       { accessorKey: 'code', header: () => t('giftCard.code.table.columns.code') },
 
-      { accessorKey: 'status', header: () => t('giftCard.code.table.columns.status') },
+      { accessorKey: 'status', header: () => t('giftCard.code.table.columns.status'), cell: ({ row }) => (
+        <span>{t(`giftCard.code.status.${row.original.status ?? 0}`, String(row.original.status ?? ''))}</span>
+      ) },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.code.table.columns.template_name') },
+      { accessorKey: 'template_name', header: () => t('giftCard.code.table.columns.template_name') },
 
-      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.id') },
+      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.batch_id') },
 
       {
 
@@ -1195,13 +1314,13 @@ export default function GiftCardPage() {
 
     () => [
 
-      { accessorKey: 'id', header: 'ID' },
+      { accessorKey: 'id', header: () => t('giftCard.code.table.columns.id') },
 
-      { accessorKey: 'user_id', header: () => t('giftCard.usage.table.columns.user_email') },
+      { accessorKey: 'user_email', header: () => t('giftCard.usage.table.columns.user_email') },
 
-      { accessorKey: 'template_id', header: () => t('giftCard.usage.table.columns.template_name') },
+      { accessorKey: 'template_name', header: () => t('giftCard.usage.table.columns.template_name') },
 
-      { accessorKey: 'created_at', header: () => t('giftCard.usage.table.columns.created_at') },
+      { accessorKey: 'created_at', header: () => t('giftCard.usage.table.columns.created_at'), cell: ({ row }) => formatAdminDateTime(row.original.created_at as number | undefined) },
 
     ],
 
@@ -1236,6 +1355,8 @@ export default function GiftCardPage() {
   const codesPageCount = Math.max(1, Math.ceil(codesTotal / listPageSize))
 
   const usagesPageCount = Math.max(1, Math.ceil(usagesTotal / listPageSize))
+
+  const templatesPageCount = Math.max(1, Math.ceil(templatesTotal / listPageSize))
 
 
 
@@ -1313,14 +1434,6 @@ export default function GiftCardPage() {
 
                 </Button>
 
-                <Button variant="outline" size="sm" className="ml-auto hidden h-8 rounded-md px-3 text-xs lg:flex">
-
-                  <SlidersHorizontal className="mr-2 h-4 w-4" />
-
-                  {t('common.table.viewOptions.button')}
-
-                </Button>
-
               </div>
 
             </div>
@@ -1333,9 +1446,17 @@ export default function GiftCardPage() {
 
               loading={loading}
 
-              pageSize={20}
+              pageSize={listPageSize}
 
               alwaysShowPagination
+
+              totalItems={templatesTotal}
+
+              pageIndex={templatesPage - 1}
+
+              pageCount={templatesPageCount}
+
+              onPageIndexChange={(idx) => setTemplatesPage(idx + 1)}
 
               tableClassName="relative overflow-auto rounded-md border bg-card"
 
@@ -1405,25 +1526,138 @@ export default function GiftCardPage() {
 
         <TabsContent value="statistics" className="mt-6 flex-1">
 
+          <div className="mb-4 flex flex-wrap items-end gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">{t('giftCard.statistics.dateRange.start')}</Label>
+              <input
+                type="date"
+                className={cn(giftDialogInputCls, 'h-8')}
+                value={statsStartDate}
+                onChange={(e) => setStatsStartDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">{t('giftCard.statistics.dateRange.end')}</Label>
+              <input
+                type="date"
+                className={cn(giftDialogInputCls, 'h-8')}
+                value={statsEndDate}
+                onChange={(e) => setStatsEndDate(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" size="sm" className="h-8" onClick={() => loadStats()}>
+              {t('common.refresh', 'Refresh')}
+            </Button>
+          </div>
+
           {loading ? (
 
             <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
 
           ) : (
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-6">
 
-              {Object.entries(stats).map(([key, value]) => (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-                <div key={key} className="rounded-lg border p-4">
+                {Object.entries(stats).map(([key, value]) => (
 
-                  <p className="text-sm text-muted-foreground">{key}</p>
+                  <div key={key} className="rounded-lg border p-4">
 
-                  <p className="text-2xl font-semibold">{String(value)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t(`giftCard.statistics.total.${key}`, key)}
+                    </p>
+
+                    <p className="text-2xl font-semibold">{String(value)}</p>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-2">
+
+                <div className="rounded-lg border p-4">
+
+                  <h3 className="mb-4 text-sm font-semibold">{t('giftCard.statistics.daily.chart')}</h3>
+
+                  {dailyUsages.length === 0 ? (
+
+                    <p className="text-sm text-muted-foreground">{t('giftCard.common.noData')}</p>
+
+                  ) : (
+
+                    <div className="h-64">
+
+                      <ResponsiveContainer width="100%" height="100%">
+
+                        <BarChart data={dailyUsages.map((row) => ({ date: row.date ?? '', count: Number(row.count ?? 0) }))}>
+
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
+                          <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+
+                          <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+
+                          <Tooltip />
+
+                          <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+
+                        </BarChart>
+
+                      </ResponsiveContainer>
+
+                    </div>
+
+                  )}
 
                 </div>
 
-              ))}
+                <div className="rounded-lg border p-4">
+
+                  <h3 className="mb-4 text-sm font-semibold">{t('giftCard.statistics.type.chart')}</h3>
+
+                  {typeStats.length === 0 ? (
+
+                    <p className="text-sm text-muted-foreground">{t('giftCard.common.noData')}</p>
+
+                  ) : (
+
+                    <div className="h-64">
+
+                      <ResponsiveContainer width="100%" height="100%">
+
+                        <BarChart
+                          data={typeStats.map((row) => ({
+                            name: row.template_name || row.type_name || '—',
+                            count: Number(row.count ?? 0),
+                          }))}
+                          layout="vertical"
+                          margin={{ left: 8, right: 16 }}
+                        >
+
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+
+                          <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+
+                          <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
+
+                          <Tooltip />
+
+                          <Bar dataKey="count" fill="hsl(var(--chart-2, var(--primary)))" radius={[0, 4, 4, 0]} />
+
+                        </BarChart>
+
+                      </ResponsiveContainer>
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              </div>
 
             </div>
 
@@ -1490,7 +1724,16 @@ export default function GiftCardPage() {
                     <FormSelect
                       className={giftDialogSelectCls}
                       value={String(form.type)}
-                      onChange={(v) => setForm((f) => ({ ...f, type: Number(v) }))}
+                      onChange={(v) =>
+                        setForm((f) => {
+                          const nextType = Number(v)
+                          const rewards =
+                            nextType === 3 && !f.rewards.random_rewards?.length
+                              ? { ...f.rewards, random_rewards: [{ weight: 100, balance: 1 }] }
+                              : f.rewards
+                          return { ...f, type: nextType, rewards }
+                        })
+                      }
                       options={giftTypeOptions.map(({ id, label }) => ({
                         value: String(id),
                         label,
@@ -1645,6 +1888,198 @@ export default function GiftCardPage() {
 
                   </div>
 
+                ) : form.type === 3 ? (
+
+                  <div className="space-y-3">
+
+                    <Label className={dialogFieldLabelCls}>
+                      {t('giftCard.template.form.rewards.random_rewards.label')}
+                    </Label>
+
+                    {(form.rewards.random_rewards ?? []).map((item, idx) => (
+
+                      <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_auto] items-end gap-2 rounded-md border p-3">
+
+                        <div className="space-y-1">
+
+                          <Label className="text-xs">{t('giftCard.template.form.rewards.random_rewards.weight')}</Label>
+
+                          <Input
+
+                            type="number"
+
+                            min={1}
+
+                            value={item.weight}
+
+                            onChange={(e) =>
+
+                              setForm((f) => {
+
+                                const pool = [...(f.rewards.random_rewards ?? [])]
+
+                                pool[idx] = { ...pool[idx], weight: Number(e.target.value) || 1 }
+
+                                return { ...f, rewards: { ...f.rewards, random_rewards: pool } }
+
+                              })
+
+                            }
+
+                          />
+
+                        </div>
+
+                        <div className="space-y-1">
+
+                          <Label className="text-xs">{t('giftCard.template.form.rewards.balance.label')}</Label>
+
+                          <SuffixInput
+
+                            suffix={currencySymbol}
+
+                            type="number"
+
+                            value={item.balance ?? ''}
+
+                            onChange={(e) =>
+
+                              setForm((f) => {
+
+                                const pool = [...(f.rewards.random_rewards ?? [])]
+
+                                pool[idx] = {
+
+                                  ...pool[idx],
+
+                                  balance: e.target.value ? Number(e.target.value) : undefined,
+
+                                }
+
+                                return { ...f, rewards: { ...f.rewards, random_rewards: pool } }
+
+                              })
+
+                            }
+
+                          />
+
+                        </div>
+
+                        <div className="space-y-1">
+
+                          <Label className="text-xs">{t('giftCard.template.form.rewards.transfer_enable.label')}</Label>
+
+                          <SuffixInput
+
+                            suffix="GB"
+
+                            type="number"
+
+                            value={item.transfer_enable ?? ''}
+
+                            onChange={(e) =>
+
+                              setForm((f) => {
+
+                                const pool = [...(f.rewards.random_rewards ?? [])]
+
+                                pool[idx] = {
+
+                                  ...pool[idx],
+
+                                  transfer_enable: e.target.value ? Number(e.target.value) : undefined,
+
+                                }
+
+                                return { ...f, rewards: { ...f.rewards, random_rewards: pool } }
+
+                              })
+
+                            }
+
+                          />
+
+                        </div>
+
+                        <Button
+
+                          type="button"
+
+                          variant="ghost"
+
+                          size="sm"
+
+                          className="text-destructive"
+
+                          onClick={() =>
+
+                            setForm((f) => ({
+
+                              ...f,
+
+                              rewards: {
+
+                                ...f.rewards,
+
+                                random_rewards: (f.rewards.random_rewards ?? []).filter((_, i) => i !== idx),
+
+                              },
+
+                            }))
+
+                          }
+
+                        >
+
+                          {t('common.delete')}
+
+                        </Button>
+
+                      </div>
+
+                    ))}
+
+                    <Button
+
+                      type="button"
+
+                      variant="outline"
+
+                      size="sm"
+
+                      onClick={() =>
+
+                        setForm((f) => ({
+
+                          ...f,
+
+                          rewards: {
+
+                            ...f.rewards,
+
+                            random_rewards: [
+
+                              ...(f.rewards.random_rewards ?? []),
+
+                              { weight: 10, balance: 1 },
+
+                            ],
+
+                          },
+
+                        }))
+
+                      }
+
+                    >
+
+                      {t('giftCard.template.form.rewards.random_rewards.add')}
+
+                    </Button>
+
+                  </div>
+
                 ) : (
 
                   <>
@@ -1659,7 +2094,7 @@ export default function GiftCardPage() {
 
                           className={giftDialogInputCls}
 
-                          suffix="¥"
+                          suffix={currencySymbol}
 
                           type="number"
 
@@ -1985,9 +2420,7 @@ export default function GiftCardPage() {
                     }))
                   }
                   options={plans.map((p) => ({ value: Number(p.id), label: String(p.name) }))}
-                  placeholder={t('giftCard.template.form.conditions.allowed_plans.placeholder', {
-                    defaultValue: '选择允许兑换的套餐 (留空则不限制)',
-                  })}
+                  placeholder={t('giftCard.template.form.conditions.allowed_plans.placeholder')}
                 />
 
                 <FormInlineMultiSelect
@@ -2000,9 +2433,7 @@ export default function GiftCardPage() {
                     }))
                   }
                   options={plans.map((p) => ({ value: Number(p.id), label: String(p.name) }))}
-                  placeholder={t('giftCard.template.form.conditions.disallowed_plans.placeholder', {
-                    defaultValue: '选择禁止兑换的套餐 (留空则不限制)',
-                  })}
+                  placeholder={t('giftCard.template.form.conditions.disallowed_plans.placeholder')}
                 />
 
               </div>
@@ -2046,6 +2477,42 @@ export default function GiftCardPage() {
                             ...f.limits,
 
                             max_use_per_user: e.target.value ? Number(e.target.value) : null,
+
+                          },
+
+                        }))
+
+                      }
+
+                    />
+
+                  </div>
+
+                  <div className="space-y-1.5">
+
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.limits.max_total_uses.label')}</Label>
+
+                    <input
+
+                      type="number"
+
+                      className={giftDialogInputCls}
+
+                      placeholder={t('giftCard.template.form.limits.max_total_uses.placeholder')}
+
+                      value={form.limits.max_total_uses ?? ''}
+
+                      onChange={(e) =>
+
+                        setForm((f) => ({
+
+                          ...f,
+
+                          limits: {
+
+                            ...f.limits,
+
+                            max_total_uses: e.target.value ? Number(e.target.value) : null,
 
                           },
 
@@ -2317,6 +2784,38 @@ export default function GiftCardPage() {
 
                   </div>
 
+                  <div className="space-y-1.5">
+
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.theme_color.label')}</Label>
+
+                    <div className="flex items-center gap-2">
+
+                      <input
+
+                        type="color"
+
+                        className="h-9 w-12 cursor-pointer rounded border bg-transparent p-0.5"
+
+                        value={form.theme_color || '#1890ff'}
+
+                        onChange={(e) => setForm((f) => ({ ...f, theme_color: e.target.value }))}
+
+                      />
+
+                      <input
+
+                        className={giftDialogInputCls}
+
+                        value={form.theme_color}
+
+                        onChange={(e) => setForm((f) => ({ ...f, theme_color: e.target.value }))}
+
+                      />
+
+                    </div>
+
+                  </div>
+
                 </div>
 
               </div>
@@ -2577,7 +3076,7 @@ export default function GiftCardPage() {
 
                 <p className="text-xs text-muted-foreground">
 
-                  {t('giftCard.template.form.limits.max_use_per_user.placeholder')}
+                  {t('giftCard.code.form.expires_at.hint')}
 
                 </p>
 

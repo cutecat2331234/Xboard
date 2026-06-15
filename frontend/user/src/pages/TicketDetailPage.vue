@@ -1,25 +1,42 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, useMessage } from 'naive-ui'
+import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, NEmpty, useDialog, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
-import { formatFixedDateTime } from '@/lib/format-date'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
+import { isWithdrawTicket } from '@/lib/withdraw-ticket'
+import { useUserCommConfig } from '@/composables/useUserCommConfig'
 
 const route = useRoute()
 const msg = useMessage()
-const { t } = useI18n()
+const dialog = useDialog()
+const { t, locale } = useI18n()
+const { config: commConfig, load: loadComm } = useUserCommConfig()
 
 const ticket = ref<TicketItem | null>(null)
 const pageLoading = ref(true)
+const commReady = ref(false)
 const replyText = ref('')
 const sending = ref(false)
 const scrollRef = ref<InstanceType<typeof NScrollbar> | null>(null)
 const scrollContentRef = ref<HTMLElement | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
+let silentPollFailures = 0
 
 const isClosed = computed(() => Boolean(ticket.value?.status))
+const isWithdraw = computed(() => (ticket.value ? isWithdrawTicket(ticket.value) : false))
+
+const mustWaitForAdmin = computed(() => {
+  if (!commReady.value) return false
+  if (commConfig.value == null) return false
+  if (!commConfig.value.ticket_must_wait_reply || !ticket.value?.message?.length) return false
+  const last = ticket.value.message[ticket.value.message.length - 1]
+  return Boolean(last?.is_me)
+})
+
+const replyDisabled = computed(() => isClosed.value || mustWaitForAdmin.value)
 
 function scrollToBottom() {
   requestAnimationFrame(() => {
@@ -27,24 +44,33 @@ function scrollToBottom() {
   })
 }
 
-async function load() {
-  pageLoading.value = true
+async function load(silent = false) {
+  if (!silent) pageLoading.value = true
   try {
     const id = Number(route.params.id)
     ticket.value = await fetchTicketById(id)
+    silentPollFailures = 0
     if (ticket.value.status !== 0) {
       stopPoll()
     }
     scrollToBottom()
   } catch (e: unknown) {
-    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+    if (silent) {
+      silentPollFailures += 1
+      if (silentPollFailures >= 3) {
+        msg.warning(resolveApiError(e, t, t('errors.requestFailed')))
+        stopPoll()
+      }
+    } else {
+      msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+    }
   } finally {
-    pageLoading.value = false
+    if (!silent) pageLoading.value = false
   }
 }
 
 async function sendReply() {
-  if (!ticket.value || isClosed.value || !replyText.value.trim()) return
+  if (!ticket.value || replyDisabled.value || !replyText.value.trim()) return
   sending.value = true
   try {
     await replyTicket({ id: ticket.value.id, message: replyText.value.trim() })
@@ -52,7 +78,7 @@ async function sendReply() {
     msg.success(t('common.success'))
     await load()
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   } finally {
     sending.value = false
   }
@@ -66,20 +92,28 @@ function onReplyKeydown(e: KeyboardEvent) {
 
 async function close() {
   if (!ticket.value) return
-  try {
-    await closeTicket(ticket.value.id)
-    msg.success(t('common.success'))
-    await load()
-  } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
-  }
+  dialog.warning({
+    title: t('ticket.close'),
+    content: t('ticket.closeConfirm'),
+    positiveText: t('common.confirm'),
+    negativeText: t('common.cancel'),
+    onPositiveClick: async () => {
+      try {
+        await closeTicket(ticket.value!.id)
+        msg.success(t('common.success'))
+        await load()
+      } catch (e: unknown) {
+        msg.error(resolveApiError(e, t))
+      }
+    },
+  })
 }
 
 function startPoll() {
   stopPoll()
   if (ticket.value?.status !== 0) return
   pollTimer = setInterval(() => {
-    load().catch(() => {})
+    void load(true)
   }, 2000)
 }
 
@@ -92,19 +126,35 @@ function stopPoll() {
 
 onMounted(async () => {
   try {
+    await loadComm()
+  } catch (e: unknown) {
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+  } finally {
+    commReady.value = true
+  }
+  await load()
+  if (ticket.value?.status === 0) startPoll()
+})
+
+watch(
+  () => route.params.id,
+  async (id) => {
+    if (!id) return
+    stopPoll()
+    replyText.value = ''
+    ticket.value = null
     await load()
     if (ticket.value?.status === 0) startPoll()
-  } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
-  }
-})
+  },
+)
+
 onUnmounted(stopPoll)
 </script>
 
 <template>
   <n-spin :show="pageLoading">
   <n-card v-if="ticket" :title="ticket.subject" class="ticket-detail-card rounded-md">
-    <template v-if="ticket.status === 0" #header-extra>
+    <template v-if="ticket.status === 0 && !isWithdraw" #header-extra>
       <n-button size="small" @click="close">{{ t('ticket.close') }}</n-button>
     </template>
     <div class="ticket-scroll-wrap">
@@ -115,13 +165,16 @@ onUnmounted(stopPoll)
             :key="m.id"
             :class="m.is_me ? 'text-right' : 'text-left'"
           >
-            <div class="message-time">{{ formatFixedDateTime(m.created_at) }}</div>
+            <div class="message-time">{{ formatLocaleDateTime(m.created_at, locale) }}</div>
             <div class="message-bubble">{{ m.message }}</div>
           </div>
         </div>
       </n-scrollbar>
     </div>
-    <n-alert v-if="isClosed" class="closed-hint" type="warning" :show-icon="true">
+    <n-alert v-if="mustWaitForAdmin" class="closed-hint" type="info" :show-icon="true">
+      {{ t('errors.ticketWaitForReply') }}
+    </n-alert>
+    <n-alert v-else-if="isClosed" class="closed-hint" type="warning" :show-icon="true">
       {{ t('ticket.closedHint') }}
     </n-alert>
     <div class="reply-group mt-8">
@@ -130,7 +183,7 @@ onUnmounted(stopPoll)
         type="textarea"
         :rows="2"
         size="large"
-        :disabled="isClosed"
+        :disabled="replyDisabled"
         :placeholder="isClosed ? t('ticket.closedReplyPh') : t('ticket.replyPh')"
         @keydown="onReplyKeydown"
       />
@@ -139,13 +192,14 @@ onUnmounted(stopPoll)
         size="large"
         round
         :loading="sending"
-        :disabled="isClosed"
+        :disabled="replyDisabled"
         @click="sendReply"
       >
         {{ t('ticket.reply') }}
       </n-button>
     </div>
   </n-card>
+  <n-empty v-else-if="!pageLoading" :description="t('errors.ticketNotFound')" />
   </n-spin>
 </template>
 

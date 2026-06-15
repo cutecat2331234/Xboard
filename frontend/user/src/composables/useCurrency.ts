@@ -16,6 +16,7 @@ export function useCurrency() {
       .catch(() => {
         symbol.value = '¥'
         code.value = 'CNY'
+        loading = null
       })
     return loading
   }
@@ -33,5 +34,11 @@ export function useCurrency() {
     return `${symbol.value} ${formatAmount(cents)}`
   }
 
-  return { symbol, code, load, formatAmount, formatPrice, formatPriceSpaced }
+  function reset() {
+    loading = null
+    symbol.value = '¥'
+    code.value = 'CNY'
+  }
+
+  return { symbol, code, load, reset, formatAmount, formatPrice, formatPriceSpaced }
 }

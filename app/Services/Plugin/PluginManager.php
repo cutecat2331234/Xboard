@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class PluginManager
@@ -19,6 +21,12 @@ class PluginManager
     protected array $loadedPlugins = [];
     protected bool $pluginsInitialized = false;
     protected array $configTypesCache = [];
+
+    /** @var array<string, true> Routes registered once per Octane worker */
+    protected static array $registeredRoutes = [];
+
+    /** @var array<string, true> Service providers registered once per Octane worker */
+    protected static array $registeredProviders = [];
 
     public function __construct()
     {
@@ -107,10 +115,15 @@ class PluginManager
      */
     protected function registerServiceProvider(string $pluginCode): void
     {
+        if (isset(self::$registeredProviders[$pluginCode])) {
+            return;
+        }
+
         $providerClass = $this->getPluginNamespace($pluginCode) . '\\Providers\\PluginServiceProvider';
 
         if (class_exists($providerClass)) {
             app()->register($providerClass);
+            self::$registeredProviders[$pluginCode] = true;
         }
     }
 
@@ -119,6 +132,10 @@ class PluginManager
      */
     protected function loadRoutes(string $pluginCode): void
     {
+        if (isset(self::$registeredRoutes[$pluginCode])) {
+            return;
+        }
+
         $routesPath = $this->getPluginPath($pluginCode) . '/routes';
         if (File::exists($routesPath)) {
             $webRouteFile = $routesPath . '/web.php';
@@ -137,6 +154,7 @@ class PluginManager
                         require $apiRouteFile;
                     });
             }
+            self::$registeredRoutes[$pluginCode] = true;
         }
     }
 
@@ -384,6 +402,8 @@ class PluginManager
         // 初始化插件
         $plugin->boot();
 
+        $this->reloadOctaneWorkers();
+
         return true;
     }
 
@@ -404,9 +424,31 @@ class PluginManager
                 'updated_at' => now(),
             ]);
 
+        Cache::forget("plugin_config_{$pluginCode}");
         $plugin->cleanup();
 
+        $this->reloadOctaneWorkers();
+
         return true;
+    }
+
+    /**
+     * Reload Octane workers so plugin route/provider changes take effect.
+     */
+    protected function reloadOctaneWorkers(): void
+    {
+        if (!config('octane.server')) {
+            return;
+        }
+
+        try {
+            $status = Process::run('php artisan octane:status');
+            if ($status->successful() && str_contains($status->output(), 'Octane server is running')) {
+                Process::run('php artisan octane:reload');
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed to reload Octane after plugin change: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -601,7 +643,7 @@ class PluginManager
             return $this->update($config['code']);
         }
 
-        return true;
+        return $this->install($config['code']);
     }
 
     /**

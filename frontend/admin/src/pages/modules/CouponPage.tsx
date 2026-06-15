@@ -4,8 +4,12 @@ import { IconDots } from '@tabler/icons-react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { adminApi, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
+import { toastApiError } from '@/lib/api-errors'
+import { adminApi, downloadAdminFile, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
+import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import { inputCls } from '@/lib/form-styles'
+import { formatAdminDateTime } from '@/lib/format-datetime'
+import { formatAdminMoney } from '@/lib/currency'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
 import {
@@ -62,12 +66,39 @@ function tsToInput(ts?: number) {
 }
 
 function inputToTs(value: string) {
-  if (!value) return Math.floor(Date.now() / 1000)
+  if (!value) return null
   return Math.floor(new Date(value).getTime() / 1000)
 }
 
-function defaultForm() {
+function formatCouponValue(row: CouponRow) {
+  if (row.type === 2) return `${row.value ?? 0}%`
+  return formatAdminMoney(row.value ?? 0)
+}
+
+function formatCouponValidity(
+  row: CouponRow,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
   const now = Math.floor(Date.now() / 1000)
+  const start = row.started_at ?? 0
+  const end = row.ended_at ?? 0
+  if (!start && !end) return t('coupon.table.validity.unlimited')
+  if (end && end < now) {
+    const days = Math.max(1, Math.ceil((now - end) / 86400))
+    return t('coupon.table.validity.expired', { days })
+  }
+  if (start && start > now) {
+    const days = Math.max(1, Math.ceil((start - now) / 86400))
+    return t('coupon.table.validity.notStarted', { days })
+  }
+  if (end) {
+    const days = Math.max(0, Math.ceil((end - now) / 86400))
+    return t('coupon.table.validity.remaining', { days })
+  }
+  return `${formatAdminDateTime(start)} → ${formatAdminDateTime(end)}`
+}
+
+function defaultForm() {
   return {
     name: '',
     code: '',
@@ -78,8 +109,8 @@ function defaultForm() {
     limit_plan_ids: [] as number[],
     limit_period: [] as string[],
     generate_count: '',
-    started_at_input: tsToInput(now),
-    ended_at_input: tsToInput(now + 86400 * 30),
+    started_at_input: '',
+    ended_at_input: '',
   }
 }
 
@@ -98,6 +129,7 @@ export default function CouponPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(defaultForm())
   const [saving, setSaving] = useState(false)
+  const [currencySymbol, setCurrencySymbol] = useState('¥')
 
   const load = useCallback(() => {
     setLoading(true)
@@ -117,12 +149,15 @@ export default function CouponPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, search, typeFilter, t])
 
   useEffect(() => {
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
   }, [])
 
   useEffect(() => {
@@ -141,7 +176,7 @@ export default function CouponPage() {
       name: row.name ?? '',
       code: row.code ?? '',
       type: row.type ?? 1,
-      value: row.value ?? 0,
+      value: row.type === 1 ? (row.value ?? 0) / 100 : (row.value ?? 0),
       limit_use: row.limit_use != null ? String(row.limit_use) : '',
       limit_use_with_user: row.limit_use_with_user != null ? String(row.limit_use_with_user) : '',
       limit_plan_ids: Array.isArray(row.limit_plan_ids) ? row.limit_plan_ids : [],
@@ -160,9 +195,13 @@ export default function CouponPage() {
         name: form.name,
         code: form.code || undefined,
         type: form.type,
-        value: form.value,
-        started_at: inputToTs(String(form.started_at_input ?? '')),
-        ended_at: inputToTs(String(form.ended_at_input ?? '')),
+        value: form.type === 1 ? Math.round(Number(form.value) * 100) : form.value,
+      }
+      if (form.started_at_input) {
+        payload.started_at = inputToTs(String(form.started_at_input))
+      }
+      if (form.ended_at_input) {
+        payload.ended_at = inputToTs(String(form.ended_at_input))
       }
       if (form.limit_use !== '') payload.limit_use = Number(form.limit_use)
       if (form.limit_use_with_user !== '') payload.limit_use_with_user = Number(form.limit_use_with_user)
@@ -170,18 +209,18 @@ export default function CouponPage() {
       if (form.limit_period.length) payload.limit_period = form.limit_period
       if (editingId) {
         payload.id = editingId
-        await postJson('/coupon/update', payload)
+        await postJson('/coupon/generate', payload)
+      } else if (form.generate_count !== '') {
+        payload.generate_count = Number(form.generate_count)
+        await downloadAdminFile('/coupon/generate', { method: 'POST', jsonBody: payload }, 'coupons.csv')
       } else {
-        if (form.generate_count !== '') {
-          payload.generate_count = Number(form.generate_count)
-        }
         await postJson('/coupon/generate', payload)
       }
       toast.success(t('common.success'))
       setDialogOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     } finally {
       setSaving(false)
     }
@@ -192,7 +231,7 @@ export default function CouponPage() {
       await postJson('/coupon/show', { id: row.id })
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -212,7 +251,7 @@ export default function CouponPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -247,7 +286,22 @@ export default function CouponPage() {
             ? t('coupon.type.percent')
             : t('coupon.type.amount'),
       },
+      {
+        accessorKey: 'value',
+        header: () => t('coupon.form.value.placeholder'),
+        cell: ({ row }) => formatCouponValue(row.original),
+      },
       { accessorKey: 'limit_use', header: () => t('coupon.table.columns.limitUse') },
+      {
+        accessorKey: 'limit_use_with_user',
+        header: () => t('coupon.table.columns.limitUseWithUser'),
+        cell: ({ row }) => row.original.limit_use_with_user ?? t('coupon.table.validity.noLimit'),
+      },
+      {
+        id: 'validity',
+        header: () => t('coupon.table.columns.validity'),
+        cell: ({ row }) => formatCouponValidity(row.original, t),
+      },
       {
         accessorKey: 'show',
         header: () => t('coupon.table.columns.show'),
@@ -394,7 +448,10 @@ export default function CouponPage() {
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                <Label>{t('coupon.form.value.placeholder')}</Label>
+                <Label>
+                  {t('coupon.form.value.placeholder')}
+                  {form.type === 1 ? ` (${currencySymbol})` : ''}
+                </Label>
                 <input
                   type="number"
                   className={inputCls}

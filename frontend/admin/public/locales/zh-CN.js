@@ -1,5 +1,10 @@
 window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
 window.XBOARD_TRANSLATIONS['zh-CN'] = {
+  "errors": {
+    "notFoundTitle": "页面不存在",
+    "notFoundDesc": "您访问的页面不存在或已被移除。",
+    "backHome": "返回首页"
+  },
   "theme": {
     "title": "主题配置",
     "description": "主题配置，包括主题色、字体大小等。如果你采用前后分离的方式部署V2board，那么主题配置将不会生效。",
@@ -209,6 +214,14 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "toggleNavigation": "切换导航",
     "toggleSidebar": "切换侧边栏",
     "search": "搜索...",
+    "back": "返回",
+    "units": {
+      "b": "B",
+      "kb": "KB",
+      "mb": "MB",
+      "gb": "GB"
+    },
+    "select": "请选择",
     "theme": {
       "light": "浅色",
       "dark": "深色",
@@ -467,6 +480,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "forgotPassword": "忘记密码？",
       "submit": "登录",
       "rememberMe": "记住我",
+      "invalidCredentials": "邮箱或密码错误",
+      "accountSuspended": "该账户已被停止使用",
+      "notAdmin": "该账户不是管理员",
       "resetPassword": {
         "title": "重置密码",
         "description": "在站点目录下执行以下命令找回密码",
@@ -530,6 +546,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "show": {
           "label": "显示"
         },
+        "popup": {
+          "label": "弹窗公告"
+        },
         "tags": {
           "label": "节点标签",
           "placeholder": "输入后回车添加标签"
@@ -584,8 +603,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "commission": {
       "PENDING": "待确认",
-      "PROCESSING": "发放中",
-      "VALID": "有效",
+      "VALID": "已校验",
+      "SETTLED": "已结算",
       "INVALID": "无效"
     },
     "form": {
@@ -597,6 +616,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "cancel": "取消订单",
       "openMenu": "打开菜单",
       "reset": "重置"
+    },
+    "filters": {
+      "userId": "用户 ID：{{id}}",
+      "commissionBalance": "佣金余额：{{value}}",
+      "clearAll": "清除全部筛选"
     },
     "search": {
       "placeholder": "搜索订单..."
@@ -661,6 +685,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "todayRegistered": "今日注册",
       "monthlyRegistered": "月注册",
       "onlineUsers": "在线用户",
+      "onlineDevices": "在线设备",
+      "onlineNodes": "在线节点",
+      "onlineSnapshot": "近 10 分钟内活跃",
       "pendingTickets": "待处理工单",
       "hasPendingTickets": "有工单需要处理",
       "noPendingTickets": "无待处理工单",
@@ -669,6 +696,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "noPendingCommission": "无待处理佣金",
       "monthlyNewUsers": "月新增用户",
       "monthlyDownload": "月下载",
+      "monthlyCommissionPayout": "月佣金支出",
+      "totalTraffic": "总流量",
       "todayTraffic": "今日: {{value}}",
       "activeUserTrend": "活跃用户趋势",
       "realtimeUsers": "实时用户",
@@ -688,6 +717,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "previousTraffic": "上期流量",
       "changeRate": "变化率",
       "recordTime": "记录时间"
+    },
+    "traffic": {
+      "title": "流量排行",
+      "rank": "排名",
+      "domain": "域名",
+      "todayTraffic": "今日流量",
+      "monthlyTraffic": "月流量"
     },
     "overview": {
       "title": "收入概览",
@@ -774,6 +810,33 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "empty": "队列中暂无作业",
       "loading": "正在加载队列状态...",
       "error": "加载队列状态失败"
+    },
+    "systemStatus": {
+      "title": "系统状态",
+      "schedule": "计划任务",
+      "scheduleLastRun": "上次运行：{{time}}",
+      "horizon": "Horizon 队列",
+      "horizonHint": "队列 worker 健康状态"
+    },
+    "queueWorkload": {
+      "title": "队列负载",
+      "description": "各队列待处理任务与 worker 数量",
+      "empty": "暂无队列负载数据",
+      "summary": "等待 {{wait}} 秒 · {{processes}} 个 worker"
+    },
+    "auditLog": {
+      "title": "管理操作审计",
+      "description": "最近的管理员 API 操作记录",
+      "keywordPlaceholder": "搜索操作、URI、IP…",
+      "columns": {
+        "id": "ID",
+        "admin": "管理员",
+        "action": "操作",
+        "method": "方法",
+        "uri": "URI",
+        "ip": "IP",
+        "time": "时间"
+      }
     },
     "common": {
       "refresh": "刷新",
@@ -1807,9 +1870,49 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "label": "停止新用户注册",
           "description": "开启后任何人都将无法进行注册。"
         },
+        "featureRegister": {
+          "label": "启用注册模块",
+          "description": "关闭后用户前台将隐藏注册入口（与「停止新用户注册」同时生效）。"
+        },
+        "featureCoupon": {
+          "label": "启用优惠券",
+          "description": "关闭后用户无法使用优惠券下单。"
+        },
+        "featureTicket": {
+          "label": "启用工单系统",
+          "description": "关闭后用户无法访问工单页面。"
+        },
+        "featureCommission": {
+          "label": "启用佣金系统",
+          "description": "关闭后邀请佣金相关功能对用户不可见。"
+        },
+        "featureInvite": {
+          "label": "启用邀请系统",
+          "description": "关闭后用户无法访问邀请页面。"
+        },
+        "featureGiftCard": {
+          "label": "启用礼品卡",
+          "description": "关闭后用户无法访问礼品卡页面。"
+        },
+        "featureTrafficLog": {
+          "label": "启用流量日志",
+          "description": "关闭后用户无法访问流量日志页面。"
+        },
+        "featureKnowledgeBase": {
+          "label": "启用知识库",
+          "description": "关闭后用户无法访问知识库页面。"
+        },
+        "featureAnnouncements": {
+          "label": "启用公告系统",
+          "description": "关闭后用户端不再展示公告与弹窗通知。"
+        },
         "ticketMustWaitReply": {
           "label": "工单等待回复限制",
           "description": "开启后，用户在管理员回复前无法在同一工单内连续发送消息。"
+        },
+        "tryOutEnable": {
+          "label": "启用注册试用",
+          "description": "关闭后新用户注册不会自动获得试用订阅。"
         },
         "tryOut": {
           "label": "注册试用",
@@ -1821,6 +1924,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
             "description": "注册试用时长，单位为小时。"
           }
         },
+        "tryOutHour": {
+          "label": "注册试用时长（小时）",
+          "description": "注册试用时长，单位为小时。"
+        },
         "currency": {
           "label": "货币单位",
           "placeholder": "CNY",
@@ -1830,6 +1937,15 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "label": "货币符号",
           "placeholder": "¥",
           "description": "仅用于展示使用，更改后系统中所有的货币单位都将发生变更。"
+        },
+        "trafficWarnRate": {
+          "label": "流量预警阈值 (%)",
+          "placeholder": "70",
+          "description": "用户已用流量达到套餐比例时显示预警提示。"
+        },
+        "loginWithMailLink": {
+          "label": "邮件链接登录",
+          "description": "开启后用户可通过邮件中的魔法链接登录，无需输入密码。"
         }
       }
     },
@@ -2205,7 +2321,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "bot_token": {
         "title": "机器人令牌",
         "description": "请输入从Botfather获取的令牌。",
-        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx"
+        "placeholder": "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx",
+        "required": "请先填写 Telegram Bot Token"
       },
       "webhook_url": {
         "title": "Webhook Base URL",
@@ -2302,6 +2419,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "title": "邀请码永不失效",
         "description": "开启后邀请码被使用后将不会失效，否则使用过后即失效。"
       },
+      "invite_code_max_uses": {
+        "title": "永久邀请码最大使用次数",
+        "description": "开启「邀请码永不失效」后，每个邀请码最多可被使用此次数（0 表示不限制）。",
+        "placeholder": "请输入每个邀请码最大使用次数"
+      },
       "commission_first_time": {
         "title": "佣金仅首次发放",
         "description": "开启后被邀请人首次支付时才会产生佣金，可以在用户管理对用户进行单独配置。"
@@ -2324,13 +2446,27 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "title": "关闭提现",
         "description": "关闭后将禁止用户申请提现，且邀请佣金将会直接进入用户余额。"
       },
+      "withdraw_ticket_stale_days": {
+        "title": "提现工单超时天数",
+        "description": "超过此天数且管理员未回复的提现工单，将由计划任务自动恢复余额并关闭。",
+        "placeholder": "超时天数（默认 14）"
+      },
+      "withdraw_fee_rate": {
+        "title": "提现/划转手续费率",
+        "description": "用户提现或划转佣金到余额时扣除的比例，0 表示不收取手续费。",
+        "placeholder": "0.05 表示 5%"
+      },
       "commission_distribution": {
         "title": "三级分销",
         "description": "开启后将佣金将按照设置的3成比例进行分成，三成比例合计请不要大于100%。",
         "l1": "一级邀请人比例",
+        "l1_description": "直接邀请人获得的佣金比例。",
         "l2": "二级邀请人比例",
+        "l2_description": "二级邀请人获得的佣金比例。",
         "l3": "三级邀请人比例",
-        "placeholder": "请输入比例，如：50"
+        "l3_description": "三级邀请人获得的佣金比例。",
+        "placeholder": "请输入比例，如：50",
+        "sum_error": "三级分销比例合计必须等于 100%"
       },
       "saving": "保存中..."
     },
@@ -2471,6 +2607,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "status": "状态",
       "updated_at": "最后更新",
       "created_at": "创建时间",
+      "reply_status": "回复状态",
       "actions": "操作"
     },
     "status": {
@@ -2482,24 +2619,40 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "level": {
       "low": "低优先",
       "medium": "中优先",
-      "high": "高优先"
+      "high": "高优先",
+      "withdraw": "提现"
     },
     "filter": {
       "placeholder": "搜索{field}...",
       "no_results": "未找到结果",
       "selected": "已选择 {count} 项",
-      "clear": "清除筛选"
+      "clear": "清除筛选",
+      "reply_status_all": "全部回复状态"
     },
     "actions": {
       "view_details": "查看详情",
+      "reply": "回复",
+      "close": "关闭工单",
+      "close_reject_withdraw": "拒绝提现并关闭",
+      "approve_withdraw": "批准提现并关闭",
       "close_ticket": "关闭工单",
       "close_confirm_title": "确认关闭工单",
       "close_confirm_description": "确定要关闭这个工单吗？关闭后会移入已关闭列表，但仍可继续回复。",
       "close_confirm_button": "确认关闭",
       "close_success": "工单已关闭",
-      "view_ticket": "查看工单"
+      "view_ticket": "查看工单",
+      "approve_withdraw_confirm_title": "确认批准提现？",
+      "approve_withdraw_confirm_description": "将关闭工单并标记提现已完成，不会恢复佣金。",
+      "reject_withdraw_confirm_title": "确认拒绝提现？",
+      "reject_withdraw_confirm_description": "将关闭工单并恢复用户被冻结的佣金。"
+    },
+    "alreadyClosed": "工单已关闭",
+    "withdrawCloseRequired": "提现工单需先标记为已打款或已驳回后再关闭",
+    "reply": {
+      "label": "回复"
     },
     "detail": {
+      "title": "工单详情",
       "no_messages": "暂无消息记录",
       "created_at": "创建于",
       "sender_admin": "管理员",
@@ -2529,6 +2682,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   "payment": {
     "title": "支付配置",
     "description": "在这里可以配置支付方式，包括支付宝、微信等。",
+    "delete": {
+      "pendingOrders": "该支付方式仍有待支付或处理中的订单，无法删除"
+    },
     "table": {
       "columns": {
         "id": "ID",
@@ -2766,10 +2922,42 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       }
     }
   },
+  "order": {
+    "assign": {
+      "amountExceedsPrice": "支付金额不能超过订阅标价",
+      "userBanned": "该用户已被封禁，无法分配订阅",
+      "createFailed": "订单创建失败"
+    },
+    "commission": {
+      "alreadyPaid": "该订单已有佣金记录，不可重新标记为待确认"
+    }
+  },
+  "coupon": {
+    "notFound": "优惠券不存在"
+  },
   "user": {
     "manage": {
       "title": "用户管理",
       "description": "在这里可以管理用户，包括增加、删除、编辑、查询等操作。"
+    },
+    "delete": {
+      "pendingWithdraw": "用户存在待处理的提现工单，请先处理后再删除",
+      "pendingOrder": "用户存在支付处理中的订单，请等待开通完成或退款后再删除",
+      "nonZeroBalance": "用户仍有站内余额或佣金余额，请先清零后再删除",
+      "openOrders": "无法取消用户未完成订单，请先处理订单后再删除",
+      "failed": "删除失败"
+    },
+    "generate": {
+      "missingParams": "请提供 email_prefix 或 generate_count"
+    },
+    "invite": {
+      "selfInviter": "不能将自己设为邀请人",
+      "cycleDetected": "邀请链存在循环，无法设置",
+      "inviterBanned": "邀请人已被封禁，无法设置"
+    },
+    "edit": {
+      "negativeBalance": "余额不能为负数",
+      "negativeCommission": "佣金余额不能为负数"
     },
     "columns": {
       "is_admin": "管理员",
@@ -2860,6 +3048,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "token": "Token",
         "banned": "账号状态",
         "remark": "备注",
+        "remarks": "备注",
         "inviter_email": "邀请人邮箱",
         "invite_user_id": "邀请人ID",
         "is_admin": "管理员",
@@ -2945,6 +3134,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "speed_limit_placeholder": "留空则不限速",
         "device_limit": "设备限制",
         "device_limit_placeholder": "留空则不限制",
+        "device_limit_unit": "台",
         "is_admin": "是否管理员",
         "is_staff": "是否员工",
         "remarks": "备注",
@@ -2967,6 +3157,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "cancel": "取消",
         "confirm": "确认封禁",
         "banning": "封禁中..."
+      },
+      "export_confirm": {
+        "title": "确认导出用户 CSV",
+        "description": "默认导出不含订阅链接。开启下方选项后才会包含完整订阅地址（含 token），请妥善保管导出文件。",
+        "include_subscribe": "包含订阅地址",
+        "exporting": "导出中..."
       }
     },
     "traffic_reset": {
@@ -3013,6 +3209,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "auto_resets": "自动重置",
         "manual_resets": "手动重置",
         "cron_resets": "定时重置",
+        "order_resets": "订单重置",
+        "gift_card_resets": "礼品卡重置",
         "in_period": "最近 {{days}} 天",
         "breakdown": "重置类型分布",
         "breakdown_description": "各类型重置操作的百分比分布",
@@ -3067,6 +3265,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "cron": "定时任务"
         }
       },
+      "pagination": {
+        "total": "共 {{total}} 条记录"
+      },
       "actions": {
         "export": "导出日志",
         "exporting": "导出中...",
@@ -3089,19 +3290,34 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       },
       "batch_ban": {
         "success": "批量封禁成功",
-        "failed": "批量封禁失败"
+        "failed": "批量封禁失败",
+        "required_scope": "批量封禁前请先选择用户或设置筛选条件，不能直接封禁全部用户"
       },
       "send_mail": {
         "success": "邮件发送成功",
         "failed": "邮件发送失败",
-        "required_fields": "请填写所有必填字段"
+        "required_fields": "请填写所有必填字段",
+        "required_selected": "请至少选择一名用户",
+        "required_filtered": "请先设置筛选条件"
       }
     },
     "send_mail": {
       "title": "发送邮件",
       "description": "向所选或已筛选的用户发送邮件",
+      "scope": "发送范围",
+      "scope_selected": "已选用户 ({{count}})",
+      "scope_filtered": "当前筛选结果",
+      "scope_all": "全部用户",
       "subject": "主题",
+      "subject_placeholder": "输入邮件主题，支持 {{name}} 等占位符",
+      "subject_placeholder_hint": "主题支持占位符，发送时将自动替换",
       "content": "内容",
+      "content_placeholder": "输入邮件正文（纯文本）",
+      "content_plain_hint": "正文为纯文本，不支持 HTML",
+      "system_notice_subject": "系统通知",
+      "system_notice_content": "尊敬的用户，您好！\\n\\n这是一条系统通知。\\n\\n{{app.name}}",
+      "apply_system_notice": "套用系统通知模板",
+      "available_vars": "可用变量",
       "sending": "发送中...",
       "send": "发送"
     },
@@ -3253,6 +3469,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
             "label": "单用户最大使用次数",
             "placeholder": "留空则不限制"
           },
+          "max_total_uses": {
+            "label": "模板总兑换上限",
+            "placeholder": "留空则不限制"
+          },
           "cooldown_hours": {
             "label": "同类卡冷却时间(小时)",
             "placeholder": "留空则不限制"
@@ -3353,6 +3573,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "title": "兑换码管理",
       "form": {
         "generate": "生成兑换码",
+        "expires_at": {
+          "hint": "留空表示永不过期"
+        },
         "template_id": {
           "label": "选择模板",
           "placeholder": "请选择一个模板来生成兑换码"
@@ -3393,6 +3616,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "template_name": "模板名称",
           "status": "状态",
           "expires_at": "过期时间",
+          "batch_id": "批次",
           "usage_count": "已用次数",
           "max_usage": "可用次数",
           "created_at": "创建时间"
@@ -3402,6 +3626,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "enable": "启用",
         "disable": "禁用",
         "export": "导出",
+        "deleteConfirm": {
+          "title": "确认删除兑换码？",
+          "description": "此兑换码将被永久删除，确定要继续吗？",
+          "confirmText": "删除"
+        },
         "exportConfirm": {
           "title": "确认导出",
           "description": "将导出选定批次的所有兑换码为文本文件。确定要继续吗？",
@@ -3498,7 +3727,15 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "updateTemplateFailed": "更新模板失败",
       "deleteTemplateFailed": "删除模板失败",
       "loadDataFailed": "加载数据失败",
-      "codesGenerated": "兑换码生成成功"
+      "codesGenerated": "兑换码生成成功",
+      "createFailed": "创建失败",
+      "templateNotFound": "模板不存在",
+      "codeExpiredEnable": "兑换码已过期，无法启用",
+      "codeNotFound": "兑换码不存在",
+      "templateDisabled": "该礼品卡类型已停用",
+      "deleteFailed": "删除失败",
+      "updateFailed": "更新失败",
+      "templateHasCodes": "该模板下存在兑换码，无法删除"
     }
   },
   "knowledge": {

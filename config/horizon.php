@@ -182,7 +182,8 @@ return [
                 'maxJobs' => (int) env('HORIZON_WORKER_MAX_JOBS', 1000),
                 'balanceCooldown' => 1,
                 'tries' => 3,
-                'timeout' => 30,
+                'timeout' => 120,
+                'backoff' => [10, 30, 60],
             ],
             'business' => [
                 'connection' => 'redis',
@@ -194,7 +195,8 @@ return [
                 'maxTime' => (int) env('HORIZON_WORKER_MAX_TIME', 3600),
                 'maxJobs' => (int) env('HORIZON_WORKER_MAX_JOBS', 1000),
                 'tries' => 3,
-                'timeout' => 30,
+                'timeout' => 120,
+                'backoff' => [10, 30, 60],
             ],
             'notification' => [
                 'connection' => 'redis',
@@ -225,6 +227,42 @@ return [
                     'user_alive_sync',
                     'node_sync'
                 ],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'tries' => 1,
+                'timeout' => 60,
+                'balanceCooldown' => 3,
+            ],
+        ],
+        'staging' => [
+            'Xboard' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'order_handle', 'traffic_fetch', 'stat', 'send_email', 'send_email_mass', 'send_telegram', 'user_alive_sync', 'node_sync'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 5,
+                'tries' => 3,
+                'timeout' => 120,
+                'balanceCooldown' => 3,
+            ],
+        ],
+        'testing' => [
+            'Xboard' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'order_handle', 'traffic_fetch', 'stat', 'send_email', 'send_email_mass', 'send_telegram', 'user_alive_sync', 'node_sync'],
+                'balance' => 'auto',
+                'minProcesses' => 1,
+                'maxProcesses' => 3,
+                'tries' => 1,
+                'timeout' => 60,
+                'balanceCooldown' => 3,
+            ],
+        ],
+        'development' => [
+            'Xboard' => [
+                'connection' => 'redis',
+                'queue' => ['default', 'order_handle', 'traffic_fetch', 'stat', 'send_email', 'send_email_mass', 'send_telegram', 'user_alive_sync', 'node_sync'],
                 'balance' => 'auto',
                 'minProcesses' => 1,
                 'maxProcesses' => 5,

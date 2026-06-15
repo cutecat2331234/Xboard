@@ -51,6 +51,8 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
   const [pageProbeFailed, setPageProbeFailed] = useState(false)
   const [openingBackend, setOpeningBackend] = useState(false)
 
+  const [iframeLoadFailed, setIframeLoadFailed] = useState(false)
+
   useEffect(() => {
     if (iframeSrc || !pageApiUrl) {
       setLoadingEmbed(false)
@@ -65,7 +67,11 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
     void fetchPluginMenuPageHtml(pageApiUrl).then((html) => {
       if (!cancelled) {
         setEmbeddedHtml(html)
-        setPageProbeFailed(!html)
+        const failed = !html
+        setPageProbeFailed(failed)
+        if (failed) {
+          toast.error(t('plugin.runtime.pluginContentUnavailable'))
+        }
         setLoadingEmbed(false)
       }
     })
@@ -73,7 +79,7 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
     return () => {
       cancelled = true
     }
-  }, [iframeSrc, pageApiUrl])
+  }, [iframeSrc, pageApiUrl, t])
 
   async function handleOpenBackendPage() {
     if (!backendPageUrl) return
@@ -98,12 +104,20 @@ export function PluginMenuPanel({ plugin, menu }: Props) {
           ) : null}
         </CardHeader>
         <CardContent className="p-0 pt-0">
+          {iframeLoadFailed ? (
+            <p className="p-4 text-sm text-muted-foreground">{t('plugin.runtime.pluginContentUnavailable')}</p>
+          ) : null}
           <iframe
             title={menu.title ?? menuPath}
             src={iframeSrc ?? undefined}
             srcDoc={embeddedHtml ?? undefined}
             className="h-[min(70vh,720px)] w-full rounded-b-lg border-0"
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            onLoad={() => setIframeLoadFailed(false)}
+            onError={() => {
+              setIframeLoadFailed(true)
+              toast.error(t('plugin.runtime.pluginContentUnavailable'))
+            }}
           />
         </CardContent>
       </Card>

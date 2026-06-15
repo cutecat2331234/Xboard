@@ -7,12 +7,23 @@ use App\Http\Requests\Admin\UserGenerate;
 use App\Http\Requests\Admin\UserSendMail;
 use App\Http\Requests\Admin\UserUpdate;
 use App\Jobs\SendEmailJob;
+use App\Models\CommissionLog;
+use App\Models\GiftCardCode;
+use App\Models\GiftCardUsage;
+use App\Models\Order;
 use App\Models\Plan;
+use App\Models\Ticket;
+use App\Models\TicketMessage;
+use App\Models\TrafficResetLog;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Jobs\NodeUserSyncJob;
 use App\Services\Plugin\HookManager;
+use App\Services\PlanService;
+use App\Services\TicketService;
 use App\Services\UserService;
+use App\Support\CommissionChain;
+use App\Support\InviteChain;
 use App\Traits\QueryOperators;
 use App\Traits\SafeQueryColumns;
 use App\Utils\Helper;
@@ -31,10 +42,12 @@ class UserController extends Controller
 
     private const FILTER_COLUMNS = [
         'email', 'id', 'plan_id', 'transfer_enable', 'total_used', 'online_count',
-        'expired_at', 'uuid', 'token', 'banned', 'remark', 'inviter_email',
+        'expired_at', 'uuid', 'token', 'banned', 'remarks', 'inviter_email',
         'invite_user_id', 'is_admin', 'is_staff', 'group_ids', 'group_id', 'u', 'd',
         'balance', 'commission_balance', 'created_at',
     ];
+
+    private const FILTER_ALIASES = ['remark' => 'remarks'];
 
     private const SORT_COLUMNS = [
         'id', 'email', 'is_admin', 'is_staff', 'online_count', 'banned', 'plan_id',
@@ -46,6 +59,10 @@ class UserController extends Controller
 
     public function resetSecret(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer|exists:v2_user,id',
+        ]);
+
         $user = User::find($request->input('id'));
         if (!$user)
             return $this->fail([400202, '用户不存在']);
@@ -77,23 +94,36 @@ class UserController extends Controller
             return;
         }
 
-        collect($request->input('filter'))->each(function ($filter) use ($builder) {
-            $field = $this->resolveFilterField((string) ($filter['id'] ?? ''), self::FILTER_COLUMNS, self::SORT_ALIASES);
-            if (!$field) {
-                return;
-            }
-            $value = $filter['value'];
-            $logic = strtolower($filter['logic'] ?? 'and');
+        $filters = collect($request->input('filter'))->filter(function ($filter) {
+            return (bool) $this->resolveFilterField(
+                (string) ($filter['id'] ?? ''),
+                self::FILTER_COLUMNS,
+                array_merge(self::SORT_ALIASES, self::FILTER_ALIASES)
+            );
+        })->values();
 
-            if ($logic === 'or') {
-                $builder->orWhere(function ($query) use ($field, $value) {
-                    $this->buildFilterQuery($query, $field, $value);
-                });
-            } else {
-                $builder->where(function ($query) use ($field, $value) {
-                    $this->buildFilterQuery($query, $field, $value);
-                });
-            }
+        if ($filters->isEmpty()) {
+            return;
+        }
+
+        $builder->where(function ($query) use ($filters) {
+            $filters->each(function ($filter, $index) use ($query) {
+                $field = $this->resolveFilterField(
+                    (string) ($filter['id'] ?? ''),
+                    self::FILTER_COLUMNS,
+                    array_merge(self::SORT_ALIASES, self::FILTER_ALIASES)
+                );
+                $value = $filter['value'];
+                $logic = strtolower($filter['logic'] ?? 'and');
+                $apply = function ($q) use ($field, $value) {
+                    $this->buildFilterQuery($q, $field, $value);
+                };
+                if ($index === 0 || $logic !== 'or') {
+                    $query->where($apply);
+                } else {
+                    $query->orWhere($apply);
+                }
+            });
         });
     }
 
@@ -194,8 +224,12 @@ class UserController extends Controller
             } elseif ($hasFilter) {
                 $scope = 'filtered';
             } else {
-                $scope = 'all';
+                $scope = 'selected';
             }
+        }
+
+        if ($scope === 'all' && $request->input('scope') !== 'all') {
+            $scope = 'selected';
         }
 
         $normalizedIds = [];
@@ -216,8 +250,10 @@ class UserController extends Controller
     // Fetch paginated user list (filters + sorting).
     public function fetch(Request $request)
     {
-        $current = $request->input('current', 1);
-        $pageSize = $request->input('pageSize', 10);
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current', 1),
+            $request->input('pageSize', 10)
+        );
 
         $userModel = User::query()
             ->with(['plan:id,name', 'invite_user:id,email', 'group:id,name'])
@@ -265,7 +301,7 @@ class UserController extends Controller
         }
         $user->load('invite_user');
         $user = HookManager::filter('admin.user.detail', $user, $request);
-        return $this->success($user);
+        return $this->success(self::transformUserData($user));
     }
 
     public function update(UserUpdate $request)
@@ -294,12 +330,49 @@ class UserController extends Controller
             if (!$plan) {
                 return $this->fail([400202, '订阅计划不存在']);
             }
+            if ((int) $params['plan_id'] !== (int) $user->plan_id
+                && !(new PlanService($plan))->hasCapacity($plan)) {
+                return $this->fail([400, __('Current product is sold out')]);
+            }
             $params['group_id'] = $plan->group_id;
+            if ((int) $params['plan_id'] !== (int) $user->plan_id) {
+                if (!$request->has('transfer_enable')) {
+                    $params['transfer_enable'] = $plan->transfer_enable * 1073741824;
+                }
+                if (!$request->has('speed_limit')) {
+                    $params['speed_limit'] = $plan->speed_limit;
+                }
+                if (!$request->has('device_limit')) {
+                    $params['device_limit'] = $plan->device_limit;
+                }
+            }
+        }
+
+        $actor = $request->user();
+        if (array_key_exists('is_admin', $params) || array_key_exists('is_staff', $params)) {
+            if (!$actor || (int) $actor->id !== 1) {
+                unset($params['is_admin'], $params['is_staff']);
+            } elseif (array_key_exists('is_admin', $params) && !(int) $params['is_admin']) {
+                if ((int) $user->id === (int) $actor->id) {
+                    $adminCount = User::where('is_admin', 1)->where('banned', 0)->count();
+                    if ($adminCount <= 1) {
+                        unset($params['is_admin']);
+                    }
+                }
+            }
         }
         // 处理邀请用户（仅当请求显式携带 invite_user_email 时才更新）
         if ($request->exists('invite_user_email')) {
             $inviteEmail = trim((string) $request->input('invite_user_email'));
             if ($inviteEmail !== '' && ($inviteUser = User::byEmail($inviteEmail)->first())) {
+                if ($inviteUser->banned) {
+                    return $this->fail([400, '邀请人已被封禁，无法设置']);
+                }
+                try {
+                    InviteChain::assertValid((int) $user->id, (int) $inviteUser->id);
+                } catch (\InvalidArgumentException $e) {
+                    return $this->fail([400, $e->getMessage()]);
+                }
                 $params['invite_user_id'] = $inviteUser->id;
             } else {
                 $params['invite_user_id'] = null;
@@ -311,9 +384,15 @@ class UserController extends Controller
             $authService->removeAllSessions();
         }
         if (isset($params['balance'])) {
+            if ((float) $request->input('balance') < 0) {
+                return $this->fail([422, '余额不能为负数']);
+            }
             $params['balance'] = $params['balance'] * 100;
         }
         if (isset($params['commission_balance'])) {
+            if ((float) $request->input('commission_balance') < 0) {
+                return $this->fail([422, '佣金余额不能为负数']);
+            }
             $params['commission_balance'] = $params['commission_balance'] * 100;
         }
 
@@ -326,10 +405,26 @@ class UserController extends Controller
         ]);
 
         try {
-            $user->update($params);
+            DB::transaction(function () use ($request, $params) {
+                $user = User::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$user) {
+                    throw new \RuntimeException('user_not_found');
+                }
+                $user->update($params);
+            });
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'user_not_found') {
+                return $this->fail([400202, '用户不存在']);
+            }
+            throw $e;
         } catch (\Exception $e) {
             Log::error($e);
             return $this->fail([500, '保存失败']);
+        }
+
+        $user = User::find($request->input('id'));
+        if (!$user) {
+            return $this->fail([400202, '用户不存在']);
         }
 
         HookManager::call('admin.user.update.after', [
@@ -375,13 +470,15 @@ class UserController extends Controller
 
         if ($scope === 'selected') {
             $query->whereIn('id', $userIds);
-        } elseif ($scope === 'filtered') {
+        } else        if ($scope === 'filtered') {
             $this->applyFiltersAndSorts($request, $query);
         } // all: ignore filter/sort
 
+        $includeSubscribeUrl = $request->boolean('include_subscribe_url');
+
         $filename = 'users_' . date('Y-m-d_His') . '.csv';
 
-        return response()->streamDownload(function () use ($query) {
+        return response()->streamDownload(function () use ($query, $includeSubscribeUrl) {
             // 打开输出流
             $output = fopen('php://output', 'w');
 
@@ -389,7 +486,7 @@ class UserController extends Controller
             fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
             // 写入CSV头部
-            fputcsv($output, [
+            $headers = [
                 '邮箱',
                 '余额',
                 '推广佣金',
@@ -397,11 +494,14 @@ class UserController extends Controller
                 '剩余流量',
                 '套餐到期时间',
                 '订阅计划',
-                '订阅地址'
-            ]);
+            ];
+            if ($includeSubscribeUrl) {
+                $headers[] = '订阅地址';
+            }
+            fputcsv($output, $headers);
 
             // 分批处理数据以减少内存使用
-            $query->chunk(500, function ($users) use ($output) {
+            $query->chunk(500, function ($users) use ($output, $includeSubscribeUrl) {
                 foreach ($users as $user) {
                     try {
                         $row = [
@@ -412,8 +512,10 @@ class UserController extends Controller
                             Helper::trafficConvert($user->transfer_enable - ($user->u + $user->d)),
                             $user->expired_at ? date('Y-m-d H:i:s', $user->expired_at) : '长期有效',
                             $user->plan ? $user->plan->name : '无订阅',
-                            Helper::getSubscribeUrl($user->token)
                         ];
+                        if ($includeSubscribeUrl) {
+                            $row[] = Helper::getSubscribeUrl($user->token);
+                        }
                         fputcsv($output, $row);
                     } catch (\Exception $e) {
                         Log::error('CSV导出错误: ' . $e->getMessage(), [
@@ -467,6 +569,8 @@ class UserController extends Controller
         if ($request->input('generate_count')) {
             return $this->multiGenerate($request);
         }
+
+        return $this->fail([422, '请提供 email_prefix 或 generate_count']);
     }
 
     private function multiGenerate(Request $request)
@@ -522,22 +626,7 @@ class UserController extends Controller
             return response()->streamDownload($callback, 'users.csv', $headers);
         }
 
-        // 默认返回 JSON
-        $data = collect($users)->map(function ($user) use ($request) {
-            return [
-                'email' => $user['email'],
-                'password' => $request->input('password') ?? $user['email'],
-                'expired_at' => $user['expired_at'] === NULL ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']),
-                'uuid' => $user['uuid'],
-                'created_at' => date('Y-m-d H:i:s', $user['created_at']),
-                'subscribe_url' => Helper::getSubscribeUrl($user['token']),
-            ];
-        });
-        return response()->json([
-            'code' => 0,
-            'message' => '批量生成成功',
-            'data' => $data,
-        ]);
+        return $this->generatedUsersJsonResponse($users, $request);
     }
 
     private function multiGenerateWithPrefix(Request $request)
@@ -603,22 +692,7 @@ class UserController extends Controller
             return response()->streamDownload($callback, 'users.csv', $headers);
         }
 
-        // 默认返回 JSON
-        $data = collect($users)->map(function ($user) use ($request) {
-            return [
-                'email' => $user['email'],
-                'password' => $request->input('password') ?? $user['email'],
-                'expired_at' => $user['expired_at'] === NULL ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']),
-                'uuid' => $user['uuid'],
-                'created_at' => date('Y-m-d H:i:s', $user['created_at']),
-                'subscribe_url' => Helper::getSubscribeUrl($user['token']),
-            ];
-        });
-        return response()->json([
-            'code' => 0,
-            'message' => '批量生成成功',
-            'data' => $data,
-        ]);
+        return $this->generatedUsersJsonResponse($users, $request);
     }
 
     public function sendMail(UserSendMail $request)
@@ -723,6 +797,10 @@ class UserController extends Controller
                 'banned' => 1
             ]);
             foreach ($userIds as $userId) {
+                $bannedUser = User::find($userId);
+                if ($bannedUser) {
+                    (new AuthService($bannedUser))->removeAllSessions();
+                }
                 NodeUserSyncJob::dispatch($userId, 'updated');
             }
         } catch (\Exception $e) {
@@ -750,6 +828,19 @@ class UserController extends Controller
             return $this->fail([400, '不能将自己设为邀请人']);
         }
 
+        if ($inviteUserId) {
+            $inviter = User::find($inviteUserId);
+            if (!$inviter || $inviter->banned) {
+                return $this->fail([400, '邀请人已被封禁，无法设置']);
+            }
+        }
+
+        try {
+            InviteChain::assertValid((int) $user->id, $inviteUserId ? (int) $inviteUserId : null);
+        } catch (\InvalidArgumentException $e) {
+            return $this->fail([400, $e->getMessage()]);
+        }
+
         $user->invite_user_id = $inviteUserId ?: null;
         if (!$user->save()) {
             return $this->fail([500, '保存失败']);
@@ -775,6 +866,58 @@ class UserController extends Controller
 
         try {
             DB::beginTransaction();
+            $userId = (int) $user->id;
+            $pendingWithdraw = Ticket::where('user_id', $userId)
+                ->where('status', Ticket::STATUS_OPENING)
+                ->where('level', 2)
+                ->get()
+                ->contains(fn (Ticket $ticket) => TicketService::isWithdrawTicket($ticket));
+            if ($pendingWithdraw) {
+                DB::rollBack();
+                return $this->fail([400, '用户存在待处理的提现工单，请先处理后再删除']);
+            }
+            $processingPaidOrder = Order::where('user_id', $userId)
+                ->where('status', Order::STATUS_PROCESSING)
+                ->whereNotNull('paid_at')
+                ->exists();
+            if ($processingPaidOrder) {
+                DB::rollBack();
+                return $this->fail([400, '用户存在支付处理中的订单，请等待开通完成或退款后再删除']);
+            }
+            if ((int) $user->balance > 0 || (int) $user->commission_balance > 0) {
+                DB::rollBack();
+                return $this->fail([400, '用户仍有站内余额或佣金余额，请先清零后再删除']);
+            }
+            $openOrders = Order::where('user_id', $userId)
+                ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                ->lockForUpdate()
+                ->get();
+            foreach ($openOrders as $openOrder) {
+                if ($openOrder->paid_at) {
+                    continue;
+                }
+                $orderService = new OrderService($openOrder);
+                if (!$orderService->cancel()) {
+                    DB::rollBack();
+                    return $this->fail([400, '无法取消用户未完成订单，请先处理订单后再删除']);
+                }
+            }
+            $ticketIds = $user->tickets()->pluck('id');
+            if ($ticketIds->isNotEmpty()) {
+                TicketMessage::whereIn('ticket_id', $ticketIds)->delete();
+            }
+            CommissionLog::where('user_id', $userId)
+                ->orWhere('invite_user_id', $userId)
+                ->delete();
+            GiftCardUsage::where('user_id', $userId)->delete();
+            GiftCardUsage::where('invite_user_id', $userId)->update(['invite_user_id' => null]);
+            TrafficResetLog::where('user_id', $userId)->delete();
+            GiftCardCode::where('user_id', $userId)->update(['user_id' => null]);
+            User::where('invite_user_id', $userId)->update(['invite_user_id' => null]);
+            Order::where('invite_user_id', $userId)
+                ->whereIn('commission_status', [0, 1])
+                ->update(['invite_user_id' => null, 'commission_status' => Order::COMMISSION_STATUS_INVALID]);
+            $user->tokens()->delete();
             $user->orders()->delete();
             $user->codes()->delete();
             $user->stat()->delete();
@@ -793,5 +936,35 @@ class UserController extends Controller
             Log::error($e);
             return $this->fail([500, '删除失败']);
         }
+    }
+
+    /**
+     * @param  array<int, User>  $users
+     */
+    private function generatedUsersJsonResponse(array $users, Request $request): JsonResponse
+    {
+        $includeCredentials = $request->boolean('return_credentials');
+
+        $data = collect($users)->map(function ($user) use ($request, $includeCredentials) {
+            $row = [
+                'email' => $user['email'],
+                'expired_at' => $user['expired_at'] === null ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']),
+                'uuid' => $user['uuid'],
+                'created_at' => date('Y-m-d H:i:s', $user['created_at']),
+            ];
+
+            if ($includeCredentials) {
+                $row['password'] = $request->input('password') ?? $user['email'];
+                $row['subscribe_url'] = Helper::getSubscribeUrl($user['token']);
+            }
+
+            return $row;
+        });
+
+        return response()->json([
+            'code' => 0,
+            'message' => '批量生成成功',
+            'data' => $data,
+        ]);
     }
 }

@@ -131,22 +131,24 @@ class TelegramService
             $response = $this->http->get($this->apiUrl . $method, $params);
 
             if (!$response->successful()) {
-                throw new ApiException("HTTP 请求失败: {$response->status()}");
+                throw new ApiException(__('Telegram service request failed'));
             }
 
             $data = $response->object();
 
             if (!isset($data->ok)) {
-                throw new ApiException('无效的 Telegram API 响应');
+                throw new ApiException(__('Invalid Telegram API response'));
             }
 
             if (!$data->ok) {
-                $description = $data->description ?? '未知错误';
-                throw new ApiException("Telegram API 错误: {$description}");
+                $description = $data->description ?? __('Unknown error');
+                throw new ApiException(__('Telegram API error: :description', ['description' => $description]));
             }
 
             return $data;
 
+        } catch (ApiException $e) {
+            throw $e;
         } catch (\Exception $e) {
             Log::error('Telegram API 请求失败', [
                 'method' => $method,
@@ -154,7 +156,7 @@ class TelegramService
                 'error' => $e->getMessage(),
             ]);
 
-            throw new ApiException("Telegram 服务错误: {$e->getMessage()}");
+            throw new ApiException(__('Telegram service error'));
         }
     }
 }

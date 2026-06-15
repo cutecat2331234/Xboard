@@ -4,10 +4,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { telegramLogin } from '@/api/auth'
 import { resolveLoginRedirect, useAuthStore } from '@/stores/auth'
+import { invalidateAppConfigCaches } from '@/lib/invalidate-app-config'
 import { useI18n } from '@/i18n'
+import { resolveApiError } from '@/lib/api-errors'
 
 const props = defineProps<{
   botUsername: string
+  authUrl?: string
 }>()
 
 const auth = useAuthStore()
@@ -34,11 +37,12 @@ function loadScript(): Promise<void> {
 async function handleAuth(user: Record<string, unknown>) {
   try {
     await telegramLogin(user)
+    invalidateAppConfigCaches()
     await auth.loadUser()
     msg.success(t('login'))
     router.push(resolveLoginRedirect(route.query.redirect))
   } catch (e: unknown) {
-    msg.error(e instanceof Error ? e.message : t('common.error'))
+    msg.error(resolveApiError(e, t))
   }
 }
 
@@ -55,7 +59,11 @@ onMounted(async () => {
     widget.setAttribute('data-telegram-login', props.botUsername)
     widget.setAttribute('data-size', 'large')
     widget.setAttribute('data-radius', '8')
-    widget.setAttribute('data-onauth', 'handleTelegramAuth(user)')
+    if (props.authUrl) {
+      widget.setAttribute('data-auth-url', props.authUrl)
+    } else {
+      widget.setAttribute('data-onauth', 'handleTelegramAuth(user)')
+    }
     widget.setAttribute('data-request-access', 'write')
     container.appendChild(widget)
   } catch {

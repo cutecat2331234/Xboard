@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { IconArrowsSort, IconDots, IconExternalLink } from '@tabler/icons-react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { toastApiError } from '@/lib/api-errors'
 import { adminApi, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
 import { formatAdminMoney, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { DataTable } from '@/components/shared/DataTable'
@@ -79,6 +81,17 @@ const PERIOD_KEYS = [
   'onetime_price',
   'reset_price',
 ] as const
+
+const LEGACY_TO_NEW_PERIOD: Record<string, string> = {
+  month_price: 'monthly',
+  quarter_price: 'quarterly',
+  half_year_price: 'half_yearly',
+  year_price: 'yearly',
+  two_year_price: 'two_yearly',
+  three_year_price: 'three_yearly',
+  onetime_price: 'onetime',
+  reset_price: 'reset_traffic',
+}
 const STATUS_KEYS = [0, 1, 2, 3, 4] as const
 const COMMISSION_KEYS = [0, 1, 2, 3] as const
 
@@ -99,20 +112,13 @@ const STATUS_I18N: Record<number, string> = {
 
 const COMMISSION_I18N: Record<number, string> = {
   0: 'order.commission.PENDING',
-  1: 'order.commission.PROCESSING',
-  2: 'order.commission.VALID',
+  1: 'order.commission.VALID',
+  2: 'order.commission.SETTLED',
   3: 'order.commission.INVALID',
 }
 
 function formatMoney(cents?: number | null) {
   return formatAdminMoney(cents ?? 0)
-}
-
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
 function truncateTradeNo(no?: string) {
@@ -279,7 +285,8 @@ function StatusDot({ status }: { status?: number }) {
 
 export default function OrderPage() {
   const { t } = useTranslation()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [data, setData] = useState<OrderRow[]>([])
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -322,14 +329,43 @@ export default function OrderPage() {
     }
     if (commissionBalance) {
       setCommissionBalanceFilter(commissionBalance)
+    } else {
+      setCommissionBalanceFilter(null)
     }
     if (userId != null && userId !== '') {
       setUserIdFilter(Number(userId))
+    } else {
+      setUserIdFilter(null)
     }
     if (commissionStatus || status || commissionBalance || userId) {
       setPage(1)
     }
   }, [searchParams])
+
+  const hasHiddenFilters = userIdFilter != null || Boolean(commissionBalanceFilter)
+
+  function clearHiddenFilters() {
+    setUserIdFilter(null)
+    setCommissionBalanceFilter(null)
+    const next = new URLSearchParams(searchParams)
+    next.delete('user_id')
+    next.delete('commission_balance')
+    setSearchParams(next, { replace: true })
+    setPage(1)
+  }
+
+  function clearAllFilters() {
+    setSearch('')
+    setTypeFilter(null)
+    setPeriodFilter(null)
+    setStatusFilter(null)
+    setCommissionFilter(null)
+    setCommissionBalanceFilter(null)
+    setUserIdFilter(null)
+    setStatusSortDesc(null)
+    setPage(1)
+    navigate('/finance/order')
+  }
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
 
@@ -339,7 +375,12 @@ export default function OrderPage() {
     if (search.trim()) filter.push({ id: 'trade_no', value: search.trim() })
     if (userIdFilter != null) filter.push({ id: 'user_id', value: userIdFilter })
     if (typeFilter != null) filter.push({ id: 'type', value: typeFilter })
-    if (periodFilter) filter.push({ id: 'period', value: periodFilter })
+    if (periodFilter) {
+      filter.push({
+        id: 'period',
+        value: LEGACY_TO_NEW_PERIOD[periodFilter] ?? periodFilter,
+      })
+    }
     if (statusFilter != null) filter.push({ id: 'status', value: statusFilter })
     if (commissionFilter != null) filter.push({ id: 'commission_status', value: commissionFilter })
     if (commissionBalanceFilter) filter.push({ id: 'commission_balance', value: commissionBalanceFilter })
@@ -358,12 +399,14 @@ export default function OrderPage() {
         setData(Array.isArray(res.data) ? res.data : [])
         setTotal(res.total ?? 0)
       })
-      .catch((e) => toast.error(e instanceof Error ? e.message : t('common.error')))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [page, pageSize, search, userIdFilter, typeFilter, periodFilter, statusFilter, commissionFilter, commissionBalanceFilter, statusSortDesc, t])
 
   useEffect(() => {
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
   }, [])
 
   useEffect(() => {
@@ -387,7 +430,7 @@ export default function OrderPage() {
       setAssignOpen(false)
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -398,7 +441,7 @@ export default function OrderPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -409,7 +452,7 @@ export default function OrderPage() {
       toast.success(t('common.success'))
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -422,7 +465,7 @@ export default function OrderPage() {
       const data = await postJson<OrderDetail>('/order/detail', { id: row.id })
       setDetail(data)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
       setDetailOpen(false)
     } finally {
       setDetailLoading(false)
@@ -439,7 +482,7 @@ export default function OrderPage() {
       }
       load()
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t('common.error'))
+      toastApiError(e, toast, t, t('common.error'))
     }
   }
 
@@ -529,7 +572,11 @@ export default function OrderPage() {
                 </button>
               </div>
             </div>
-            <button data-state="closed">
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:text-muted-foreground"
+              title={t('order.status.tooltip')}
+            >
               <OrderStatusHelpIcon />
             </button>
           </div>
@@ -622,12 +669,12 @@ export default function OrderPage() {
         header: () => t('order.table.columns.createdAt'),
         cell: ({ row }) => (
           <div className="text-nowrap font-mono text-sm text-muted-foreground">
-            {formatTs(row.original.created_at)}
+            {formatAdminDateTime(row.original.created_at)}
           </div>
         ),
       },
     ],
-    [t],
+    [t, load],
   )
 
   return (
@@ -742,6 +789,36 @@ export default function OrderPage() {
                 </FilterOption>
               ))}
             </FilterPopover>
+            {(hasHiddenFilters ||
+              typeFilter != null ||
+              periodFilter ||
+              statusFilter != null ||
+              commissionFilter != null ||
+              search.trim()) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {userIdFilter != null ? (
+                  <button
+                    type="button"
+                    className="inline-flex items-center rounded-md border bg-muted/40 px-2 py-1 text-xs"
+                    onClick={clearHiddenFilters}
+                  >
+                    {t('order.filters.userId', { id: userIdFilter })} ×
+                  </button>
+                ) : null}
+                {commissionBalanceFilter ? (
+                  <button
+                    type="button"
+                    className="inline-flex items-center rounded-md border bg-muted/40 px-2 py-1 text-xs"
+                    onClick={clearHiddenFilters}
+                  >
+                    {t('order.filters.commissionBalance', { value: commissionBalanceFilter })} ×
+                  </button>
+                ) : null}
+                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={clearAllFilters}>
+                  {t('order.filters.clearAll')}
+                </Button>
+              </div>
+            )}
           </div>
           <DataTable
             columns={columns}
@@ -838,12 +915,12 @@ export default function OrderPage() {
               <DetailSection title={t('order.dialog.timeInfo')}>
                 <DetailRow
                   label={t('order.dialog.fields.createdAt')}
-                  value={formatTs(detail.created_at)}
+                  value={formatAdminDateTime(detail.created_at)}
                   mono
                 />
                 <DetailRow
                   label={t('order.dialog.fields.updatedAt')}
-                  value={formatTs(detail.updated_at)}
+                  value={formatAdminDateTime(detail.updated_at)}
                   mono
                 />
               </DetailSection>

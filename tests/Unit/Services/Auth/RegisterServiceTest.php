@@ -55,7 +55,7 @@ class RegisterServiceTest extends TestCase
 
     public function test_validate_register_accepts_matching_cached_email_code(): void
     {
-        Cache::put(CacheKey::get('EMAIL_VERIFY_CODE', 'user@example.com'), 123456, 300);
+        Cache::put(CacheKey::get('EMAIL_VERIFY_CODE_REGISTER', 'user@example.com'), 123456, 300);
 
         [$success, $result] = $this->service->validateRegister($this->makeRequest([
             'email_code' => '123456',
@@ -65,11 +65,30 @@ class RegisterServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    private function makeRequest(array $overrides = []): Request
+    public function test_register_enforces_ip_limit_atomically(): void
+    {
+        admin_setting([
+            'register_limit_by_ip_enable' => 1,
+            'register_limit_count' => 1,
+            'register_limit_expire' => 60,
+            'email_verify' => 0,
+        ]);
+
+        $request = $this->makeRequest(['email' => 'first@example.com']);
+        [$ok1] = $this->service->register($request);
+        $this->assertTrue($ok1);
+
+        $request2 = $this->makeRequest(['email' => 'second@example.com']);
+        [$ok2, $error2] = $this->service->register($request2);
+        $this->assertFalse($ok2);
+        $this->assertSame(429, $error2[0]);
+    }
+
+    private function makeRequest(array $overrides = [], string $ip = '203.0.113.10'): Request
     {
         return Request::create('/api/v1/passport/auth/register', 'POST', array_merge([
             'email' => 'user@example.com',
             'password' => 'password123',
-        ], $overrides));
+        ], $overrides), [], [], ['REMOTE_ADDR' => $ip]);
     }
 }
