@@ -23,7 +23,8 @@ class CommSendEmailVerify extends FormRequest
     {
         return [
             'email.required' => __('Email can not be empty'),
-            'email.email' => __('Email format is incorrect')
+            'email.email' => __('Email format is incorrect'),
+            'purpose.in' => __('Invalid email verification purpose'),
         ];
     }
 }

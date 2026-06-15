@@ -644,5 +644,6 @@
     "Invalid order event type": "無效的訂單事件類型",
     "Invalid sidebar theme": "無效的側邊欄主題",
     "Invalid header theme": "無效的頂欄主題",
-    "Invalid frontend theme color": "無效的前端主題色"
+    "Invalid frontend theme color": "無效的前端主題色",
+    "Invalid email verification purpose": "無效的郵箱驗證用途"
 }

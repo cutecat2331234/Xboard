@@ -682,5 +682,6 @@
     "Invalid order event type": "Invalid order event type",
     "Invalid sidebar theme": "Invalid sidebar theme",
     "Invalid header theme": "Invalid header theme",
-    "Invalid frontend theme color": "Invalid frontend theme color"
+    "Invalid frontend theme color": "Invalid frontend theme color",
+    "Invalid email verification purpose": "Invalid email verification purpose"
 }
