@@ -667,5 +667,7 @@
     "subscribe.info.no_expiry": "No expiry",
     "subscribe.info.plan_expires": "Plan expires: :date",
     "subscribe.info.reset_in_days": ":days day(s) until next reset",
-    "subscribe.info.remaining_traffic": "Remaining traffic: :traffic"
+    "subscribe.info.remaining_traffic": "Remaining traffic: :traffic",
+    "Email suffix cannot be empty": "Email suffix cannot be empty",
+    "Payment amount format is invalid": "Payment amount format is invalid"
 }

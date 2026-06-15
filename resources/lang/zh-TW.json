@@ -629,5 +629,7 @@
     "subscribe.info.no_expiry": "長期有效",
     "subscribe.info.plan_expires": "套餐到期：:date",
     "subscribe.info.reset_in_days": "距離下次重置剩餘：:days 天",
-    "subscribe.info.remaining_traffic": "剩餘流量：:traffic"
+    "subscribe.info.remaining_traffic": "剩餘流量：:traffic",
+    "Email suffix cannot be empty": "郵箱後綴不能為空",
+    "Payment amount format is invalid": "支付金額格式無效"
 }

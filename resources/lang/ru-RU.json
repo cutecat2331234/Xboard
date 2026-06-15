@@ -630,5 +630,7 @@
     "subscribe.info.no_expiry": "Без срока действия",
     "subscribe.info.plan_expires": "Тариф истекает: :date",
     "subscribe.info.reset_in_days": "До следующего сброса: :days дн.",
-    "subscribe.info.remaining_traffic": "Остаток трафика: :traffic"
+    "subscribe.info.remaining_traffic": "Остаток трафика: :traffic",
+    "Email suffix cannot be empty": "Суффикс email не может быть пустым",
+    "Payment amount format is invalid": "Неверный формат суммы платежа"
 }

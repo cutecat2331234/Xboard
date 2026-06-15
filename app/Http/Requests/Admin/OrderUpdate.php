@@ -22,6 +22,7 @@ class OrderUpdate extends FormRequest
     public function messages()
     {
         return [
+            'trade_no.required' => __('Trade number cannot be empty'),
             'commission_status.in' => __('Commission status format is invalid'),
         ];
     }

@@ -28,6 +28,7 @@ class UserGenerate extends FormRequest
         return [
             'generate_count.integer' => __('Generate count must be an integer'),
             'generate_count.max' => __('Generate count cannot exceed 500'),
+            'email_suffix.required' => __('Email suffix cannot be empty'),
         ];
     }
 }

@@ -242,6 +242,11 @@ export default {
     giftCardLimitReached: 'You have reached the usage limit for this gift card',
     giftCardQueryFailed: 'Query failed. Please try again later',
     giftCardUnavailable: 'Gift card is not available',
+    messageTooLong: 'Message is too long',
+    searchKeywordTooLong: 'Search keyword is too long',
+    planPeriodEmpty: 'Plan period cannot be empty',
+    recordIdRequired: 'Record ID cannot be empty',
+    commissionUpdateFailed: 'Failed to update commission balance',
   },
   common: {
     loading: 'Loading...',
