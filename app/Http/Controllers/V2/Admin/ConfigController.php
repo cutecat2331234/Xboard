@@ -56,6 +56,9 @@ class ConfigController extends Controller
         $request->validate([
             'telegram_bot_token' => 'nullable|string|max:255',
             'telegram_webhook_url' => 'nullable|string|max:512',
+        ], [
+            'telegram_bot_token.max' => __('Telegram Bot Token format is invalid'),
+            'telegram_webhook_url.max' => __('Telegram webhook URL format is invalid'),
         ]);
         $baseOverride = trim((string) $request->input('telegram_webhook_url', ''));
         $hookUrl = $this->resolveTelegramWebhookUrl($baseOverride !== '' ? $baseOverride : null);

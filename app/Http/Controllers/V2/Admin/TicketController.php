@@ -127,6 +127,7 @@ class TicketController extends Controller
         ], [
             'id.required' => __('Ticket ID cannot be empty'),
             'message.required' => __('Message cannot be empty'),
+            'message.max' => __('Message is too long'),
         ]);
         $ticketService = new TicketService();
         $ticketService->replyByAdmin(

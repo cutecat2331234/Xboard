@@ -1,6 +1,7 @@
 import { shouldForceAdminLogoutOn403 } from '@/lib/auth-forbidden'
 import { invalidateAdminSessionCache } from '@/lib/session-cache'
 import { getAdminApiPrefix, getPassportApiPrefix, getSettings } from '@/lib/settings'
+import { resolveApiFailureMessage } from '@shared/lib/api-failure-message'
 
 const AUTH_STORAGE_KEY = 'xboard_admin_auth_data'
 
@@ -12,22 +13,6 @@ export interface ApiResponse<T = unknown> {
   total?: number
   current_page?: number
   code?: number
-}
-
-function resolveApiFailureMessage(payload: ApiResponse<unknown>, fallback: string): string {
-  if (payload.message?.trim()) {
-    return payload.message.trim()
-  }
-  if (payload.error && typeof payload.error === 'object') {
-    const details = Object.values(payload.error)
-      .flatMap((value) => (Array.isArray(value) ? value : [value]))
-      .map((value) => String(value).trim())
-      .filter(Boolean)
-    if (details.length > 0) {
-      return details[0]
-    }
-  }
-  return fallback
 }
 
 export function getAuthData(): string | null {

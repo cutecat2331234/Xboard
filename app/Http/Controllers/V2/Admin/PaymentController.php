@@ -40,6 +40,13 @@ class PaymentController extends Controller
 
     public function getPaymentForm(Request $request)
     {
+        $request->validate([
+            'payment' => 'required|string',
+            'id' => 'nullable|integer',
+        ], [
+            'payment.required' => __('Gateway parameter cannot be empty'),
+        ]);
+
         try {
             $paymentService = new PaymentService($request->input('payment'), $request->input('id'));
             return $this->success(collect($paymentService->form()));
@@ -50,6 +57,13 @@ class PaymentController extends Controller
 
     public function show(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer',
+        ], [
+            'id.required' => __('Payment method ID cannot be empty'),
+            'id.integer' => __('Payment method ID format is invalid'),
+        ]);
+
         try {
             return DB::transaction(function () use ($request) {
                 $payment = Payment::where('id', $request->input('id'))->lockForUpdate()->first();
@@ -113,6 +127,13 @@ class PaymentController extends Controller
 
     public function drop(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer',
+        ], [
+            'id.required' => __('Payment method ID cannot be empty'),
+            'id.integer' => __('Payment method ID format is invalid'),
+        ]);
+
         try {
             return DB::transaction(function () use ($request) {
                 $payment = Payment::where('id', $request->input('id'))->lockForUpdate()->first();

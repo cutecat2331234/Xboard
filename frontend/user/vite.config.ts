@@ -9,7 +9,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
     resolve: {
-      alias: { '@': path.resolve(__dirname, 'src') },
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+        '@shared': path.resolve(__dirname, '../shared'),
+      },
     },
     base: '/theme/Xboard/assets/',
     build: {
