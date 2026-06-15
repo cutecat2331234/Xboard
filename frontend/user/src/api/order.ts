@@ -61,10 +61,10 @@ export async function checkoutOrder(tradeNo: string) {
     message?: string
   }>('/user/order/checkout', { trade_no: tradeNo })
   if (data.status === 'success' && data.data !== undefined) {
-    return { type: data.type ?? 0, data: String(data.data) }
+    return { type: data.type ?? 0, data: data.data }
   }
   if (data.type !== undefined && data.data !== undefined) {
-    return { type: data.type, data: String(data.data) }
+    return { type: data.type, data: data.data }
   }
   throw new Error(data.message || 'Checkout failed')
 }

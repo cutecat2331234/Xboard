@@ -294,9 +294,8 @@ class TicketService
             User::where('id', $userId)->lockForUpdate()->first();
 
             $openTicketQuery = Ticket::where('status', 0)->where('user_id', $userId);
-            $openTicketQuery->where('level', '!=', 2);
 
-            if ($openTicketQuery->lockForUpdate()->first()) {
+            if ($openTicketQuery->lockForUpdate()->exists()) {
                 DB::rollBack();
                 throw new ApiException(__('There are other unresolved tickets'));
             }
@@ -339,7 +338,6 @@ class TicketService
             if (
                 Ticket::where('status', 0)
                     ->where('user_id', $userId)
-                    ->where('level', 2)
                     ->lockForUpdate()
                     ->exists()
             ) {

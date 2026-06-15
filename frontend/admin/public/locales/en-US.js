@@ -3547,6 +3547,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "title": "Redemption Code Management",
       "form": {
         "generate": "Generate Redemption Codes",
+        "expires_at": {
+          "hint": "Leave empty for no expiration"
+        },
         "template_id": {
           "label": "Select Template",
           "placeholder": "Please select a template to generate redemption codes"
@@ -3587,6 +3590,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "template_name": "Template Name",
           "status": "Status",
           "expires_at": "Expires At",
+          "batch_id": "Batch",
           "usage_count": "Used Count",
           "max_usage": "Available Count",
           "created_at": "Created At"
@@ -3596,6 +3600,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "enable": "Enable",
         "disable": "Disable",
         "export": "Export",
+        "deleteConfirm": {
+          "title": "Delete Redemption Code?",
+          "description": "This code will be permanently deleted. Continue?",
+          "confirmText": "Delete"
+        },
         "exportConfirm": {
           "title": "Confirm Export",
           "description": "This will export all redemption codes from the selected batch as a text file. Are you sure you want to continue?",

@@ -123,7 +123,11 @@ class KnowledgeController extends Controller
         }
 
         if (!$this->userService->isAvailable($user)) {
-            $this->formatAccessData($knowledge['body']);
+            if (str_contains($knowledge['body'], '<!--access start-->')) {
+                $this->formatAccessData($knowledge['body']);
+            } else {
+                $knowledge['body'] = '<div class="v2board-no-access">' . __('You must have a valid subscription to view content in this area') . '</div>';
+            }
         }
         $subscribeUrl = Helper::getSubscribeUrl($user['token']);
         $knowledge['body'] = $this->replacePlaceholders($knowledge['body'], $subscribeUrl);
