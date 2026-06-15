@@ -213,6 +213,12 @@ const MESSAGE_MAP: Record<string, string> = {
 
   // Gift card
   '兑换码不存在': 'errors.giftCardNotFound',
+  'Redemption code cannot be empty': 'errors.giftCardCodeEmpty',
+  '请输入兑换码': 'errors.giftCardCodeEmpty',
+  'Redemption code must be at least 8 characters': 'errors.giftCardCodeMin',
+  '兑换码长度不能少于8位': 'errors.giftCardCodeMin',
+  'Redemption code cannot exceed 32 characters': 'errors.giftCardCodeMax',
+  '兑换码长度不能超过32位': 'errors.giftCardCodeMax',
   '该礼品卡类型已停用': 'errors.giftCardDisabled',
   '您不满足此礼品卡的使用条件': 'errors.giftCardIneligible',
   '您已达到此礼品卡的使用限制': 'errors.giftCardLimitReached',

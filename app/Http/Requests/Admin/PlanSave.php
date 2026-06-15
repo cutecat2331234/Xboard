@@ -148,9 +148,10 @@ class PlanSave extends FormRequest
     {
         throw new HttpResponseException(
             response()->json([
-                'data' => false,
+                'status' => 'fail',
                 'message' => $validator->errors()->first(),
-                'errors' => $validator->errors()->toArray()
+                'data' => null,
+                'error' => $validator->errors()->toArray(),
             ], 422)
         );
     }
