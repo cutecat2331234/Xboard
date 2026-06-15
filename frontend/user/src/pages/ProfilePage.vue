@@ -22,6 +22,7 @@ import {
   type ActiveSession,
 } from '@/api/profile'
 import { fetchTelegramBotInfo, unbindTelegram } from '@/api/telegram'
+import { fetchSubscribe } from '@/api/subscribe'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useCurrency } from '@/composables/useCurrency'
 import { useI18n } from '@/i18n'
@@ -49,7 +50,18 @@ const botUsername = ref('')
 const sessions = ref<ActiveSession[]>([])
 const sessionsLoading = ref(false)
 const quickLoginLoading = ref(false)
+const subscribeToken = ref('')
 const dialog = useDialog()
+
+async function copyText(value: string, successKey = 'profile.copied') {
+  if (!value) return
+  try {
+    await navigator.clipboard.writeText(value)
+    msg.success(t(successKey))
+  } catch {
+    msg.error(t('errors.requestFailed'))
+  }
+}
 
 const switchStyle = {
   '--n-button-border-radius': '3px',
@@ -230,6 +242,12 @@ onMounted(async () => {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
   await loadSessions()
+  try {
+    const sub = await fetchSubscribe()
+    subscribeToken.value = sub.token ?? ''
+  } catch {
+    subscribeToken.value = ''
+  }
 })
 </script>
 
@@ -243,6 +261,45 @@ onMounted(async () => {
       <span class="ml-2.5 text-xl text-gray-500 md:ml-5">{{ currency }}</span>
     </div>
     <div class="text-gray-500">{{ t('profile.balanceHint') }}</div>
+  </n-card>
+
+  <n-card :title="t('profile.accountInfo')" class="mt-5 rounded-md">
+    <div class="account-row">
+      <span class="account-label">{{ t('profile.email') }}</span>
+      <span class="account-value">{{ auth.user?.email ?? '—' }}</span>
+      <n-button
+        v-if="auth.user?.email"
+        size="tiny"
+        tertiary
+        @click="copyText(auth.user!.email)"
+      >
+        {{ t('common.copy') }}
+      </n-button>
+    </div>
+    <div class="account-row">
+      <span class="account-label">{{ t('profile.uuid') }}</span>
+      <span class="account-value account-value--mono">{{ auth.user?.uuid ?? '—' }}</span>
+      <n-button
+        v-if="auth.user?.uuid"
+        size="tiny"
+        tertiary
+        @click="copyText(auth.user!.uuid)"
+      >
+        {{ t('common.copy') }}
+      </n-button>
+    </div>
+    <div class="account-row">
+      <span class="account-label">{{ t('profile.subscribeToken') }}</span>
+      <span class="account-value account-value--mono">{{ subscribeToken || '—' }}</span>
+      <n-button
+        v-if="subscribeToken"
+        size="tiny"
+        tertiary
+        @click="copyText(subscribeToken)"
+      >
+        {{ t('common.copy') }}
+      </n-button>
+    </div>
   </n-card>
 
   <n-card :title="t('profile.changePassword')" class="mt-5 rounded-md">
@@ -353,5 +410,29 @@ onMounted(async () => {
 }
 .block {
   display: block;
+}
+.account-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.account-row:last-child {
+  margin-bottom: 0;
+}
+.account-label {
+  min-width: 120px;
+  color: var(--xb-text-secondary);
+}
+.account-value {
+  flex: 1;
+  min-width: 0;
+  word-break: break-all;
+}
+.account-value--mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
 }
 </style>

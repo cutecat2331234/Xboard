@@ -5,7 +5,7 @@ import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDi
 import { fetchOrders, cancelOrder, fetchFirstBlockingOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { ORDER_STATUS_KEYS, orderStatusLabel } from '@/lib/order-status'
-import { formatFixedDateTime } from '@/lib/format-date'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { useCurrency } from '@/composables/useCurrency'
@@ -19,7 +19,7 @@ const pageSize = ref(20)
 const total = ref(0)
 const msg = useMessage()
 const dialog = useDialog()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { formatPrice, load: loadCurrency } = useCurrency()
 
 function formatOrderAmount(cents: number) {
@@ -114,7 +114,7 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.createdAt'),
     key: 'created_at',
-    render: (row) => formatFixedDateTime(row.created_at),
+    render: (row) => formatLocaleDateTime(row.created_at, locale.value),
   },
   {
     title: t('common.actions'),

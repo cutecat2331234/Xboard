@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, NEmpty, useDialog, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
-import { formatFixedDateTime } from '@/lib/format-date'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { isWithdrawTicket } from '@/lib/withdraw-ticket'
@@ -12,7 +12,7 @@ import { useUserCommConfig } from '@/composables/useUserCommConfig'
 const route = useRoute()
 const msg = useMessage()
 const dialog = useDialog()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 
 const ticket = ref<TicketItem | null>(null)
@@ -142,7 +142,7 @@ onUnmounted(stopPoll)
             :key="m.id"
             :class="m.is_me ? 'text-right' : 'text-left'"
           >
-            <div class="message-time">{{ formatFixedDateTime(m.created_at) }}</div>
+            <div class="message-time">{{ formatLocaleDateTime(m.created_at, locale) }}</div>
             <div class="message-bubble">{{ m.message }}</div>
           </div>
         </div>

@@ -28,11 +28,11 @@ class GiftCardService
     public function __construct(string $code)
     {
         $this->code = GiftCardCode::where('code', $code)->first()
-            ?? throw new ApiException('兑换码不存在');
+            ?? throw new ApiException(__('Redemption code does not exist'));
 
         $template = $this->code->template;
         if (!$template) {
-            throw new ApiException('礼品卡模板不存在');
+            throw new ApiException(__('Gift card template does not exist'));
         }
         $this->template = $template;
     }
@@ -68,11 +68,13 @@ class GiftCardService
     public function validateIsActive(): self
     {
         if (!$this->template->isAvailable()) {
-            throw new ApiException('该礼品卡类型已停用');
+            throw new ApiException(__('This gift card type is disabled'));
         }
 
         if (!$this->code->isAvailable()) {
-            throw new ApiException('兑换码不可用：' . $this->code->status_name);
+            throw new ApiException(__('Redemption code is not available: :status', [
+                'status' => $this->code->status_name,
+            ]));
         }
         return $this;
     }
@@ -85,21 +87,21 @@ class GiftCardService
         if (!$this->user) {
             return [
                 'can_redeem' => false,
-                'reason' => '用户信息未提供'
+                'reason' => __('User information not provided'),
             ];
         }
 
         if (!$this->template->checkUserConditions($this->user)) {
             return [
                 'can_redeem' => false,
-                'reason' => '您不满足此礼品卡的使用条件'
+                'reason' => __('You do not meet the requirements for this gift card'),
             ];
         }
 
         if (!$this->template->checkUsageLimit($this->user)) {
             return [
                 'can_redeem' => false,
-                'reason' => '您已达到此礼品卡的使用限制'
+                'reason' => __('You have reached the usage limit for this gift card'),
             ];
         }
 
@@ -112,33 +114,35 @@ class GiftCardService
     public function redeem(array $options = []): array
     {
         if (!$this->user) {
-            throw new ApiException('未设置使用用户');
+            throw new ApiException(__('Redemption user is not set'));
         }
 
         return DB::transaction(function () use ($options) {
             $code = GiftCardCode::where('id', $this->code->id)->lockForUpdate()->first();
             if (!$code || !$code->isAvailable()) {
-                throw new ApiException('兑换码不可用：' . ($code?->status_name ?? '不存在'));
+                throw new ApiException(__('Redemption code is not available: :status', [
+                    'status' => $code?->status_name ?? __('Not found'),
+                ]));
             }
 
             $lockedUser = User::where('id', $this->user->id)->lockForUpdate()->first();
             if (!$lockedUser) {
-                throw new ApiException('用户不存在');
+                throw new ApiException(__('The user does not exist'));
             }
             $this->user = $lockedUser;
 
             $lockedTemplate = GiftCardTemplate::where('id', $this->template->id)->lockForUpdate()->first();
             if (!$lockedTemplate) {
-                throw new ApiException('礼品卡模板不存在');
+                throw new ApiException(__('Gift card template does not exist'));
             }
             $this->template = $lockedTemplate;
 
             if (!$this->template->checkUsageLimit($this->user, true)) {
-                throw new ApiException('您已达到此礼品卡的使用限制');
+                throw new ApiException(__('You have reached the usage limit for this gift card'));
             }
 
             if (!$this->template->checkUserConditions($this->user)) {
-                throw new ApiException('您不满足此礼品卡的使用条件');
+                throw new ApiException(__('You do not meet the requirements for this gift card'));
             }
 
             $actualRewards = $this->template->calculateActualRewards($this->user);
@@ -160,7 +164,7 @@ class GiftCardService
             }
 
             if (!$code->markAsUsed($this->user)) {
-                throw new ApiException('兑换码状态更新失败');
+                throw new ApiException(__('Redemption code status update failed'));
             }
 
             GiftCardUsage::createRecord(
@@ -194,7 +198,7 @@ class GiftCardService
 
         if (isset($rewards['balance']) && $rewards['balance'] > 0) {
             if (!$userService->addBalance($this->user->id, $rewards['balance'])) {
-                throw new ApiException('余额发放失败');
+                throw new ApiException(__('Failed to credit balance'));
             }
         }
 
@@ -218,7 +222,7 @@ class GiftCardService
         if ($hasPlanReward) {
             $plan = Plan::where('id', $rewards['plan_id'])->lockForUpdate()->first();
             if (!$plan) {
-                throw new ApiException('关联套餐不存在');
+                throw new ApiException(__('Associated plan does not exist'));
             }
             $planService = new PlanService($plan);
             $alreadyOnPlan = (int) $this->user->plan_id === (int) $plan->id
@@ -252,7 +256,7 @@ class GiftCardService
 
         // 保存用户更改
         if (!$this->user->save()) {
-            throw new ApiException('用户信息更新失败');
+            throw new ApiException(__('Failed to update user information'));
         }
     }
 
@@ -333,7 +337,12 @@ class GiftCardService
 
     protected function recordGiftCardCommission(int $inviteUserId, int $orderAmount, string $tradeNo, int $payAmount, User $inviter): void
     {
-        if (CommissionLog::where('trade_no', $tradeNo)->where('invite_user_id', $inviteUserId)->exists()) {
+        if (
+            CommissionLog::where('trade_no', $tradeNo)
+                ->where('invite_user_id', $inviteUserId)
+                ->where('get_amount', $payAmount)
+                ->exists()
+        ) {
             return;
         }
         $now = time();
@@ -403,6 +412,15 @@ class GiftCardService
     protected function recordGiftCardTraffic(int $inviteUserId, string $tradeNo, int $trafficBytes, User $inviter): void
     {
         if ($trafficBytes <= 0) {
+            return;
+        }
+        if (
+            CommissionLog::where('trade_no', $tradeNo)
+                ->where('invite_user_id', $inviteUserId)
+                ->where('get_amount', 0)
+                ->where('order_amount', $trafficBytes)
+                ->exists()
+        ) {
             return;
         }
         $hold = $this->shouldHoldGiftCardCommission();
@@ -564,7 +582,7 @@ class GiftCardService
     public function previewRewards(): array
     {
         if (!$this->user) {
-            throw new ApiException('未设置使用用户');
+            throw new ApiException(__('Redemption user is not set'));
         }
 
         if ($this->template->type === GiftCardTemplate::TYPE_MYSTERY) {
