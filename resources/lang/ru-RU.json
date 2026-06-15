@@ -646,5 +646,10 @@
     "Invalid sidebar theme": "Неверная тема боковой панели",
     "Invalid header theme": "Неверная тема верхней панели",
     "Invalid frontend theme color": "Неверный цвет темы фронтенда",
-    "Invalid email verification purpose": "Неверное назначение проверки email"
+    "Invalid email verification purpose": "Неверное назначение проверки email",
+    "Node type cannot be empty": "Тип узла не может быть пустым",
+    "Rate time range start time format is invalid (use HH:MM)": "Неверный формат времени начала диапазона (используйте HH:MM)",
+    "Rate time range end time format is invalid (use HH:MM)": "Неверный формат времени окончания диапазона (используйте HH:MM)",
+    "Rate multiplier format is invalid": "Неверный формат множителя тарифа",
+    "Rate multiplier cannot be less than 0": "Множитель тарифа не может быть меньше 0"
 }

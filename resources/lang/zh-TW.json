@@ -645,5 +645,10 @@
     "Invalid sidebar theme": "無效的側邊欄主題",
     "Invalid header theme": "無效的頂欄主題",
     "Invalid frontend theme color": "無效的前端主題色",
-    "Invalid email verification purpose": "無效的郵箱驗證用途"
+    "Invalid email verification purpose": "無效的郵箱驗證用途",
+    "Node type cannot be empty": "節點類型不能为空",
+    "Rate time range start time format is invalid (use HH:MM)": "動態倍率開始時間格式無效（請使用 HH:MM）",
+    "Rate time range end time format is invalid (use HH:MM)": "動態倍率結束時間格式無效（請使用 HH:MM）",
+    "Rate multiplier format is invalid": "倍率乘數格式無效",
+    "Rate multiplier cannot be less than 0": "倍率乘數不能小於 0"
 }
