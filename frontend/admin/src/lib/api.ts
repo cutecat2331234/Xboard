@@ -319,6 +319,10 @@ export interface DashboardStats {
   currentMonthIncome?: number
   lastMonthIncome?: number
   monthIncomeGrowth?: number
+  lastMonthIncomeGrowth?: number
+  currentMonthCommissionPayout?: number
+  lastMonthCommissionPayout?: number
+  commissionGrowth?: number
   ticketPendingTotal?: number
   commissionPendingTotal?: number
   currentMonthNewUsers?: number
@@ -330,6 +334,7 @@ export interface DashboardStats {
   onlineNodes?: number
   todayTraffic?: { upload?: number; download?: number; total?: number }
   monthTraffic?: { upload?: number; download?: number; total?: number }
+  totalTraffic?: { upload?: number; download?: number; total?: number }
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {

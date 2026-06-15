@@ -589,8 +589,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "commission": {
       "PENDING": "Ожидание",
-      "PROCESSING": "В обработке",
-      "VALID": "Действительна",
+      "VALID": "Проверена",
+      "SETTLED": "Выплачена",
       "INVALID": "Недействительна"
     },
     "actions": {
@@ -679,6 +679,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "noPendingCommission": "Нет комиссий на выплату",
       "monthlyNewUsers": "Новых за месяц",
       "monthlyDownload": "Скачано за месяц",
+      "monthlyCommissionPayout": "Комиссии за месяц",
+      "totalTraffic": "Общий трафик",
       "todayTraffic": "Сегодня: {{value}}",
       "activeUserTrend": "Тренды активности",
       "realtimeUsers": "Пользователи в реальном времени",
@@ -3112,6 +3114,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "auto_resets": "Автоматические",
         "manual_resets": "Ручные",
         "cron_resets": "По расписанию/Cron",
+        "order_resets": "Сброс по заказу",
+        "gift_card_resets": "Сброс по подарочной карте",
         "in_period": "За последние {{days}} дн.",
         "breakdown": "Разбивка по типам",
         "breakdown_description": "Процентное соотношение различных типов операций сброса",

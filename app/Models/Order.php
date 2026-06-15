@@ -31,8 +31,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $commission_status
  * @property int|null $invite_user_id
  * @property int|null $actual_commission_balance
- * @property int|null $commission_rate
- * @property int|null $commission_auto_check
  * @property int|null $commission_balance
  * @property int|null $discount_amount
  * @property int|null $paid_at

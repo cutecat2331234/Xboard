@@ -34,7 +34,8 @@ import {
   textareaCls,
 } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
-import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
+import { getAdminCurrencySymbol, formatAdminMoneyFromMajor, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminDateTime, formatAdminDateTimeValue } from '@/lib/format-datetime'
 import { DataTable } from '@/components/shared/DataTable'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
 import { ExpireDateInput } from '@/components/shared/ExpireDateInput'
@@ -228,18 +229,6 @@ function trafficGbToBytes(gb: number | string) {
   const n = typeof gb === 'string' ? parseFloat(gb) : gb
   if (!n || Number.isNaN(n)) return 0
   return Math.round(TRAFFIC_GB * n)
-}
-
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleString()
-}
-
-function formatDateTime(value?: string | number | null) {
-  if (!value) return '—'
-  if (typeof value === 'number') return formatTs(value)
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
 }
 
 const GB_FILTER_FIELDS = new Set(['transfer_enable', 'total_used'])
@@ -866,29 +855,29 @@ export default function UserPage() {
       {
         accessorKey: 'balance',
         header: () => sortHeader('balance', t('user.columns.balance')),
-        cell: ({ row }) => Number(row.original.balance ?? 0).toFixed(2),
+        cell: ({ row }) => formatAdminMoneyFromMajor(row.original.balance ?? 0),
       },
       {
         accessorKey: 'expired_at',
         header: () => sortHeader('expired_at', t('user.columns.expire_time')),
-        cell: ({ row }) => formatTs(row.original.expired_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.expired_at),
       },
       {
         id: 'commission',
         accessorKey: 'commission_balance',
         header: () => sortHeader('commission_balance', t('user.columns.commission')),
-        cell: ({ row }) => Number(row.original.commission_balance ?? 0).toFixed(2),
+        cell: ({ row }) => formatAdminMoneyFromMajor(row.original.commission_balance ?? 0),
       },
       {
         accessorKey: 'created_at',
         header: () => sortHeader('created_at', t('user.columns.register_time')),
-        cell: ({ row }) => formatTs(row.original.created_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.created_at),
       },
       {
         id: 'next_reset_at',
         accessorKey: 'next_reset_at',
         header: () => sortHeader('next_reset_at', t('user.columns.next_reset_at')),
-        cell: ({ row }) => formatTs(row.original.next_reset_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.next_reset_at),
       },
       {
         id: 'actions',
@@ -954,7 +943,7 @@ export default function UserPage() {
         accessorKey: 'reset_time',
         header: () =>
           t('user.traffic_reset.history.reset_time'),
-        cell: ({ row }) => formatDateTime(row.original.reset_time),
+        cell: ({ row }) => formatAdminDateTimeValue(row.original.reset_time),
       },
       {
         accessorKey: 'reset_type_name',
@@ -1797,7 +1786,7 @@ export default function UserPage() {
                   </p>
                   <p className="text-sm font-medium">
                     {trafficResetHistory?.user?.last_reset_at
-                      ? formatTs(trafficResetHistory.user.last_reset_at)
+                      ? formatAdminDateTime(trafficResetHistory.user.last_reset_at)
                       : t('user.traffic_reset.history.never')}
                   </p>
                 </div>
@@ -1807,7 +1796,7 @@ export default function UserPage() {
                   </p>
                   <p className="text-sm font-medium">
                     {trafficResetHistory?.user?.next_reset_at
-                      ? formatTs(trafficResetHistory.user.next_reset_at)
+                      ? formatAdminDateTime(trafficResetHistory.user.next_reset_at)
                       : t('user.traffic_reset.history.no_schedule')}
                   </p>
                 </div>

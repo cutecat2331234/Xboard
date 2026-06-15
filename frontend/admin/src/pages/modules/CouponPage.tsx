@@ -8,6 +8,8 @@ import { toastApiError } from '@/lib/api-errors'
 import { adminApi, downloadAdminFile, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
 import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import { inputCls } from '@/lib/form-styles'
+import { formatAdminDateTime } from '@/lib/format-datetime'
+import { formatAdminMoney } from '@/lib/currency'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
 import {
@@ -66,6 +68,34 @@ function tsToInput(ts?: number) {
 function inputToTs(value: string) {
   if (!value) return Math.floor(Date.now() / 1000)
   return Math.floor(new Date(value).getTime() / 1000)
+}
+
+function formatCouponValue(row: CouponRow) {
+  if (row.type === 2) return `${row.value ?? 0}%`
+  return formatAdminMoney(row.value ?? 0)
+}
+
+function formatCouponValidity(
+  row: CouponRow,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+) {
+  const now = Math.floor(Date.now() / 1000)
+  const start = row.started_at ?? 0
+  const end = row.ended_at ?? 0
+  if (!start && !end) return t('coupon.table.validity.unlimited')
+  if (end && end < now) {
+    const days = Math.max(1, Math.ceil((now - end) / 86400))
+    return t('coupon.table.validity.expired', { days })
+  }
+  if (start && start > now) {
+    const days = Math.max(1, Math.ceil((start - now) / 86400))
+    return t('coupon.table.validity.notStarted', { days })
+  }
+  if (end) {
+    const days = Math.max(0, Math.ceil((end - now) / 86400))
+    return t('coupon.table.validity.remaining', { days })
+  }
+  return `${formatAdminDateTime(start)} → ${formatAdminDateTime(end)}`
 }
 
 function defaultForm() {
@@ -253,7 +283,22 @@ export default function CouponPage() {
             ? t('coupon.type.percent')
             : t('coupon.type.amount'),
       },
+      {
+        accessorKey: 'value',
+        header: () => t('coupon.form.value.placeholder'),
+        cell: ({ row }) => formatCouponValue(row.original),
+      },
       { accessorKey: 'limit_use', header: () => t('coupon.table.columns.limitUse') },
+      {
+        accessorKey: 'limit_use_with_user',
+        header: () => t('coupon.table.columns.limitUseWithUser'),
+        cell: ({ row }) => row.original.limit_use_with_user ?? t('coupon.table.validity.noLimit'),
+      },
+      {
+        id: 'validity',
+        header: () => t('coupon.table.columns.validity'),
+        cell: ({ row }) => formatCouponValidity(row.original, t),
+      },
       {
         accessorKey: 'show',
         header: () => t('coupon.table.columns.show'),

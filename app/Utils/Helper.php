@@ -347,4 +347,15 @@ class Helper
 
         return $redirect;
     }
+
+    /**
+     * @return array{0: int, 1: int} [current, pageSize]
+     */
+    public static function paginateParams(mixed $current, mixed $pageSize, int $maxPageSize = 100): array
+    {
+        $page = max(1, (int) ($current ?: 1));
+        $size = min($maxPageSize, max(1, (int) ($pageSize ?: 10)));
+
+        return [$page, $size];
+    }
 }

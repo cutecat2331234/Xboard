@@ -598,8 +598,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "commission": {
       "PENDING": "Pending",
-      "PROCESSING": "Processing",
-      "VALID": "Valid",
+      "VALID": "Validated",
+      "SETTLED": "Settled",
       "INVALID": "Invalid"
     },
     "actions": {
@@ -687,6 +687,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "noPendingCommission": "No pending commission",
       "monthlyNewUsers": "Monthly New Users",
       "monthlyDownload": "Monthly Download",
+      "monthlyCommissionPayout": "Monthly Commission Payout",
+      "totalTraffic": "Total Traffic",
       "todayTraffic": "Today: {{value}}",
       "activeUserTrend": "Active User Trend",
       "realtimeUsers": "Realtime Users",
@@ -3195,6 +3197,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "auto_resets": "Auto Resets",
         "manual_resets": "Manual Resets",
         "cron_resets": "Cron Resets",
+        "order_resets": "Order Resets",
+        "gift_card_resets": "Gift Card Resets",
         "in_period": "In the last {{days}} days",
         "breakdown": "Reset Type Breakdown",
         "breakdown_description": "Percentage breakdown of different reset operation types",
@@ -3248,6 +3252,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "manual": "Manual Trigger",
           "cron": "Cron Job"
         }
+      },
+      "pagination": {
+        "total": "{{total}} records"
       },
       "actions": {
         "export": "Export Logs",

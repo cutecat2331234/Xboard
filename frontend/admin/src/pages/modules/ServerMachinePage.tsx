@@ -5,6 +5,7 @@ import { Copy, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { useNavigate } from 'react-router-dom'
 import { buildQuery, fetchJsonList, fetchJsonObject, postJson } from '@/lib/api'
 import { inputCls } from '@/lib/form-styles'
@@ -61,12 +62,6 @@ type HistoryItem = {
 
 type InfoKind = 'token' | 'install' | 'nodes' | 'history'
 
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  const d = new Date(ts * 1000)
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString()
-}
-
 function pct(used?: number, total?: number) {
   if (!total || total <= 0 || used == null) return '—'
   return `${((used / total) * 100).toFixed(1)}%`
@@ -80,7 +75,7 @@ function formatHistoryLine(item: HistoryItem, t: (key: string) => string) {
   const cpu = item.cpu != null ? `${item.cpu}%` : '—'
   const mem = pct(item.mem_used, item.mem_total)
   const disk = pct(item.disk_used, item.disk_total)
-  return `${formatTs(item.recorded_at)} ${t('machine.columns.cpu')}:${cpu} ${t('machine.columns.memory')}:${mem} ${t('machine.columns.disk')}:${disk}`
+  return `${formatAdminDateTime(item.recorded_at)} ${t('machine.columns.cpu')}:${cpu} ${t('machine.columns.memory')}:${mem} ${t('machine.columns.disk')}:${disk}`
 }
 
 export default function ServerMachinePage() {
@@ -449,7 +444,7 @@ export default function ServerMachinePage() {
                         {infoHistory.map((item, index) => (
                           <tr key={`${item.recorded_at ?? index}`} className="border-b last:border-0">
                             <td className="px-3 py-2 font-mono text-muted-foreground">
-                              {formatTs(item.recorded_at)}
+                              {formatAdminDateTime(item.recorded_at)}
                             </td>
                             <td className="px-3 py-2 text-right font-mono">
                               {item.cpu != null ? `${item.cpu}%` : '—'}

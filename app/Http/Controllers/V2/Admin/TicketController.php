@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V2\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Services\TicketService;
+use App\Utils\Helper;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Traits\SafeQueryColumns;
@@ -98,11 +99,15 @@ class TicketController extends Controller
             });
 
         $this->applyFiltersAndSorts($request, $ticketModel);
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current', 1),
+            $request->input('pageSize', 10)
+        );
         $tickets = $ticketModel
             ->latest('updated_at')
             ->paginate(
-                perPage: $request->integer('pageSize', 10),
-                page: $request->integer('current', 1)
+                perPage: $pageSize,
+                page: $current
             );
 
         // 获取items然后映射转换

@@ -81,7 +81,7 @@ class CheckCommission extends Command
 
     public function autoPayCommission()
     {
-        $orderIds = Order::where('commission_status', 1)
+        $orderIds = Order::where('commission_status', Order::COMMISSION_STATUS_VALID)
             ->where('invite_user_id', '!=', NULL)
             ->where('status', Order::STATUS_COMPLETED)
             ->pluck('id');
@@ -90,14 +90,14 @@ class CheckCommission extends Command
             try {
                 DB::beginTransaction();
                 $order = Order::where('id', $orderId)->lockForUpdate()->first();
-                if (!$order || (int) $order->commission_status !== 1 || !$order->invite_user_id) {
+                if (!$order || (int) $order->commission_status !== Order::COMMISSION_STATUS_VALID || !$order->invite_user_id) {
                     DB::rollBack();
                     continue;
                 }
 
                 $expectedTotal = (int) $order->commission_balance;
                 if ($expectedTotal <= 0) {
-                    $order->commission_status = 2;
+                    $order->commission_status = Order::COMMISSION_STATUS_PAID;
                     $order->actual_commission_balance = 0;
                     $order->save();
                     DB::commit();
@@ -105,7 +105,7 @@ class CheckCommission extends Command
                 }
                 $paidTotal = (int) CommissionLog::where('trade_no', $order->trade_no)->sum('get_amount');
                 if ($paidTotal >= $expectedTotal && $expectedTotal > 0) {
-                    $order->commission_status = 2;
+                    $order->commission_status = Order::COMMISSION_STATUS_PAID;
                     $order->actual_commission_balance = $paidTotal;
                     $order->save();
                     DB::commit();
@@ -127,7 +127,7 @@ class CheckCommission extends Command
                         Order::where('id', $orderId)->update(['commission_status' => Order::COMMISSION_STATUS_INVALID]);
                         continue;
                     } elseif ($paidTotal >= $expectedTotal) {
-                        $order->commission_status = 2;
+                        $order->commission_status = Order::COMMISSION_STATUS_PAID;
                         $order->actual_commission_balance = $paidTotal;
                         $order->save();
                     }
@@ -145,7 +145,7 @@ class CheckCommission extends Command
                     DB::rollBack();
                     continue;
                 }
-                $order->commission_status = 2;
+                $order->commission_status = Order::COMMISSION_STATUS_PAID;
                 if (!$order->save()) {
                     DB::rollBack();
                     continue;
@@ -250,6 +250,7 @@ class CheckCommission extends Command
                 continue;
             }
             if (!isset($commissionShareLevels[$l])) {
+                $inviteUserId = (int) ($inviter->invite_user_id ?? 0);
                 continue;
             }
             $commissionBalance = (int) round($order->commission_balance * ($commissionShareLevels[$l] / 100));

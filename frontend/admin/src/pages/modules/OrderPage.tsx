@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
 import { adminApi, fetchJsonList, postJson, type PaginatedResult } from '@/lib/api'
 import { formatAdminMoney, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { inputCls } from '@/lib/form-styles'
 import { cn } from '@/lib/utils'
 import { DataTable } from '@/components/shared/DataTable'
@@ -111,20 +112,13 @@ const STATUS_I18N: Record<number, string> = {
 
 const COMMISSION_I18N: Record<number, string> = {
   0: 'order.commission.PENDING',
-  1: 'order.commission.PROCESSING',
-  2: 'order.commission.VALID',
+  1: 'order.commission.VALID',
+  2: 'order.commission.SETTLED',
   3: 'order.commission.INVALID',
 }
 
 function formatMoney(cents?: number | null) {
   return formatAdminMoney(cents ?? 0)
-}
-
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
 function truncateTradeNo(no?: string) {
@@ -675,7 +669,7 @@ export default function OrderPage() {
         header: () => t('order.table.columns.createdAt'),
         cell: ({ row }) => (
           <div className="text-nowrap font-mono text-sm text-muted-foreground">
-            {formatTs(row.original.created_at)}
+            {formatAdminDateTime(row.original.created_at)}
           </div>
         ),
       },
@@ -921,12 +915,12 @@ export default function OrderPage() {
               <DetailSection title={t('order.dialog.timeInfo')}>
                 <DetailRow
                   label={t('order.dialog.fields.createdAt')}
-                  value={formatTs(detail.created_at)}
+                  value={formatAdminDateTime(detail.created_at)}
                   mono
                 />
                 <DetailRow
                   label={t('order.dialog.fields.updatedAt')}
-                  value={formatTs(detail.updated_at)}
+                  value={formatAdminDateTime(detail.updated_at)}
                   mono
                 />
               </DetailSection>

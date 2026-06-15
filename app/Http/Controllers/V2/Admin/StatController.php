@@ -12,6 +12,7 @@ use App\Models\StatUser;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\StatisticalService;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 
 class StatController extends Controller
@@ -258,7 +259,7 @@ class StatController extends Controller
             'user_id' => 'required|integer'
         ]);
 
-        $pageSize = $request->input('pageSize', 10);
+        $pageSize = Helper::paginateParams(1, $request->input('pageSize', 10))[1];
         $records = StatUser::orderBy('record_at', 'DESC')
             ->where('user_id', $request->input('user_id'))
             ->paginate($pageSize);

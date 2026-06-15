@@ -24,6 +24,8 @@ import {
 
   Users,
 
+  Wallet,
+
   Wifi,
 
   MonitorSmartphone,
@@ -85,7 +87,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { getLocale, i18n } from '@/lib/i18n'
+import { i18n } from '@/lib/i18n'
 
 import {
 
@@ -106,6 +108,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 import { formatAdminMoney, formatAdminMoneyFromMajor, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminDateTimeValue } from '@/lib/format-datetime'
 
 
 
@@ -116,41 +119,7 @@ function formatMoney(cents?: number) {
 
 
 function formatFailedAt(value?: string | number) {
-
-  if (value == null || value === '') return '—'
-
-  let ts: number
-
-  if (typeof value === 'string') {
-
-    ts = parseInt(value, 10)
-
-    if (Number.isNaN(ts)) return value
-
-  } else {
-
-    ts = value
-
-  }
-
-  const date = ts.toString().length === 10 ? new Date(ts * 1000) : new Date(ts)
-
-  return date.toLocaleString(getLocale(), {
-
-    year: 'numeric',
-
-    month: '2-digit',
-
-    day: '2-digit',
-
-    hour: '2-digit',
-
-    minute: '2-digit',
-
-    second: '2-digit',
-
-  })
-
+  return formatAdminDateTimeValue(value)
 }
 
 
@@ -511,6 +480,40 @@ export default function DashboardPage() {
           icon={ArrowDownToLine}
 
           iconClassName="text-blue-500"
+
+        />
+
+        <StatCard
+
+          title={t('dashboard.stats.monthlyCommissionPayout')}
+
+          value={formatMoney(stats.currentMonthCommissionPayout)}
+
+          growth={stats.commissionGrowth}
+
+          growthLabel={t('dashboard.stats.vsLastMonth')}
+
+          icon={Wallet}
+
+          iconClassName="text-violet-500"
+
+        />
+
+        <StatCard
+
+          title={t('dashboard.stats.totalTraffic')}
+
+          value={formatBytes(stats.totalTraffic?.total)}
+
+          subtitle={t('dashboard.stats.todayTraffic', {
+
+            value: formatBytes(stats.todayTraffic?.total),
+
+          })}
+
+          icon={BarChart3}
+
+          iconClassName="text-orange-500"
 
         />
 

@@ -5,6 +5,7 @@ import { MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { adminApi, buildQuery, postJson, type PaginatedResult } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
@@ -60,11 +61,6 @@ function normalizeTicketDetail(raw: TicketDetail | null | undefined): TicketDeta
       is_me: Boolean(msg.is_from_admin ?? !msg.is_from_user),
     })),
   }
-}
-
-function formatTs(ts?: number) {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleString()
 }
 
 function statusLabel(t: (key: string) => string, status?: number) {
@@ -242,7 +238,7 @@ export default function TicketPage() {
       {
         accessorKey: 'updated_at',
         header: () => t('ticket.columns.updated_at'),
-        cell: ({ row }) => formatTs(row.original.updated_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.updated_at),
       },
       {
         id: 'actions',
@@ -362,7 +358,7 @@ export default function TicketPage() {
                   className={`rounded-md p-2 text-sm ${msg.is_me ? 'bg-primary/10' : 'bg-muted'}`}
                 >
                   <p>{msg.message}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{formatTs(msg.created_at)}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{formatAdminDateTime(msg.created_at)}</p>
                 </div>
               ))}
             </div>

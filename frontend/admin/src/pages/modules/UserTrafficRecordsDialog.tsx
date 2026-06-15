@@ -3,6 +3,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { fetchPaginatedList } from '@/lib/api'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
@@ -31,11 +32,6 @@ function formatBytes(n?: number) {
   if (mb >= 1) return `${mb.toFixed(2)} MB`
   const kb = n / 1024
   return `${kb.toFixed(2)} KB`
-}
-
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  return new Date(ts * 1000).toLocaleString()
 }
 
 type Props = {
@@ -84,7 +80,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
       {
         accessorKey: 'record_at',
         header: () => t('traffic.trafficRecord.time'),
-        cell: ({ row }) => formatTs(row.original.record_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.record_at),
       },
       {
         accessorKey: 'u',
