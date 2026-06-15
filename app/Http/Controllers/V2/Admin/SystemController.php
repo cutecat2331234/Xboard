@@ -120,7 +120,15 @@ class SystemController extends Controller
         $total = $builder->count();
         $res = $builder->forPage($current, $pageSize)->get();
 
-        return response(['data' => $res, 'total' => $total]);
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $res,
+            $total,
+            $pageSize,
+            $current,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return $this->paginate($paginator);
     }
 
     public function getHorizonFailedJobs(Request $request, JobRepository $jobRepository)
@@ -138,12 +146,15 @@ class SystemController extends Controller
 
         $total = $jobRepository->countFailed();
 
-        return response()->json([
-            'data' => $failedJobs,
-            'total' => $total,
-            'current' => $current,
-            'page_size' => $pageSize,
-        ]);
+        $paginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $failedJobs,
+            $total,
+            $pageSize,
+            $current,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return $this->paginate($paginator);
     }
 
     public function getQueueMasters(MasterSupervisorRepository $masters)

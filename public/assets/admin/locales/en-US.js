@@ -17,7 +17,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "supportText": "Supports .zip format theme packages",
       "uploading": "Uploading...",
       "error": {
-        "format": "Only ZIP format theme files are supported"
+        "format": "Only ZIP format theme files are supported",
+        "required": "Theme package file is required",
+        "maxSize": "Theme package must not exceed 10MB",
+        "uploadDirNotWritable": "Upload directory is not writable",
+        "themeDirNotWritable": "Theme directory is not writable",
+        "invalidFilename": "Theme package filename may only contain letters, numbers, underscores, hyphens, and dots",
+        "uploadFailed": "Theme upload failed"
       }
     },
     "preview": {

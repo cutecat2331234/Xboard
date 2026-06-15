@@ -262,5 +262,20 @@
     "Core plugins cannot be deleted": "Системные плагины нельзя удалить",
     "Plugin deleted successfully": "Плагин успешно удалён",
     "Plugin delete failed: :error": "Ошибка удаления плагина: :error",
-    "public_name must be a valid domain (1-253 bytes)": "public_name должен быть действительным доменом (1–253 байта)"
+    "public_name must be a valid domain (1-253 bytes)": "public_name должен быть действительным доменом (1–253 байта)",
+    "Theme package file is required": "Требуется файл темы",
+    "Theme package must be a zip file": "Пакет темы должен быть в формате zip",
+    "Theme package must not exceed 10MB": "Размер пакета темы не должен превышать 10 МБ",
+    "Upload directory is not writable": "Каталог загрузки недоступен для записи",
+    "Theme directory is not writable": "Каталог тем недоступен для записи",
+    "Invalid file type, only ZIP is supported": "Недопустимый тип файла, поддерживается только ZIP",
+    "Theme package filename may only contain letters, numbers, underscores, hyphens, and dots": "Имя файла темы может содержать только буквы, цифры, подчёркивания, дефисы и точки",
+    "Theme upload failed: :error": "Ошибка загрузки темы: :error",
+    "Paid amount": "Сумма оплат",
+    "Paid count": "Количество оплат",
+    "Commission amount (paid)": "Сумма комиссии (оплачено)",
+    "Commission count (paid)": "Количество комиссий (оплачено)",
+    "Node ID cannot be empty": "ID узла не может быть пустым",
+    "Local port cannot be empty": "Локальный порт не может быть пустым",
+    "Failed to fetch node config": "Не удалось получить конфигурацию узла"
 }

@@ -298,5 +298,20 @@
     "Core plugins cannot be deleted": "Core plugins cannot be deleted",
     "Plugin deleted successfully": "Plugin deleted successfully",
     "Plugin delete failed: :error": "Plugin delete failed: :error",
-    "public_name must be a valid domain (1-253 bytes)": "public_name must be a valid domain (1-253 bytes)"
+    "public_name must be a valid domain (1-253 bytes)": "public_name must be a valid domain (1-253 bytes)",
+    "Theme package file is required": "Theme package file is required",
+    "Theme package must be a zip file": "Theme package must be a zip file",
+    "Theme package must not exceed 10MB": "Theme package must not exceed 10MB",
+    "Upload directory is not writable": "Upload directory is not writable",
+    "Theme directory is not writable": "Theme directory is not writable",
+    "Invalid file type, only ZIP is supported": "Invalid file type, only ZIP is supported",
+    "Theme package filename may only contain letters, numbers, underscores, hyphens, and dots": "Theme package filename may only contain letters, numbers, underscores, hyphens, and dots",
+    "Theme upload failed: :error": "Theme upload failed: :error",
+    "Paid amount": "Paid amount",
+    "Paid count": "Paid count",
+    "Commission amount (paid)": "Commission amount (paid)",
+    "Commission count (paid)": "Commission count (paid)",
+    "Node ID cannot be empty": "Node ID cannot be empty",
+    "Local port cannot be empty": "Local port cannot be empty",
+    "Failed to fetch node config": "Failed to fetch node config"
 }

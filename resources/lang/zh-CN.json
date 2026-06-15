@@ -296,5 +296,20 @@
     "Core plugins cannot be deleted": "该插件为系统核心插件，不允许删除",
     "Plugin deleted successfully": "插件删除成功",
     "Plugin delete failed: :error": "插件删除失败：:error",
-    "public_name must be a valid domain (1-253 bytes)": "public_name 必须是有效域名（1-253 字节）"
+    "public_name must be a valid domain (1-253 bytes)": "public_name 必须是有效域名（1-253 字节）",
+    "Theme package file is required": "请上传主题压缩包",
+    "Theme package must be a zip file": "主题包必须是 zip 格式",
+    "Theme package must not exceed 10MB": "主题包大小不能超过 10MB",
+    "Upload directory is not writable": "上传目录不可写",
+    "Theme directory is not writable": "主题目录不可写",
+    "Invalid file type, only ZIP is supported": "文件类型无效，仅支持 ZIP",
+    "Theme package filename may only contain letters, numbers, underscores, hyphens, and dots": "主题包文件名只能包含字母、数字、下划线、连字符和点",
+    "Theme upload failed: :error": "主题上传失败：:error",
+    "Paid amount": "支付金额",
+    "Paid count": "支付笔数",
+    "Commission amount (paid)": "佣金金额（已支付）",
+    "Commission count (paid)": "佣金笔数（已支付）",
+    "Node ID cannot be empty": "节点 ID 不能为空",
+    "Local port cannot be empty": "本地端口不能为空",
+    "Failed to fetch node config": "获取节点配置失败"
 }

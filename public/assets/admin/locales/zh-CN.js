@@ -17,7 +17,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "supportText": "支持 .zip 格式的主题包",
       "uploading": "正在上传...",
       "error": {
-        "format": "只支持上传 ZIP 格式的主题文件"
+        "format": "只支持上传 ZIP 格式的主题文件",
+        "required": "请上传主题压缩包",
+        "maxSize": "主题包大小不能超过 10MB",
+        "uploadDirNotWritable": "上传目录不可写",
+        "themeDirNotWritable": "主题目录不可写",
+        "invalidFilename": "主题包文件名只能包含字母、数字、下划线、连字符和点",
+        "uploadFailed": "主题上传失败"
       }
     },
     "preview": {
