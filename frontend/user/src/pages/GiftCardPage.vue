@@ -222,6 +222,7 @@ const columns = computed<DataTableColumns<GiftCardHistoryItem>>(() => [
         {
           type: 'button',
           class: 'gift-card-link-btn',
+          'aria-label': t('giftCard.viewDetail'),
           onClick: () => openDetail(row.id),
         },
         t('giftCard.viewDetail'),

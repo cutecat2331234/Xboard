@@ -59,6 +59,10 @@ export default {
     clientImportTitle: "一鍵訂閱",
     clientImportHint: "選擇客戶端匯入訂閱，可按協議類型篩選",
     popupNoticeTags: "彈窗",
+    deviceLimit: 'Device limit: {count}',
+    speedLimit: 'Speed limit: {speed} Mbps',
+    invitedUsers: 'You have invited {count} user(s)',
+    noSubscribeUrl: 'No active subscription link. Purchase a plan first.',
     protocolTypes: {
       auto: "自動",
       anytls: "Anytls",

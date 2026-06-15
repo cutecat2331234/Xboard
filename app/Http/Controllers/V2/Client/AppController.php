@@ -39,6 +39,9 @@ class AppController extends Controller
                 'enable_gift_card_system' => \App\Support\AppFeature::giftCardEnabled(),
                 'enable_speed_test' => (bool) admin_setting('app_enable_speed_test', true), // 是否开启测速功能
                 'enable_server_ping' => (bool) admin_setting('app_enable_server_ping', true), // 是否开启服务器延迟检测
+                'try_out_enable' => (int) admin_setting('try_out_enable', 1),
+                'try_out_plan_id' => (int) admin_setting('try_out_plan_id', 0),
+                'plan_change_enable' => (int) admin_setting('plan_change_enable', 1),
             ],
             'ui_config' => [
                 'theme' => [
@@ -73,6 +76,7 @@ class AppController extends Controller
                 'subscription_reminder_days' => admin_setting('app_subscription_reminder_days', [7, 3, 1]), // 订阅到期提醒天数
                 'connection_timeout_seconds' => (int) admin_setting('app_connection_timeout_seconds', 10), // 连接超时时间(秒)
                 'health_check_interval_seconds' => (int) admin_setting('app_health_check_interval_seconds', 30), // 健康检查间隔(秒)
+                'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
             ],
             'server_config' => [
                 'default_kernel' => admin_setting('app_default_kernel', 'clash'), // 默认内核 (clash/singbox)
@@ -95,6 +99,11 @@ class AppController extends Controller
                 'recaptcha_v3_site_key' => admin_setting('recaptcha_v3_site_key', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'), // reCAPTCHA v3 站点密钥
                 'recaptcha_v3_score_threshold' => (float) admin_setting('recaptcha_v3_score_threshold', 0.5), // reCAPTCHA v3 分数阈值
                 'turnstile_site_key' => admin_setting('turnstile_site_key', '0x4AAAAAAAABkMYinukE8nzUg'), // Turnstile 站点密钥
+                'login_with_mail_link_enable' => (int) admin_setting('login_with_mail_link_enable', 0),
+                'telegram_login_enable' => (int) admin_setting('telegram_bot_enable', 0),
+                'telegram_bot_username' => (int) admin_setting('telegram_bot_enable', 0)
+                    ? admin_setting('telegram_bot_username')
+                    : '',
             ],
             'payment_config' => [
                 'currency' => admin_setting('currency', 'CNY'), // 货币类型
@@ -102,6 +111,12 @@ class AppController extends Controller
                 'withdraw_methods' => admin_setting('commission_withdraw_method', Dict::WITHDRAW_METHOD_WHITELIST_DEFAULT),
                 'min_withdraw_amount' => (int) admin_setting('commission_withdraw_limit', 100) * 100,
                 'withdraw_fee_rate' => (float) admin_setting('app_withdraw_fee_rate', 0),
+                'withdraw_close' => (int) admin_setting('withdraw_close_enable', 0),
+                'commission_withdraw_limit' => (int) admin_setting('commission_withdraw_limit', 100),
+                'commission_distribution_enable' => (int) admin_setting('commission_distribution_enable', 0),
+                'commission_distribution_l1' => admin_setting('commission_distribution_l1'),
+                'commission_distribution_l2' => admin_setting('commission_distribution_l2'),
+                'commission_distribution_l3' => admin_setting('commission_distribution_l3'),
             ],
             'notification_config' => [
                 'enable_push_notifications' => (bool) admin_setting('app_enable_push_notifications', true), // 是否开启推送通知
@@ -127,6 +142,12 @@ class AppController extends Controller
             $config['payment_config']['withdraw_methods'] = [];
             $config['payment_config']['min_withdraw_amount'] = 0;
             $config['payment_config']['withdraw_fee_rate'] = 0;
+            $config['payment_config']['withdraw_close'] = 0;
+            $config['payment_config']['commission_withdraw_limit'] = 0;
+            $config['payment_config']['commission_distribution_enable'] = 0;
+            $config['payment_config']['commission_distribution_l1'] = null;
+            $config['payment_config']['commission_distribution_l2'] = null;
+            $config['payment_config']['commission_distribution_l3'] = null;
         }
 
         $config = $config ?? [];

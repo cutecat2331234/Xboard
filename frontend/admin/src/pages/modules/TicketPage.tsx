@@ -151,6 +151,21 @@ export default function TicketPage() {
     load()
   }, [load])
 
+  useEffect(() => {
+    if (!detailOpen || !detail?.id || detail.status === 1) return
+    const ticketId = detail.id
+    const timer = window.setInterval(() => {
+      adminApi<{ data?: TicketDetail }>(`/ticket/fetch${buildQuery({ id: ticketId })}`)
+        .then((result) => {
+          setDetail(normalizeTicketDetail(result.data ?? null))
+        })
+        .catch(() => {
+          /* ignore polling errors */
+        })
+    }, 3000)
+    return () => window.clearInterval(timer)
+  }, [detailOpen, detail?.id, detail?.status])
+
   async function openDetail(row: TicketRow) {
     try {
       const result = await adminApi<{ data?: TicketDetail }>(

@@ -178,7 +178,7 @@ export default function PluginAdminRoute() {
                   {plugin.author ?? '—'}
                 </div>
                 <div>
-                  <span className="font-medium">Code: </span>
+                  <span className="font-medium">{t('plugin.runtime.code')}: </span>
                   <code className="rounded bg-muted px-1 py-0.5 text-xs">{plugin.code}</code>
                 </div>
                 <div>

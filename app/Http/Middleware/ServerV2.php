@@ -38,17 +38,23 @@ class ServerV2
                     }
                 },
             ],
-            'node_id' => $isHandshake ? 'nullable' : 'required',
+            'node_id' => $isHandshake ? 'nullable|integer' : 'required|integer|min:1',
         ]);
 
         $nodeId = $request->input('node_id');
         if ($nodeId === null || $nodeId === '') {
+            if (!$isHandshake) {
+                throw new ApiException('node_id is required');
+            }
             return;
         }
 
         $serverInfo = ServerService::getServer($nodeId);
         if (!$serverInfo) {
             throw new ApiException('Server does not exist');
+        }
+        if (!(int) $serverInfo->enabled) {
+            throw new ApiException('Server is disabled', 403);
         }
 
         $request->attributes->set('node_info', $serverInfo);
@@ -61,7 +67,7 @@ class ServerV2
         $request->validate([
             'machine_id' => 'required|integer',
             'token' => 'required|string',
-            'node_id' => $isHandshake ? 'nullable|integer' : 'required|integer',
+            'node_id' => $isHandshake ? 'nullable|integer' : 'required|integer|min:1',
         ]);
 
         $machine = ServerMachine::where('id', $request->input('machine_id'))

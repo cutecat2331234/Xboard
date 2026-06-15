@@ -305,16 +305,16 @@ onMounted(async () => {
 
   <n-card :title="t('profile.changePassword')" class="mt-5 rounded-md">
     <div class="mt-2.5 max-w-125">
-      <label>{{ t('profile.oldPassword') }}</label>
-      <n-input v-model:value="oldPassword" type="password" :placeholder="t('profile.oldPasswordPh')" show-password-on="click" />
+      <label for="profile-old-password">{{ t('profile.oldPassword') }}</label>
+      <n-input id="profile-old-password" v-model:value="oldPassword" type="password" :placeholder="t('profile.oldPasswordPh')" show-password-on="click" />
     </div>
     <div class="mt-2.5 max-w-125">
-      <label>{{ t('profile.newPassword') }}</label>
-      <n-input v-model:value="newPassword" type="password" :placeholder="t('profile.newPasswordPh')" show-password-on="click" />
+      <label for="profile-new-password">{{ t('profile.newPassword') }}</label>
+      <n-input id="profile-new-password" v-model:value="newPassword" type="password" :placeholder="t('profile.newPasswordPh')" show-password-on="click" />
     </div>
     <div class="mt-2.5 max-w-125">
-      <label>{{ t('profile.confirmNewPassword') }}</label>
-      <n-input v-model:value="confirmPassword" type="password" :placeholder="t('profile.confirmPasswordPh')" show-password-on="click" />
+      <label for="profile-confirm-password">{{ t('profile.confirmNewPassword') }}</label>
+      <n-input id="profile-confirm-password" v-model:value="confirmPassword" type="password" :placeholder="t('profile.confirmPasswordPh')" show-password-on="click" />
     </div>
     <n-button type="primary" class="mt-5" @click="submitPassword">{{ t('common.save') }}</n-button>
   </n-card>

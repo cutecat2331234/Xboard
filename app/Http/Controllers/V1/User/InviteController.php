@@ -127,6 +127,10 @@ class InviteController extends Controller
                 $paid = (int) ($paidByTradeNo[$pendingOrder->trade_no] ?? 0);
                 $uncheck_commission_balance += max(0, (int) $pendingOrder->commission_balance - $paid);
             }
+            if (admin_setting('commission_distribution_enable', 0)) {
+                $l1 = (int) admin_setting('commission_distribution_l1', 100);
+                $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));
+            }
             $heldGiftCard = (int) CommissionLog::where('invite_user_id', $user->id)
                 ->where('trade_no', 'like', 'giftcard:%')
                 ->whereNull('credited_at')
@@ -135,10 +139,6 @@ class InviteController extends Controller
                     ? (int) $log->get_amount
                     : (int) $log->order_amount);
             $uncheck_commission_balance += $heldGiftCard;
-            if (admin_setting('commission_distribution_enable', 0)) {
-                $l1 = (int) admin_setting('commission_distribution_l1', 100);
-                $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));
-            }
             $validCommission = (int) CommissionLog::where('invite_user_id', $user->id)
                 ->where('get_amount', '>', 0)
                 ->whereNotNull('credited_at')

@@ -1206,9 +1206,9 @@ export default function ServerManagePage() {
 
             <div className="w-[180px] space-y-2">
 
-              <LoadBar label="CPU" value={cpu} />
+              <LoadBar label={t('server.columns.loadStatus.cpu')} value={cpu} />
 
-              <LoadBar label="MEM" value={mem} />
+              <LoadBar label={t('server.columns.loadStatus.memory')} value={mem} />
 
               <div className="flex items-center justify-between text-[10px] text-muted-foreground">
 
@@ -1216,7 +1216,7 @@ export default function ServerManagePage() {
 
                   <HardDrive className="size-3" />
 
-                  DISK
+                  {t('server.columns.loadStatus.disk')}
 
                 </span>
 

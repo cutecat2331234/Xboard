@@ -378,6 +378,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "overview": "概览",
       "settings": "设置",
       "metadataTitle": "插件信息",
+      "code": "代码",
       "version": "版本",
       "status": "状态",
       "menuDeclarationTitle": "已声明的管理菜单",
@@ -1628,6 +1629,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "placeholder": "搜索菜单和功能...",
     "title": "菜单导航",
     "noResults": "未找到结果",
+    "srLabel": "搜索",
     "shortcut": {
       "label": "搜索",
       "key": "⌘K"
@@ -2599,7 +2601,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "orderManagement": "订单管理",
     "couponManagement": "优惠券管理",
     "userManagement": "用户管理",
-    "ticketManagement": "工单管理"
+    "ticketManagement": "工单管理",
+    "openNavMenu": "打开导航菜单"
   },
   "ticket": {
     "title": "工单管理",

@@ -373,6 +373,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "overview": "Обзор",
       "settings": "Настройки",
       "metadataTitle": "Информация о плагине",
+      "code": "Код",
       "version": "Версия",
       "status": "Статус",
       "menuDeclarationTitle": "Объявленные меню админки",
@@ -1571,6 +1572,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "placeholder": "Поиск меню и функций...",
     "title": "Навигация по меню",
     "noResults": "Результатов не найдено",
+    "srLabel": "Поиск",
     "shortcut": {
       "label": "Поиск",
       "key": "⌘K"
@@ -2532,7 +2534,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "orderManagement": "Заказы",
     "couponManagement": "Купоны",
     "userManagement": "Пользователи",
-    "ticketManagement": "Тикеты"
+    "ticketManagement": "Тикеты",
+    "openNavMenu": "Открыть меню навигации"
   },
   "ticket": {
     "title": "Управление тикетами",

@@ -380,6 +380,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "overview": "Overview",
       "settings": "Settings",
       "metadataTitle": "Plugin Information",
+      "code": "Code",
       "version": "Version",
       "status": "Status",
       "menuDeclarationTitle": "Declared Admin Menus",
@@ -1607,6 +1608,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "placeholder": "Search menus and functions...",
     "title": "Menu Navigation",
     "noResults": "No results found",
+    "srLabel": "Search",
     "shortcut": {
       "label": "Search",
       "key": "⌘K"
@@ -2573,7 +2575,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "orderManagement": "Order Management",
     "couponManagement": "Coupon Management",
     "userManagement": "User Management",
-    "ticketManagement": "Ticket Management"
+    "ticketManagement": "Ticket Management",
+    "openNavMenu": "Open navigation menu"
   },
   "ticket": {
     "title": "Ticket Management",

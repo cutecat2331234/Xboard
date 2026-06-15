@@ -38,6 +38,36 @@ const loading = ref(true)
 const clientModalOpen = ref(false)
 const notices = ref<NoticeItem[]>([])
 const popupNotice = ref<NoticeItem | null>(null)
+
+const POPUP_DISMISS_KEY = 'xboard_popup_dismissed'
+
+function readDismissedPopupIds(): number[] {
+  try {
+    const raw = localStorage.getItem(POPUP_DISMISS_KEY)
+    return raw ? (JSON.parse(raw) as number[]) : []
+  } catch {
+    return []
+  }
+}
+
+function isPopupDismissed(id: number) {
+  return readDismissedPopupIds().includes(id)
+}
+
+function dismissPopup(id: number) {
+  try {
+    const ids = readDismissedPopupIds()
+    if (!ids.includes(id)) ids.push(id)
+    localStorage.setItem(POPUP_DISMISS_KEY, JSON.stringify(ids.slice(-50)))
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function closePopupNotice() {
+  if (popupNotice.value?.id) dismissPopup(popupNotice.value.id)
+  popupNotice.value = null
+}
 const unpaidOrders = ref(0)
 const openTickets = ref(0)
 const inviteCount = ref(0)
@@ -138,7 +168,7 @@ async function loadNotices() {
     const popup = notices.value.find((n) =>
       n.tags?.some((tag) => needles.some((needle) => tag.includes(needle))),
     )
-    if (popup) popupNotice.value = popup
+    if (popup && !isPopupDismissed(popup.id)) popupNotice.value = popup
   } catch (e: unknown) {
     notices.value = []
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
@@ -371,7 +401,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
     preset="card"
     :title="popupNotice?.title ?? ''"
     style="width: min(560px, 92vw)"
-    @update:show="(v: boolean) => { if (!v) popupNotice = null }"
+    @update:show="(v: boolean) => { if (!v) closePopupNotice() }"
   >
     <div v-if="popupNotice" v-html="sanitizedPopupContent" />
   </n-modal>
