@@ -377,6 +377,9 @@ class OrderService
                 throw new \RuntimeException('Order not found for payment callback');
             }
             $this->order = $order;
+            $this->consumeOrderCoupon();
+            $order = $this->order->fresh() ?? $this->order;
+
             if ((int) $order->status !== Order::STATUS_PENDING) {
                 return $order;
             }
@@ -445,7 +448,7 @@ class OrderService
                     }
                 }
 
-                if ($order->coupon_id) {
+                if ($order->coupon_id && $order->coupon_consumed) {
                     Coupon::where('id', $order->coupon_id)
                         ->whereNotNull('limit_use')
                         ->increment('limit_use');
@@ -517,7 +520,7 @@ class OrderService
                         throw new \Exception('Failed to add balance.');
                     }
                 }
-                if ($lockedOrder->coupon_id) {
+                if ($lockedOrder->coupon_id && $lockedOrder->coupon_consumed) {
                     Coupon::where('id', $lockedOrder->coupon_id)
                         ->whereNotNull('limit_use')
                         ->increment('limit_use');
@@ -606,10 +609,41 @@ class OrderService
     protected function applyCoupon(string $couponCode): void
     {
         $couponService = CouponService::lockByCode($couponCode);
-        if (!$couponService->use($this->order)) {
+        if (!$couponService->applyToOrder($this->order)) {
             throw new ApiException(__('Coupon failed'));
         }
         $this->order->coupon_id = $couponService->getId();
+        $this->order->coupon_consumed = false;
+    }
+
+    /**
+     * Consume coupon global limit at checkout (idempotent).
+     */
+    public function consumeOrderCoupon(): void
+    {
+        if ($this->order->coupon_consumed || !$this->order->coupon_id) {
+            return;
+        }
+
+        $coupon = Coupon::where('id', $this->order->coupon_id)->lockForUpdate()->first();
+        if (!$coupon) {
+            throw new ApiException(__('Invalid coupon'));
+        }
+
+        $couponService = new CouponService($coupon);
+        $couponService->setPlanId($this->order->plan_id);
+        $couponService->setUserId($this->order->user_id);
+        $couponService->setPeriod($this->order->period);
+        $couponService->check();
+
+        if (!$couponService->consumeLimit()) {
+            throw new ApiException(__('This coupon is no longer available'));
+        }
+
+        $this->order->coupon_consumed = true;
+        if (!$this->order->save()) {
+            throw new ApiException(__('Request failed, please try again later'));
+        }
     }
 
     /**

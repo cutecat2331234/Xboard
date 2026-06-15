@@ -63,7 +63,12 @@ const showPlanChangeBlockedAlert = computed(() => isPlanChangeBlocked())
 function isSoldOut(): boolean {
   const limit = plan.value?.capacity_limit
   if (limit === null || limit === undefined) return false
-  if (typeof limit === 'string') return /sold\s*out|售罄/i.test(limit)
+  if (typeof limit === 'string') {
+    if (/sold\s*out|售罄/i.test(limit)) return true
+    const parsed = Number(limit)
+    if (Number.isFinite(parsed) && parsed <= 0) return true
+    return false
+  }
   return limit <= 0
 }
 

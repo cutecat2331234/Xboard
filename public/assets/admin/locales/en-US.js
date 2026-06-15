@@ -1828,6 +1828,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "title": "Never Expire Invitation Code",
         "description": "When enabled, invitation codes will not expire after use, otherwise they will expire after being used."
       },
+      "invite_code_max_uses": {
+        "title": "Reusable Invite Code Max Uses",
+        "description": "When never-expire invite codes are enabled, each code can be used at most this many times (0 = unlimited).",
+        "placeholder": "Enter max uses per code"
+      },
       "commission_first_time": {
         "title": "First-time Commission Only",
         "description": "When enabled, commission will only be generated on the first payment of the invitee, can be configured individually in user management."
@@ -1849,6 +1854,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "withdraw_close": {
         "title": "Disable Withdrawals",
         "description": "When enabled, users will be prohibited from requesting withdrawals, and invitation commissions will go directly to user balance."
+      },
+      "withdraw_ticket_stale_days": {
+        "title": "Stale Withdraw Ticket Days",
+        "description": "Withdraw tickets with no admin reply for this many days are auto-restored and closed by the scheduled task.",
+        "placeholder": "Days before auto-restore (default 14)"
       },
       "withdraw_fee_rate": {
         "title": "Withdrawal / Transfer Fee Rate",

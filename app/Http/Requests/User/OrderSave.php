@@ -17,6 +17,7 @@ class OrderSave extends FormRequest
         return [
             'plan_id' => 'required',
             'period' => 'required|in:' . implode(',', PlanService::allowedPeriodInputs()),
+            'coupon_code' => 'nullable|string|max:64',
         ];
     }
 

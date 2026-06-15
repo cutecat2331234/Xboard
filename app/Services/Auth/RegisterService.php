@@ -194,11 +194,16 @@ class RegisterService
                     $inviteUserId = $this->handleInviteCode($inviteCode);
                 }
 
+                if ((int) admin_setting('register_limit_by_ip_enable', 0)) {
+                    $this->assertRegisterIpAllowed($request->ip());
+                }
+
                 $userService = app(UserService::class);
                 $user = $userService->createUser([
                     'email' => $email,
                     'password' => $password,
                     'invite_user_id' => $inviteUserId,
+                    'register_ip' => $request->ip(),
                 ]);
 
                 if (!$user->save()) {
@@ -224,14 +229,44 @@ class RegisterService
         }
 
         if ($ok && (int) admin_setting('register_limit_by_ip_enable', 0)) {
-            $registerCountByIP = Cache::get(CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip())) ?? 0;
-            Cache::put(
-                CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip()),
-                (int) $registerCountByIP + 1,
-                (int) admin_setting('register_limit_expire', 60) * 60
-            );
+            $this->recordRegisterIpHit($request->ip());
         }
 
         return [$ok, $result];
+    }
+
+    /**
+     * Atomically reserve a registration slot for this IP inside the register transaction.
+     */
+    private function assertRegisterIpAllowed(string $ip): void
+    {
+        $key = CacheKey::get('REGISTER_IP_RATE_LIMIT', $ip);
+        $limit = (int) admin_setting('register_limit_count', 3);
+        $expireSeconds = (int) admin_setting('register_limit_expire', 60) * 60;
+
+        if (!Cache::has($key)) {
+            Cache::add($key, 0, $expireSeconds);
+        }
+        $count = (int) Cache::increment($key);
+        if ($count > $limit) {
+            throw new ApiException(
+                __('Register frequently, please try again after :minute minute', [
+                    'minute' => admin_setting('register_limit_expire', 60),
+                ]),
+                429
+            );
+        }
+    }
+
+    /**
+     * Extend TTL after successful registration (increment already counted in assertRegisterIpAllowed).
+     */
+    private function recordRegisterIpHit(string $ip): void
+    {
+        $key = CacheKey::get('REGISTER_IP_RATE_LIMIT', $ip);
+        $expireSeconds = (int) admin_setting('register_limit_expire', 60) * 60;
+        if (Cache::has($key)) {
+            Cache::put($key, (int) Cache::get($key, 1), $expireSeconds);
+        }
     }
 }
