@@ -548,5 +548,21 @@
     "Invalid online data": "Неверные данные онлайн-статуса",
     "Payment verification failed": "Ошибка проверки платежа",
     "Payment notify handling failed": "Ошибка обработки платёжного уведомления",
-    "Payment notify failed": "Ошибка платёжного уведомления"
+    "Payment notify failed": "Ошибка платёжного уведомления",
+    "Token cannot be empty": "Token не может быть пустым",
+    "Invalid token": "Недействительный token",
+    "Node ID is required": "Требуется ID узла",
+    "Node ID format is invalid": "Неверный формат ID узла",
+    "Server does not exist": "Server does not exist",
+    "Server is disabled": "Сервер отключён",
+    "Machine ID is required": "Требуется ID машины",
+    "Machine ID format is invalid": "Неверный формат ID машины",
+    "Machine not found or invalid token": "Машина не найдена или недействительный token",
+    "Machine is disabled": "Машина отключена",
+    "Machine not found or disabled": "Машина не найдена или отключена",
+    "Node not found on this machine": "Узел не найден на этой машине",
+    "CPU usage is required": "Требуется загрузка CPU",
+    "CPU usage format is invalid": "Неверный формат загрузки CPU",
+    "Memory total is required": "Требуется общий объём памяти",
+    "Memory used is required": "Требуется использованная память"
 }

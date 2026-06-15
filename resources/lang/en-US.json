@@ -584,5 +584,21 @@
     "Invalid online data": "Invalid online data",
     "Payment verification failed": "Payment verification failed",
     "Payment notify handling failed": "Payment notify handling failed",
-    "Payment notify failed": "Payment notify failed"
+    "Payment notify failed": "Payment notify failed",
+    "Token cannot be empty": "Token cannot be empty",
+    "Invalid token": "Invalid token",
+    "Node ID is required": "Node ID is required",
+    "Node ID format is invalid": "Node ID format is invalid",
+    "Server does not exist": "Server does not exist",
+    "Server is disabled": "Server is disabled",
+    "Machine ID is required": "Machine ID is required",
+    "Machine ID format is invalid": "Machine ID format is invalid",
+    "Machine not found or invalid token": "Machine not found or invalid token",
+    "Machine is disabled": "Machine is disabled",
+    "Machine not found or disabled": "Machine not found or disabled",
+    "Node not found on this machine": "Node not found on this machine",
+    "CPU usage is required": "CPU usage is required",
+    "CPU usage format is invalid": "CPU usage format is invalid",
+    "Memory total is required": "Memory total is required",
+    "Memory used is required": "Memory used is required"
 }

@@ -6,6 +6,7 @@ use App\Helpers\ResponseEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Passport\AuthForget;
 use App\Http\Requests\Passport\AuthLogin;
+use App\Http\Requests\Passport\AuthMailLink;
 use App\Http\Requests\Passport\AuthRegister;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\MailLinkService;
@@ -35,7 +36,7 @@ class AuthController extends Controller
     /**
      * 通过邮件链接登录
      */
-    public function loginWithMailLink(Request $request)
+    public function loginWithMailLink(AuthMailLink $request)
     {
         $captchaService = app(CaptchaService::class);
         [$captchaValid, $captchaError] = $captchaService->verify($request);
@@ -49,13 +50,8 @@ class AuthController extends Controller
         }
         RateLimiter::hit($rateKey, 60);
 
-        $params = $request->validate([
-            'email' => 'required|email:strict',
-            'redirect' => 'nullable'
-        ]);
-
         [$success, $result] = $this->mailLinkService->handleMailLink(
-            $params['email'],
+            $request->input('email'),
             $request->input('redirect')
         );
 

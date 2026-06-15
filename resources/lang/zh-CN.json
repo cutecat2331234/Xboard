@@ -582,5 +582,21 @@
     "Invalid online data": "在线数据无效",
     "Payment verification failed": "支付验证失败",
     "Payment notify handling failed": "支付回调处理失败",
-    "Payment notify failed": "支付回调失败"
+    "Payment notify failed": "支付回调失败",
+    "Token cannot be empty": "Token不能为空",
+    "Invalid token": "Token无效",
+    "Node ID is required": "节点ID不能为空",
+    "Node ID format is invalid": "节点ID格式不正确",
+    "Server does not exist": "节点不存在",
+    "Server is disabled": "节点已禁用",
+    "Machine ID is required": "机器ID不能为空",
+    "Machine ID format is invalid": "机器ID格式不正确",
+    "Machine not found or invalid token": "机器不存在或Token无效",
+    "Machine is disabled": "机器已禁用",
+    "Machine not found or disabled": "机器不存在或已禁用",
+    "Node not found on this machine": "该机器上未找到此节点",
+    "CPU usage is required": "CPU使用率不能为空",
+    "CPU usage format is invalid": "CPU使用率格式不正确",
+    "Memory total is required": "内存总量不能为空",
+    "Memory used is required": "内存使用量不能为空"
 }
