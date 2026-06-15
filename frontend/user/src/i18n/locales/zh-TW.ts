@@ -143,6 +143,8 @@ export default {
     giftCardCodeEmpty: '請輸入兌換碼',
     giftCardCodeMin: '兌換碼長度不能少於8位',
     giftCardCodeMax: '兌換碼長度不能超過32位',
+    tradeNoEmpty: '訂單號不能為空',
+    sessionIdEmpty: '會話ID不能為空',
     incorrectCredentials: "郵箱或密碼錯誤",
     accountSuspended: "該帳戶已被停止使用",
     passwordTooManyAttempts: "密碼錯誤次數過多，請 {minute} 分鐘後再試",

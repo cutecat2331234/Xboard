@@ -44,6 +44,8 @@ class UserController extends Controller
     {
         $request->validate([
             'session_id' => 'required|string',
+        ], [
+            'session_id.required' => __('Session ID cannot be empty'),
         ]);
         $user = $request->user();
         $authService = new AuthService($user);

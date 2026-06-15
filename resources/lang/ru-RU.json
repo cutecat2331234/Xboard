@@ -564,5 +564,11 @@
     "CPU usage is required": "Требуется загрузка CPU",
     "CPU usage format is invalid": "Неверный формат загрузки CPU",
     "Memory total is required": "Требуется общий объём памяти",
-    "Memory used is required": "Требуется использованная память"
+    "Memory used is required": "Требуется использованная память",
+    "Invalid node type specified": "Invalid node type specified",
+    "Trade number cannot be empty": "Trade number cannot be empty",
+    "Session ID cannot be empty": "Session ID cannot be empty",
+    "Invalid order status": "Invalid order status",
+    "Invalid pagination parameters": "Invalid pagination parameters",
+    "Page size cannot exceed 100": "Page size cannot exceed 100"
 }

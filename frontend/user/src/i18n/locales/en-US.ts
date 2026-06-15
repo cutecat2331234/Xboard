@@ -142,6 +142,8 @@ export default {
     giftCardCodeEmpty: 'Redemption code cannot be empty',
     giftCardCodeMin: 'Redemption code must be at least 8 characters',
     giftCardCodeMax: 'Redemption code cannot exceed 32 characters',
+    tradeNoEmpty: 'Trade number cannot be empty',
+    sessionIdEmpty: 'Session ID cannot be empty',
     couponPerUserLimit: "This coupon can only be used {limit} time(s) per person",
     couponNotStarted: "This coupon has not yet started",
     incorrectCredentials: 'Incorrect email or password',

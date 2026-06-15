@@ -1,6 +1,6 @@
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string
+import { resolveApiFailureMessage } from '@/lib/api-failure-message'
 
-/** Backend message (en key or zh-CN value) → frontend i18n key */
+type TranslateFn = (key: string, params?: Record<string, string | number>) => string
 const MESSAGE_MAP: Record<string, string> = {
   // Auth — login / register / mail link
   'Incorrect email or password': 'errors.incorrectCredentials',
@@ -219,6 +219,10 @@ const MESSAGE_MAP: Record<string, string> = {
   '兑换码长度不能少于8位': 'errors.giftCardCodeMin',
   'Redemption code cannot exceed 32 characters': 'errors.giftCardCodeMax',
   '兑换码长度不能超过32位': 'errors.giftCardCodeMax',
+  'Trade number cannot be empty': 'errors.tradeNoEmpty',
+  '订单号不能为空': 'errors.tradeNoEmpty',
+  'Session ID cannot be empty': 'errors.sessionIdEmpty',
+  '会话ID不能为空': 'errors.sessionIdEmpty',
   '该礼品卡类型已停用': 'errors.giftCardDisabled',
   '您不满足此礼品卡的使用条件': 'errors.giftCardIneligible',
   '您已达到此礼品卡的使用限制': 'errors.giftCardLimitReached',
@@ -292,10 +296,21 @@ function extractMessage(error: unknown): string {
   if (error && typeof error === 'object') {
     const e = error as {
       message?: string
-      response?: { data?: { message?: string | string[] } }
+      response?: { data?: { message?: string | string[]; error?: Record<string, string[] | string> | null; status?: string } }
     }
-    const dataMsg = e.response?.data?.message
-    if (dataMsg) return Array.isArray(dataMsg) ? dataMsg[0] : dataMsg
+    const payload = e.response?.data
+    if (payload) {
+      const resolved = resolveApiFailureMessage(
+        {
+          status: (payload.status as 'success' | 'fail') ?? 'fail',
+          message: Array.isArray(payload.message) ? payload.message[0] ?? '' : (payload.message ?? ''),
+          data: null,
+          error: payload.error ?? null,
+        },
+        '',
+      )
+      if (resolved) return resolved
+    }
     if (e.message) return e.message
   }
   return ''

@@ -63,6 +63,9 @@ class UserController extends Controller
     {
         $request->validate([
             'id' => 'required|integer|exists:v2_user,id',
+        ], [
+            'id.required' => __('User ID cannot be empty'),
+            'id.exists' => __('The user does not exist'),
         ]);
 
         $user = User::find($request->input('id'));
