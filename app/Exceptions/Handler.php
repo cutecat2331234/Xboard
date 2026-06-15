@@ -6,6 +6,7 @@ use App\Helpers\ApiResponse;
 use App\Services\Plugin\InterceptResponseException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\ViewException;
 use Throwable;
 
@@ -60,6 +61,9 @@ class Handler extends ExceptionHandler
         if ($exception instanceof ViewException) {
             return $this->fail([500, __('Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again.')]);
         }
+        if ($exception instanceof BusinessException) {
+            return $this->fail([$exception->getCode(), $exception->getMessage()]);
+        }
         // ApiException主动抛出错误
         if ($exception instanceof ApiException) {
             $code = $exception->getCode();
@@ -68,6 +72,22 @@ class Handler extends ExceptionHandler
             return $this->fail([$code, $message],null,$errors);
         }
         return parent::render($request, $exception);
+    }
+
+    /**
+     * Convert a validation exception into a JSON response.
+     */
+    protected function invalidJson($request, ValidationException $exception)
+    {
+        $errors = $exception->errors();
+        $message = collect($errors)->flatten()->first() ?: $exception->getMessage();
+
+        return response()->json([
+            'status' => 'fail',
+            'message' => $message,
+            'data' => null,
+            'error' => $errors,
+        ], $exception->status);
     }
 
     /**

@@ -543,5 +543,10 @@
     "Incorrect account or password": "Неверный аккаунт или пароль",
     "Insufficient points": "Недостаточно баллов",
     "Plugin is not enabled": "Плагин не включён",
-    "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again.": "Ошибка рендеринга темы. Если вы обновили тему, настройки могли измениться — перенастройте тему и попробуйте снова."
+    "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again.": "Ошибка рендеринга темы. Если вы обновили тему, настройки могли измениться — перенастройте тему и попробуйте снова.",
+    "Invalid data format": "Неверный формат данных",
+    "Invalid online data": "Неверные данные онлайн-статуса",
+    "Payment verification failed": "Ошибка проверки платежа",
+    "Payment notify handling failed": "Ошибка обработки платёжного уведомления",
+    "Payment notify failed": "Ошибка платёжного уведомления"
 }

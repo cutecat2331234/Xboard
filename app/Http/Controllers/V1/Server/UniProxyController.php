@@ -42,7 +42,7 @@ class UniProxyController extends Controller
     {
         $res = json_decode(request()->getContent(), true);
         if (!is_array($res)) {
-            return $this->fail([422, 'Invalid data format']);
+            return $this->fail([422, __('Invalid data format')]);
         }
 
         $node = $this->getNodeInfo($request);
@@ -85,7 +85,7 @@ class UniProxyController extends Controller
         $node = $this->getNodeInfo($request);
         $data = json_decode(request()->getContent(), true);
         if ($data === null) {
-            return response()->json(['error' => 'Invalid online data'], 400);
+            return response()->json(['error' => __('Invalid online data')], 400);
         }
 
         ServerService::processAlive($node, $data);

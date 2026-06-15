@@ -119,9 +119,7 @@ class AuthController extends Controller
         if ($token = $request->input('token')) {
             $rateKey = 'token2login-redirect:' . $request->ip();
             if (RateLimiter::tooManyAttempts($rateKey, 60)) {
-                return response()->json([
-                    'message' => __('Too many attempts'),
-                ], 429);
+                return $this->fail([429, __('Too many attempts')]);
             }
             RateLimiter::hit($rateKey, 60);
 
@@ -139,26 +137,20 @@ class AuthController extends Controller
         if ($verify = $request->input('verify')) {
             $rateKey = 'token2login:' . $request->ip();
             if (RateLimiter::tooManyAttempts($rateKey, 30)) {
-                return response()->json([
-                    'message' => __('Too many attempts')
-                ], 429);
+                return $this->fail([429, __('Too many attempts')]);
             }
             RateLimiter::hit($rateKey, 60);
 
             $userId = $this->mailLinkService->handleTokenLogin($verify);
 
             if (!$userId) {
-                return response()->json([
-                    'message' => __('Token error')
-                ], 400);
+                return $this->fail([400, __('Token error')]);
             }
 
             $user = \App\Models\User::find($userId);
 
             if (!$user) {
-                return response()->json([
-                    'message' => __('User not found')
-                ], 400);
+                return $this->fail([400, __('User not found')]);
             }
 
             $user->last_login_at = time();
@@ -173,9 +165,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json([
-            'message' => __('Invalid request')
-        ], 400);
+        return $this->fail([400, __('Invalid request')]);
     }
 
     /**
@@ -186,23 +176,13 @@ class AuthController extends Controller
         $authorization = $request->input('auth_data') ?? $request->header('authorization');
 
         if (!$authorization) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => __(ResponseEnum::CLIENT_HTTP_UNAUTHORIZED[1]),
-                'data' => null,
-                'error' => null,
-            ], 401);
+            return $this->fail(ResponseEnum::CLIENT_HTTP_UNAUTHORIZED);
         }
 
         $user = AuthService::findUserByBearerToken($authorization);
 
         if (!$user) {
-            return response()->json([
-                'status' => 'fail',
-                'message' => __(ResponseEnum::CLIENT_HTTP_UNAUTHORIZED_EXPIRED[1]),
-                'data' => null,
-                'error' => null,
-            ], 401);
+            return $this->fail(ResponseEnum::CLIENT_HTTP_UNAUTHORIZED_EXPIRED);
         }
 
         $rateKey = 'passport-quick-login:' . $user->id;
