@@ -7,6 +7,7 @@ use App\Http\Requests\User\UserChangePassword;
 use App\Http\Requests\User\UserTransfer;
 use App\Http\Requests\User\UserUpdate;
 use App\Models\Order;
+use App\Http\Resources\PlanResource;
 use App\Models\Plan;
 use App\Models\Ticket;
 use App\Models\User;
@@ -166,10 +167,11 @@ class UserController extends Controller
             return $this->fail([400, __('The user does not exist')]);
         }
         if ($user->plan_id) {
-            $user['plan'] = Plan::find($user->plan_id);
-            if (!$user['plan']) {
+            $plan = Plan::find($user->plan_id);
+            if (!$plan) {
                 return $this->fail([400, __('Subscription plan does not exist')]);
             }
+            $user['plan'] = PlanResource::make($plan);
         }
         $user['subscribe_url'] = Helper::getSubscribeUrl($user['token']);
         $userService = new UserService();
@@ -220,6 +222,11 @@ class UserController extends Controller
         if ((int) admin_setting('withdraw_close_enable', 0)) {
             return $this->fail([400, __('Unsupported withdraw')]);
         }
+        $rateKey = 'commission-transfer:' . $request->user()->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($rateKey, 60);
         $amount = $request->input('transfer_amount');
         try {
             DB::transaction(function () use ($request, $amount) {

@@ -139,6 +139,40 @@ const periodLabel = computed(() => {
 
 })
 
+const orderTypeLabel = computed(() => {
+  const type = order.value?.type
+  if (!type) return ''
+  const keyByType: Record<number, string> = {
+    1: 'order.typeNew',
+    2: 'order.typeRenew',
+    3: 'order.typeUpgrade',
+    4: 'order.typeReset',
+  }
+  const key = keyByType[type]
+  return key ? t(key) : String(type)
+})
+
+function resetCheckoutState() {
+  stopPoll()
+  qrOpen.value = false
+  qrDataUrl.value = ''
+  methods.value = []
+  selectedMethod.value = null
+  selectedMethodIndex.value = 0
+  paying.value = false
+  pollFailures = 0
+}
+
+async function copyTradeNo() {
+  if (!order.value?.trade_no) return
+  try {
+    await navigator.clipboard.writeText(order.value.trade_no)
+    msg.success(t('order.tradeNoCopied'))
+  } catch {
+    msg.error(t('errors.requestFailed'))
+  }
+}
+
 
 
 const periodPlanPrice = computed(() => {
@@ -565,7 +599,7 @@ onMounted(async () => {
 watch(
   () => route.params.trade_no,
   () => {
-    stopPoll()
+    resetCheckoutState()
     void load()
   },
 )
@@ -645,7 +679,18 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.tradeNo') }}：</div>
 
-          <div class="info-value">{{ order.trade_no }}</div>
+          <div class="info-value trade-no-row">
+            <span>{{ order.trade_no }}</span>
+            <n-button size="tiny" tertiary @click="copyTradeNo">{{ t('order.copyTradeNo') }}</n-button>
+          </div>
+
+        </div>
+
+        <div v-if="orderTypeLabel" class="info-row">
+
+          <div class="info-label">{{ t('order.orderType') }}：</div>
+
+          <div class="info-value">{{ orderTypeLabel }}</div>
 
         </div>
 
@@ -988,6 +1033,13 @@ onUnmounted(stopPoll)
 
   word-break: break-all;
 
+}
+
+.trade-no-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
 .try-out-alert {

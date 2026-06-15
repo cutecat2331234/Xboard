@@ -320,6 +320,7 @@ export default {
   order: {
     listTradeNo: 'Order Number #',
     tradeNo: 'Order Number',
+    orderType: 'Order Type',
     copyTradeNo: 'Copy order no.',
     tradeNoCopied: 'Order no. copied',
     period: 'Type / Cycle',

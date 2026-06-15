@@ -606,7 +606,7 @@ class OrderService
             return Carbon::createFromTimestamp($timestamp)->addMonths($months)->timestamp;
         }
 
-        throw new ApiException('无效的套餐周期');
+        throw new ApiException(__('Invalid plan period'));
     }
 
     private function openEvent($eventId)

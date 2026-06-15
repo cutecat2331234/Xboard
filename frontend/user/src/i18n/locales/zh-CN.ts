@@ -312,6 +312,7 @@ export default {
   order: {
     listTradeNo: '# 订单号',
     tradeNo: '订单号',
+    orderType: '订单类型',
     copyTradeNo: '复制订单号',
     tradeNoCopied: '订单号已复制',
     period: '周期',

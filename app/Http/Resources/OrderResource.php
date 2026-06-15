@@ -19,7 +19,6 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
             'plan_id' => $this->plan_id,
             'payment_id' => $this->payment_id,
             'period' => PlanService::getLegacyPeriod((string) $this->period),

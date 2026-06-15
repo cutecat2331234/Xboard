@@ -142,7 +142,7 @@ class TicketController extends Controller
             DB::transaction(function () use ($ticket) {
                 $locked = Ticket::where('id', $ticket->id)->lockForUpdate()->first();
                 if (!$locked || (int) $locked->status !== Ticket::STATUS_OPENING) {
-                    throw new \RuntimeException('Already closed');
+                    throw new \RuntimeException(__('The ticket is closed'));
                 }
                 $firstMessage = TicketMessage::where('ticket_id', $locked->id)
                     ->orderBy('id')
@@ -152,7 +152,7 @@ class TicketController extends Controller
                 }
                 $locked->status = Ticket::STATUS_CLOSED;
                 if (!$locked->save()) {
-                    throw new \RuntimeException('Close failed');
+                    throw new \RuntimeException(__('Close failed'));
                 }
             });
         } catch (\RuntimeException $e) {
