@@ -44,11 +44,14 @@ trait ApiResponse
     private function jsonResponse($status, $codeResponse, $data, $error): JsonResponse
     {
         list($code, $message) = $codeResponse;
+        if (is_array($message)) {
+            $message = $message[1] ?? (string) ($message[0] ?? '');
+        }
         return response()
             ->json([
                 'status' => $status,
                 // 'code'    => $code,
-                'message' => $message,
+                'message' => __($message),
                 'data' => $data ?? null,
                 'error' => $error,
             ], (int) substr(((string) $code), 0, 3));

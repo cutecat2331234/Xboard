@@ -19,7 +19,7 @@ abstract class PluginController extends Controller
     protected function beforePluginAction(): ?array
     {
         if (!$this->isPluginEnabled()) {
-            return [400, '插件未启用'];
+            return [400, __('Plugin is not enabled')];
         }
         return null;
     }

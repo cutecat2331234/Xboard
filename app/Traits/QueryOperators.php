@@ -20,7 +20,7 @@ trait QueryOperators
             'gte' => '>=',
             'lt' => '<',
             'lte' => '<=',
-            'like' => 'like',
+            'like', '模糊' => 'like',
             'notlike' => 'not like',
             'null' => 'null',
             'notnull' => 'notnull',
@@ -38,7 +38,7 @@ trait QueryOperators
     protected function formatQueryValue(string $operator, mixed $value): mixed
     {
         return match (strtolower($operator)) {
-            'like', 'notlike' => "%{$value}%",
+            'like', 'notlike', '模糊' => "%{$value}%",
             'null', 'notnull' => null,
             default => $value
         };
