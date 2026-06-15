@@ -600,5 +600,11 @@
     "CPU usage is required": "CPU usage is required",
     "CPU usage format is invalid": "CPU usage format is invalid",
     "Memory total is required": "Memory total is required",
-    "Memory used is required": "Memory used is required"
+    "Memory used is required": "Memory used is required",
+    "Invalid node type specified": "Invalid node type specified",
+    "Trade number cannot be empty": "Trade number cannot be empty",
+    "Session ID cannot be empty": "Session ID cannot be empty",
+    "Invalid order status": "Invalid order status",
+    "Invalid pagination parameters": "Invalid pagination parameters",
+    "Page size cannot exceed 100": "Page size cannot exceed 100"
 }

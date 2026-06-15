@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { ApiResponse } from '@/types/settings'
+import { resolveApiFailureMessage } from '@/lib/api-failure-message'
 import { getRouterBase } from '@/utils/settings'
 import { shouldForceLogoutOn403 } from '@/lib/auth-forbidden'
 import { invalidateSessionCache } from '@/lib/session-cache'
@@ -58,7 +59,7 @@ export function getAuthData(): string | null {
 export async function request<T>(promise: Promise<{ data: ApiResponse<T> }>): Promise<T> {
   const { data } = await promise
   if (data.status !== 'success') {
-    throw new Error(data.message || 'Request failed')
+    throw new Error(resolveApiFailureMessage(data, 'Request failed'))
   }
   return data.data
 }

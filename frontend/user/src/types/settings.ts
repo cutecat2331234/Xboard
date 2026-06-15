@@ -23,5 +23,5 @@ export interface ApiResponse<T = unknown> {
   status: 'success' | 'fail'
   message: string
   data: T
-  error?: unknown
+  error?: Record<string, string[] | string> | null
 }

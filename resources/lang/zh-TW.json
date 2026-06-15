@@ -564,5 +564,11 @@
     "CPU usage is required": "CPU使用率不能為空",
     "CPU usage format is invalid": "CPU使用率格式不正確",
     "Memory total is required": "記憶體總量不能為空",
-    "Memory used is required": "記憶體使用量不能為空"
+    "Memory used is required": "記憶體使用量不能為空",
+    "Invalid node type specified": "節點類型無效",
+    "Trade number cannot be empty": "訂單號不能為空",
+    "Session ID cannot be empty": "會話ID不能為空",
+    "Invalid order status": "訂單狀態無效",
+    "Invalid pagination parameters": "分頁參數無效",
+    "Page size cannot exceed 100": "每頁數量不能超過100"
 }

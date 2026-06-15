@@ -20,7 +20,7 @@ class Server
                 'string', 'required',
                 function ($attribute, $value, $fail) {
                     if ($value !== admin_setting('server_token')) {
-                        $fail("Invalid {$attribute}");
+                        $fail(__('Invalid token'));
                     }
                 },
             ],
@@ -32,12 +32,15 @@ class Server
                         $value = null;
                     }
                     if (!ServerModel::isValidType($value)) {
-                        $fail('Invalid node type specified');
+                        $fail(__('Invalid node type specified'));
                         return;
                     }
                     $request->merge([$attribute => ServerModel::normalizeType($value)]);
                 },
-            ]
+            ],
+        ], [
+            'token.required' => __('Token cannot be empty'),
+            'node_id.required' => __('Node ID is required'),
         ]);
 
         $nodeType = $request->input('node_type', $nodeType);
@@ -47,7 +50,7 @@ class Server
             $normalizedNodeType
         );
         if (!$serverInfo) {
-            throw new ApiException('Server does not exist');
+            throw new ApiException(__('Server does not exist'));
         }
 
         $request->attributes->set('node_info', $serverInfo);

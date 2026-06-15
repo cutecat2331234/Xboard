@@ -28,6 +28,11 @@ class OrderController extends Controller
             'status' => 'nullable|integer|in:0,1,2,3,4',
             'current' => 'nullable|integer|min:1',
             'page_size' => 'nullable|integer|min:1|max:100',
+        ], [
+            'status.in' => __('Invalid order status'),
+            'current.min' => __('Invalid pagination parameters'),
+            'page_size.min' => __('Invalid pagination parameters'),
+            'page_size.max' => __('Page size cannot exceed 100'),
         ]);
 
         $current = max(1, (int) $request->input('current', 1));
@@ -55,6 +60,8 @@ class OrderController extends Controller
     {
         $request->validate([
             'trade_no' => 'required|string',
+        ], [
+            'trade_no.required' => __('Trade number cannot be empty'),
         ]);
         $order = Order::with(['payment', 'plan'])
             ->where('user_id', $request->user()->id)
@@ -86,11 +93,6 @@ class OrderController extends Controller
 
     public function save(OrderSave $request)
     {
-        $request->validate([
-            'plan_id' => 'required|exists:App\Models\Plan,id',
-            'period' => 'required|string'
-        ]);
-
         $user = User::findOrFail($request->user()->id);
         $userService = app(UserService::class);
 
@@ -115,6 +117,8 @@ class OrderController extends Controller
             'trade_no' => 'required|string',
             'method' => 'nullable|integer',
             'token' => 'nullable|string',
+        ], [
+            'trade_no.required' => __('Trade number cannot be empty'),
         ]);
 
         $tradeNo = $request->input('trade_no');
@@ -280,6 +284,8 @@ class OrderController extends Controller
     {
         $request->validate([
             'trade_no' => 'required|string|max:64',
+        ], [
+            'trade_no.required' => __('Trade number cannot be empty'),
         ]);
         $tradeNo = $request->input('trade_no');
         $order = Order::where('trade_no', $tradeNo)
@@ -312,6 +318,8 @@ class OrderController extends Controller
     {
         $request->validate([
             'trade_no' => 'required|string',
+        ], [
+            'trade_no.required' => __('Trade number cannot be empty'),
         ]);
         try {
             return DB::transaction(function () use ($request) {
