@@ -38,10 +38,19 @@ class CommController extends Controller
             'coupon_enable' => (int) AppFeature::couponEnabled(),
             'register_enable' => (int) AppFeature::registerEnabled(),
             'ticket_enable' => (int) AppFeature::ticketEnabled(),
-            'knowledge_enable' => (int) admin_setting('app_enable_knowledge_base', 1),
-            'traffic_log_enable' => (int) admin_setting('app_enable_traffic_log', 1),
-            'announcement_enable' => (int) admin_setting('app_enable_announcements', 1),
+            'knowledge_enable' => (int) AppFeature::knowledgeEnabled(),
+            'traffic_log_enable' => (int) AppFeature::trafficLogEnabled(),
+            'announcement_enable' => (int) AppFeature::announcementsEnabled(),
         ];
+        if (!AppFeature::commissionEnabled()) {
+            $data['withdraw_methods'] = [];
+            $data['withdraw_fee_rate'] = 0;
+            $data['commission_withdraw_limit'] = 0;
+            $data['commission_distribution_enable'] = 0;
+            $data['commission_distribution_l1'] = null;
+            $data['commission_distribution_l2'] = null;
+            $data['commission_distribution_l3'] = null;
+        }
         return $this->success($data);
     }
 

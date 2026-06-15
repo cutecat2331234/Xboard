@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\V1\User;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\TicketSave;
 use App\Http\Requests\User\TicketWithdraw;
@@ -33,7 +34,10 @@ class TicketController extends Controller
                 return $this->fail([400, __('Ticket does not exist')]);
             }
             $ticket->load('message');
-            $ticket['message'] = TicketMessage::where('ticket_id', $ticket->id)->get();
+            $ticket['message'] = TicketMessage::where('ticket_id', $ticket->id)
+                ->orderBy('id')
+                ->limit(500)
+                ->get();
             $ticket['message']->each(function ($message) use ($ticket) {
                 $message['is_me'] = ($message['user_id'] == $ticket->user_id);
             });
@@ -253,6 +257,8 @@ class TicketController extends Controller
 
                 return $this->success(true);
             });
+        } catch (ApiException $e) {
+            return $this->fail([422, $e->getMessage()]);
         } catch (\Exception $e) {
             Log::error('Withdraw ticket failed', ['error' => $e->getMessage()]);
             return $this->fail([500, __('Request failed, please try again later')]);
