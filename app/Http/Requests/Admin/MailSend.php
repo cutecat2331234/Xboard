@@ -24,11 +24,11 @@ class MailSend extends FormRequest
     public function messages()
     {
         return [
-            'type.required' => '发送类型不能为空',
-            'type.in' => '发送类型格式有误',
-            'subject.required' => '主题不能为空',
-            'content.required' => '内容不能为空',
-            'receiver.array' => '收件人格式有误'
+            'type.required' => __('Send type cannot be empty'),
+            'type.in' => __('Send type format is invalid'),
+            'subject.required' => __('Email subject cannot be empty'),
+            'content.required' => __('Content cannot be empty'),
+            'receiver.array' => __('Recipients must be an array'),
         ];
     }
 }
