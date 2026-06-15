@@ -2952,7 +2952,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     }
   },
   "coupon": {
-    "notFound": "优惠券不存在"
+    "notFound": "优惠券不存在",
+    "idRequired": "优惠券ID不能为空",
+    "idNumeric": "优惠券ID必须为数字"
   },
   "user": {
     "manage": {
@@ -2967,12 +2969,14 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "failed": "删除失败"
     },
     "generate": {
-      "missingParams": "请提供 email_prefix 或 generate_count"
+      "missingParams": "请提供 email_prefix 或 generate_count",
+      "failed": "用户生成失败"
     },
     "invite": {
       "selfInviter": "不能将自己设为邀请人",
       "cycleDetected": "邀请链存在循环，无法设置",
-      "inviterBanned": "邀请人已被封禁，无法设置"
+      "inviterBanned": "邀请人已被封禁，无法设置",
+      "inviterNotFound": "邀请人不存在"
     },
     "edit": {
       "negativeBalance": "余额不能为负数",
@@ -3754,7 +3758,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "templateDisabled": "该礼品卡类型已停用",
       "deleteFailed": "删除失败",
       "updateFailed": "更新失败",
-      "templateHasCodes": "该模板下存在兑换码，无法删除"
+      "templateHasCodes": "该模板下存在兑换码，无法删除",
+      "codeUsedEnable": "兑换码已使用，无法启用",
+      "codeResetUnused": "兑换码不可改回未使用",
+      "maxUsageBelowCount": "最大使用次数不能小于已使用次数",
+      "usedCodeDelete": "已使用的礼品卡不可删除",
+      "codeHasUsage": "礼品卡存在使用记录，不可删除"
     }
   },
   "knowledge": {

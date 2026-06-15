@@ -2926,7 +2926,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     }
   },
   "coupon": {
-    "notFound": "Coupon not found."
+    "notFound": "Coupon not found.",
+    "idRequired": "Coupon ID is required.",
+    "idNumeric": "Coupon ID must be numeric."
   },
   "user": {
     "manage": {
@@ -2941,12 +2943,14 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "failed": "Failed to delete user."
     },
     "generate": {
-      "missingParams": "Provide email_prefix or generate_count."
+      "missingParams": "Provide email_prefix or generate_count.",
+      "failed": "User generation failed."
     },
     "invite": {
       "selfInviter": "Cannot set yourself as inviter.",
       "cycleDetected": "Invite chain cycle detected.",
-      "inviterBanned": "The inviter is banned and cannot be set."
+      "inviterBanned": "The inviter is banned and cannot be set.",
+      "inviterNotFound": "Inviter does not exist."
     },
     "edit": {
       "negativeBalance": "Balance cannot be negative.",
@@ -3728,7 +3732,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "templateDisabled": "This gift card type is disabled",
       "deleteFailed": "Delete failed",
       "updateFailed": "Update failed",
-      "templateHasCodes": "Cannot delete: this template still has redemption codes"
+      "templateHasCodes": "Cannot delete: this template still has redemption codes",
+      "codeUsedEnable": "This code has been used and cannot be enabled",
+      "codeResetUnused": "Redemption code cannot be reset to unused",
+      "maxUsageBelowCount": "Max usage cannot be less than the current usage count",
+      "usedCodeDelete": "Used gift cards cannot be deleted",
+      "codeHasUsage": "Cannot delete: this gift card has usage records"
     }
   },
   "knowledge": {

@@ -1588,6 +1588,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "title": "Управление купонами",
     "description": "Здесь вы можете управлять купонами на скидку, включая их добавление, просмотр и удаление.",
     "notFound": "Купон не найден",
+    "idRequired": "ID купона не может быть пустым",
+    "idNumeric": "ID купона должен быть числом",
     "table": {
       "columns": {
         "id": "ID",
@@ -2878,12 +2880,14 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "failed": "Не удалось удалить пользователя"
     },
     "generate": {
-      "missingParams": "Укажите email_prefix или generate_count"
+      "missingParams": "Укажите email_prefix или generate_count",
+      "failed": "Не удалось создать пользователя"
     },
     "invite": {
       "selfInviter": "Нельзя указать себя в качестве пригласившего",
       "cycleDetected": "Обнаружен цикл в цепочке приглашений",
-      "inviterBanned": "Пригласивший заблокирован и не может быть назначен"
+      "inviterBanned": "Пригласивший заблокирован и не может быть назначен",
+      "inviterNotFound": "Пригласивший не существует"
     },
     "edit": {
       "negativeBalance": "Баланс не может быть отрицательным",
@@ -3591,6 +3595,21 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "daily": {
         "title": "Использование за день"
       }
+    },
+    "messages": {
+      "createFailed": "Не удалось создать",
+      "templateNotFound": "Шаблон не найден",
+      "codeExpiredEnable": "Срок действия кода истёк, включить нельзя",
+      "codeNotFound": "Код активации не найден",
+      "templateDisabled": "Этот тип подарочной карты отключён",
+      "deleteFailed": "Не удалось удалить",
+      "updateFailed": "Не удалось обновить",
+      "templateHasCodes": "Нельзя удалить: у шаблона есть коды активации",
+      "codeUsedEnable": "Использованный код нельзя включить",
+      "codeResetUnused": "Код нельзя вернуть в статус «не использован»",
+      "maxUsageBelowCount": "Макс. использований не может быть меньше текущего числа",
+      "usedCodeDelete": "Использованную карту нельзя удалить",
+      "codeHasUsage": "Нельзя удалить: есть записи об использовании"
     }
   },
   "knowledge": {

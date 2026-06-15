@@ -131,7 +131,7 @@ class GiftCardController extends Controller
                 'data' => $request->all(),
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '创建失败']);
+            return $this->fail([500, __('Create failed')]);
         }
     }
 
@@ -163,7 +163,7 @@ class GiftCardController extends Controller
 
         $template = GiftCardTemplate::find($validatedData['id']);
         if (!$template) {
-            return $this->fail([404, '模板不存在']);
+            return $this->fail([404, __('Gift card template does not exist')]);
         }
 
         $rewardType = (int) ($validatedData['type'] ?? $template->type);
@@ -193,7 +193,7 @@ class GiftCardController extends Controller
                 'template_id' => $template->id,
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '更新失败']);
+            return $this->fail([500, __('Update failed')]);
         }
     }
 
@@ -206,26 +206,29 @@ class GiftCardController extends Controller
             'id' => 'required|integer|exists:v2_gift_card_template,id',
         ]);
 
-        $template = GiftCardTemplate::find($request->input('id'));
-        if (!$template) {
-            return $this->fail([404, '模板不存在']);
-        }
-
-        // 检查是否有关联的兑换码
-        if ($template->codes()->exists()) {
-            return $this->fail([400, '该模板下存在兑换码，无法删除']);
-        }
-
         try {
-            $template->delete();
-            return $this->success(true);
+            return DB::transaction(function () use ($request) {
+                $template = GiftCardTemplate::where('id', $request->input('id'))
+                    ->lockForUpdate()
+                    ->first();
+                if (!$template) {
+                    return $this->fail([404, __('Gift card template does not exist')]);
+                }
+
+                if ($template->codes()->exists()) {
+                    return $this->fail([400, __('Template has existing codes and cannot be deleted')]);
+                }
+
+                $template->delete();
+                return $this->success(true);
+            });
         } catch (\Exception $e) {
             Log::error('删除礼品卡模板失败', [
                 'admin_id' => $request->user()->id,
-                'template_id' => $template->id,
+                'template_id' => $request->input('id'),
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '删除失败']);
+            return $this->fail([500, __('Delete failed')]);
         }
     }
 
@@ -249,7 +252,7 @@ class GiftCardController extends Controller
 
         $template = GiftCardTemplate::find($request->input('template_id'));
         if (!$template->isAvailable()) {
-            return $this->fail([400, '模板已被禁用']);
+            return $this->fail([400, __('This gift card type is disabled')]);
         }
 
         try {
@@ -337,7 +340,6 @@ class GiftCardController extends Controller
             return $this->success([
                 'batch_id' => $batchId,
                 'count' => $request->input('count'),
-                'message' => '生成成功',
             ]);
         } catch (\Exception $e) {
             Log::error('生成兑换码失败', [
@@ -345,7 +347,7 @@ class GiftCardController extends Controller
                 'data' => $request->all(),
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '生成失败']);
+            return $this->fail([500, __('Generation failed')]);
         }
     }
 
@@ -415,7 +417,7 @@ class GiftCardController extends Controller
 
         $code = GiftCardCode::find($request->input('id'));
         if (!$code) {
-            return $this->fail([404, '兑换码不存在']);
+            return $this->fail([404, __('Redemption code does not exist')]);
         }
 
         try {
@@ -423,22 +425,20 @@ class GiftCardController extends Controller
                 $code->markAsDisabled();
             } else {
                 if ($code->status === GiftCardCode::STATUS_USED) {
-                    return $this->fail([400, '兑换码已使用，无法启用']);
+                    return $this->fail([400, __('Redemption code used cannot be enabled')]);
                 }
                 if ($code->status === GiftCardCode::STATUS_DISABLED) {
                     if ($code->expires_at && $code->expires_at < time()) {
-                        return $this->fail([400, '兑换码已过期，无法启用']);
+                        return $this->fail([400, __('Redemption code expired cannot be enabled')]);
                     }
                     $code->status = GiftCardCode::STATUS_UNUSED;
                     $code->save();
                 }
             }
 
-            return $this->success([
-                'message' => $request->input('action') === 'disable' ? '已禁用' : '已启用',
-            ]);
+            return $this->success(true);
         } catch (\Exception $e) {
-            return $this->fail([500, '操作失败']);
+            return $this->fail([500, __('Operation failed')]);
         }
     }
 
@@ -586,7 +586,7 @@ class GiftCardController extends Controller
 
         $code = GiftCardCode::find($validatedData['id']);
         if (!$code) {
-            return $this->fail([404, '礼品卡不存在']);
+            return $this->fail([404, __('Redemption code does not exist')]);
         }
 
         try {
@@ -598,12 +598,12 @@ class GiftCardController extends Controller
 
             if (isset($updateData['status']) && (int) $updateData['status'] === GiftCardCode::STATUS_UNUSED) {
                 if ((int) $code->usage_count > 0 || (int) $code->status === GiftCardCode::STATUS_USED) {
-                    return $this->fail([400, '该兑换码已有使用记录，无法改回未使用状态']);
+                    return $this->fail([400, __('Redemption code cannot be reset to unused')]);
                 }
             }
 
             if (isset($updateData['max_usage']) && (int) $updateData['max_usage'] < (int) $code->usage_count) {
-                return $this->fail([400, '最大使用次数不能小于已使用次数']);
+                return $this->fail([400, __('Max usage cannot be less than usage count')]);
             }
 
             $updateData['updated_at'] = time();
@@ -616,7 +616,7 @@ class GiftCardController extends Controller
                 'code_id' => $code->id,
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '更新失败']);
+            return $this->fail([500, __('Update failed')]);
         }
     }
 
@@ -629,31 +629,33 @@ class GiftCardController extends Controller
             'id' => 'required|integer|exists:v2_gift_card_code,id',
         ]);
 
-        $code = GiftCardCode::find($request->input('id'));
-        if (!$code) {
-            return $this->fail([404, '礼品卡不存在']);
-        }
-
-        // 检查是否已被使用
-        if ($code->status === GiftCardCode::STATUS_USED) {
-            return $this->fail([400, '该礼品卡已被使用，无法删除']);
-        }
-
         try {
-            // 检查是否有关联的使用记录
-            if ($code->usages()->exists()) {
-                return $this->fail([400, '该礼品卡存在使用记录，无法删除']);
-            }
+            return DB::transaction(function () use ($request) {
+                $code = GiftCardCode::where('id', $request->input('id'))
+                    ->lockForUpdate()
+                    ->first();
+                if (!$code) {
+                    return $this->fail([404, __('Redemption code does not exist')]);
+                }
 
-            $code->delete();
-            return $this->success(['message' => '删除成功']);
+                if ($code->status === GiftCardCode::STATUS_USED) {
+                    return $this->fail([400, __('Used gift card cannot be deleted')]);
+                }
+
+                if ($code->usages()->exists()) {
+                    return $this->fail([400, __('Gift card has usage records and cannot be deleted')]);
+                }
+
+                $code->delete();
+                return $this->success(true);
+            });
         } catch (\Exception $e) {
             Log::error('删除礼品卡失败', [
                 'admin_id' => $request->user()->id,
-                'code_id' => $code->id,
+                'code_id' => $request->input('id'),
                 'error' => $e->getMessage(),
             ]);
-            return $this->fail([500, '删除失败']);
+            return $this->fail([500, __('Delete failed')]);
         }
     }
 }

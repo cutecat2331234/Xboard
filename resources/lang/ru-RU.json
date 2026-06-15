@@ -176,5 +176,18 @@
     "Generation failed": "Ошибка генерации",
     "User IDs cannot be empty": "user_ids не может быть пустым",
     "Provide email_prefix or generate_count": "Укажите email_prefix или generate_count",
-    "Processing failed": "Ошибка обработки"
+    "Processing failed": "Ошибка обработки",
+    "Template has existing codes and cannot be deleted": "Нельзя удалить шаблон: есть связанные коды",
+    "Redemption code used cannot be enabled": "Использованный код нельзя включить",
+    "Redemption code expired cannot be enabled": "Просроченный код нельзя включить",
+    "Operation failed": "Операция не выполнена",
+    "Redemption code cannot be reset to unused": "Код нельзя вернуть в статус «не использован»",
+    "Max usage cannot be less than usage count": "Макс. использований не может быть меньше текущего числа",
+    "Used gift card cannot be deleted": "Использованную подарочную карту нельзя удалить",
+    "Gift card has usage records and cannot be deleted": "Нельзя удалить карту: есть записи об использовании",
+    "Coupon does not exist": "Купон не существует",
+    "Coupon ID cannot be empty": "ID купона не может быть пустым",
+    "Coupon ID must be numeric": "ID купона должен быть числом",
+    "Inviter does not exist": "Пригласивший не существует",
+    "User ID cannot be empty": "ID пользователя не может быть пустым"
 }

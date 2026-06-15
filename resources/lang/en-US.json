@@ -212,5 +212,18 @@
     "Generation failed": "Generation failed",
     "User IDs cannot be empty": "User IDs cannot be empty",
     "Provide email_prefix or generate_count": "Provide email_prefix or generate_count",
-    "Processing failed": "Processing failed"
+    "Processing failed": "Processing failed",
+    "Template has existing codes and cannot be deleted": "Template has existing codes and cannot be deleted",
+    "Redemption code used cannot be enabled": "Redemption code used cannot be enabled",
+    "Redemption code expired cannot be enabled": "Redemption code expired cannot be enabled",
+    "Operation failed": "Operation failed",
+    "Redemption code cannot be reset to unused": "Redemption code cannot be reset to unused",
+    "Max usage cannot be less than usage count": "Max usage cannot be less than usage count",
+    "Used gift card cannot be deleted": "Used gift card cannot be deleted",
+    "Gift card has usage records and cannot be deleted": "Gift card has usage records and cannot be deleted",
+    "Coupon does not exist": "Coupon does not exist",
+    "Coupon ID cannot be empty": "Coupon ID cannot be empty",
+    "Coupon ID must be numeric": "Coupon ID must be numeric",
+    "Inviter does not exist": "Inviter does not exist",
+    "User ID cannot be empty": "User ID cannot be empty"
 }

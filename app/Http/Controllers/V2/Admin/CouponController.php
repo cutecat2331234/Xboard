@@ -71,23 +71,25 @@ class CouponController extends Controller
             'id' => 'required|numeric',
             'show' => 'nullable|boolean'
         ], [
-            'id.required' => '优惠券ID不能为空',
-            'id.numeric' => '优惠券ID必须为数字'
+            'id.required' => __('Coupon ID cannot be empty'),
+            'id.numeric' => __('Coupon ID must be numeric'),
         ]);
         try {
             DB::beginTransaction();
-            $coupon = Coupon::find($request->input('id'));
+            $coupon = Coupon::where('id', $request->input('id'))->lockForUpdate()->first();
             if (!$coupon) {
-                throw new ApiException('优惠券不存在', 400201);
+                throw new ApiException(__('Coupon does not exist'), 400201);
             }
             $coupon->update($params);
             DB::commit();
             return $this->success(true);
         } catch (ApiException $e) {
+            DB::rollBack();
             return $this->fail([$e->getCode(), $e->getMessage()]);
         } catch (\Exception $e) {
+            DB::rollBack();
             \Log::error($e);
-            return $this->fail([500, '保存失败']);
+            return $this->fail([500, __('Save failed')]);
         }
     }
 
@@ -96,18 +98,25 @@ class CouponController extends Controller
         $request->validate([
             'id' => 'required|numeric'
         ], [
-            'id.required' => '优惠券ID不能为空',
-            'id.numeric' => '优惠券ID必须为数字'
+            'id.required' => __('Coupon ID cannot be empty'),
+            'id.numeric' => __('Coupon ID must be numeric'),
         ]);
-        $coupon = Coupon::find($request->input('id'));
-        if (!$coupon) {
-            return $this->fail([400202, '优惠券不存在']);
+        try {
+            return DB::transaction(function () use ($request) {
+                $coupon = Coupon::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$coupon) {
+                    return $this->fail([400202, __('Coupon does not exist')]);
+                }
+                $coupon->show = !$coupon->show;
+                if (!$coupon->save()) {
+                    return $this->fail([500, __('Save failed')]);
+                }
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            \Log::error($e);
+            return $this->fail([500, __('Save failed')]);
         }
-        $coupon->show = !$coupon->show;
-        if (!$coupon->save()) {
-            return $this->fail([500, '保存失败']);
-        }
-        return $this->success(true);
     }
 
     public function generate(CouponGenerate $request)
@@ -122,18 +131,21 @@ class CouponController extends Controller
                 $params['code'] = Helper::randomChar(8);
             }
             if (!Coupon::create($params)) {
-                return $this->fail([500, '创建失败']);
+                return $this->fail([500, __('Create failed')]);
             }
         } else {
-            $coupon = Coupon::find($request->input('id'));
-            if (!$coupon) {
-                return $this->fail([400202, '优惠券不存在']);
-            }
             try {
-                $coupon->update($params);
+                return DB::transaction(function () use ($request, $params) {
+                    $coupon = Coupon::where('id', $request->input('id'))->lockForUpdate()->first();
+                    if (!$coupon) {
+                        return $this->fail([400202, __('Coupon does not exist')]);
+                    }
+                    $coupon->update($params);
+                    return $this->success(true);
+                });
             } catch (\Exception $e) {
                 \Log::error($e);
-                return $this->fail([500, '保存失败']);
+                return $this->fail([500, __('Save failed')]);
             }
         }
 
@@ -170,7 +182,7 @@ class CouponController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->fail([500, '生成失败']);
+            return $this->fail([500, __('Generation failed')]);
         }
 
         $data = "名称,类型,金额或比例,开始时间,结束时间,可用次数,可用于订阅,券码,生成时间\r\n";
@@ -197,17 +209,24 @@ class CouponController extends Controller
         $request->validate([
             'id' => 'required|numeric'
         ], [
-            'id.required' => '优惠券ID不能为空',
-            'id.numeric' => '优惠券ID必须为数字'
+            'id.required' => __('Coupon ID cannot be empty'),
+            'id.numeric' => __('Coupon ID must be numeric'),
         ]);
-        $coupon = Coupon::find($request->input('id'));
-        if (!$coupon) {
-            return $this->fail([400202, '优惠券不存在']);
-        }
-        if (!$coupon->delete()) {
-            return $this->fail([500, '删除失败']);
-        }
+        try {
+            return DB::transaction(function () use ($request) {
+                $coupon = Coupon::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$coupon) {
+                    return $this->fail([400202, __('Coupon does not exist')]);
+                }
+                if (!$coupon->delete()) {
+                    return $this->fail([500, __('Delete failed')]);
+                }
 
-        return $this->success(true);
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            \Log::error($e);
+            return $this->fail([500, __('Delete failed')]);
+        }
     }
 }
