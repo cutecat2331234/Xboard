@@ -123,6 +123,12 @@ class AppController extends Controller
         ];
         $config['config_hash'] = md5(json_encode($config)); // 配置哈希值(用于校验)
 
+        if (!AppFeature::commissionEnabled()) {
+            $config['payment_config']['withdraw_methods'] = [];
+            $config['payment_config']['min_withdraw_amount'] = 0;
+            $config['payment_config']['withdraw_fee_rate'] = 0;
+        }
+
         $config = $config ?? [];
         return response()->json(['data' => $config]);
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
 import {
   NButton,
   NCard,
@@ -45,6 +45,7 @@ const redeemCode = ref('')
 const checking = ref(false)
 const redeeming = ref(false)
 const checkResult = ref<GiftCardCheckResult | null>(null)
+const checkedCode = ref('')
 
 const detailOpen = ref(false)
 const detailLoading = ref(false)
@@ -88,6 +89,11 @@ function mapGiftCardReason(reason?: string | null): string {
   return mapped !== reason ? mapped : reason
 }
 
+watch(redeemCode, () => {
+  checkResult.value = null
+  checkedCode.value = ''
+})
+
 async function loadHistory() {
   loadingHistory.value = true
   try {
@@ -104,6 +110,7 @@ async function loadHistory() {
 function openRedeem() {
   redeemCode.value = ''
   checkResult.value = null
+  checkedCode.value = ''
   redeemOpen.value = true
 }
 
@@ -117,6 +124,7 @@ async function doCheck() {
   checkResult.value = null
   try {
     checkResult.value = await checkGiftCard(code)
+    checkedCode.value = code
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
   } finally {
@@ -126,7 +134,12 @@ async function doCheck() {
 
 async function doRedeem() {
   const code = redeemCode.value.trim()
-  if (!code || !checkResult.value?.can_redeem) return
+  if (!code || !checkResult.value?.can_redeem || code !== checkedCode.value) {
+    if (code && code !== checkedCode.value) {
+      msg.warning(t('giftCard.recheckRequired'))
+    }
+    return
+  }
   redeeming.value = true
   try {
     const res = await redeemGiftCard(code)
@@ -134,6 +147,7 @@ async function doRedeem() {
     redeemOpen.value = false
     redeemCode.value = ''
     checkResult.value = null
+    checkedCode.value = ''
     page.value = 1
     await loadHistory()
   } catch (e: unknown) {

@@ -229,15 +229,18 @@ class RegisterService
             });
         } catch (ApiException $e) {
             $this->releaseRegisterIpSlot($request->ip());
+            UserService::releaseTryOutIpSlot($request->ip());
             $code = (int) $e->getCode();
             return [false, [$code > 0 ? $code : 400, $e->getMessage()]];
         } catch (\Throwable $e) {
             $this->releaseRegisterIpSlot($request->ip());
+            UserService::releaseTryOutIpSlot($request->ip());
             return [false, [500, __('Register failed')]];
         }
 
         if (!$ok) {
             $this->releaseRegisterIpSlot($request->ip());
+            UserService::releaseTryOutIpSlot($request->ip());
         } elseif ((int) admin_setting('register_limit_by_ip_enable', 0)) {
             $this->recordRegisterIpHit($request->ip());
         }

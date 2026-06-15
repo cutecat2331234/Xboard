@@ -131,7 +131,7 @@ export default function TrafficResetPage() {
               <Button
                 variant="outline"
                 size="sm"
-                disabled={logs.length < 20}
+                disabled={page * 20 >= total}
                 onClick={() => setPage((p) => p + 1)}
               >
                 {t('common.table.pagination.nextPage')}

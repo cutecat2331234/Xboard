@@ -254,7 +254,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "viewOptions": {
         "button": "Столбцы",
         "label": "Переключить видимость столбцов"
-      }
+      },
+      "selectAllAria": "Выбрать все строки",
+      "selectRowAria": "Выбрать строку",
+      "sortAsc": "Сортировка по возрастанию",
+      "sortDesc": "Сортировка по убыванию"
     },
     "update": {
       "title": "System Update",
@@ -3460,6 +3464,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "title": "Управление кодами активации",
       "form": {
         "generate": "Сгенерировать коды активации",
+        "expires_at": {
+          "hint": "Оставьте пустым, если срок не ограничен"
+        },
         "template_id": {
           "label": "Выберите шаблон",
           "placeholder": "Выберите шаблон для генерации кодов активации"
@@ -3491,6 +3498,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
           "template_name": "Название шаблона",
           "status": "Статус",
           "expires_at": "Истекает",
+          "batch_id": "Партия",
           "usage_count": "Использовано",
           "max_usage": "Доступно",
           "created_at": "Дата создания"
@@ -3500,6 +3508,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "enable": "Включить",
         "disable": "Отключить",
         "export": "Экспорт",
+        "deleteConfirm": {
+          "title": "Удалить код активации?",
+          "description": "Код будет удалён без возможности восстановления. Продолжить?",
+          "confirmText": "Удалить"
+        },
         "exportConfirm": {
           "title": "Подтверждение экспорта",
           "description": "Все коды из выбранной группы будут экспортированы в текстовый файл. Продолжить?",

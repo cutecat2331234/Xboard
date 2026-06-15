@@ -43,18 +43,20 @@ class InviteController extends Controller
                     throw new ApiException(__('The maximum number of creations has been reached'));
                 }
 
-                for ($attempt = 0; $attempt < 5; $attempt++) {
+                for ($attempt = 0; $attempt < 10; $attempt++) {
                     $code = Helper::randomChar(8);
                     if (InviteCode::where('code', $code)->exists()) {
                         continue;
                     }
-                    $inviteCode = InviteCode::create([
-                        'user_id' => $request->user()->id,
-                        'code' => $code,
-                        'status' => InviteCode::STATUS_UNUSED,
-                    ]);
-                    if ($inviteCode) {
+                    try {
+                        InviteCode::create([
+                            'user_id' => $request->user()->id,
+                            'code' => $code,
+                            'status' => InviteCode::STATUS_UNUSED,
+                        ]);
                         return $this->success(true);
+                    } catch (\Illuminate\Database\QueryException) {
+                        continue;
                     }
                 }
 

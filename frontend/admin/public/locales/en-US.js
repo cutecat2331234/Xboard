@@ -261,7 +261,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "viewOptions": {
         "button": "Columns",
         "label": "Toggle columns"
-      }
+      },
+      "selectAllAria": "Select all rows",
+      "selectRowAria": "Select row",
+      "sortAsc": "Sorted ascending",
+      "sortDesc": "Sorted descending"
     },
     "update": {
       "title": "System Update",

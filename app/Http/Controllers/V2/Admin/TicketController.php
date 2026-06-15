@@ -127,7 +127,7 @@ class TicketController extends Controller
     {
         $request->validate([
             'id' => 'required|numeric',
-            'message' => 'required|string'
+            'message' => 'required|string|max:5000'
         ], [
             'id.required' => '工单ID不能为空',
             'message.required' => '消息不能为空'

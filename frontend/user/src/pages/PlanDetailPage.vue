@@ -65,7 +65,7 @@ function isSoldOut(): boolean {
   if (limit === null || limit === undefined) return false
   if (typeof limit === 'string') {
     if (/sold\s*out|售罄/i.test(limit)) return true
-    const parsed = Number(limit)
+    const parsed = Number(limit.replace(/[^\d.-]/g, ''))
     if (Number.isFinite(parsed) && parsed <= 0) return true
     return false
   }
@@ -125,6 +125,8 @@ watch(
   () => route.params.id,
   async (id) => {
     if (!id) return
+    plan.value = null
+    loading.value = true
     couponDiscount.value = ''
     couponCode.value = ''
     await load()

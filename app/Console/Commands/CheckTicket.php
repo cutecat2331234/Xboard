@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Ticket;
 use App\Services\TicketService;
+use App\Support\AppFeature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -41,6 +42,10 @@ class CheckTicket extends Command
      */
     public function handle()
     {
+        if (!AppFeature::ticketEnabled()) {
+            return 0;
+        }
+
         Ticket::where('status', 0)
             ->where('updated_at', '<=', time() - 24 * 3600)
             ->where('reply_status', Ticket::REPLY_STATUS_REPLIED)

@@ -390,6 +390,14 @@ class UserController extends Controller
             $params['balance'] = $params['balance'] * 100;
         }
         if (isset($params['commission_balance'])) {
+            if (
+                Ticket::where('user_id', $user->id)
+                    ->where('status', Ticket::STATUS_OPENING)
+                    ->where('level', 2)
+                    ->exists()
+            ) {
+                return $this->fail([422, '存在未完成的提现工单，无法修改佣金余额']);
+            }
             if ((float) $request->input('commission_balance') < 0) {
                 return $this->fail([422, '佣金余额不能为负数']);
             }
