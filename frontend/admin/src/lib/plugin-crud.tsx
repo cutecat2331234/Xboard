@@ -1,5 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import { fetchPaginatedList, postJson } from '@/lib/api'
+import { formatAdminDateTimeValue } from '@/lib/format-datetime'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { i18n } from '@/lib/i18n'
 import type {
@@ -93,22 +94,16 @@ export async function deletePluginCrudRecord(
   return postJson(deletePath, payload)
 }
 
-function formatDatetime(value: unknown): string {
-  if (value == null || value === '') return '—'
-  const numeric = Number(value)
-  const date = Number.isFinite(numeric)
-    ? new Date(numeric < 1e12 ? numeric * 1000 : numeric)
-    : new Date(String(value))
-  if (Number.isNaN(date.getTime())) return String(value)
-  return date.toLocaleString()
-}
-
 function renderCrudCell(column: PluginAdminCrudColumn, value: unknown) {
   switch (column.type) {
     case 'datetime':
-      return <span className="text-sm text-muted-foreground">{formatDatetime(value)}</span>
+      return <span className="text-sm text-muted-foreground">{formatAdminDateTimeValue(value as string | number | null)}</span>
     case 'boolean':
-      return <Badge variant={value ? 'default' : 'outline'}>{value ? 'Yes' : 'No'}</Badge>
+      return (
+        <Badge variant={value ? 'default' : 'outline'}>
+          {value ? i18n.t('common.true') : i18n.t('common.false')}
+        </Badge>
+      )
     case 'tag': {
       const option = column.options?.find((opt) => opt.value === String(value))
       return (

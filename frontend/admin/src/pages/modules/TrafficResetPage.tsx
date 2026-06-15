@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { adminApi, fetchJsonObject } from '@/lib/api'
 import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { DataTable } from '@/components/shared/DataTable'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -87,7 +88,7 @@ export default function TrafficResetPage() {
         header: t('user.traffic_reset_logs.columns.reset_time'),
         cell: ({ row }) =>
           row.original.reset_time
-            ? new Date(row.original.reset_time * 1000).toLocaleString()
+            ? formatAdminDateTime(row.original.reset_time)
             : '—',
       },
     ],
@@ -122,7 +123,7 @@ export default function TrafficResetPage() {
           </div>
           <DataTable columns={columns} data={logs} loading={loading} />
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>{total} records</span>
+            <span>{t('user.traffic_reset_logs.pagination.total', { total })}</span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
                 {t('common.table.pagination.previousPage')}

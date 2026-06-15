@@ -53,8 +53,10 @@ class CouponController extends Controller
     }
     public function fetch(Request $request)
     {
-        $current = $request->input('current', 1);
-        $pageSize = $request->input('pageSize', 10);
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current', 1),
+            $request->input('pageSize', 10)
+        );
         $builder = Coupon::query();
         $this->applyFiltersAndSorts($request, $builder);
         $coupons = $builder

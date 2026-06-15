@@ -13,18 +13,12 @@ import {
   type SystemStatus,
 } from '@/lib/api'
 import { toastApiError } from '@/lib/api-errors'
+import { formatAdminDateTime, formatAdminDateTimeValue } from '@/lib/format-datetime'
 import { StatCard } from '@/components/shared/StatCard'
 import { DataTable } from '@/components/shared/DataTable'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-function formatTs(ts?: number | null) {
-  if (!ts) return '—'
-  const d = new Date(ts * 1000)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-}
 
 function statusLabel(t: (key: string) => string, ok?: boolean) {
   return ok ? t('dashboard.queue.status.normal') : t('dashboard.queue.status.abnormal')
@@ -64,7 +58,7 @@ export function SystemStatusPanel() {
           title={t('dashboard.systemStatus.schedule')}
           value={loading ? '…' : statusLabel(t, status.schedule)}
           subtitle={t('dashboard.systemStatus.scheduleLastRun', {
-            time: formatTs(status.schedule_last_runtime),
+            time: formatAdminDateTime(status.schedule_last_runtime),
           })}
           icon={Clock}
           iconClassName={status.schedule ? 'text-emerald-500' : 'text-red-500'}
@@ -210,7 +204,7 @@ export function AuditLogPanel() {
       {
         accessorKey: 'created_at',
         header: t('dashboard.auditLog.columns.time'),
-        cell: ({ row }) => formatTs(row.original.created_at),
+        cell: ({ row }) => formatAdminDateTime(row.original.created_at),
       },
     ],
     [t],

@@ -72,8 +72,10 @@ class InviteController extends Controller
         if (!AppFeature::commissionEnabled()) {
             return $this->fail([403, __('Unsupported withdraw')]);
         }
-        $current = $request->input('current') ? $request->input('current') : 1;
-        $pageSize = min(100, max(10, (int) ($request->input('page_size') ?: 10)));
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current'),
+            $request->input('page_size', 10)
+        );
         $builder = CommissionLog::where('invite_user_id', $request->user()->id)
             ->where('get_amount', '>', 0)
             ->whereNotNull('credited_at')

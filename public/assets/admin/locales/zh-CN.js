@@ -597,8 +597,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "commission": {
       "PENDING": "待确认",
-      "PROCESSING": "发放中",
-      "VALID": "有效",
+      "VALID": "已校验",
+      "SETTLED": "已结算",
       "INVALID": "无效"
     },
     "form": {
@@ -690,6 +690,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "noPendingCommission": "无待处理佣金",
       "monthlyNewUsers": "月新增用户",
       "monthlyDownload": "月下载",
+      "monthlyCommissionPayout": "月佣金支出",
+      "totalTraffic": "总流量",
       "todayTraffic": "今日: {{value}}",
       "activeUserTrend": "活跃用户趋势",
       "realtimeUsers": "实时用户",
@@ -3201,6 +3203,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "auto_resets": "自动重置",
         "manual_resets": "手动重置",
         "cron_resets": "定时重置",
+        "order_resets": "订单重置",
+        "gift_card_resets": "礼品卡重置",
         "in_period": "最近 {{days}} 天",
         "breakdown": "重置类型分布",
         "breakdown_description": "各类型重置操作的百分比分布",
@@ -3254,6 +3258,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "manual": "手动触发",
           "cron": "定时任务"
         }
+      },
+      "pagination": {
+        "total": "共 {{total}} 条记录"
       },
       "actions": {
         "export": "导出日志",

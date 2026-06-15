@@ -96,7 +96,3 @@ export async function fetchGiftCardHistory(params?: { page?: number; per_page?: 
 export async function fetchGiftCardDetail(id: number) {
   return request<GiftCardDetail>(api.get('/user/gift-card/detail', { params: { id } }))
 }
-
-export async function fetchGiftCardTypes() {
-  return request<{ types: Record<number, string> }>(api.get('/user/gift-card/types'))
-}
