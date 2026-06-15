@@ -313,7 +313,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "type": {
       "placeholder": "Select Plugin Type",
-      "all": "All Types"
+      "all": "All Types",
+      "feature": "Feature",
+      "payment": "Payment Method"
     },
     "tabs": {
       "all": "All Plugins",
@@ -2612,6 +2614,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     }
   },
   "mailTemplate": {
+    "labels": {
+      "verify": "Email verification",
+      "notify": "Site notification",
+      "remindExpire": "Expiry reminder",
+      "remindTraffic": "Traffic reminder",
+      "mailLogin": "Email login"
+    },
     "messages": {
       "notFound": "Mail template not found",
       "sendFailed": "Failed to send test email"

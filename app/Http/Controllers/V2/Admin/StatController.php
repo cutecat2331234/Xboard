@@ -504,7 +504,7 @@ class StatController extends Controller
 
             $result[] = [
                 'id' => (string) $data->id,
-                'name' => $names[$data->id] ?? ($type === 'node' ? "Node {$data->id}" : "User {$data->id}"),
+                'name' => $names[$data->id] ?? ($type === 'node' ? __('Node :id', ['id' => $data->id]) : __('User :id', ['id' => $data->id])),
                 'value' => $data->value,
                 'previousValue' => $previousValue,
                 'change' => $change,
@@ -512,10 +512,7 @@ class StatController extends Controller
             ];
         }
 
-        return [
-            'timestamp' => date('c'),
-            'data' => $result
-        ];
+        return $this->success($result);
     }
 
     public function getRanking(Request $request)

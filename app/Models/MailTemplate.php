@@ -49,6 +49,11 @@ class MailTemplate extends Model
         return self::TEMPLATES[$name] ?? null;
     }
 
+    public static function getLabel(string $name): string
+    {
+        return __('mail_template.label.' . $name);
+    }
+
     /**
      * Get all template names.
      */
@@ -64,13 +69,13 @@ class MailTemplate extends Model
     {
         $meta = self::getMeta($name);
         if (!$meta) {
-            return ["Unknown template: {$name}"];
+            return [__('mail_template.unknown', ['name' => $name])];
         }
 
         $errors = [];
         foreach ($meta['required_vars'] as $var) {
             if (strpos($content, '{{' . $var . '}}') === false) {
-                $errors[] = "缺少必要占位符: {{{$var}}}";
+                $errors[] = __('mail_template.missing_placeholder', ['var' => $var]);
             }
         }
         return $errors;

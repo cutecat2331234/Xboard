@@ -284,25 +284,25 @@ class GiftCardController extends Controller
                     $handle = fopen('php://output', 'w');
                     // 表头
                     fputcsv($handle, [
-                        '兑换码',
-                        '前缀',
-                        '有效期',
-                        '最大使用次数',
-                        '批次号',
-                        '创建时间',
-                        '模板名称',
-                        '模板类型',
-                        '模板奖励',
-                        '状态',
-                        '使用者',
-                        '使用时间',
-                        '备注'
+                        __('csv.gift_card.code'),
+                        __('csv.gift_card.prefix'),
+                        __('csv.gift_card.expires_at'),
+                        __('csv.gift_card.max_usage'),
+                        __('csv.gift_card.batch_id'),
+                        __('csv.gift_card.created_at'),
+                        __('csv.gift_card.template_name'),
+                        __('csv.gift_card.template_type'),
+                        __('csv.gift_card.template_rewards'),
+                        __('csv.gift_card.status'),
+                        __('csv.gift_card.used_by'),
+                        __('csv.gift_card.used_at'),
+                        __('csv.gift_card.remark'),
                     ]);
                     foreach ($codes as $code) {
-                        $expireDate = $code->expires_at ? date('Y-m-d H:i:s', $code->expires_at) : '长期有效';
+                        $expireDate = $code->expires_at ? date('Y-m-d H:i:s', $code->expires_at) : __('Unlimited');
                         $createDate = date('Y-m-d H:i:s', $code->created_at);
                         $templateName = $template->name ?? '';
-                        $templateType = $template->type ?? '';
+                        $templateType = GiftCardTemplate::getTypeMap()[$template->type ?? 0] ?? __('gift_card.type.unknown');
                         $templateRewards = $template->rewards ? json_encode($template->rewards, JSON_UNESCAPED_UNICODE) : '';
                         // 状态判断
                         $status = $code->status_name;

@@ -158,7 +158,7 @@ export function MailTemplatePanel({ t, embedded }: { t: TFunction; embedded?: bo
           >
             {list.map((item) => (
               <option key={item.name} value={item.name}>
-                {item.label ?? item.name}
+                {t(`mailTemplate.labels.${item.name}`, { defaultValue: item.label ?? item.name ?? '' })}
                 {item.customized ? ` (${t('settings.email_template.customized')})` : ''}
               </option>
             ))}
