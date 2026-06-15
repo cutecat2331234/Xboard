@@ -262,5 +262,20 @@
     "Core plugins cannot be deleted": "該插件為系統核心插件，不允許刪除",
     "Plugin deleted successfully": "插件刪除成功",
     "Plugin delete failed: :error": "插件刪除失敗：:error",
-    "public_name must be a valid domain (1-253 bytes)": "public_name 必須是有效域名（1-253 字節）"
+    "public_name must be a valid domain (1-253 bytes)": "public_name 必須是有效域名（1-253 字節）",
+    "Theme package file is required": "請上傳主題壓縮包",
+    "Theme package must be a zip file": "主題包必須是 zip 格式",
+    "Theme package must not exceed 10MB": "主題包大小不能超過 10MB",
+    "Upload directory is not writable": "上傳目錄不可寫",
+    "Theme directory is not writable": "主題目錄不可寫",
+    "Invalid file type, only ZIP is supported": "檔案類型無效，僅支援 ZIP",
+    "Theme package filename may only contain letters, numbers, underscores, hyphens, and dots": "主題包檔名只能包含字母、數字、底線、連字號和點",
+    "Theme upload failed: :error": "主題上傳失敗：:error",
+    "Paid amount": "支付金額",
+    "Paid count": "支付筆數",
+    "Commission amount (paid)": "佣金金額（已支付）",
+    "Commission count (paid)": "佣金筆數（已支付）",
+    "Node ID cannot be empty": "節點 ID 不能為空",
+    "Local port cannot be empty": "本地端口不能為空",
+    "Failed to fetch node config": "獲取節點配置失敗"
 }

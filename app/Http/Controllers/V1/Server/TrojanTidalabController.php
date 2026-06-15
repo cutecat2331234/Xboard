@@ -19,13 +19,12 @@ class TrojanTidalabController extends Controller
 {
     const TROJAN_CONFIG = '{"run_type":"server","local_addr":"0.0.0.0","local_port":443,"remote_addr":"www.taobao.com","remote_port":80,"password":[],"ssl":{"cert":"server.crt","key":"server.key","sni":"domain.com"},"api":{"enabled":true,"api_addr":"127.0.0.1","api_port":10000}}';
 
-    // 后端获取用户
     public function user(Request $request)
     {
         ini_set('memory_limit', -1);
         $server = $request->attributes->get('node_info');
         if ($server->type !== 'trojan') {
-            return $this->fail([400, '节点不存在']);
+            return $this->fail([400, __('Node does not exist')]);
         }
         Cache::put(CacheKey::get('SERVER_TROJAN_LAST_CHECK_AT', $server->id), time(), 3600);
         $users = ServerService::getAvailableUsers($server);
@@ -47,12 +46,11 @@ class TrojanTidalabController extends Controller
         ])->header('ETag', "\"{$eTag}\"");
     }
 
-    // 后端提交数据
     public function submit(Request $request)
     {
         $server = $request->attributes->get('node_info');
         if ($server->type !== 'trojan') {
-            return $this->fail([400, '节点不存在']);
+            return $this->fail([400, __('Node does not exist')]);
         }
         $data = json_decode(request()->getContent(), true);
         Cache::put(CacheKey::get('SERVER_TROJAN_ONLINE_USER', $server->id), count($data), 3600);
@@ -70,25 +68,24 @@ class TrojanTidalabController extends Controller
         ]);
     }
 
-    // 后端获取配置
     public function config(Request $request)
     {
         $server = $request->attributes->get('node_info');
         if ($server->type !== 'trojan') {
-            return $this->fail([400, '节点不存在']);
+            return $this->fail([400, __('Node does not exist')]);
         }
         $request->validate([
             'node_id' => 'required',
             'local_port' => 'required'
         ], [
-            'node_id.required' => '节点ID不能为空',
-            'local_port.required' => '本地端口不能为空'
+            'node_id.required' => __('Node ID cannot be empty'),
+            'local_port.required' => __('Local port cannot be empty'),
         ]);
         try {
             $json = $this->getTrojanConfig($server, $request->input('local_port'));
         } catch (\Exception $e) {
             \Log::error($e);
-            return $this->fail([500, '配置获取失败']);
+            return $this->fail([500, __('Failed to fetch node config')]);
         }
 
         return (json_encode($json, JSON_UNESCAPED_UNICODE));

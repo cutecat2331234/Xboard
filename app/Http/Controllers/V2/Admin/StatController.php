@@ -63,9 +63,8 @@ class StatController extends Controller
         $totalTraffic = StatServer::selectRaw('SUM(u) as upload, SUM(d) as download, SUM(u + d) as total')
             ->first();
 
-        return [
-            'data' => [
-                'month_income' => $this->sumPaidIncome(
+        return $this->success([
+            'month_income' => $this->sumPaidIncome(
                     $this->paidIncomeQuery()
                         ->where('paid_at', '>=', strtotime(date('Y-m-1')))
                         ->where('paid_at', '<', time())
@@ -115,8 +114,7 @@ class StatController extends Controller
                     'download' => $totalTraffic->download ?? 0,
                     'total' => $totalTraffic->total ?? 0
                 ]
-            ]
-        ];
+        ]);
     }
 
     /**
@@ -213,14 +211,10 @@ class StatController extends Controller
             ? round(($summary['commission_total'] / $summary['paid_total']) * 100, 2)
             : 0;
 
-        return [
-            'code' => 0,
-            'message' => 'success',
-            'data' => [
-                'list' => array_reverse($dailyStats),
-                'summary' => $summary,
-            ]
-        ];
+        return $this->success([
+            'list' => array_reverse($dailyStats),
+            'summary' => $summary,
+        ]);
     }
 
     /**
@@ -232,10 +226,10 @@ class StatController extends Controller
     private function getTypeLabel(string $type): string
     {
         return match ($type) {
-            'paid_total' => '收款金额',
-            'paid_count' => '收款笔数',
-            'commission_total' => '佣金金额(已发放)',
-            'commission_count' => '佣金笔数(已发放)',
+            'paid_total' => __('Paid amount'),
+            'paid_count' => __('Paid count'),
+            'commission_total' => __('Commission amount (paid)'),
+            'commission_count' => __('Commission count (paid)'),
             default => $type
         };
     }
@@ -264,11 +258,7 @@ class StatController extends Controller
             ->where('user_id', $request->input('user_id'))
             ->paginate($pageSize);
 
-        $data = $records->items();
-        return [
-            'data' => $data,
-            'total' => $records->total(),
-        ];
+        return $this->paginate($records);
     }
 
     public function getStatRecord(Request $request)
@@ -282,9 +272,7 @@ class StatController extends Controller
         $this->service->setStartAt($startDate);
         $this->service->setEndAt($endDate);
 
-        return [
-            'data' => $this->service->getStatRecord($request->input('type'))
-        ];
+        return $this->success($this->service->getStatRecord($request->input('type')));
     }
 
     /**
@@ -397,8 +385,7 @@ class StatController extends Controller
             ->where('commission_balance', '>', 0)
             ->count();
 
-        return [
-            'data' => [
+        return $this->success([
                 // 收入相关
                 'todayIncome' => $todayIncome,
                 'dayIncomeGrowth' => $dayIncomeGrowth,
@@ -443,8 +430,7 @@ class StatController extends Controller
                     'download' => $totalTraffic->download ?? 0,
                     'total' => $totalTraffic->total ?? 0
                 ]
-            ]
-        ];
+        ]);
     }
 
     /**

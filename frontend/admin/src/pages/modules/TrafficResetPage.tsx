@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { adminApi, fetchJsonObject } from '@/lib/api'
+import { adminApi, fetchJsonObject, fetchPaginatedList } from '@/lib/api'
 import { toastApiError } from '@/lib/api-errors'
 import { formatAdminDateTime } from '@/lib/format-datetime'
 import { DataTable } from '@/components/shared/DataTable'
@@ -43,14 +43,12 @@ export default function TrafficResetPage() {
 
   const loadLogs = useCallback(() => {
     setLoading(true)
-    const params = new URLSearchParams({ page: String(page), per_page: '20' })
-    if (emailFilter.trim()) params.set('user_email', emailFilter.trim())
-    adminApi<{ data: TrafficResetLogRow[]; pagination: { total: number } }>(
-      `/traffic-reset/logs?${params}`,
-    )
-      .then((res) => {
-        setLogs(res.data ?? [])
-        setTotal(res.pagination?.total ?? 0)
+    const params: Record<string, string | number> = { page, per_page: 20 }
+    if (emailFilter.trim()) params.user_email = emailFilter.trim()
+    fetchPaginatedList<TrafficResetLogRow>('/traffic-reset/logs', params)
+      .then((page) => {
+        setLogs(page.data)
+        setTotal(page.total)
       })
       .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))

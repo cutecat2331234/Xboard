@@ -295,7 +295,7 @@ class UserController extends Controller
         $request->validate([
             'id' => 'required|numeric'
         ], [
-            'id.required' => '用户ID不能为空'
+            'id.required' => __('User ID cannot be empty'),
         ]);
         $user = User::find($request->input('id'));
         if (!$user) {

@@ -20,7 +20,7 @@ class ThemeController extends Controller
 
     /**
      * 上传新主题
-     * 
+     *
      * @throws ApiException
      */
     public function upload(Request $request)
@@ -30,44 +30,40 @@ class ThemeController extends Controller
                 'required',
                 'file',
                 'mimes:zip',
-                'max:10240', // 最大10MB
+                'max:10240',
             ]
         ], [
-            'file.required' => '请选择主题包文件',
-            'file.file' => '无效的文件类型',
-            'file.mimes' => '主题包必须是zip格式',
-            'file.max' => '主题包大小不能超过10MB'
+            'file.required' => __('Theme package file is required'),
+            'file.file' => __('Invalid file type'),
+            'file.mimes' => __('Theme package must be a zip file'),
+            'file.max' => __('Theme package must not exceed 10MB'),
         ]);
 
         try {
-            // 检查上传目录权限
             $uploadPath = storage_path('tmp');
             if (!File::exists($uploadPath)) {
                 File::makeDirectory($uploadPath, 0755, true);
             }
 
             if (!is_writable($uploadPath)) {
-                throw new ApiException('上传目录无写入权限');
+                throw new ApiException(__('Upload directory is not writable'));
             }
 
-            // 检查主题目录权限
             $themePath = base_path('theme');
             if (!is_writable($themePath)) {
-                throw new ApiException('主题目录无写入权限');
+                throw new ApiException(__('Theme directory is not writable'));
             }
 
             $file = $request->file('file');
 
-            // 检查文件MIME类型
             $mimeType = $file->getMimeType();
             if (!in_array($mimeType, ['application/zip', 'application/x-zip-compressed'])) {
-                throw new ApiException('无效的文件类型，仅支持ZIP格式');
+                throw new ApiException(__('Invalid file type, only ZIP is supported'));
             }
 
-            // 检查文件名安全性
             $originalName = $file->getClientOriginalName();
             if (!preg_match('/^[a-zA-Z0-9\-\_\.]+\.zip$/', $originalName)) {
-                throw new ApiException('主题包文件名只能包含字母、数字、下划线、中划线和点');
+                throw new ApiException(__('Theme package filename may only contain letters, numbers, underscores, hyphens, and dots'));
             }
 
             $this->themeService->upload($file);
@@ -80,13 +76,10 @@ class ThemeController extends Controller
                 'error' => $e->getMessage(),
                 'file' => $request->file('file')?->getClientOriginalName()
             ]);
-            throw new ApiException('主题上传失败：' . $e->getMessage());
+            throw new ApiException(__('Theme upload failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
-    /**
-     * 删除主题
-     */
     public function delete(Request $request)
     {
         $payload = $request->validate([
@@ -96,11 +89,6 @@ class ThemeController extends Controller
         return $this->success(true);
     }
 
-    /**
-     * 获取所有主题和其配置列
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function getThemes()
     {
         $data = [
@@ -110,9 +98,6 @@ class ThemeController extends Controller
         return $this->success($data);
     }
 
-    /**
-     * 切换主题
-     */
     public function switchTheme(Request $request)
     {
         $payload = $request->validate([
@@ -122,9 +107,6 @@ class ThemeController extends Controller
         return $this->success(true);
     }
 
-    /**
-     * 获取主题配置
-     */
     public function getThemeConfig(Request $request)
     {
         $payload = $request->validate([
@@ -134,9 +116,6 @@ class ThemeController extends Controller
         return $this->success($data);
     }
 
-    /**
-     * 保存主题配置
-     */
     public function saveThemeConfig(Request $request)
     {
         $payload = $request->validate([
