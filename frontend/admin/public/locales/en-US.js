@@ -639,6 +639,21 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "userBanned": "This user is banned and cannot receive a subscription.",
       "createFailed": "Failed to create the order."
     },
+    "messages": {
+      "notFound": "Order does not exist",
+      "notFoundOrPaid": "Order does not exist or has been paid",
+      "pendingOnly": "Only pending orders can be updated this way",
+      "cancelPendingOnly": "You can only cancel pending orders",
+      "cancelProcessingBlocked": "Payment is in progress for this order, cannot cancel",
+      "cancelPaidBlocked": "Paid orders cannot be cancelled; process a refund first",
+      "cancelFailed": "Cancel failed",
+      "commissionSettledManual": "Commission status cannot be manually set to settled",
+      "commissionRevertBlocked": "Settled commission cannot be reverted",
+      "commissionStatusFormat": "Commission status format is invalid",
+      "paymentAmountFormat": "Payment amount format is invalid",
+      "idRequired": "Order ID is required",
+      "idFormat": "Order ID format is invalid"
+    },
     "actions": {
       "markAsPaid": "Mark as Paid",
       "cancel": "Cancel Order",
@@ -1169,7 +1184,32 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       },
       "submit": "Submit",
       "cancel": "Cancel",
-      "success": "Submitted successfully"
+      "success": "Submitted successfully",
+      "validation": {
+        "type_required": "Node type cannot be empty",
+        "type_invalid": "Invalid node type specified",
+        "name_required": "Node name cannot be empty",
+        "group_required": "Permission group cannot be empty",
+        "group_format": "Permission group format is invalid",
+        "route_format": "Route group format is invalid",
+        "parent_id_format": "Parent ID format is invalid",
+        "host_required": "Node host cannot be empty",
+        "port_required": "Connection port cannot be empty",
+        "server_port_required": "Backend port cannot be empty",
+        "tags_format": "Tags format is invalid",
+        "rate_required": "Rate cannot be empty",
+        "rate_format": "Rate format is invalid",
+        "rate_time_start_format": "Rate time range start time format is invalid (use HH:MM)",
+        "rate_time_end_format": "Rate time range end time format is invalid (use HH:MM)",
+        "rate_multiplier_format": "Rate multiplier format is invalid",
+        "rate_multiplier_min": "Rate multiplier cannot be less than 0",
+        "traffic_limit_integer": "Traffic limit must be an integer",
+        "traffic_limit_min": "Traffic limit cannot be less than 0",
+        "field_required": "The {{field}} field is required",
+        "field_string": "The {{field}} field must be a string",
+        "field_integer": "The {{field}} field must be an integer",
+        "field_invalid": "The {{field}} field has an invalid value"
+      }
     },
     "dynamic_form": {
       "multiplex": {
@@ -1831,7 +1871,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "cancel": "Cancel",
       "submit": "Submit",
       "validation": {
-        "remarks": "Please enter valid remarks"
+        "remarks": "Please enter valid remarks",
+        "match_required": "Match value cannot be empty",
+        "action_required": "Action type cannot be empty",
+        "action_invalid": "Invalid action type"
       }
     },
     "toolbar": {
@@ -2998,6 +3041,27 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "force_update": {
           "label": "Force Update User Plans"
         },
+        "validation": {
+          "name_required": "Plan name cannot be empty",
+          "name_max": "Plan name cannot exceed 255 characters",
+          "traffic_required": "Traffic quota cannot be empty",
+          "traffic_integer": "Traffic quota must be an integer",
+          "traffic_min": "Traffic quota must be greater than 0",
+          "prices_format": "Price configuration format is invalid",
+          "price_numeric": "Price must be numeric",
+          "price_negative": "Price cannot be negative",
+          "price_number": "Price must be a number",
+          "price_min_zero": "Price must be greater than or equal to 0 (leave blank if unused)",
+          "period_unsupported": "Unsupported subscription period",
+          "group_id_integer": "Group ID must be an integer",
+          "speed_limit_integer": "Speed limit must be an integer",
+          "speed_limit_min": "Speed limit cannot be negative",
+          "device_limit_integer": "Device limit must be an integer",
+          "device_limit_min": "Device limit cannot be negative",
+          "capacity_limit_integer": "Capacity limit must be an integer",
+          "capacity_limit_min": "Capacity limit cannot be negative",
+          "tags_array": "Tags must be an array"
+        },
         "submit": {
           "cancel": "Cancel",
           "submit": "Submit",
@@ -3035,7 +3099,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "generate": {
       "missingParams": "Provide email_prefix or generate_count.",
-      "failed": "User generation failed."
+      "failed": "User generation failed.",
+      "emailSuffixRequired": "Email suffix cannot be empty",
+      "countMax": "Generate count cannot exceed 500",
+      "countInteger": "Generate count must be an integer"
     },
     "invite": {
       "selfInviter": "Cannot set yourself as inviter.",

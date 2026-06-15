@@ -683,5 +683,10 @@
     "Invalid sidebar theme": "Invalid sidebar theme",
     "Invalid header theme": "Invalid header theme",
     "Invalid frontend theme color": "Invalid frontend theme color",
-    "Invalid email verification purpose": "Invalid email verification purpose"
+    "Invalid email verification purpose": "Invalid email verification purpose",
+    "Node type cannot be empty": "Node type cannot be empty",
+    "Rate time range start time format is invalid (use HH:MM)": "Rate time range start time format is invalid (use HH:MM)",
+    "Rate time range end time format is invalid (use HH:MM)": "Rate time range end time format is invalid (use HH:MM)",
+    "Rate multiplier format is invalid": "Rate multiplier format is invalid",
+    "Rate multiplier cannot be less than 0": "Rate multiplier cannot be less than 0"
 }

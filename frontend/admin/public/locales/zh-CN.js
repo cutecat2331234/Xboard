@@ -638,6 +638,21 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "userBanned": "该用户已被封禁，无法分配订阅",
       "createFailed": "订单创建失败"
     },
+    "messages": {
+      "notFound": "订单不存在",
+      "notFoundOrPaid": "订单不存在或已支付",
+      "pendingOnly": "只能对待支付的订单进行操作",
+      "cancelPendingOnly": "只能取消待支付订单",
+      "cancelProcessingBlocked": "该订单支付处理中，无法取消",
+      "cancelPaidBlocked": "已支付订单不可取消，请先处理退款",
+      "cancelFailed": "取消失败",
+      "commissionSettledManual": "佣金状态不可手动标记为已结算",
+      "commissionRevertBlocked": "已结算的佣金不可回退",
+      "commissionStatusFormat": "佣金状态格式不正确",
+      "paymentAmountFormat": "支付金额格式无效",
+      "idRequired": "订单ID不能为空",
+      "idFormat": "订单ID格式无效"
+    },
     "form": {
       "period": "周期",
       "total_amount": "金额（元）"
@@ -1156,7 +1171,32 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       },
       "submit": "提交",
       "cancel": "取消",
-      "success": "提交成功"
+      "success": "提交成功",
+      "validation": {
+        "type_required": "节点类型不能为空",
+        "type_invalid": "节点类型无效",
+        "name_required": "节点名称不能为空",
+        "group_required": "权限组不能为空",
+        "group_format": "权限组格式不正确",
+        "route_format": "路由组格式不正确",
+        "parent_id_format": "父ID格式不正确",
+        "host_required": "节点地址不能为空",
+        "port_required": "连接端口不能为空",
+        "server_port_required": "后端服务端口不能为空",
+        "tags_format": "标签格式不正确",
+        "rate_required": "倍率不能为空",
+        "rate_format": "倍率格式不正确",
+        "rate_time_start_format": "动态倍率开始时间格式无效（请使用 HH:MM）",
+        "rate_time_end_format": "动态倍率结束时间格式无效（请使用 HH:MM）",
+        "rate_multiplier_format": "倍率乘数格式无效",
+        "rate_multiplier_min": "倍率乘数不能小于 0",
+        "traffic_limit_integer": "流量上限必须是整数",
+        "traffic_limit_min": "流量上限不能小于0",
+        "field_required": "{{field}} 不能为空",
+        "field_string": "{{field}} 必须是字符串",
+        "field_integer": "{{field}} 必须是整数",
+        "field_invalid": "{{field}} 的值不合法"
+      }
     },
     "dynamic_form": {
       "multiplex": {
@@ -1852,7 +1892,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "cancel": "取消",
       "submit": "提交",
       "validation": {
-        "remarks": "请输入有效的备注"
+        "remarks": "请输入有效的备注",
+        "match_required": "匹配值不能为空",
+        "action_required": "动作类型不能为空",
+        "action_invalid": "无效的动作类型"
       }
     },
     "toolbar": {
@@ -3024,6 +3067,27 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "force_update": {
           "label": "强制更新用户套餐"
         },
+        "validation": {
+          "name_required": "套餐名称不能为空",
+          "name_max": "套餐名称不能超过 255 个字符",
+          "traffic_required": "流量配额不能为空",
+          "traffic_integer": "流量配额必须是整数",
+          "traffic_min": "流量配额必须大于 0",
+          "prices_format": "价格配置格式不正确",
+          "price_numeric": "价格必须是数字",
+          "price_negative": "价格不能为负数",
+          "price_number": "价格必须是数字",
+          "price_min_zero": "价格必须大于等于 0（如不需要此周期请留空）",
+          "period_unsupported": "不支持的订阅周期",
+          "group_id_integer": "分组ID必须是整数",
+          "speed_limit_integer": "速度限制必须是整数",
+          "speed_limit_min": "速度限制不能为负数",
+          "device_limit_integer": "设备限制必须是整数",
+          "device_limit_min": "设备限制不能为负数",
+          "capacity_limit_integer": "容量限制必须是整数",
+          "capacity_limit_min": "容量限制不能为负数",
+          "tags_array": "标签必须是数组"
+        },
         "submit": {
           "cancel": "取消",
           "submit": "提交",
@@ -3061,7 +3125,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "generate": {
       "missingParams": "请提供 email_prefix 或 generate_count",
-      "failed": "用户生成失败"
+      "failed": "用户生成失败",
+      "emailSuffixRequired": "邮箱后缀不能为空",
+      "countMax": "生成数量最大为500个",
+      "countInteger": "生成数量必须为数字"
     },
     "invite": {
       "selfInviter": "不能将自己设为邀请人",

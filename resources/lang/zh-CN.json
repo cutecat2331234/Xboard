@@ -679,5 +679,10 @@
     "Invalid sidebar theme": "无效的侧边栏主题",
     "Invalid header theme": "无效的顶栏主题",
     "Invalid frontend theme color": "无效的前端主题色",
-    "Invalid email verification purpose": "无效的邮箱验证用途"
+    "Invalid email verification purpose": "无效的邮箱验证用途",
+    "Node type cannot be empty": "节点类型不能为空",
+    "Rate time range start time format is invalid (use HH:MM)": "动态倍率开始时间格式无效（请使用 HH:MM）",
+    "Rate time range end time format is invalid (use HH:MM)": "动态倍率结束时间格式无效（请使用 HH:MM）",
+    "Rate multiplier format is invalid": "倍率乘数格式无效",
+    "Rate multiplier cannot be less than 0": "倍率乘数不能小于 0"
 }

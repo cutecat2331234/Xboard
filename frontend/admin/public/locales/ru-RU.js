@@ -628,6 +628,21 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "userBanned": "Пользователь заблокирован и не может получить подписку",
       "createFailed": "Не удалось создать заказ"
     },
+    "messages": {
+      "notFound": "Order does not exist",
+      "notFoundOrPaid": "Order does not exist or has been paid",
+      "pendingOnly": "Only pending orders can be marked as paid",
+      "cancelPendingOnly": "You can only cancel pending orders",
+      "cancelProcessingBlocked": "Payment is in progress for this order, cannot cancel",
+      "cancelPaidBlocked": "Paid orders cannot be cancelled; process a refund first",
+      "cancelFailed": "Cancel failed",
+      "commissionSettledManual": "Commission status cannot be manually set to settled",
+      "commissionRevertBlocked": "Settled commission cannot be reverted",
+      "commissionStatusFormat": "Commission status format is invalid",
+      "paymentAmountFormat": "Payment amount format is invalid",
+      "idRequired": "Order ID is required",
+      "idFormat": "Order ID format is invalid"
+    },
     "actions": {
       "markAsPaid": "Пометить как оплаченный",
       "cancel": "Отменить заказ",
@@ -1142,7 +1157,32 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       },
       "submit": "Отправить",
       "cancel": "Отмена",
-      "success": "Успешно отправлено"
+      "success": "Успешно отправлено",
+      "validation": {
+        "type_required": "Тип узла не может быть пустым",
+        "type_invalid": "Invalid node type specified",
+        "name_required": "Имя узла не может быть пустым",
+        "group_required": "Permission group cannot be empty",
+        "group_format": "Permission group format is invalid",
+        "route_format": "Route group format is invalid",
+        "parent_id_format": "Parent ID format is invalid",
+        "host_required": "Node host cannot be empty",
+        "port_required": "Connection port cannot be empty",
+        "server_port_required": "Backend port cannot be empty",
+        "tags_format": "Tags format is invalid",
+        "rate_required": "Rate cannot be empty",
+        "rate_format": "Rate format is invalid",
+        "rate_time_start_format": "Неверный формат времени начала диапазона (используйте HH:MM)",
+        "rate_time_end_format": "Неверный формат времени окончания диапазона (используйте HH:MM)",
+        "rate_multiplier_format": "Неверный формат множителя тарифа",
+        "rate_multiplier_min": "Множитель тарифа не может быть меньше 0",
+        "traffic_limit_integer": "Traffic limit must be an integer",
+        "traffic_limit_min": "Traffic limit cannot be less than 0",
+        "field_required": "Поле {{field}} обязательно",
+        "field_string": "Поле {{field}} должно быть строкой",
+        "field_integer": "Поле {{field}} должно быть целым числом",
+        "field_invalid": "Недопустимое значение поля {{field}}"
+      }
     },
     "dynamic_form": {
       "multiplex": {
@@ -1797,7 +1837,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "cancel": "Отмена",
       "submit": "Отправить",
       "validation": {
-        "remarks": "Введите корректное примечание"
+        "remarks": "Введите корректное примечание",
+        "match_required": "Match value cannot be empty",
+        "action_required": "Action type cannot be empty",
+        "action_invalid": "Invalid action type"
       }
     },
     "toolbar": {
@@ -2945,6 +2988,27 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "force_update": {
           "label": "Принудительно обновить планы пользователей"
         },
+        "validation": {
+          "name_required": "Plan name cannot be empty",
+          "name_max": "Plan name cannot exceed 255 characters",
+          "traffic_required": "Traffic quota cannot be empty",
+          "traffic_integer": "Traffic quota must be an integer",
+          "traffic_min": "Traffic quota must be greater than 0",
+          "prices_format": "Price configuration format is invalid",
+          "price_numeric": "Price must be numeric",
+          "price_negative": "Price cannot be negative",
+          "price_number": "Price must be a number",
+          "price_min_zero": "Price must be greater than or equal to 0 (leave blank if unused)",
+          "period_unsupported": "Unsupported subscription period",
+          "group_id_integer": "Group ID must be an integer",
+          "speed_limit_integer": "Speed limit must be an integer",
+          "speed_limit_min": "Speed limit cannot be negative",
+          "device_limit_integer": "Device limit must be an integer",
+          "device_limit_min": "Device limit cannot be negative",
+          "capacity_limit_integer": "Capacity limit must be an integer",
+          "capacity_limit_min": "Capacity limit cannot be negative",
+          "tags_array": "Tags must be an array"
+        },
         "submit": {
           "cancel": "Отмена",
           "submit": "Отправить",
@@ -2977,7 +3041,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "generate": {
       "missingParams": "Укажите email_prefix или generate_count",
-      "failed": "Не удалось создать пользователя"
+      "failed": "Не удалось создать пользователя",
+      "emailSuffixRequired": "Email suffix cannot be empty",
+      "countMax": "Generate count cannot exceed 500",
+      "countInteger": "Generate count must be an integer"
     },
     "invite": {
       "selfInviter": "Нельзя указать себя в качестве пригласившего",
