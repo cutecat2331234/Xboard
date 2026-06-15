@@ -32,22 +32,32 @@ class CheckCommission extends Command
 
     public function autoCheck()
     {
-        if ((int)admin_setting('commission_auto_check_enable', 1)) {
-            $cutoff = strtotime('-3 day', time());
-            Order::where('commission_status', 0)
-                ->where('invite_user_id', '!=', NULL)
-                ->where('status', Order::STATUS_COMPLETED)
-                ->where(function ($query) use ($cutoff) {
-                    $query->where(function ($q) use ($cutoff) {
-                        $q->whereNotNull('paid_at')->where('paid_at', '<=', $cutoff);
-                    })->orWhere(function ($q) use ($cutoff) {
-                        $q->whereNull('paid_at')->where('updated_at', '<=', $cutoff);
-                    });
-                })
-                ->update([
-                    'commission_status' => 1
-                ]);
+        if (!(int) admin_setting('commission_auto_check_enable', 1)) {
+            return;
         }
+
+        $cutoff = strtotime('-3 day', time());
+        Order::query()
+            ->where('commission_status', Order::COMMISSION_STATUS_PENDING)
+            ->whereNotNull('invite_user_id')
+            ->where('status', Order::STATUS_COMPLETED)
+            ->where(function ($query) use ($cutoff) {
+                $query->where(function ($q) use ($cutoff) {
+                    $q->whereNotNull('paid_at')->where('paid_at', '<=', $cutoff);
+                })->orWhere(function ($q) use ($cutoff) {
+                    $q->whereNull('paid_at')->where('updated_at', '<=', $cutoff);
+                });
+            })
+            ->orderBy('id')
+            ->lazyById(200)
+            ->each(function (Order $order) {
+                $status = $this->validateCommissionChain($order->invite_user_id)
+                    ? Order::COMMISSION_STATUS_VALID
+                    : Order::COMMISSION_STATUS_INVALID;
+                Order::where('id', $order->id)
+                    ->where('commission_status', Order::COMMISSION_STATUS_PENDING)
+                    ->update(['commission_status' => $status]);
+            });
     }
 
     public function autoPayCommission()

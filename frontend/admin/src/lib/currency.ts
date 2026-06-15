@@ -9,6 +9,11 @@ export function getAdminCurrencySymbol(): string {
   return symbol
 }
 
+export function formatAdminMoneyFromMajor(major?: number | null): string {
+  const amount = (major ?? 0).toFixed(2)
+  return `${symbol}${amount}`
+}
+
 export function formatAdminMoney(cents?: number | null): string {
   const amount = ((cents ?? 0) / 100).toFixed(2)
   return `${symbol}${amount}`

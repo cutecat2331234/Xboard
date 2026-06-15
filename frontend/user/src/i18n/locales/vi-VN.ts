@@ -287,7 +287,8 @@ export default {
     incomeAmount: "Tiền hoa hồng",
     transferAmount: "Số tiền chuyển (đơn vị tiền tệ)",
     transferAmountRequired: "Vui lòng nhập số tiền chuyển",
-    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
+    transferAmountInvalid: "Số tiền chuyển phải là số dương với tối đa 2 chữ số thập phân",
+    commissionTiers: "{l1}%, {l2}%, {l3}%",
     withdrawSuccess: "Yêu cầu rút tiền đã được gửi. Vui lòng xem vé hỗ trợ để cập nhật."
   },
   traffic: {
@@ -392,6 +393,8 @@ export default {
     closedReplyPh: "Phiếu đã đóng — không thể trả lời",
     closedHint: "Phiếu này đã đóng. Bạn không thể gửi thêm phản hồi.",
     closeSuccess: "Đã đóng phiếu",
+    closeConfirm: "Đóng phiếu này? Bạn sẽ không thể trả lời sau khi đóng.",
+    fillRequired: "Vui lòng điền tiêu đề và nội dung",
     fillRequired: "Vui lòng nhập chủ đề và nội dung",
     empty: "Chưa có phiếu hỗ trợ"
   },
@@ -425,7 +428,8 @@ export default {
     description: "Mô tả",
     inviteRewards: "Phần thưởng người mời",
     multiplier: "Hệ số",
-    historyEmpty: "Chưa có lịch sử đổi thưởng"
+    historyEmpty: "Chưa có lịch sử đổi thưởng",
+    mysteryPreview: "Phần thưởng ngẫu nhiên ({count} mục trong pool — hiển thị sau khi đổi)"
   },
   profile: {
     telegramUnbindConfirm: "Hủy liên kết Telegram? Bạn cần gửi /bind cho bot để liên kết lại.",

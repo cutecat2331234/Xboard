@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Order;
 use App\Models\Plan;
 use App\Models\User;
 use App\Exceptions\ApiException;
@@ -180,7 +181,7 @@ class PlanService
         }
     }
 
-    public function hasCapacity(Plan $plan): bool
+    public function hasCapacity(Plan $plan, ?Order $forOrder = null): bool
     {
         if ($plan->capacity_limit === null || (int) $plan->capacity_limit <= 0) {
             return true;
@@ -194,7 +195,17 @@ class PlanService
             })
             ->count();
 
-        return ($plan->capacity_limit - $activeUserCount) > 0;
+        $inFlightQuery = Order::where('plan_id', $plan->id)
+            ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+            ->whereIn('type', [Order::TYPE_NEW_PURCHASE, Order::TYPE_UPGRADE]);
+
+        if ($forOrder) {
+            $inFlightQuery->where('id', '!=', $forOrder->id);
+        }
+
+        $inFlightCount = $inFlightQuery->count();
+
+        return ((int) $plan->capacity_limit - $activeUserCount - $inFlightCount) > 0;
     }
 
     public function getAvailablePeriods(Plan $plan): array

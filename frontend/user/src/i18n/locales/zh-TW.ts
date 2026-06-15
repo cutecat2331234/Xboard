@@ -285,7 +285,8 @@ export default {
     incomeAmount: "佣金",
     transferAmount: "劃轉金額（元）",
     transferAmountRequired: "請輸入劃轉金額",
-    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
+    transferAmountInvalid: "轉帳金額須為最多兩位小數的正數",
+    commissionTiers: "{l1}%、{l2}%、{l3}%",
     withdrawSuccess: "提現申請已提交，請前往工單查看進度。"
   },
   traffic: {
@@ -392,6 +393,8 @@ export default {
     closedReplyPh: "工單已關閉，無法回覆",
     closedHint: "工單已關閉，無法繼續回覆。",
     closeSuccess: "工單已關閉",
+    closeConfirm: "確定關閉此工單嗎？關閉後將無法繼續回覆。",
+    fillRequired: "請填寫主題與訊息",
     empty: "暫無工單"
   },
   giftCard: {
@@ -424,7 +427,8 @@ export default {
     description: "描述",
     inviteRewards: "邀請人獎勵",
     multiplier: "倍率",
-    historyEmpty: "暫無兌換記錄"
+    historyEmpty: "暫無兌換記錄",
+    mysteryPreview: "隨機獎勵（獎池 {count} 項，兌換後揭曉）"
   },
   profile: {
     telegramUnbindConfirm: "確定要解綁 Telegram 帳號嗎？解綁後需重新透過機器人 /bind 綁定。",

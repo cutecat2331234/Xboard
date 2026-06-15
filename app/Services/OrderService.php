@@ -137,7 +137,7 @@ class OrderService
             }
 
             if (in_array((int) $order->type, [Order::TYPE_NEW_PURCHASE, Order::TYPE_UPGRADE], true)) {
-                if (!(new PlanService($plan))->hasCapacity($plan)) {
+                if (!(new PlanService($plan))->hasCapacity($plan, $order)) {
                     throw new \RuntimeException(__('Current product is sold out'));
                 }
             }
@@ -521,20 +521,25 @@ class OrderService
                     throw new \RuntimeException(__('You can only cancel pending orders'));
                 }
 
-                $lockedOrder->status = Order::STATUS_CANCELLED;
-                if (!$lockedOrder->save()) {
-                    throw new \Exception('Failed to save order status.');
-                }
                 if ($lockedOrder->balance_amount && $lockedOrder->balance_deducted) {
                     $userService = new UserService();
                     if (!$userService->addBalance($lockedOrder->user_id, $lockedOrder->balance_amount)) {
                         throw new \Exception('Failed to add balance.');
                     }
+                    $lockedOrder->balance_deducted = false;
                 }
                 if ($lockedOrder->coupon_id && $lockedOrder->coupon_consumed) {
                     Coupon::where('id', $lockedOrder->coupon_id)
                         ->whereNotNull('limit_use')
                         ->increment('limit_use');
+                    $lockedOrder->coupon_consumed = false;
+                }
+
+                $lockedOrder->status = Order::STATUS_CANCELLED;
+                $lockedOrder->payment_id = null;
+                $lockedOrder->handling_amount = null;
+                if (!$lockedOrder->save()) {
+                    throw new \Exception('Failed to save order status.');
                 }
                 $this->order = $lockedOrder;
                 HookManager::call('order.cancel.after', $lockedOrder);

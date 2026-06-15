@@ -286,7 +286,8 @@ export default {
     incomeAmount: "コミッション金額",
     transferAmount: "振替金額（通貨単位）",
     transferAmountRequired: "振替金額を入力してください",
-    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
+    transferAmountInvalid: "振込金額は小数点以下2桁までの正の数である必要があります",
+    commissionTiers: "{l1}%、{l2}%、{l3}%",
     withdrawSuccess: "出金申請を送信しました。チケットで進捗を確認してください。"
   },
   traffic: {
@@ -391,6 +392,7 @@ export default {
     closedReplyPh: "チケットは終了済み — 返信できません",
     closedHint: "このチケットは終了しています。これ以上返信できません。",
     closeSuccess: "チケットを終了しました",
+    closeConfirm: "このチケットを終了しますか？終了後は返信できません。",
     fillRequired: "件名とメッセージを入力してください",
     empty: "チケットがありません"
   },
@@ -424,7 +426,8 @@ export default {
     description: "説明",
     inviteRewards: "招待者特典",
     multiplier: "倍率",
-    historyEmpty: "引き換え履歴がありません"
+    historyEmpty: "引き換え履歴がありません",
+    mysteryPreview: "ランダム報酬（プール {count} 件 — 交換後に公開）"
   },
   profile: {
     telegramUnbindConfirm: "Telegram アカウントの連携を解除しますか？再度 /bind で連携してください。",

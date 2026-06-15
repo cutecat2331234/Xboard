@@ -286,7 +286,8 @@ export default {
     incomeAmount: "수수료",
     transferAmount: "이체 금액(통화 단위)",
     transferAmountRequired: "이체 금액을 입력하세요",
-    transferAmountInvalid: 'Transfer amount must be a positive number with up to 2 decimal places',
+    transferAmountInvalid: "이체 금액은 소수점 이하 2자리까지의 양수여야 합니다",
+    commissionTiers: "{l1}%, {l2}%, {l3}%",
     withdrawSuccess: "출금 요청이 제출되었습니다. 티켓에서 진행 상황을 확인하세요."
   },
   traffic: {
@@ -391,6 +392,8 @@ export default {
     closedReplyPh: "티켓이 닫혔습니다 — 답장할 수 없습니다",
     closedHint: "이 티켓은 닫혔습니다. 더 이상 답장할 수 없습니다.",
     closeSuccess: "티켓이 닫혔습니다",
+    closeConfirm: "이 티켓을 닫으시겠습니까? 닫은 후에는 답변할 수 없습니다.",
+    fillRequired: "제목과 메시지를 입력해 주세요",
     fillRequired: "제목과 메시지를 입력하세요",
     empty: "티켓이 없습니다"
   },
@@ -424,7 +427,8 @@ export default {
     description: "설명",
     inviteRewards: "초청자 보상",
     multiplier: "배율",
-    historyEmpty: "교환 기록이 없습니다"
+    historyEmpty: "교환 기록이 없습니다",
+    mysteryPreview: "랜덤 보상 (풀 {count}개 — 교환 후 공개)"
   },
   profile: {
     telegramUnbindConfirm: "Telegram 계정 연동을 해제하시겠습니까? 봇에 /bind 를 다시 보내야 합니다.",
