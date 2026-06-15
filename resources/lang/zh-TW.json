@@ -146,5 +146,17 @@
     "traffic_reset.source.gift_card": "禮品卡兌換",
     "traffic_reset.reset_success": "流量重置成功",
     "traffic_reset.reset_failed": "流量重置失敗，請查看日誌獲取詳細信息",
-    "traffic_reset.user_cannot_reset": "該用戶當前不能重置流量（用戶未激活或無有效套餐）"
+    "traffic_reset.user_cannot_reset": "該用戶當前不能重置流量（用戶未激活或無有效套餐）",
+    "Create failed": "創建失敗",
+    "Delete failed": "刪除失敗",
+    "Cannot delete plan with existing orders": "該訂閱下存在訂單，無法刪除",
+    "Cannot delete plan with assigned users": "該訂閱下存在用戶，無法刪除",
+    "Balance cannot be negative": "餘額不能為負數",
+    "Commission balance cannot be negative": "佣金餘額不能為負數",
+    "Pending withdrawal ticket blocks commission balance edit": "存在未完成的提現工單，無法修改佣金餘額",
+    "Inviter is banned and cannot be assigned": "邀請人已被封禁，無法設置",
+    "User has a pending withdrawal ticket": "用戶存在待處理的提現工單，請先處理後再刪除",
+    "User has a paid order being processed": "用戶存在支付處理中的訂單，請等待開通完成或退款後再刪除",
+    "User still has balance or commission balance": "用戶仍有站內餘額或佣金餘額，請先清零後再刪除",
+    "Unable to cancel open orders for this user": "無法取消用戶未完成訂單，請先處理訂單後再刪除"
 }

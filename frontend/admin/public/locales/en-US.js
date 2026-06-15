@@ -2819,7 +2819,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "transfer": {
           "label": "Traffic",
           "placeholder": "Enter traffic limit",
-          "unit": "GB"
+          "unit": "GB",
+          "invalid": "Traffic must be at least 1 GB"
         },
         "speed": {
           "label": "Speed Limit",
@@ -3727,6 +3728,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "status": "Status",
       "title": "Title",
       "category": "Category",
+      "show": "Show",
       "actions": "Actions"
     },
     "form": {
@@ -3750,7 +3752,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "vi-VN": "Tiếng Việt",
       "zh-CN": "简体中文",
       "zh-TW": "繁體中文",
-      "ru-RU": "Russian"
+      "ru-RU": "Russian",
+      "fa-IR": "Persian"
     },
     "messages": {
       "deleteConfirm": "Confirm Delete",

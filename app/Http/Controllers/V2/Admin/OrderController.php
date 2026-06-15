@@ -37,7 +37,7 @@ class OrderController extends Controller
         ]);
         $order = Order::with(['user', 'plan', 'commission_log', 'invite_user'])->find($request->input('id'));
         if (!$order)
-            return $this->fail([400202, '订单不存在']);
+            return $this->fail([400202, __('Order does not exist')]);
         if ($order->surplus_order_ids) {
             $order['surplus_orders'] = Order::whereIn('id', $order->surplus_order_ids)->get();
         }
@@ -156,7 +156,7 @@ class OrderController extends Controller
                 ->lockForUpdate()
                 ->first();
             if (!$order) {
-                return $this->fail([400202, '订单不存在']);
+                return $this->fail([400202, __('Order does not exist')]);
             }
             if ($order->status !== 0) {
                 return $this->fail([400, '只能对待支付的订单进行操作']);
@@ -185,7 +185,7 @@ class OrderController extends Controller
                 ->lockForUpdate()
                 ->first();
             if (!$order) {
-                return $this->fail([400202, '订单不存在']);
+                return $this->fail([400202, __('Order does not exist')]);
             }
             if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
                 return $this->fail([400, '只能对待支付或处理中的订单进行操作']);
@@ -214,7 +214,7 @@ class OrderController extends Controller
                     ->lockForUpdate()
                     ->first();
                 if (!$order) {
-                    return $this->fail([400202, '订单不存在']);
+                    return $this->fail([400202, __('Order does not exist')]);
                 }
 
                 if (

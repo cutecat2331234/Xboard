@@ -2773,7 +2773,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "transfer": {
           "label": "Трафик",
           "placeholder": "Введите лимит трафика",
-          "unit": "ГБ"
+          "unit": "ГБ",
+          "invalid": "Трафик должен быть не менее 1 ГБ"
         },
         "speed": {
           "label": "Ограничение скорости",
@@ -3574,6 +3575,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "status": "Статус",
       "title": "Заголовок",
       "category": "Категория",
+      "show": "Показывать",
       "actions": "Действия"
     },
     "form": {
@@ -3597,7 +3599,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "vi-VN": "Tiếng Việt",
       "zh-CN": "简体中文",
       "zh-TW": "繁體中文",
-      "ru-RU": "Русский"
+      "ru-RU": "Русский",
+      "fa-IR": "فارسی"
     },
     "messages": {
       "deleteConfirm": "Подтверждение удаления",

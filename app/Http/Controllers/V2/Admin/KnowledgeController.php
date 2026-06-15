@@ -18,7 +18,7 @@ class KnowledgeController extends Controller
         if ($request->input('id')) {
             $knowledge = Knowledge::find($request->input('id'));
             if (!$knowledge) {
-                return $this->fail([400202, '知识不存在']);
+                return $this->fail([400202, __('Article does not exist')]);
             }
             return $this->success($knowledge->toArray());
         }
@@ -28,6 +28,10 @@ class KnowledgeController extends Controller
         if ($request->filled('title')) {
             $title = (string) $request->input('title');
             $query->where('title', 'like', '%' . $title . '%');
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', (string) $request->input('category'));
         }
 
         if ($request->filled('current') || $request->filled('pageSize')) {
@@ -55,18 +59,18 @@ class KnowledgeController extends Controller
 
         if (!$request->input('id')) {
             if (!Knowledge::create($params)) {
-                return $this->fail([500, '创建失败']);
+                return $this->fail([500, __('Create failed')]);
             }
         } else {
             $knowledge = Knowledge::find($request->input('id'));
             if (!$knowledge) {
-                return $this->fail([400202, '知识不存在']);
+                return $this->fail([400202, __('Article does not exist')]);
             }
             try {
                 $knowledge->update($params);
             } catch (\Exception $e) {
                 \Log::error($e);
-                return $this->fail([500, '创建失败']);
+                return $this->fail([500, __('Create failed')]);
             }
         }
 
@@ -82,11 +86,11 @@ class KnowledgeController extends Controller
         ]);
         $knowledge = Knowledge::find($request->input('id'));
         if (!$knowledge) {
-            throw new ApiException('知识不存在');
+            throw new ApiException(__('Article does not exist'));
         }
         $knowledge->show = !$knowledge->show;
         if (!$knowledge->save()) {
-            throw new ApiException('保存失败');
+            throw new ApiException(__('Save failed'));
         }
 
         return $this->success(true);
@@ -103,17 +107,14 @@ class KnowledgeController extends Controller
         try {
             DB::beginTransaction();
             foreach ($request->input('ids') as $k => $v) {
-                $knowledge = Knowledge::find($v);
-                if (!$knowledge) {
-                    continue;
-                }
+                $knowledge = Knowledge::findOrFail($v);
                 $knowledge->timestamps = false;
                 $knowledge->update(['sort' => $k + 1]);
             }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            throw new ApiException('保存失败');
+            throw new ApiException(__('Save failed'));
         }
         return $this->success(true);
     }
@@ -127,10 +128,10 @@ class KnowledgeController extends Controller
         ]);
         $knowledge = Knowledge::find($request->input('id'));
         if (!$knowledge) {
-            return $this->fail([400202, '知识不存在']);
+            return $this->fail([400202, __('Article does not exist')]);
         }
         if (!$knowledge->delete()) {
-            return $this->fail([500, '删除失败']);
+            return $this->fail([500, __('Delete failed')]);
         }
 
         return $this->success(true);

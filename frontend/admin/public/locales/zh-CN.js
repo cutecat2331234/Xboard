@@ -2845,7 +2845,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "transfer": {
           "label": "流量",
           "placeholder": "请输入流量限制",
-          "unit": "GB"
+          "unit": "GB",
+          "invalid": "流量至少为 1 GB"
         },
         "speed": {
           "label": "速度限制",
@@ -3780,7 +3781,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "vi-VN": "Tiếng Việt",
       "zh-CN": "简体中文",
       "zh-TW": "繁體中文",
-      "ru-RU": "Русский"
+      "ru-RU": "Русский",
+      "fa-IR": "فارسی"
     },
     "messages": {
       "deleteConfirm": "确认删除",

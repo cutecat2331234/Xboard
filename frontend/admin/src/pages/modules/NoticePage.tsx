@@ -165,6 +165,11 @@ export default function NoticePage() {
     if (ok) load()
   }
 
+  function handleCancelSort() {
+    sort.cancelSort()
+    load()
+  }
+
   const columns = useMemo<ColumnDef<NoticeRow, unknown>[]>(
     () => [
       ...(sort.sortMode
@@ -259,7 +264,7 @@ export default function NoticePage() {
                 saveLabel={t('notice.table.toolbar.sort.save')}
                 onEdit={enterSortMode}
                 onSave={handleSaveSort}
-                onCancel={sort.cancelSort}
+                onCancel={handleCancelSort}
               />
               <Input
                 value={search}

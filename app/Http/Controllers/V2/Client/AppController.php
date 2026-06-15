@@ -134,9 +134,7 @@ class AppController extends Controller
                 'server_list_cache_duration' => (int) admin_setting('app_server_list_cache_duration', 1800), // 服务器列表缓存时长(秒)
                 'user_info_cache_duration' => (int) admin_setting('app_user_info_cache_duration', 900), // 用户信息缓存时长(秒)
             ],
-            'last_updated' => time(), // 最后更新时间戳
         ];
-        $config['config_hash'] = md5(json_encode($config)); // 配置哈希值(用于校验)
 
         if (!AppFeature::commissionEnabled()) {
             $config['payment_config']['withdraw_methods'] = [];
@@ -150,8 +148,10 @@ class AppController extends Controller
             $config['payment_config']['commission_distribution_l3'] = null;
         }
 
-        $config = $config ?? [];
-        return response()->json(['data' => $config]);
+        $config['config_hash'] = md5(json_encode($config));
+        $config['last_updated'] = time();
+
+        return $this->success($config);
     }
 
     public function getVersion(Request $request)
