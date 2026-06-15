@@ -27,7 +27,7 @@ class PlanController extends Controller
         }
 
         $paginated = $request->filled('current') || $request->filled('pageSize');
-        $withCounts = $paginated || $request->boolean('with_counts');
+        $withCounts = $request->boolean('with_counts');
 
         if ($withCounts) {
             $query->withCount([

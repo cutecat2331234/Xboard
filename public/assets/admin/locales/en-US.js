@@ -515,6 +515,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "toolbar": {
         "search": "Search notice title...",
         "reset": "Reset",
+        "sortModeHint": "Drag notices to reorder, then click save",
         "sort": {
           "edit": "Edit Order",
           "save": "Save Order"
@@ -611,7 +612,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "PENDING": "Pending",
       "VALID": "Validated",
       "SETTLED": "Settled",
-      "INVALID": "Invalid"
+      "INVALID": "Invalid",
+      "alreadyPaid": "This order already has commission records and cannot be marked pending again."
+    },
+    "assign": {
+      "amountExceedsPrice": "Payment amount cannot exceed the plan list price.",
+      "userBanned": "This user is banned and cannot receive a subscription.",
+      "createFailed": "Failed to create the order."
     },
     "actions": {
       "markAsPaid": "Mark as Paid",
@@ -2210,9 +2217,22 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "reset_traffic": "Reset User Traffic"
         }
       },
+      "surplus_traffic_ratio_enable": {
+        "title": "Enable Surplus Traffic Ratio",
+        "description": "When enabled, unused traffic from the previous plan can be credited when users change plans."
+      },
+      "default_remind_expire": {
+        "title": "Default Expiry Reminder",
+        "description": "Enable expiry reminders by default for newly registered users."
+      },
+      "default_remind_traffic": {
+        "title": "Default Traffic Reminder",
+        "description": "Enable traffic usage reminders by default for newly registered users."
+      },
       "subscribe_path": {
         "title": "Subscription Path",
         "description": "Subscription path, modifying will change the original subscribe path",
+        "placeholder": "Enter subscription path segment",
         "current_format": "Current subscription path format: {path}/xxxxxxxxxx",
         "restart_tip": "You may need to restart the service for the new subscribe path to take effect."
       },
@@ -2763,7 +2783,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "search": "Search plans...",
       "sort": {
         "edit": "Edit Sort",
-        "save": "Save Sort"
+        "save": "Save Sort",
+        "sortModeHint": "Drag plans to reorder, then click save"
       },
       "columns": {
         "id": "ID",
@@ -2902,16 +2923,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "page": {
         "description": "Here you can configure subscription plans, including adding, deleting, and editing operations."
       }
-    }
-  },
-  "order": {
-    "assign": {
-      "amountExceedsPrice": "Payment amount cannot exceed the plan list price.",
-      "userBanned": "This user is banned and cannot receive a subscription.",
-      "createFailed": "Failed to create the order."
-    },
-    "commission": {
-      "alreadyPaid": "This order already has commission records and cannot be marked pending again."
     }
   },
   "coupon": {

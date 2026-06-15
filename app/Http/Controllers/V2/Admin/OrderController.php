@@ -159,16 +159,16 @@ class OrderController extends Controller
                 return $this->fail([400202, __('Order does not exist')]);
             }
             if ($order->status !== 0) {
-                return $this->fail([400, '只能对待支付的订单进行操作']);
+                return $this->fail([400, __('Only pending orders can be marked as paid')]);
             }
 
             $orderService = new OrderService($order);
             if (!$orderService->paid('manual_operation')) {
-                return $this->fail([500, '更新失败']);
+                return $this->fail([500, __('Update failed')]);
             }
             $order->refresh();
             if ((int) $order->status !== Order::STATUS_COMPLETED) {
-                return $this->fail([500, '订单开通失败']);
+                return $this->fail([500, __('Order fulfillment failed')]);
             }
             return $this->success(true);
         });
@@ -188,15 +188,15 @@ class OrderController extends Controller
                 return $this->fail([400202, __('Order does not exist')]);
             }
             if (!in_array((int) $order->status, [Order::STATUS_PENDING, Order::STATUS_PROCESSING], true)) {
-                return $this->fail([400, '只能对待支付或处理中的订单进行操作']);
+                return $this->fail([400, __('Only pending or processing orders can be cancelled')]);
             }
             if ((int) $order->status === Order::STATUS_PROCESSING && $order->paid_at) {
-                return $this->fail([400, '已支付订单不可取消，请先处理退款']);
+                return $this->fail([400, __('Paid orders cannot be cancelled; process a refund first')]);
             }
 
             $orderService = new OrderService($order);
             if (!$orderService->cancel()) {
-                return $this->fail([400, '更新失败']);
+                return $this->fail([400, __('Update failed')]);
             }
             return $this->success(true);
         });
@@ -222,7 +222,7 @@ class OrderController extends Controller
                     && (int) $params['commission_status'] === 2
                     && (int) $order->commission_status !== 2
                 ) {
-                    return $this->fail([400, '佣金状态不可手动标记为已结算']);
+                    return $this->fail([400, __('Commission status cannot be manually set to settled')]);
                 }
 
                 if (
@@ -230,7 +230,7 @@ class OrderController extends Controller
                     && isset($params['commission_status'])
                     && (int) $params['commission_status'] !== 2
                 ) {
-                    return $this->fail([400, '已结算的佣金不可回退']);
+                    return $this->fail([400, __('Settled commission cannot be reverted')]);
                 }
 
                 if (
@@ -238,7 +238,7 @@ class OrderController extends Controller
                     && (int) $params['commission_status'] === 1
                     && CommissionLog::where('trade_no', $order->trade_no)->exists()
                 ) {
-                    return $this->fail([400, '该订单已有佣金记录，不可重新标记为待确认']);
+                    return $this->fail([400, __('Order already has commission records and cannot be marked pending again')]);
                 }
 
                 if (
@@ -246,7 +246,7 @@ class OrderController extends Controller
                     && (int) $params['commission_status'] === 3
                     && (int) $order->commission_status === 2
                 ) {
-                    return $this->fail([400, '已结算的佣金不可标记为无效']);
+                    return $this->fail([400, __('Settled commission cannot be marked invalid')]);
                 }
 
                 $order->update($params);
@@ -254,7 +254,7 @@ class OrderController extends Controller
             });
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '更新失败']);
+            return $this->fail([500, __('Update failed')]);
         }
     }
 
@@ -266,26 +266,26 @@ class OrderController extends Controller
                 $plan = Plan::where('id', $request->input('plan_id'))->lockForUpdate()->first();
 
                 if (!$user) {
-                    throw new \RuntimeException('该用户不存在');
+                    throw new \RuntimeException('user_not_found');
                 }
 
                 if ($user->banned) {
-                    throw new \RuntimeException('该用户已被封禁，无法分配订阅');
+                    throw new \RuntimeException('user_banned');
                 }
 
                 if (!$plan) {
-                    throw new \RuntimeException('该订阅不存在');
+                    throw new \RuntimeException('plan_not_found');
                 }
 
                 $userService = new UserService();
                 if ($userService->isNotCompleteOrderByUserId($user->id)) {
-                    throw new \RuntimeException('该用户还有待支付的订单，无法分配');
+                    throw new \RuntimeException('user_has_pending_order');
                 }
 
                 $periodKey = PlanService::getPeriodKey((string) $request->input('period'));
                 $price = $plan->prices[$periodKey] ?? null;
                 if ($price === null) {
-                    throw new \RuntimeException('该订阅周期不可购买');
+                    throw new \RuntimeException('invalid_plan_period');
                 }
 
                 $planService = new PlanService($plan);
@@ -300,7 +300,7 @@ class OrderController extends Controller
                 $maxTotal = (int) round($price * 100);
                 $adminTotal = (int) $request->input('total_amount');
                 if ($adminTotal > $maxTotal) {
-                    throw new \RuntimeException('支付金额不能超过订阅标价');
+                    throw new \RuntimeException('amount_exceeds_price');
                 }
                 $order->total_amount = $adminTotal;
                 $order->discount_amount = 0;
@@ -313,16 +313,16 @@ class OrderController extends Controller
                 $orderService->setInvite($user);
 
                 if (!$order->save()) {
-                    throw new \RuntimeException('订单创建失败');
+                    throw new \RuntimeException('order_create_failed');
                 }
 
                 $orderService = new OrderService($order->fresh());
                 if (!$orderService->paid('ADMIN_ASSIGN_' . $order->trade_no)) {
-                    throw new \RuntimeException('订单开通失败');
+                    throw new \RuntimeException('order_fulfillment_failed');
                 }
                 $order->refresh();
                 if ((int) $order->status !== Order::STATUS_COMPLETED) {
-                    throw new \RuntimeException('订单开通失败');
+                    throw new \RuntimeException('order_fulfillment_failed');
                 }
 
                 return $order->trade_no;
@@ -332,14 +332,20 @@ class OrderController extends Controller
         } catch (\App\Exceptions\ApiException $e) {
             return $this->fail([400, $e->getMessage()]);
         } catch (\RuntimeException $e) {
-            $message = $e->getMessage();
-            if ($message === '该用户不存在' || $message === '该订阅不存在') {
-                return $this->fail([400202, $message]);
-            }
-            return $this->fail([500, $message]);
+            return match ($e->getMessage()) {
+                'user_not_found' => $this->fail([400202, __('The user does not exist')]),
+                'plan_not_found' => $this->fail([400202, __('Subscription plan does not exist')]),
+                'user_banned' => $this->fail([400, __('User is banned and cannot receive a subscription')]),
+                'user_has_pending_order' => $this->fail([400, __('User has an unpaid or pending order, please try again later or cancel it')]),
+                'invalid_plan_period' => $this->fail([400, __('Invalid plan period')]),
+                'amount_exceeds_price' => $this->fail([400, __('Payment amount cannot exceed the plan list price')]),
+                'order_create_failed' => $this->fail([500, __('Failed to create order')]),
+                'order_fulfillment_failed' => $this->fail([500, __('Order fulfillment failed')]),
+                default => $this->fail([500, $e->getMessage()]),
+            };
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '订单开通失败']);
+            return $this->fail([500, __('Order fulfillment failed')]);
         }
     }
 }

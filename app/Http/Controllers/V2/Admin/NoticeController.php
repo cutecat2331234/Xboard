@@ -45,17 +45,17 @@ class NoticeController extends Controller
         ]);
         if (!$request->input('id')) {
             if (!Notice::create($data)) {
-                return $this->fail([500, '保存失败']);
+                return $this->fail([500, __('Save failed')]);
             }
         } else {
             $notice = Notice::find($request->input('id'));
             if (!$notice) {
-                return $this->fail([404, '公告不存在']);
+                return $this->fail([404, __('Notice does not exist')]);
             }
             try {
                 $notice->update($data);
             } catch (\Exception $e) {
-                return $this->fail([500, '保存失败']);
+                return $this->fail([500, __('Save failed')]);
             }
         }
         return $this->success(true);
@@ -66,20 +66,18 @@ class NoticeController extends Controller
         return $this->save($request);
     }
 
-
-
     public function show(Request $request)
     {
         if (empty($request->input('id'))) {
-            return $this->fail([500, '公告ID不能为空']);
+            return $this->fail([500, __('Notice ID cannot be empty')]);
         }
         $notice = Notice::find($request->input('id'));
         if (!$notice) {
-            return $this->fail([400202, '公告不存在']);
+            return $this->fail([400202, __('Notice does not exist')]);
         }
         $notice->show = $notice->show ? 0 : 1;
         if (!$notice->save()) {
-            return $this->fail([500, '保存失败']);
+            return $this->fail([500, __('Save failed')]);
         }
 
         return $this->success(true);
@@ -88,14 +86,14 @@ class NoticeController extends Controller
     public function drop(Request $request)
     {
         if (empty($request->input('id'))) {
-            return $this->fail([422, '公告ID不能为空']);
+            return $this->fail([422, __('Notice ID cannot be empty')]);
         }
         $notice = Notice::find($request->input('id'));
         if (!$notice) {
-            return $this->fail([400202, '公告不存在']);
+            return $this->fail([400202, __('Notice does not exist')]);
         }
         if (!$notice->delete()) {
-            return $this->fail([500, '删除失败']);
+            return $this->fail([500, __('Delete failed')]);
         }
         return $this->success(true);
     }
@@ -117,7 +115,7 @@ class NoticeController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error($e);
-            return $this->fail([500, '排序保存失败']);
+            return $this->fail([500, __('Sort save failed')]);
         }
     }
 }

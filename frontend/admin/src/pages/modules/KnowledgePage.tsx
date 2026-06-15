@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { adminApi, buildQuery, fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
+import { adminApi, buildQuery, fetchAllPaginatedList, fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { useIdListSort } from '@/lib/use-id-list-sort'
 import { DataTable } from '@/components/shared/DataTable'
@@ -75,7 +75,7 @@ export default function KnowledgePage() {
   }, [page, pageSize, search, t])
 
   const loadAll = useCallback(() => {
-    return fetchJsonList('/knowledge/fetch').then((rows) => rows as KnowledgeRow[])
+    return fetchAllPaginatedList<KnowledgeRow>('/knowledge/fetch')
   }, [])
 
   useEffect(() => {
@@ -117,6 +117,7 @@ export default function KnowledgePage() {
   }
 
   async function toggleShow(row: KnowledgeRow) {
+    if (sort.sortMode) return
     try {
       await postJson('/knowledge/show', { id: row.id })
       load()
@@ -201,6 +202,7 @@ export default function KnowledgePage() {
         cell: ({ row }) => (
           <Switch
             checked={Boolean(row.original.show)}
+            disabled={sort.sortMode}
             onCheckedChange={() => toggleShow(row.original)}
           />
         ),

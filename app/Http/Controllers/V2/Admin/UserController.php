@@ -326,10 +326,6 @@ class UserController extends Controller
             if (!$plan) {
                 return $this->fail([400202, __('Subscription plan does not exist')]);
             }
-            if ((int) $params['plan_id'] !== (int) $user->plan_id
-                && !(new PlanService($plan))->hasCapacity($plan)) {
-                return $this->fail([400, __('Current product is sold out')]);
-            }
             $params['group_id'] = $plan->group_id;
             if ((int) $params['plan_id'] !== (int) $user->plan_id) {
                 if (!$request->has('transfer_enable')) {
@@ -419,6 +415,12 @@ class UserController extends Controller
                         throw new \RuntimeException('email_taken');
                     }
                 }
+                if (isset($params['plan_id']) && (int) $params['plan_id'] !== (int) $user->plan_id) {
+                    $lockedPlan = Plan::where('id', $params['plan_id'])->lockForUpdate()->first();
+                    if (!$lockedPlan || !(new PlanService($lockedPlan))->hasCapacity($lockedPlan)) {
+                        throw new \RuntimeException('plan_sold_out');
+                    }
+                }
                 $user->update($params);
             });
         } catch (\RuntimeException $e) {
@@ -427,6 +429,9 @@ class UserController extends Controller
             }
             if ($e->getMessage() === 'email_taken') {
                 return $this->fail([400201, __('Email already exists')]);
+            }
+            if ($e->getMessage() === 'plan_sold_out') {
+                return $this->fail([400, __('Current product is sold out')]);
             }
             throw $e;
         } catch (QueryException $e) {
@@ -466,7 +471,7 @@ class UserController extends Controller
 
         if ($scope === 'selected') {
             if (empty($userIds)) {
-                return $this->fail([422, 'user_ids不能为空']);
+                return $this->fail([422, __('User IDs cannot be empty')]);
             }
         }
 
@@ -567,7 +572,7 @@ class UserController extends Controller
             $email = $request->input('email_prefix') . '@' . $request->input('email_suffix');
 
             if (User::byEmail($email)->exists()) {
-                return $this->fail([400201, '邮箱已存在于系统中']);
+                return $this->fail([400201, __('Email already exists')]);
             }
 
             $userService = app(UserService::class);
@@ -579,7 +584,7 @@ class UserController extends Controller
             ]);
 
             if (!$user->save()) {
-                return $this->fail([500, '生成失败']);
+                return $this->fail([500, __('Generation failed')]);
             }
             return $this->success(true);
         }
@@ -588,7 +593,7 @@ class UserController extends Controller
             return $this->multiGenerate($request);
         }
 
-        return $this->fail([422, '请提供 email_prefix 或 generate_count']);
+        return $this->fail([422, __('Provide email_prefix or generate_count')]);
     }
 
     private function multiGenerate(Request $request)
@@ -619,7 +624,7 @@ class UserController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->fail([500, '生成失败']);
+            return $this->fail([500, __('Generation failed')]);
         }
 
         // 判断是否导出 CSV
@@ -659,7 +664,7 @@ class UserController extends Controller
         for ($i = 1; $i <= $generateCount; $i++) {
             $email = $emailPrefix . '_' . $i . '@' . $emailSuffix;
             if (User::where('email', $email)->exists()) {
-                return $this->fail([400201, '邮箱 ' . $email . ' 已存在于系统中']);
+                return $this->fail([400201, __('Email already exists')]);
             }
         }
 
@@ -685,7 +690,7 @@ class UserController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->fail([500, '生成失败']);
+            return $this->fail([500, __('Generation failed')]);
         }
 
         // 判断是否导出 CSV
@@ -722,7 +727,7 @@ class UserController extends Controller
 
         if ($scope === 'selected') {
             if (empty($userIds)) {
-                return $this->fail([422, 'user_ids不能为空']);
+                return $this->fail([422, __('User IDs cannot be empty')]);
             }
         }
 
@@ -792,7 +797,7 @@ class UserController extends Controller
 
         if ($scope === 'selected') {
             if (empty($userIds)) {
-                return $this->fail([422, 'user_ids不能为空']);
+                return $this->fail([422, __('User IDs cannot be empty')]);
             }
         }
 
@@ -823,7 +828,7 @@ class UserController extends Controller
             }
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '处理失败']);
+            return $this->fail([500, __('Processing failed')]);
         }
         return $this->success(true);
     }
@@ -843,13 +848,13 @@ class UserController extends Controller
         $inviteUserId = $request->input('invite_user_id');
 
         if ($inviteUserId && (int) $inviteUserId === (int) $user->id) {
-            return $this->fail([400, '不能将自己设为邀请人']);
+            return $this->fail([400, __('Cannot set yourself as inviter')]);
         }
 
         if ($inviteUserId) {
             $inviter = User::find($inviteUserId);
             if (!$inviter || $inviter->banned) {
-                return $this->fail([400, '邀请人已被封禁，无法设置']);
+                return $this->fail([400, __('Inviter is banned and cannot be assigned')]);
             }
         }
 
@@ -861,7 +866,7 @@ class UserController extends Controller
 
         $user->invite_user_id = $inviteUserId ?: null;
         if (!$user->save()) {
-            return $this->fail([500, '保存失败']);
+            return $this->fail([500, __('Save failed')]);
         }
 
         return $this->success(true);
@@ -972,7 +977,7 @@ class UserController extends Controller
         $data = collect($users)->map(function ($user) use ($request, $includeCredentials) {
             $row = [
                 'email' => $user['email'],
-                'expired_at' => $user['expired_at'] === null ? '长期有效' : date('Y-m-d H:i:s', $user['expired_at']),
+                'expired_at' => $user['expired_at'] === null ? __('Unlimited') : date('Y-m-d H:i:s', $user['expired_at']),
                 'uuid' => $user['uuid'],
                 'created_at' => date('Y-m-d H:i:s', $user['created_at']),
             ];
@@ -985,10 +990,6 @@ class UserController extends Controller
             return $row;
         });
 
-        return response()->json([
-            'code' => 0,
-            'message' => '批量生成成功',
-            'data' => $data,
-        ]);
+        return $this->success($data);
     }
 }

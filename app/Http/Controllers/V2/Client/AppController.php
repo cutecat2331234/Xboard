@@ -4,8 +4,7 @@ namespace App\Http\Controllers\V2\Client;
 
 use App\Http\Controllers\Controller;
 use App\Support\AppFeature;
-use App\Services\ServerService;
-use App\Services\UserService;
+use App\Services\Plugin\HookManager;
 use App\Utils\Dict;
 use App\Utils\Helper;
 use Illuminate\Http\Request;
@@ -16,10 +15,16 @@ class AppController extends Controller
 {
     public function getConfig(Request $request)
     {
+        $reminderDays = admin_setting('app_subscription_reminder_days', [7, 3, 1]);
+        if (is_string($reminderDays)) {
+            $decoded = json_decode($reminderDays, true);
+            $reminderDays = is_array($decoded) ? $decoded : [7, 3, 1];
+        }
+
         $config = [
             'app_info' => [
-                'app_name' => admin_setting('app_name', 'XB加速器'), // 应用名称
-                'app_description' => admin_setting('app_description', '专业的网络加速服务'), // 应用描述
+                'app_name' => admin_setting('app_name', 'XBoard'),
+                'app_description' => admin_setting('app_description', 'Professional network acceleration service'),
                 'app_url' => admin_setting('app_url', 'https://app.example.com'), // 应用官网 URL
                 'logo' => admin_setting('logo', 'https://example.com/logo.png'), // 应用 Logo URL
                 'version' => admin_setting('app_version', '1.0.0'), // 应用版本号
@@ -73,7 +78,7 @@ class AppController extends Controller
                 'auto_disconnect_after_minutes' => (int) admin_setting('app_auto_disconnect_after_minutes', 60), // 自动断开连接时间(分钟)
                 'max_concurrent_connections' => (int) admin_setting('app_max_concurrent_connections', 3), // 最大并发连接数
                 'traffic_warning_threshold' => (float) admin_setting('app_traffic_warning_threshold', 0.8), // 流量警告阈值(0-1)
-                'subscription_reminder_days' => admin_setting('app_subscription_reminder_days', [7, 3, 1]), // 订阅到期提醒天数
+                'subscription_reminder_days' => $reminderDays,
                 'connection_timeout_seconds' => (int) admin_setting('app_connection_timeout_seconds', 10), // 连接超时时间(秒)
                 'health_check_interval_seconds' => (int) admin_setting('app_health_check_interval_seconds', 30), // 健康检查间隔(秒)
                 'traffic_warn_rate' => (int) admin_setting('traffic_warn_rate', 70),
@@ -147,6 +152,8 @@ class AppController extends Controller
             $config['payment_config']['commission_distribution_l2'] = null;
             $config['payment_config']['commission_distribution_l3'] = null;
         }
+
+        $config = HookManager::filter('app_client_config', $config);
 
         $config['config_hash'] = md5(json_encode($config));
         $config['last_updated'] = time();

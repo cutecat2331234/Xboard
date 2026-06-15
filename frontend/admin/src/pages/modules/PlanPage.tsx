@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
+import { fetchAllPaginatedList, fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
 import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import {
   dialogFieldInputCls,
@@ -204,7 +204,7 @@ export default function PlanPage() {
   }, [page, pageSize, search, t])
 
   const loadAll = useCallback(() => {
-    return fetchJsonList('/plan/fetch').then((rows) => rows as PlanRow[])
+    return fetchAllPaginatedList<PlanRow>('/plan/fetch', { with_counts: 0 })
   }, [])
 
   useEffect(() => {
@@ -268,6 +268,7 @@ export default function PlanPage() {
   }
 
   async function toggleField(row: PlanRow, field: 'show' | 'sell' | 'renew') {
+    if (sort.sortMode) return
     try {
       await postJson('/plan/update', { id: row.id, [field]: !row[field] })
       load()
@@ -287,6 +288,9 @@ export default function PlanPage() {
     try {
       await postJson('/plan/drop', { id: row.id })
       toast.success(t('common.success'))
+      const nextTotal = Math.max(0, total - 1)
+      const maxPage = Math.max(1, Math.ceil(nextTotal / pageSize))
+      if (page > maxPage) setPage(maxPage)
       load()
     } catch (e) {
       toastApiError(e, toast, t, t('common.error'))
@@ -381,6 +385,7 @@ export default function PlanPage() {
         cell: ({ row }) => (
           <Switch
             checked={Boolean(row.original.show)}
+            disabled={sort.sortMode}
             onCheckedChange={() => toggleField(row.original, 'show')}
           />
         ),
@@ -391,6 +396,7 @@ export default function PlanPage() {
         cell: ({ row }) => (
           <Switch
             checked={Boolean(row.original.sell)}
+            disabled={sort.sortMode}
             onCheckedChange={() => toggleField(row.original, 'sell')}
           />
         ),
@@ -405,6 +411,7 @@ export default function PlanPage() {
         cell: ({ row }) => (
           <Switch
             checked={Boolean(row.original.renew)}
+            disabled={sort.sortMode}
             onCheckedChange={() => toggleField(row.original, 'renew')}
           />
         ),
@@ -498,6 +505,7 @@ export default function PlanPage() {
               saving={sort.sortSaving}
               editLabel={t('subscribe.plan.sort.edit')}
               saveLabel={t('subscribe.plan.sort.save')}
+              hint={sort.sortMode ? t('subscribe.plan.sort.sortModeHint') : undefined}
               onEdit={enterSortMode}
               onSave={handleSaveSort}
               onCancel={handleCancelSort}

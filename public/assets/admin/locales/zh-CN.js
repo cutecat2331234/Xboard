@@ -514,6 +514,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "toolbar": {
         "search": "搜索公告标题...",
         "reset": "重置",
+        "sortModeHint": "拖拽公告进行排序，完成后点击保存",
         "sort": {
           "edit": "编辑排序",
           "save": "保存排序"
@@ -610,7 +611,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "PENDING": "待确认",
       "VALID": "已校验",
       "SETTLED": "已结算",
-      "INVALID": "无效"
+      "INVALID": "无效",
+      "alreadyPaid": "该订单已有佣金记录，不可重新标记为待确认"
+    },
+    "assign": {
+      "amountExceedsPrice": "支付金额不能超过订阅标价",
+      "userBanned": "该用户已被封禁，无法分配订阅",
+      "createFailed": "订单创建失败"
     },
     "form": {
       "period": "周期",
@@ -2121,9 +2128,22 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "reset_traffic": "重置用户流量"
         }
       },
+      "surplus_traffic_ratio_enable": {
+        "title": "启用折抵流量比例",
+        "description": "开启后，用户变更订阅时可将原套餐剩余流量按比例折抵。"
+      },
+      "default_remind_expire": {
+        "title": "默认到期提醒",
+        "description": "新注册用户默认开启订阅到期提醒。"
+      },
+      "default_remind_traffic": {
+        "title": "默认流量提醒",
+        "description": "新注册用户默认开启流量使用提醒。"
+      },
       "subscribe_path": {
         "title": "订阅路径",
         "description": "订阅路径，修改后将会改变原有的subscribe路径",
+        "placeholder": "请输入订阅路径片段",
         "current_format": "当前订阅路径格式：{path}/xxxxxxxxxx",
         "restart_tip": "修改订阅路径后，可能需要重启服务才能生效。"
       },
@@ -2789,7 +2809,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "search": "搜索套餐...",
       "sort": {
         "edit": "编辑排序",
-        "save": "保存排序"
+        "save": "保存排序",
+        "sortModeHint": "拖拽套餐进行排序，完成后点击保存"
       },
       "columns": {
         "id": "ID",
@@ -2928,16 +2949,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "page": {
         "description": "在这里可以配置订阅计划，包括添加、删除、编辑等操作。"
       }
-    }
-  },
-  "order": {
-    "assign": {
-      "amountExceedsPrice": "支付金额不能超过订阅标价",
-      "userBanned": "该用户已被封禁，无法分配订阅",
-      "createFailed": "订单创建失败"
-    },
-    "commission": {
-      "alreadyPaid": "该订单已有佣金记录，不可重新标记为待确认"
     }
   },
   "coupon": {

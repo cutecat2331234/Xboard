@@ -203,7 +203,7 @@ export default function ConfigPage() {
       .then((data) => setConfig(data as Record<string, Record<string, unknown>>))
       .catch((err) => toastApiError(err, toast, t, t('common.error')))
       .finally(() => setLoading(false))
-    fetchJsonList('/plan/fetch')
+    fetchJsonList('/plan/fetch', { with_counts: 0 })
       .then((rows) => setPlans(rows as Array<{ id?: number; name?: string }>))
       .catch((err) => {
         setPlans([])
