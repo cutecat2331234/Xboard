@@ -181,6 +181,12 @@ class UserController extends Controller
     public function resetSecurity(Request $request)
     {
         $user = $request->user();
+        $rateKey = 'reset-security:' . $user->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 3600);
+
         $user->uuid = Helper::guid(true);
         $user->token = Helper::guid();
         if (!$user->save()) {

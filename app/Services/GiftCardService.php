@@ -8,6 +8,7 @@ use App\Models\CommissionLog;
 use App\Models\GiftCardCode;
 use App\Models\GiftCardTemplate;
 use App\Models\GiftCardUsage;
+use App\Models\Order;
 use App\Models\Plan;
 use App\Models\TrafficResetLog;
 use App\Models\User;
@@ -149,10 +150,10 @@ class GiftCardService
 
             $inviteRewards = null;
             if (
-                $this->user->invite_user_id
-                && isset($actualRewards['invite_reward_rate'])
+                isset($actualRewards['invite_reward_rate'])
                 && AppFeature::inviteEnabled()
                 && AppFeature::commissionEnabled()
+                && $this->shouldPayGiftCardInviteCommission()
             ) {
                 $inviteRewards = $this->giveInviteRewards($actualRewards);
             }
@@ -265,7 +266,7 @@ class GiftCardService
 
         $rate = $rewards['invite_reward_rate'] ?? 0.2;
         $inviteRewards = [];
-        $tradeNo = 'giftcard:' . $this->code->code;
+        $tradeNo = 'giftcard:' . $this->code->id . ':' . $this->user->id;
 
         if (isset($rewards['balance']) && $rewards['balance'] > 0) {
             $totalPool = (int) ($rewards['balance'] * $rate);
@@ -296,6 +297,32 @@ class GiftCardService
         }
 
         return $inviteRewards ?: null;
+    }
+
+    protected function shouldPayGiftCardInviteCommission(): bool
+    {
+        if (!$this->user->invite_user_id) {
+            return false;
+        }
+        $inviter = User::find($this->user->invite_user_id);
+        if (!$inviter || $inviter->banned) {
+            return false;
+        }
+
+        $commissionType = (int) $inviter->commission_type;
+        if ($commissionType === User::COMMISSION_TYPE_SYSTEM) {
+            $commissionType = (bool) admin_setting('commission_first_time_enable', true)
+                ? User::COMMISSION_TYPE_ONETIME
+                : User::COMMISSION_TYPE_PERIOD;
+        }
+        if ($commissionType === User::COMMISSION_TYPE_PERIOD) {
+            return true;
+        }
+
+        return !Order::where('user_id', $this->user->id)
+            ->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
+            ->whereRaw('(COALESCE(total_amount, 0) + COALESCE(balance_amount, 0) + COALESCE(surplus_amount, 0)) > 0')
+            ->exists();
     }
 
     protected function distributeInviteRewardPool(

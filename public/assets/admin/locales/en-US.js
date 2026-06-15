@@ -2913,7 +2913,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "invite": {
       "selfInviter": "Cannot set yourself as inviter.",
-      "cycleDetected": "Invite chain cycle detected."
+      "cycleDetected": "Invite chain cycle detected.",
+      "inviterBanned": "The inviter is banned and cannot be set."
+    },
+    "edit": {
+      "negativeBalance": "Balance cannot be negative.",
+      "negativeCommission": "Commission balance cannot be negative."
     },
     "columns": {
       "is_admin": "Admin",
@@ -3669,7 +3674,14 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "updateTemplateFailed": "Failed to update template",
       "deleteTemplateFailed": "Failed to delete template",
       "loadDataFailed": "Failed to load data",
-      "codesGenerated": "Redemption codes generated successfully"
+      "codesGenerated": "Redemption codes generated successfully",
+      "createFailed": "Create failed",
+      "templateNotFound": "Template not found",
+      "codeExpiredEnable": "This code has expired and cannot be enabled",
+      "codeNotFound": "Redemption code not found",
+      "templateDisabled": "This gift card type is disabled",
+      "deleteFailed": "Delete failed",
+      "updateFailed": "Update failed"
     }
   },
   "knowledge": {

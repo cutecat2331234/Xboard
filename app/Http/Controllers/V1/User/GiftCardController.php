@@ -66,7 +66,7 @@ class GiftCardController extends Controller
             ]);
 
         } catch (ApiException $e) {
-            return $this->fail([400, __('Gift card is not available')]);
+            return $this->fail([400, $e->getMessage()]);
         } catch (\Exception $e) {
             Log::error('礼品卡查询失败', [
                 'code' => $request->input('code'),
@@ -112,7 +112,7 @@ class GiftCardController extends Controller
             ]);
 
         } catch (ApiException $e) {
-            return $this->fail([400, __('Gift card is not available')]);
+            return $this->fail([400, $e->getMessage()]);
         } catch (\Exception $e) {
             Log::error('礼品卡使用失败', [
                 'code' => $request->input('code'),

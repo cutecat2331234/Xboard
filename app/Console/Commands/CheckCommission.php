@@ -175,7 +175,11 @@ class CheckCommission extends Command
                 break;
             }
             if ($inviter->banned) {
-                return 'invalid';
+                if ($l === 0 && (int) $inviteUserId === (int) $order->invite_user_id) {
+                    return 'invalid';
+                }
+                $inviteUserId = (int) ($inviter->invite_user_id ?? 0);
+                continue;
             }
             if (!isset($commissionShareLevels[$l])) {
                 continue;
@@ -285,7 +289,11 @@ class CheckCommission extends Command
                 break;
             }
             if ($inviter->banned) {
-                return 'invalid';
+                if ($l === 0 && (int) $inviteUserId === (int) $order->invite_user_id) {
+                    return 'invalid';
+                }
+                $inviteUserId = (int) ($inviter->invite_user_id ?? 0);
+                continue;
             }
             if (!isset($commissionShareLevels[$l])) {
                 $inviteUserId = $inviter->invite_user_id;

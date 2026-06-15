@@ -12,6 +12,8 @@ use App\Models\User;
 use App\Support\AppFeature;
 use App\Services\Plugin\HookManager;
 use App\Utils\Helper;
+use App\Utils\CacheKey;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -477,6 +479,7 @@ class OrderService
                 ]);
 
                 HookManager::call('order.cancel.after', $order);
+                Cache::forever(CacheKey::get('ORDER_OPEN_REFUNDED', $order->trade_no), $refundCents);
                 return true;
             });
         } catch (\Exception $e) {
