@@ -99,9 +99,8 @@ class AuthController extends Controller
         if (RateLimiter::tooManyAttempts($loginIpKey, 60)) {
             return $this->fail([429, __('Too many attempts')]);
         }
-        RateLimiter::hit($loginIpKey, 60);
 
-        [$success, $result] = $this->loginService->login($email, $password);
+        [$success, $result] = $this->loginService->login($email, $password, $request->ip());
 
         if (!$success) {
             return $this->fail($result);
@@ -118,7 +117,8 @@ class AuthController extends Controller
     {
         // 处理直接通过token重定向
         if ($token = $request->input('token')) {
-            $redirect = '/#/login?verify=' . $token . '&redirect=' . ($request->input('redirect', 'dashboard'));
+            $safeRedirect = rawurlencode(\App\Utils\Helper::sanitizeAppRedirect($request->input('redirect')));
+            $redirect = '/#/login?verify=' . $token . '&redirect=' . $safeRedirect;
 
             return redirect()->to(
                 admin_setting('app_url')

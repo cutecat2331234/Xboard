@@ -127,6 +127,8 @@ export default {
     catNotice: "공지"
   },
   auth: {
+    defaultTitle: 'Xboard',
+    defaultDescription: '전문 네트워크 가속 서비스',
     or: "또는",
     loginFailed: "로그인에 실패했습니다",
     registerFailed: "등록에 실패했습니다"
@@ -163,6 +165,11 @@ export default {
     sessionKicked: "다른 기기에서 로그인되었습니다. 다시 로그인해 주세요",
     loginFailed: "로그인에 실패했습니다",
     commConfigFailed: "사이트 설정을 불러오지 못했습니다. 일부 기능을 사용할 수 없을 수 있습니다. 페이지를 새로고침한 후 다시 시도해 주세요.",
+    tooManyAttempts: "시도 횟수가 너무 많습니다. 나중에 다시 시도해 주세요.",
+    telegramLoginUnavailable: "Telegram 로그인을 사용할 수 없습니다.",
+    featureDisabled: "이 기능은 비활성화되어 있습니다.",
+    currencyConversionTimeout: "환율 변환 시간이 초과되었습니다. 나중에 다시 시도해 주세요.",
+    openTicketExists: "이미 열린 티켓이 있습니다. 새 티켓을 만들기 전에 닫아 주세요.",
     orderNotFound: "주문을 찾을 수 없습니다",
     orderNotFoundOrPaid: "주문이 존재하지 않거나 이미 결제되었습니다",
     planNotFound: "구독 플랜이 존재하지 않습니다",
@@ -314,6 +321,8 @@ export default {
     detailTitle: "주문 세부사항",
     selectPayment: "결제 수단 선택",
     paymentLocked: "이 주문은 결제 수단이 고정되었습니다. 변경하려면 주문을 취소하세요",
+    redirectPaymentHint: "새 브라우저 탭에서 결제를 완료하세요. 결제가 완료되면 이 페이지가 자동으로 업데이트됩니다.",
+    redirectPopupBlocked: "팝업이 차단되었습니다. 이 사이트의 팝업을 허용한 후 다시 시도해 주세요.",
     paymentMethod: "결제 수단",
     totalTitle: "주문 합계",
     checkout: "결제하기",

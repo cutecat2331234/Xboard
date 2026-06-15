@@ -377,6 +377,17 @@ class OrderService
                 throw new \RuntimeException('Order not found for payment callback');
             }
             $this->order = $order;
+
+            if ((int) $order->status === Order::STATUS_PENDING) {
+                $user = User::where('id', $order->user_id)->lockForUpdate()->first();
+                if (!$user) {
+                    throw new \RuntimeException('User not found for order payment');
+                }
+                $this->deductOrderBalance($user, app(UserService::class));
+                $order = $this->order->fresh() ?? $this->order;
+            }
+
+            $this->order = $order;
             $this->consumeOrderCoupon();
             $order = $this->order->fresh() ?? $this->order;
 
@@ -682,6 +693,51 @@ class OrderService
         $this->order->balance_deducted = true;
         if (!$this->order->save()) {
             throw new ApiException(__('Request failed, please try again later'));
+        }
+    }
+
+    /**
+     * Undo checkout reservation when gateway initiation fails (balance + coupon + payment lock).
+     */
+    public function revertCheckoutReservation(): bool
+    {
+        try {
+            return DB::transaction(function () {
+                $order = Order::where('id', $this->order->id)->lockForUpdate()->first();
+                if (!$order || (int) $order->status !== Order::STATUS_PENDING || $order->paid_at) {
+                    return false;
+                }
+                $this->order = $order;
+
+                if ($order->balance_deducted && (int) $order->balance_amount) {
+                    $userService = app(UserService::class);
+                    if (!$userService->addBalance($order->user_id, (int) $order->balance_amount)) {
+                        throw new \RuntimeException('Failed to restore balance after checkout failure');
+                    }
+                    $order->balance_deducted = false;
+                }
+
+                if ($order->coupon_consumed && $order->coupon_id) {
+                    Coupon::where('id', $order->coupon_id)
+                        ->whereNotNull('limit_use')
+                        ->increment('limit_use');
+                    $order->coupon_consumed = false;
+                }
+
+                $order->payment_id = null;
+                $order->handling_amount = null;
+                if (!$order->save()) {
+                    throw new \RuntimeException('Failed to save order after checkout revert');
+                }
+
+                return true;
+            });
+        } catch (\Throwable $e) {
+            Log::error('revertCheckoutReservation failed', [
+                'order_id' => $this->order->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
         }
     }
 }

@@ -127,6 +127,8 @@ export default {
     catNotice: "お知らせ"
   },
   auth: {
+    defaultTitle: "Xboard",
+    defaultDescription: "プロフェッショナルなネットワーク加速サービス",
     or: "または",
     loginFailed: "ログインに失敗しました",
     registerFailed: "登録に失敗しました"
@@ -163,6 +165,11 @@ export default {
     sessionKicked: "別のデバイスでログインされました。再度ログインしてください",
     loginFailed: "ログインに失敗しました",
     commConfigFailed: "サイト設定の読み込みに失敗しました。一部の機能が利用できない場合があります。ページを更新して再度お試しください。",
+    tooManyAttempts: "試行回数が多すぎます。しばらくしてから再度お試しください。",
+    telegramLoginUnavailable: "Telegram ログインは利用できません。",
+    featureDisabled: "この機能は無効になっています。",
+    currencyConversionTimeout: "通貨換算がタイムアウトしました。後でもう一度お試しください。",
+    openTicketExists: "未完了のチケットがあります。新規作成前に閉じてください。",
     orderNotFound: "注文が見つかりません",
     orderNotFoundOrPaid: "注文が存在しないか、既に支払い済みです",
     planNotFound: "サブスクリプションプランが存在しません",

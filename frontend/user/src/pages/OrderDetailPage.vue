@@ -839,7 +839,7 @@ onUnmounted(stopPoll)
           strong
 
           :loading="paying"
-          :disabled="payTotal > 0 && !methods.length"
+          :disabled="payTotal > 0 && (!methods.length || lockedPaymentMissing)"
 
           icon-placement="left"
 

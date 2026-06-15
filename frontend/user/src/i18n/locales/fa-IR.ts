@@ -98,7 +98,7 @@ export default {
     loadFailed: "Failed to load plans",
     periodPricesHint: "Period prices",
     capacityRemaining: "{count} slots remaining",
-    tryOutBadge: "Trial plan",
+    tryOutBadge: "طرح آزمایشی",
     tryOutHint: "این طرح آزمایشی ثبت‌نام است. کاربران جدید به‌طور خودکار آزمایشی دریافت می‌کنند؛ همچنین می‌توانید آن را اینجا خریداری کنید."
   },
   node: {
@@ -127,6 +127,8 @@ export default {
     catNotice: "اطلاعیه"
   },
   auth: {
+    defaultTitle: "Xboard",
+    defaultDescription: "سرویس حرفه‌ای شتاب‌دهی شبکه",
     or: "یا",
     loginFailed: "ورود ناموفق بود",
     registerFailed: "ثبت‌نام ناموفق بود"
@@ -163,6 +165,11 @@ export default {
     sessionKicked: "حساب شما در جای دیگری وارد شده است. لطفاً دوباره وارد شوید.",
     loginFailed: "ورود ناموفق بود",
     commConfigFailed: "بارگذاری تنظیمات سایت ناموفق بود. ممکن است برخی قابلیت‌ها در دسترس نباشند — صفحه را تازه‌سازی کنید و دوباره تلاش کنید.",
+    tooManyAttempts: "تلاش بیش از حد. لطفاً بعداً دوباره تلاش کنید.",
+    telegramLoginUnavailable: "ورود با Telegram در دسترس نیست.",
+    featureDisabled: "این قابلیت غیرفعال است.",
+    currencyConversionTimeout: "تبدیل ارز زمان‌بر شد. لطفاً بعداً دوباره تلاش کنید.",
+    openTicketExists: "شما یک تیکت باز دارید. قبل از ایجاد تیکت جدید آن را ببندید.",
     orderNotFound: "سفارش یافت نشد",
     orderNotFoundOrPaid: "سفارش وجود ندارد یا قبلاً پرداخت شده است",
     planNotFound: "طرح اشتراک وجود ندارد",

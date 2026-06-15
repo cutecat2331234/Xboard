@@ -222,13 +222,17 @@ class RegisterService
                 return [true, $user];
             });
         } catch (ApiException $e) {
+            $this->releaseRegisterIpSlot($request->ip());
             $code = (int) $e->getCode();
             return [false, [$code > 0 ? $code : 400, $e->getMessage()]];
         } catch (\Throwable $e) {
+            $this->releaseRegisterIpSlot($request->ip());
             return [false, [500, __('Register failed')]];
         }
 
-        if ($ok && (int) admin_setting('register_limit_by_ip_enable', 0)) {
+        if (!$ok) {
+            $this->releaseRegisterIpSlot($request->ip());
+        } elseif ((int) admin_setting('register_limit_by_ip_enable', 0)) {
             $this->recordRegisterIpHit($request->ip());
         }
 
@@ -249,11 +253,34 @@ class RegisterService
         }
         $count = (int) Cache::increment($key);
         if ($count > $limit) {
+            Cache::decrement($key);
             throw new ApiException(
                 __('Register frequently, please try again after :minute minute', [
                     'minute' => admin_setting('register_limit_expire', 60),
                 ]),
                 429
+            );
+        }
+    }
+
+    /**
+     * Release a reserved registration slot when the transaction fails after increment.
+     */
+    private function releaseRegisterIpSlot(string $ip): void
+    {
+        if (!(int) admin_setting('register_limit_by_ip_enable', 0)) {
+            return;
+        }
+        $key = CacheKey::get('REGISTER_IP_RATE_LIMIT', $ip);
+        if (!Cache::has($key)) {
+            return;
+        }
+        $count = (int) Cache::get($key, 0);
+        if ($count > 0) {
+            Cache::put(
+                $key,
+                $count - 1,
+                (int) admin_setting('register_limit_expire', 60) * 60
             );
         }
     }

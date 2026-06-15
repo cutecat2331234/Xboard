@@ -236,7 +236,7 @@ onMounted(async () => {
         <n-button @click="applyCoupon">{{ t('plan.applyCoupon') }}</n-button>
       </div>
       <p v-if="featureEnabled(commConfig?.coupon_enable, commConfig != null) && couponDiscount" class="coupon-hint">{{ t('plan.couponDiscount') }}: {{ couponDiscount }}</p>
-      <n-button type="primary" class="buy-btn" :loading="buying" :disabled="!commReady || isSoldOut()" @click="buy">{{ t('plan.buyNow') }}</n-button>
+      <n-button type="primary" class="buy-btn" :loading="buying" :disabled="!commReady || isSoldOut() || isPlanChangeBlocked()" @click="buy">{{ t('plan.buyNow') }}</n-button>
     </template>
   </n-card>
   <p v-else class="muted">—</p>

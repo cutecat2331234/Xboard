@@ -18,7 +18,7 @@ class LoginService
      * @param string $password 用户密码
      * @return array [成功状态, 用户对象或错误信息]
      */
-    public function login(string $email, string $password): array
+    public function login(string $email, string $password, ?string $clientIp = null): array
     {
         // 检查密码错误限制
         if ((int) admin_setting('password_limit_enable', true)) {
@@ -59,6 +59,10 @@ class LoginService
                     (int) $passwordErrorCount + 1,
                     60 * (int) admin_setting('password_limit_expire', 60)
                 );
+            }
+            if ($clientIp) {
+                $loginIpKey = 'login-ip:' . $clientIp;
+                \Illuminate\Support\Facades\RateLimiter::hit($loginIpKey, 60);
             }
             return [false, [400, __('Incorrect email or password')]];
         }
