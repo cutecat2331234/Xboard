@@ -129,6 +129,10 @@ class StatController extends Controller
             'start_date' => 'nullable|date_format:Y-m-d',
             'end_date' => 'nullable|date_format:Y-m-d',
             'type' => 'nullable|in:paid_total,paid_count,commission_total,commission_count',
+        ], [
+            'start_date.date_format' => __('Invalid date format'),
+            'end_date.date_format' => __('Invalid date format'),
+            'type.in' => __('Invalid stat type'),
         ]);
 
         $query = Stat::where('record_type', 'd');
@@ -251,6 +255,9 @@ class StatController extends Controller
     {
         $request->validate([
             'user_id' => 'required|integer'
+        ], [
+            'user_id.required' => __('User ID cannot be empty'),
+            'user_id.integer' => __('User ID format is invalid'),
         ]);
 
         $pageSize = Helper::paginateParams(1, $request->input('pageSize', 10))[1];
@@ -266,6 +273,11 @@ class StatController extends Controller
         $request->validate([
             'start_time' => 'nullable|integer|min:1000000000|max:9999999999',
             'end_time' => 'nullable|integer|min:1000000000|max:9999999999',
+        ], [
+            'start_time.min' => __('Invalid time range'),
+            'start_time.max' => __('Invalid time range'),
+            'end_time.min' => __('Invalid time range'),
+            'end_time.max' => __('Invalid time range'),
         ]);
         $startDate = (int) $request->input('start_time', strtotime('-30 days'));
         $endDate = (int) $request->input('end_time', time());
@@ -445,6 +457,13 @@ class StatController extends Controller
             'type' => 'required|in:node,user',
             'start_time' => 'nullable|integer|min:1000000000|max:9999999999',
             'end_time' => 'nullable|integer|min:1000000000|max:9999999999'
+        ], [
+            'type.required' => __('Ranking type is required'),
+            'type.in' => __('Invalid ranking type'),
+            'start_time.min' => __('Invalid time range'),
+            'start_time.max' => __('Invalid time range'),
+            'end_time.min' => __('Invalid time range'),
+            'end_time.max' => __('Invalid time range'),
         ]);
 
         $type = $request->input('type');
@@ -522,6 +541,14 @@ class StatController extends Controller
             'limit' => 'nullable|integer|min:1|max:100',
             'start_time' => 'nullable|integer|min:1000000000|max:9999999999',
             'end_time' => 'nullable|integer|min:1000000000|max:9999999999',
+        ], [
+            'type.in' => __('Invalid ranking type'),
+            'limit.min' => __('Invalid pagination parameters'),
+            'limit.max' => __('Page size cannot exceed 100'),
+            'start_time.min' => __('Invalid time range'),
+            'start_time.max' => __('Invalid time range'),
+            'end_time.min' => __('Invalid time range'),
+            'end_time.max' => __('Invalid time range'),
         ]);
 
         $type = $request->input('type', 'server_traffic_rank');
