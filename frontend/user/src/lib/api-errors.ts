@@ -107,6 +107,7 @@ const MESSAGE_MAP: Record<string, string> = {
   '请取消订单并重新创建以更换支付方式': 'errors.paymentMethodLocked',
   'Currency conversion has timed out, please try again later': 'errors.currencyConversionTimeout',
   '货币转换超时，请稍后再试': 'errors.currencyConversionTimeout',
+  'Please wait for the technical engineer to reply': 'errors.ticketWaitForReply',
   'Please wait for the technical enginneer to reply': 'errors.ticketWaitForReply',
   'Please wait for the technical engineer to reply': 'errors.ticketWaitForReply',
   'Unsupported withdraw': 'errors.withdrawUnsupported',

@@ -29,7 +29,9 @@ class KnowledgeController extends Controller
 
     public function getCategory(Request $request)
     {
-        return $this->success(array_keys(Knowledge::get()->groupBy('category')->toArray()));
+        return $this->success(
+            Knowledge::query()->distinct()->orderBy('category')->pluck('category')->filter()->values()
+        );
     }
 
     public function save(KnowledgeSave $request)

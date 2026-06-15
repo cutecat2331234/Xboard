@@ -99,7 +99,6 @@ function formatCouponValidity(
 }
 
 function defaultForm() {
-  const now = Math.floor(Date.now() / 1000)
   return {
     name: '',
     code: '',
@@ -110,8 +109,8 @@ function defaultForm() {
     limit_plan_ids: [] as number[],
     limit_period: [] as string[],
     generate_count: '',
-    started_at_input: tsToInput(now),
-    ended_at_input: tsToInput(now + 86400 * 30),
+    started_at_input: '',
+    ended_at_input: '',
   }
 }
 

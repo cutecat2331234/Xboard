@@ -32,6 +32,9 @@ class OrderController extends Controller
     ];
     public function detail(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer|min:1',
+        ]);
         $order = Order::with(['user', 'plan', 'commission_log', 'invite_user'])->find($request->input('id'));
         if (!$order)
             return $this->fail([400202, '订单不存在']);

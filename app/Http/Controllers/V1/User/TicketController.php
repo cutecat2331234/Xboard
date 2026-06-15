@@ -73,7 +73,7 @@ class TicketController extends Controller
             $request->input('message')
         );
         HookManager::call('ticket.create.after', $ticket);
-        return $this->success(true);
+        return $this->success(['id' => $ticket->id]);
 
     }
 
@@ -103,7 +103,7 @@ class TicketController extends Controller
         if ((int) admin_setting('ticket_must_wait_reply', 0)) {
             $lastMessage = $this->getLastMessage($ticket->id);
             if ($lastMessage && $request->user()->id == $lastMessage->user_id) {
-                return $this->fail(codeResponse: [400, __('Please wait for the technical enginneer to reply')]);
+                return $this->fail(codeResponse: [400, __('Please wait for the technical engineer to reply')]);
             }
         }
         $ticketService = new TicketService();
@@ -176,7 +176,7 @@ class TicketController extends Controller
             return $this->fail([403, __('Unsupported withdraw')]);
         }
         if ((int) admin_setting('withdraw_close_enable', 0)) {
-            return $this->fail([400, 'Unsupported withdraw']);
+            return $this->fail([400, __('Unsupported withdraw')]);
         }
         if (
             !in_array(

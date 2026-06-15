@@ -36,7 +36,7 @@ class CouponController extends Controller
         try {
             $couponService->check();
         } catch (ApiException $e) {
-            return $this->fail([400, __('Invalid coupon')]);
+            return $this->fail([400, $e->getMessage()]);
         }
         return $this->success(CouponResource::make($couponService->getCoupon()));
     }

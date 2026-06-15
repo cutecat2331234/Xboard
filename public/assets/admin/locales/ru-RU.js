@@ -1,5 +1,10 @@
 window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
 window.XBOARD_TRANSLATIONS['ru-RU'] = {
+  "errors": {
+    "notFoundTitle": "Страница не найдена",
+    "notFoundDesc": "Запрашиваемая страница не существует или была удалена.",
+    "backHome": "На главную"
+  },
   "theme": {
     "title": "Конфигурация тем",
     "description": "Конфигурация тем, включая цвета, размеры шрифтов и т.д. Если вы развернули Xboard с раздельным фронтендом и бэкендом, конфигурация тем не вступит в силу.",

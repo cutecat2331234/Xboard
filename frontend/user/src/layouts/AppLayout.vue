@@ -390,7 +390,7 @@ const MenuToggleIcon = {
       </header>
       <n-layout-content class="app-main-outer" :content-style="{ padding: 0, background: 'var(--xb-page-bg)' }">
         <section class="cus-scroll-y app-scroll-main shell-main">
-          <router-view />
+          <router-view :key="route.fullPath" />
         </section>
       </n-layout-content>
     </n-layout>

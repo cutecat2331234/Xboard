@@ -218,6 +218,7 @@ async function generate() {
   try {
     await generateInviteCode()
     msg.success(t('common.success'))
+    codesPage.value = 1
     await load()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))

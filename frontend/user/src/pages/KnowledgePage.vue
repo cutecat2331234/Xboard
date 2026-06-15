@@ -74,12 +74,15 @@ async function loadKnowledge() {
   loadError.value = false
   try {
     const lang = resolveKnowledgeLang(locale.value)
-    const [list, cats] = await Promise.all([
-      fetchKnowledge(lang),
-      fetchKnowledgeCategories(lang).catch(() => []),
-    ])
+    const list = await fetchKnowledge(lang)
     items.value = list
-    categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]
+    try {
+      const cats = await fetchKnowledgeCategories(lang)
+      categories.value = cats.length ? cats : [...new Set(list.map((k) => k.category).filter(Boolean))]
+    } catch {
+      categories.value = [...new Set(list.map((k) => k.category).filter(Boolean))]
+      msg.warning(t('errors.requestFailed'))
+    }
   } catch (e: unknown) {
     items.value = []
     categories.value = []

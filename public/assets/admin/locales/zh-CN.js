@@ -1,5 +1,10 @@
 window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
 window.XBOARD_TRANSLATIONS['zh-CN'] = {
+  "errors": {
+    "notFoundTitle": "页面不存在",
+    "notFoundDesc": "您访问的页面不存在或已被移除。",
+    "backHome": "返回首页"
+  },
   "theme": {
     "title": "主题配置",
     "description": "主题配置，包括主题色、字体大小等。如果你采用前后分离的方式部署V2board，那么主题配置将不会生效。",
@@ -209,6 +214,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "toggleNavigation": "切换导航",
     "toggleSidebar": "切换侧边栏",
     "search": "搜索...",
+    "back": "返回",
     "units": {
       "b": "B",
       "kb": "KB",
