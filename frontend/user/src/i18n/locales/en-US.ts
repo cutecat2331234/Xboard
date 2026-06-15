@@ -262,6 +262,13 @@ export default {
       previous: 'Previous page',
       next: 'Next page',
     },
+    units: {
+      b: 'B',
+      kb: 'KB',
+      mb: 'MB',
+      gb: 'GB',
+      tb: 'TB',
+    },
   },
   invite: {
     title: 'My Invitation',

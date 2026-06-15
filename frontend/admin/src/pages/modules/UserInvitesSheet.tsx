@@ -88,6 +88,11 @@ export function UserInvitesSheet({ userId, email, plans, open, onOpenChange }: P
         header: () => t('user.columns.register_time'),
         cell: ({ row }) => formatAdminDateTime(row.original.created_at),
       },
+      {
+        accessorKey: 'expired_at',
+        header: () => t('user.columns.expire_time'),
+        cell: ({ row }) => formatAdminDateTime(row.original.expired_at),
+      },
     ],
     [t, plans],
   )

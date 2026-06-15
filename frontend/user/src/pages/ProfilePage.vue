@@ -25,6 +25,7 @@ import { fetchTelegramBotInfo, unbindTelegram } from '@/api/telegram'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useCurrency } from '@/composables/useCurrency'
 import { useI18n } from '@/i18n'
+import { formatLocaleDateTimeFromIso } from '@/lib/format-date'
 import { resolveApiError } from '@/lib/api-errors'
 
 const WalletIcon = renderCarbonIcon(
@@ -149,9 +150,7 @@ async function loadSessions() {
 }
 
 function formatTime(value: string | null) {
-  if (!value) return '-'
-  const d = new Date(value)
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString(locale.value)
+  return formatLocaleDateTimeFromIso(value, locale.value)
 }
 
 function kickSession(row: ActiveSession) {

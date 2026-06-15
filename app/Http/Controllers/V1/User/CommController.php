@@ -47,6 +47,9 @@ class CommController extends Controller
 
     public function getStripePublicKey(Request $request)
     {
+        $request->validate([
+            'id' => 'required|integer|exists:v2_payment,id',
+        ]);
         $payment = Payment::where('id', $request->input('id'))
             ->where('payment', 'StripeCredit')
             ->where('enable', 1)

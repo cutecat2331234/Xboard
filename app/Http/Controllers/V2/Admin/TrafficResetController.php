@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\TrafficResetLog;
 use App\Services\TrafficResetService;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -33,9 +34,14 @@ class TrafficResetController extends Controller
       'trigger_source' => 'nullable|string|in:' . implode(',', array_keys(TrafficResetLog::getSourceNames())),
       'start_date' => 'nullable|date',
       'end_date' => 'nullable|date|after_or_equal:start_date',
-      'per_page' => 'nullable|integer|min:1|max:10000',
+      'per_page' => 'nullable|integer|min:1|max:100',
       'page' => 'nullable|integer|min:1',
     ]);
+
+    [, $perPage] = Helper::paginateParams(
+      $request->input('page', 1),
+      $request->input('per_page', 20)
+    );
 
     $query = TrafficResetLog::with(['user:id,email'])
       ->orderBy('reset_time', 'desc');
@@ -67,7 +73,6 @@ class TrafficResetController extends Controller
       $query->where('reset_time', '<=', $request->end_date . ' 23:59:59');
     }
 
-    $perPage = $request->get('per_page', 20);
     $logs = $query->paginate($perPage);
 
     // 格式化数据

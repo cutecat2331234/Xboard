@@ -43,7 +43,7 @@ function priceLabel(p: PlanItem) {
 }
 
 function transferGb(p: PlanItem) {
-  return formatPlanTrafficGb(p.transfer_enable ?? 0)
+  return formatPlanTrafficGb(p.transfer_enable ?? 0, t('common.units.gb'))
 }
 
 function showCapacity(p: PlanItem) {

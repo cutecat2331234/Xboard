@@ -26,6 +26,7 @@ import {
 } from '@/api/gift-card'
 import { useCurrency } from '@/composables/useCurrency'
 import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatTrafficGbFromBytes } from '@/lib/format-traffic'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
@@ -63,8 +64,7 @@ function formatRewards(rewards?: GiftCardRewards | null) {
     parts.push(`${t('giftCard.rewardBalance')}: ${formatPrice(rewards.balance)}`)
   }
   if (rewards.transfer_enable && rewards.transfer_enable > 0) {
-    const gb = rewards.transfer_enable / 1073741824
-    parts.push(`${t('giftCard.rewardTraffic')}: ${gb >= 1 ? Math.round(gb) : gb.toFixed(2)} GB`)
+    parts.push(`${t('giftCard.rewardTraffic')}: ${formatTrafficGbFromBytes(rewards.transfer_enable, t('common.units.gb'))}`)
   }
   if (rewards.expire_days && rewards.expire_days > 0) {
     parts.push(`${t('giftCard.rewardExpireDays')}: ${rewards.expire_days}`)
@@ -130,7 +130,7 @@ async function doRedeem() {
   redeeming.value = true
   try {
     const res = await redeemGiftCard(code)
-    msg.success(t('giftCard.redeemSuccess'))
+    msg.success(res.message || t('giftCard.redeemSuccess'))
     redeemOpen.value = false
     redeemCode.value = ''
     checkResult.value = null

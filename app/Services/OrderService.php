@@ -10,6 +10,7 @@ use App\Models\Plan;
 use App\Models\TrafficResetLog;
 use App\Models\User;
 use App\Support\AppFeature;
+use App\Support\OnetimeCommission;
 use App\Services\Plugin\HookManager;
 use App\Utils\Helper;
 use App\Utils\CacheKey;
@@ -280,7 +281,7 @@ class OrderService
                 $isCommission = true;
                 break;
             case User::COMMISSION_TYPE_ONETIME:
-                $isCommission = !$this->haveValidOrder($user);
+                $isCommission = !OnetimeCommission::consumedByUser((int) $user->id);
                 break;
         }
 

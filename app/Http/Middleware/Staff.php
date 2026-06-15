@@ -9,11 +9,8 @@ use Closure;
 class Staff
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @return mixed
+     * Reserved for a future staff panel. No routes bind this middleware today;
+     * is_staff is used for Telegram alerts and admin user management only.
      */
     public function handle($request, Closure $next)
     {

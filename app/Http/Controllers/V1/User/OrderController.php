@@ -68,7 +68,18 @@ class OrderController extends Controller
             return $this->fail([400, __('Subscription plan does not exist')]);
         }
         if ($order->surplus_order_ids) {
-            $order['surplus_orders'] = Order::whereIn('id', $order->surplus_order_ids)->get();
+            $order['surplus_orders'] = Order::whereIn('id', $order->surplus_order_ids)
+                ->get()
+                ->map(fn (Order $surplus) => [
+                    'id' => $surplus->id,
+                    'trade_no' => $surplus->trade_no,
+                    'period' => PlanService::getLegacyPeriod((string) $surplus->period),
+                    'status' => $surplus->status,
+                    'total_amount' => $surplus->total_amount,
+                    'created_at' => $surplus->created_at,
+                ])
+                ->values()
+                ->all();
         }
         return $this->success(OrderResource::make($order));
     }

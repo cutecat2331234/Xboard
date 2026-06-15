@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V2\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminAuditLog;
 use App\Utils\CacheKey;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Horizon\Contracts\JobRepository;
@@ -100,8 +101,10 @@ class SystemController extends Controller
 
     public function getAuditLog(Request $request)
     {
-        $current = max(1, (int) $request->input('current', 1));
-        $pageSize = max(10, (int) $request->input('page_size', 10));
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current', 1),
+            $request->input('page_size', 10)
+        );
 
         $builder = AdminAuditLog::with('admin:id,email')
             ->orderBy('id', 'DESC')
@@ -122,8 +125,10 @@ class SystemController extends Controller
 
     public function getHorizonFailedJobs(Request $request, JobRepository $jobRepository)
     {
-        $current = max(1, (int) $request->input('current', 1));
-        $pageSize = max(10, (int) $request->input('page_size', 20));
+        [$current, $pageSize] = Helper::paginateParams(
+            $request->input('current', 1),
+            $request->input('page_size', 20)
+        );
         $offset = ($current - 1) * $pageSize;
 
         $failedJobs = collect($jobRepository->getFailed())
