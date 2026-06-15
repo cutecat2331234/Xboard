@@ -103,7 +103,7 @@ class InviteController extends Controller
         if (!$user) {
             return $this->fail([400, __('The user does not exist')]);
         }
-        $user->load(['codes' => fn ($query) => $query->orderByDesc('created_at')]);
+        $user->load(['codes' => fn ($query) => $query->orderByDesc('created_at')->limit(100)]);
         if ($user->commission_rate) {
             $commission_rate = $user->commission_rate;
         }

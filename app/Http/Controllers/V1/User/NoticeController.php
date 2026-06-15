@@ -13,7 +13,7 @@ class NoticeController extends Controller
     public function fetch(Request $request)
     {
         if (!AppFeature::announcementsEnabled()) {
-            return response(['data' => [], 'total' => 0]);
+            return $this->fail([403, __('Feature is disabled')]);
         }
 
         [$current, $pageSize] = Helper::paginateParams(
@@ -25,10 +25,10 @@ class NoticeController extends Controller
             ->where('show', true);
         $total = $model->count();
         $res = $model->forPage($current, $pageSize)
-            ->get();
-        return response([
+            ->get(['id', 'title', 'content', 'img_url', 'tags', 'created_at']);
+        return $this->success([
             'data' => $res,
-            'total' => $total
+            'total' => $total,
         ]);
     }
 }

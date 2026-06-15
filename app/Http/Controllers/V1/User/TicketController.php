@@ -246,7 +246,7 @@ class TicketController extends Controller
                     'trade_no' => 'withdraw:' . $ticket->id,
                     'order_amount' => $withdrawAmount,
                     'get_amount' => 0,
-                    'credited_at' => time(),
+                    'credited_at' => null,
                 ]);
 
                 HookManager::call('ticket.create.after', $ticket);

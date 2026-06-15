@@ -16,6 +16,7 @@ import {
   NLayoutSider,
   NMenu,
   useDialog,
+  useMessage,
 } from 'naive-ui'
 import type { DropdownOption, MenuOption } from 'naive-ui'
 import { getSettings } from '@/utils/settings'
@@ -25,6 +26,7 @@ import { toggleColorScheme } from '@/lib/theme'
 import { LANG_LABELS } from '@/lib/lang-labels'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useCurrency } from '@/composables/useCurrency'
+import { resolveApiError } from '@/lib/api-errors'
 import { featureEnabled } from '@/lib/feature-flags'
 
 const s = getSettings()
@@ -32,6 +34,7 @@ const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 const dialog = useDialog()
+const msg = useMessage()
 const { t, locale, setLocale } = useI18n()
 const { config: commConfig, load: loadCommConfig } = useUserCommConfig()
 const commConfigLoaded = ref(false)
@@ -175,7 +178,7 @@ function redirectIfGatedRouteDisabled() {
     (path === '/knowledge' && !featureEnabled(comm.knowledge_enable, true)) ||
     (path === '/traffic' && !featureEnabled(comm.traffic_log_enable, true))
   if (blocked) {
-    router.replace('/dashboard')
+    router.replace({ path: '/dashboard', query: { feature_disabled: '1' } })
   }
 }
 
@@ -191,22 +194,24 @@ function refreshCommConfig() {
         /* keep last currency */
       }
     })
-    .catch(() => {
-      /* keep last known config */
+    .catch((e: unknown) => {
+      msg.warning(resolveApiError(e, t, t('errors.commConfigFailed')))
     })
 }
 
 onMounted(async () => {
   try {
     await loadCommConfig()
-  } catch {
+  } catch (e: unknown) {
+    msg.warning(resolveApiError(e, t, t('errors.commConfigFailed')))
     setTimeout(() => {
-      void loadCommConfig().catch(() => {
-        /* keep last known config */
+      void loadCommConfig().catch((retryErr: unknown) => {
+        msg.warning(resolveApiError(retryErr, t, t('errors.commConfigFailed')))
       })
     }, 3000)
   } finally {
     commConfigLoaded.value = true
+    redirectIfGatedRouteDisabled()
   }
   window.addEventListener('focus', refreshCommConfig)
   updateMobile()

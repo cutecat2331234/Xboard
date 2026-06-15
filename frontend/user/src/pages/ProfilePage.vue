@@ -245,8 +245,9 @@ onMounted(async () => {
   try {
     const sub = await fetchSubscribe()
     subscribeToken.value = sub.token ?? ''
-  } catch {
+  } catch (e: unknown) {
     subscribeToken.value = ''
+    msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
 })
 </script>
@@ -313,7 +314,7 @@ onMounted(async () => {
     </div>
     <div class="mt-2.5 max-w-125">
       <label>{{ t('profile.confirmNewPassword') }}</label>
-      <n-input v-model:value="confirmPassword" type="password" :placeholder="t('profile.newPasswordPh')" show-password-on="click" />
+      <n-input v-model:value="confirmPassword" type="password" :placeholder="t('profile.confirmPasswordPh')" show-password-on="click" />
     </div>
     <n-button type="primary" class="mt-5" @click="submitPassword">{{ t('common.save') }}</n-button>
   </n-card>

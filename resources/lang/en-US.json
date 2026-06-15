@@ -41,6 +41,8 @@
     "Expired": "Expired",
     "Disabled": "Disabled",
     "Please use the withdrawal API to open a withdrawal ticket": "Please use the withdrawal API to open a withdrawal ticket",
+    "Your ticket on :app has received a reply": "Your ticket on :app has received a reply",
+    "Ticket reply notification": "Subject: :subject\r\nReply: :reply",
     "Gmail alias is not supported": "Gmail alias is not supported",
     "Incorrect email or password": "Incorrect email or password",
     "Incorrect email verification code": "Incorrect email verification code",

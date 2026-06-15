@@ -23,6 +23,7 @@ const sending = ref(false)
 const scrollRef = ref<InstanceType<typeof NScrollbar> | null>(null)
 const scrollContentRef = ref<HTMLElement | null>(null)
 let pollTimer: ReturnType<typeof setInterval> | null = null
+let silentPollFailures = 0
 
 const isClosed = computed(() => Boolean(ticket.value?.status))
 const isWithdraw = computed(() => (ticket.value ? isWithdrawTicket(ticket.value) : false))
@@ -48,12 +49,21 @@ async function load(silent = false) {
   try {
     const id = Number(route.params.id)
     ticket.value = await fetchTicketById(id)
+    silentPollFailures = 0
     if (ticket.value.status !== 0) {
       stopPoll()
     }
     scrollToBottom()
   } catch (e: unknown) {
-    if (!silent) msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+    if (silent) {
+      silentPollFailures += 1
+      if (silentPollFailures >= 3) {
+        msg.warning(resolveApiError(e, t, t('errors.requestFailed')))
+        stopPoll()
+      }
+    } else {
+      msg.error(resolveApiError(e, t, t('errors.requestFailed')))
+    }
   } finally {
     if (!silent) pageLoading.value = false
   }
