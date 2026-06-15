@@ -44,6 +44,7 @@ const inviteCount = ref(0)
 const ticketsEnabled = computed(() => featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null))
 const knowledgeEnabled = computed(() => featureEnabled(commConfig.value?.knowledge_enable, commConfig.value != null))
 const announcementsEnabled = computed(() => featureEnabled(commConfig.value?.announcement_enable, commConfig.value != null))
+const inviteEnabled = computed(() => featureEnabled(commConfig.value?.invite_enable, commConfig.value != null))
 
 const promoNotices = computed(() => notices.value.filter((n) => n.img_url))
 const popupNoticeTags = computed(() =>
@@ -227,7 +228,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
   <div class="mb-1 md:mb-10">
   <div class="dash-alerts">
     <n-alert
-      v-if="inviteCount > 0"
+      v-if="inviteEnabled && inviteCount > 0"
       type="info"
       :show-icon="false"
       bordered

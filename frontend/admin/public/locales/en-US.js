@@ -1,5 +1,10 @@
 window.XBOARD_TRANSLATIONS = window.XBOARD_TRANSLATIONS || {};
 window.XBOARD_TRANSLATIONS['en-US'] = {
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundDesc": "The page you're looking for does not exist or may have been removed.",
+    "backHome": "Back to Home"
+  },
   "theme": {
     "title": "Theme Configuration",
     "description": "Theme configuration, including theme colors, font sizes, etc. If you deploy V2board in a front-end and back-end separated way, theme configuration will not take effect.",
@@ -211,6 +216,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "toggleNavigation": "Toggle Navigation",
     "toggleSidebar": "Toggle Sidebar",
     "search": "Search...",
+    "back": "Go Back",
     "units": {
       "b": "B",
       "kb": "KB",

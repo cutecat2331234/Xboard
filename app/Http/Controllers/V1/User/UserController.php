@@ -218,7 +218,7 @@ class UserController extends Controller
             return $this->fail([403, __('Unsupported withdraw')]);
         }
         if ((int) admin_setting('withdraw_close_enable', 0)) {
-            return $this->fail([400, 'Unsupported withdraw']);
+            return $this->fail([400, __('Unsupported withdraw')]);
         }
         $amount = $request->input('transfer_amount');
         try {

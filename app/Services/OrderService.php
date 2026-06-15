@@ -219,7 +219,7 @@ class OrderService
             $order->type = Order::TYPE_RESET_TRAFFIC;
         } else if ($user->plan_id !== NULL && $order->plan_id !== $user->plan_id && ($user->expired_at > time() || $user->expired_at === NULL)) {
             if (!(int) admin_setting('plan_change_enable', 1))
-                throw new ApiException('目前不允许更改订阅，请联系客服或提交工单操作');
+                throw new ApiException(__('Plan changes are not allowed. Please contact support or open a ticket.'));
             $order->type = Order::TYPE_UPGRADE;
             if ((int) admin_setting('surplus_enable', 1)) {
                 $this->getSurplusValue($user, $order);
@@ -292,14 +292,6 @@ class OrderService
         } else {
             $order->commission_balance = (int) round($commissionBase * (admin_setting('invite_commission', 10) / 100));
         }
-    }
-
-    private function haveValidOrder(User $user): Order|null
-    {
-        return Order::where('user_id', $user->id)
-            ->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
-            ->whereRaw('(COALESCE(total_amount, 0) + COALESCE(balance_amount, 0) + COALESCE(surplus_amount, 0)) > 0')
-            ->first();
     }
 
     private function getSurplusValue(User $user, Order $order)

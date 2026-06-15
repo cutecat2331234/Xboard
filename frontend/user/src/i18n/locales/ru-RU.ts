@@ -112,6 +112,7 @@ export default {
   errors: {
     ...enUS.errors,
     unauthorized: 'Требуется авторизация. Войдите в аккаунт.',
+    featureDisabled: 'Эта функция сейчас отключена.',
     saveFailed: 'Не удалось сохранить',
     giftCardNotFound: 'Код активации не найден',
     giftCardDisabled: 'Этот тип подарочной карты отключён',

@@ -45,7 +45,7 @@ class KnowledgeController extends Controller
         }
 
         $request->validate([
-            'language' => 'nullable|sometimes|string|max:10',
+            'language' => 'nullable|sometimes|string|in:en-US,zh-CN,zh-TW,ru-RU',
         ]);
 
         $builder = Knowledge::query()

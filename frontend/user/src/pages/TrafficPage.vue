@@ -4,7 +4,7 @@ import { NAlert, NCard, NDataTable, NEmpty, NIcon, NPopover, NTag, useMessage } 
 import { HelpCircleOutline } from '@vicons/ionicons5'
 import { fetchTrafficLog } from '@/api/traffic'
 import { formatBytes } from '@/lib/format-traffic'
-import { formatFixedDate } from '@/lib/format-date'
+import { formatLocaleDate } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
@@ -20,7 +20,7 @@ const rows = ref<TrafficRow[]>([])
 const loading = ref(true)
 const loadError = ref(false)
 const msg = useMessage()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const trafficUnits = computed(() => ({
   b: t('common.units.b'),
@@ -40,7 +40,7 @@ const columns = computed(() => [
   {
     title: t('traffic.recordAt'),
     key: 'record_at',
-    render: (r: TrafficRow) => formatFixedDate(r.record_at),
+    render: (r: TrafficRow) => formatLocaleDate(r.record_at, locale.value),
   },
   {
     title: t('traffic.upload'),

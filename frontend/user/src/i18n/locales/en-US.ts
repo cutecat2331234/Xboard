@@ -192,6 +192,7 @@ export default {
     paymentMethodLocked: 'Please cancel this order and create a new one to change payment method.',
     currencyConversionTimeout: 'Currency conversion timed out. Please try again later.',
     ticketWaitForReply: 'Please wait for staff to reply before sending another message.',
+    featureDisabled: 'This feature is currently disabled.',
     withdrawUnsupported: 'Withdrawals are not supported',
     insufficientCommission: 'Insufficient commission balance',
     pendingWithdrawTicket: 'You already have a pending withdrawal request',

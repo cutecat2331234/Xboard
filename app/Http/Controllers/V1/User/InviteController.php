@@ -4,7 +4,7 @@ namespace App\Http\Controllers\V1\User;
 
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ComissionLogResource;
+use App\Http\Resources\CommissionLogResource;
 use App\Http\Resources\InviteCodeResource;
 use App\Models\CommissionLog;
 use App\Models\GiftCardUsage;
@@ -86,7 +86,7 @@ class InviteController extends Controller
         $details = $builder->forPage($current, $pageSize)
             ->get();
         return $this->success([
-            'data' => ComissionLogResource::collection($details),
+            'data' => CommissionLogResource::collection($details),
             'total' => $total,
             'current_page' => (int) $current,
             'page_size' => (int) $pageSize,

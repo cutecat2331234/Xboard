@@ -562,6 +562,14 @@ onMounted(async () => {
 
 })
 
+watch(
+  () => route.params.trade_no,
+  () => {
+    stopPoll()
+    void load()
+  },
+)
+
 onUnmounted(stopPoll)
 
 </script>

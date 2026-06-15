@@ -333,6 +333,9 @@ class GiftCardService
 
     protected function recordGiftCardCommission(int $inviteUserId, int $orderAmount, string $tradeNo, int $payAmount, User $inviter): void
     {
+        if (CommissionLog::where('trade_no', $tradeNo)->where('invite_user_id', $inviteUserId)->exists()) {
+            return;
+        }
         $now = time();
         $hold = $this->shouldHoldGiftCardCommission();
         $userService = app(UserService::class);

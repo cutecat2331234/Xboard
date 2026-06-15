@@ -20,13 +20,13 @@ class User
     public function handle($request, Closure $next)
     {
         if (!Auth::guard('sanctum')->check()) {
-            throw new ApiException('未登录或登陆已过期', 403);
+            throw new ApiException(__('Unauthorized or session expired'), 403);
         }
 
         $user = Auth::guard('sanctum')->user();
         if ($user && (int) $user->banned === 1) {
             (new AuthService($user))->removeAllSessions();
-            throw new ApiException('账号已被封禁', 403);
+            throw new ApiException(__('Your account has been banned'), 403);
         }
 
         return $next($request);

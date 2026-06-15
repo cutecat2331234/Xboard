@@ -25,7 +25,7 @@ export async function fetchTicketById(id: number) {
 }
 
 export async function saveTicket(payload: { subject: string; level: number; message: string }) {
-  return request<null>(api.post('/user/ticket/save', payload))
+  return request<{ id: number }>(api.post('/user/ticket/save', payload))
 }
 
 export async function replyTicket(payload: { id: number; message: string }) {
