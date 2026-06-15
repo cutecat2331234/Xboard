@@ -24,6 +24,12 @@ class InviteController extends Controller
             return $this->fail([403, __('Invalid invitation code')]);
         }
 
+        $rateKey = 'invite-save:' . $request->user()->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 10)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 60);
+
         try {
             return DB::transaction(function () use ($request) {
                 User::where('id', $request->user()->id)->lockForUpdate()->first();

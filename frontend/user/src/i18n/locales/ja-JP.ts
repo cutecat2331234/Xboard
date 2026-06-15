@@ -426,8 +426,7 @@ export default {
     description: "説明",
     inviteRewards: "招待者特典",
     multiplier: "倍率",
-    historyEmpty: "引き換え履歴がありません",
-    mysteryPreview: "ランダム報酬（プール {count} 件 — 交換後に公開）"
+    historyEmpty: "引き換え履歴がありません"
   },
   profile: {
     telegramUnbindConfirm: "Telegram アカウントの連携を解除しますか？再度 /bind で連携してください。",

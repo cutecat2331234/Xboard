@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\CommissionLog;
 use App\Support\AppFeature;
+use App\Support\CommissionChain;
 use Illuminate\Console\Command;
 use App\Models\Order;
 use App\Models\User;
@@ -142,23 +143,7 @@ class CheckCommission extends Command
 
     private function validateCommissionChain(?int $inviteUserId): bool
     {
-        if (!$inviteUserId) {
-            return false;
-        }
-
-        $currentId = $inviteUserId;
-        for ($l = 0; $l < 3; $l++) {
-            if (!$currentId) {
-                break;
-            }
-            $inviter = User::find($currentId);
-            if (!$inviter || $inviter->banned) {
-                return false;
-            }
-            $currentId = $inviter->invite_user_id;
-        }
-
-        return true;
+        return CommissionChain::isValid($inviteUserId);
     }
 
     public function payHandle($inviteUserId, Order $order): string

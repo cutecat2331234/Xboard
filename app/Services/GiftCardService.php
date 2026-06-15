@@ -12,6 +12,7 @@ use App\Models\Plan;
 use App\Models\TrafficResetLog;
 use App\Models\User;
 use App\Support\AppFeature;
+use App\Support\CommissionChain;
 use App\Services\PlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -255,48 +256,33 @@ class GiftCardService
      */
     protected function giveInviteRewards(array $rewards): ?array
     {
-        if (!$this->user->invite_user_id) {
-            return null;
-        }
-
-        $inviteUser = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
-        if (!$inviteUser || $inviteUser->banned) {
+        if (!$this->user->invite_user_id || !CommissionChain::isValid((int) $this->user->invite_user_id)) {
             return null;
         }
 
         $rate = $rewards['invite_reward_rate'] ?? 0.2;
         $inviteRewards = [];
+        $tradeNo = 'giftcard:' . $this->code->code;
 
-        $userService = app(UserService::class);
-
-        // 邀请人余额奖励
         if (isset($rewards['balance']) && $rewards['balance'] > 0) {
-            $inviteBalance = intval($rewards['balance'] * $rate);
-            if ($inviteBalance > 0) {
-                if ((int) admin_setting('withdraw_close_enable', 0)) {
-                    if (!$userService->addBalance($inviteUser->id, $inviteBalance)) {
-                        throw new \RuntimeException('Failed to add invite reward balance');
-                    }
-                } else {
-                    $inviteUser->increment('commission_balance', $inviteBalance);
-                    if (!$inviteUser->save()) {
-                        throw new \RuntimeException('Failed to add invite reward commission');
-                    }
+            $totalPool = (int) ($rewards['balance'] * $rate);
+            if ($totalPool > 0) {
+                $paid = $this->distributeInviteRewardPool(
+                    (int) $this->user->invite_user_id,
+                    $totalPool,
+                    (int) $rewards['balance'],
+                    $tradeNo
+                );
+                if ($paid > 0) {
+                    $inviteRewards['balance'] = $paid;
                 }
-                $inviteRewards['balance'] = $inviteBalance;
-                CommissionLog::create([
-                    'invite_user_id' => $inviteUser->id,
-                    'user_id' => $this->user->id,
-                    'trade_no' => 'giftcard:' . $this->code->code,
-                    'order_amount' => (int) $rewards['balance'],
-                    'get_amount' => $inviteBalance,
-                ]);
             }
         }
 
-        // 邀请人流量奖励
-        if (isset($rewards['transfer_enable']) && $rewards['transfer_enable'] > 0) {
-            $inviteTransfer = intval($rewards['transfer_enable'] * $rate);
+        $inviteUser = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
+        if ($inviteUser && !$inviteUser->banned
+            && isset($rewards['transfer_enable']) && $rewards['transfer_enable'] > 0) {
+            $inviteTransfer = (int) ($rewards['transfer_enable'] * $rate);
             if ($inviteTransfer > 0) {
                 $inviteUser->transfer_enable = ($inviteUser->transfer_enable ?? 0) + $inviteTransfer;
                 if (!$inviteUser->save()) {
@@ -306,7 +292,86 @@ class GiftCardService
             }
         }
 
-        return $inviteRewards;
+        return $inviteRewards ?: null;
+    }
+
+    protected function distributeInviteRewardPool(
+        int $inviteUserId,
+        int $totalPool,
+        int $orderAmount,
+        string $tradeNo
+    ): int {
+        $shareLevels = CommissionChain::shareLevels();
+        $remaining = $totalPool;
+        $paidTotal = 0;
+        $currentInviteId = $inviteUserId;
+        $userService = app(UserService::class);
+
+        for ($level = 0; $level < 3; $level++) {
+            if ($remaining <= 0) {
+                break;
+            }
+            $inviter = User::where('id', $currentInviteId)->lockForUpdate()->first();
+            if (!$inviter || $inviter->banned) {
+                break;
+            }
+            if (!isset($shareLevels[$level])) {
+                $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
+                continue;
+            }
+            $share = (int) round($totalPool * ($shareLevels[$level] / 100));
+            $payAmount = min(max(0, $share), $remaining);
+            if ($payAmount <= 0) {
+                $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
+                continue;
+            }
+
+            $this->creditInviteReward($userService, $inviter, $payAmount);
+            CommissionLog::create([
+                'invite_user_id' => $currentInviteId,
+                'user_id' => $this->user->id,
+                'trade_no' => $tradeNo,
+                'order_amount' => $orderAmount,
+                'get_amount' => $payAmount,
+            ]);
+            $paidTotal += $payAmount;
+            $remaining -= $payAmount;
+            $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
+        }
+
+        if ($remaining > 0) {
+            $directInviter = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
+            if ($directInviter && !$directInviter->banned) {
+                $this->creditInviteReward($userService, $directInviter, $remaining);
+                CommissionLog::create([
+                    'invite_user_id' => $directInviter->id,
+                    'user_id' => $this->user->id,
+                    'trade_no' => $tradeNo,
+                    'order_amount' => $orderAmount,
+                    'get_amount' => $remaining,
+                ]);
+                $paidTotal += $remaining;
+            }
+        }
+
+        return $paidTotal;
+    }
+
+    protected function creditInviteReward(UserService $userService, User $inviter, int $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+        if ((int) admin_setting('withdraw_close_enable', 0)) {
+            if (!$userService->addBalance($inviter->id, $amount)) {
+                throw new \RuntimeException('Failed to add invite reward balance');
+            }
+            return;
+        }
+        $inviter->increment('commission_balance', $amount);
+        if (!$inviter->save()) {
+            throw new \RuntimeException('Failed to add invite reward commission');
+        }
     }
 
     /**

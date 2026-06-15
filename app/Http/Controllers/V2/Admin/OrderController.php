@@ -282,9 +282,11 @@ class OrderController extends Controller
                 $order->plan_id = $plan->id;
                 $order->period = $periodKey;
                 $order->trade_no = Helper::generateOrderNo();
-                $adminTotal = $request->filled('total_amount')
-                    ? (int) $request->input('total_amount')
-                    : (int) ($price * 100);
+                $maxTotal = (int) round($price * 100);
+                $adminTotal = (int) $request->input('total_amount');
+                if ($adminTotal > $maxTotal) {
+                    throw new \RuntimeException('支付金额不能超过订阅标价');
+                }
                 $order->total_amount = $adminTotal;
                 $order->discount_amount = 0;
 

@@ -101,20 +101,20 @@ export default {
     tryOutHint: "此套餐為註冊試用套餐，新用戶註冊時將自動獲得試用時長；您也可以在此正常下單購買。"
   },
   node: {
-    alert: "No access points are available. If you have not subscribed or the subscription has expired, please",
+    alert: "暫無可用節點，若您未訂閱或訂閱已過期，請",
     empty: "暫無可用節點，若您未訂閱或訂閱已過期，請訂閱",
     emptyPrefix: "沒有可用節點，如果您未訂閱或已過期請",
     emptySuffix: "。",
     subscribe: "訂閱",
     name: "名稱",
-    type: "Type",
+    type: "類型",
     rate: "倍率",
     status: "狀態",
     statusHint: "五分鐘內節點在線情況",
     rateHint: "使用的流量將乘以倍率進行扣除",
     tags: "標籤",
-    online: "Online",
-    offline: "Offline"
+    online: "在線",
+    offline: "離線"
   },
   knowledge: {
     searchPh: "搜尋說明文件…",
@@ -398,7 +398,6 @@ export default {
     empty: "暫無工單"
   },
   giftCard: {
-    mysteryPreview: "神秘獎勵（兌換後揭曉）",
     title: "禮品卡",
     hint: "輸入兌換碼可領取餘額、流量或套餐等獎勵，兌換記錄可在下方查看。",
     redeem: "兌換禮品卡",

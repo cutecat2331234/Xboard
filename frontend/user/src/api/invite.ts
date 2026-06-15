@@ -17,7 +17,7 @@ export async function fetchInvite() {
 }
 
 export async function generateInviteCode() {
-  return request<null>(api.get('/user/invite/save'))
+  return request<null>(api.post('/user/invite/save'))
 }
 
 export async function transferCommission(transfer_amount: number) {

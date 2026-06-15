@@ -102,8 +102,8 @@ export default {
     tryOutHint: "این طرح آزمایشی ثبت‌نام است. کاربران جدید به‌طور خودکار آزمایشی دریافت می‌کنند؛ همچنین می‌توانید آن را اینجا خریداری کنید."
   },
   node: {
-    alert: "No access points are available. If you have not subscribed or the subscription has expired, please",
-    empty: "No access points are available. If you have not subscribed or the subscription has expired, please subscribe.",
+    alert: "گره‌ای در دسترس نیست. اگر اشتراک ندارید یا منقضی شده، لطفاً",
+    empty: "گره‌ای در دسترس نیست. اگر اشتراک ندارید یا منقضی شده، لطفاً اشتراک بگیرید.",
     emptyPrefix: "گره‌ای در دسترس نیست. اگر اشتراک ندارید یا منقضی شده، لطفاً ",
     emptySuffix: ".",
     subscribe: "اشتراک",

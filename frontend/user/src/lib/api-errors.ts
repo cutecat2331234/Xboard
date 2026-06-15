@@ -143,6 +143,12 @@ const MESSAGE_MAP: Record<string, string> = {
   // Plan / order
   'Current product is sold out': 'errors.planSoldOut',
   '当前商品已售罄': 'errors.planSoldOut',
+  'This subscription has been sold out, please choose another subscription': 'errors.planSoldOut',
+  '该订阅已售罄，请选择其他订阅': 'errors.planSoldOut',
+  'This subscription has expired, please change to another subscription': 'errors.planRenewDisabled',
+  '该订阅已过期，请更换其他订阅': 'errors.planRenewDisabled',
+  'This subscription cannot be renewed, please change to another subscription': 'errors.planRenewDisabled',
+  '该订阅不可续费，请更换其他订阅': 'errors.planRenewDisabled',
   'This payment period cannot be purchased, please choose another period': 'errors.planPeriodUnavailable',
   '该订阅周期不可购买，请选择其他周期': 'errors.planPeriodUnavailable',
   'This subscription cannot be renewed, please change to another subscription': 'errors.planRenewDisabled',
