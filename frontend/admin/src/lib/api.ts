@@ -213,6 +213,23 @@ export async function fetchPaginatedList<T = unknown>(
   return { data: [], total: 0 }
 }
 
+export async function fetchAllPaginatedList<T = unknown>(
+  path: string,
+  params?: Record<string, string | number | boolean | undefined | null>,
+  pageSize = 500,
+): Promise<T[]> {
+  let current = 1
+  const all: T[] = []
+  let total = 0
+  do {
+    const page = await fetchPaginatedList<T>(path, { ...params, current, pageSize })
+    all.push(...page.data)
+    total = page.total
+    current += 1
+  } while (all.length < total && pageSize > 0)
+  return all
+}
+
 export async function fetchJsonList(
   path: string,
   params?: Record<string, string | number | boolean | undefined | null>,

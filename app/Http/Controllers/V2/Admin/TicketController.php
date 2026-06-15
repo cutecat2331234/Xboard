@@ -69,7 +69,7 @@ class TicketController extends Controller
         $ticket = Ticket::with('messages', 'user')->find($request->input('id'));
 
         if (!$ticket) {
-            return $this->fail([400202, '工单不存在']);
+            return $this->fail([400202, __('Ticket does not exist')]);
         }
         $ticket->messages->each(fn($msg) => $msg->setRelation('ticket', $ticket));
         $result = $ticket->toArray();
@@ -110,17 +110,13 @@ class TicketController extends Controller
                 page: $current
             );
 
-        // 获取items然后映射转换
-        $items = collect($tickets->items())->map(function ($ticket) {
+        $tickets->getCollection()->transform(function ($ticket) {
             $ticketData = $ticket->toArray();
             $ticketData['user'] = UserController::transformUserData($ticket->user);
             return $ticketData;
-        })->all();
+        });
 
-        return response([
-            'data' => $items,
-            'total' => $tickets->total()
-        ]);
+        return $this->paginate($tickets);
     }
 
     public function reply(Request $request)
@@ -174,11 +170,11 @@ class TicketController extends Controller
             });
             return $this->success(true);
         } catch (ModelNotFoundException $e) {
-            return $this->fail([400202, '工单不存在']);
+            return $this->fail([400202, __('Ticket does not exist')]);
         } catch (\RuntimeException $e) {
             return $this->fail([400, $e->getMessage()]);
         } catch (\Exception $e) {
-            return $this->fail([500101, '关闭失败']);
+            return $this->fail([500101, __('Close failed')]);
         }
     }
 }

@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
+import { fetchAllPaginatedList, fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
 import { useIdListSort } from '@/lib/use-id-list-sort'
 import { DataTable } from '@/components/shared/DataTable'
 import { SortRowControls, SortToolbar } from '@/components/shared/SortToolbar'
@@ -72,7 +72,7 @@ export default function NoticePage() {
   }, [page, pageSize, search, t])
 
   const loadAll = useCallback(() => {
-    return fetchJsonList('/notice/fetch').then((rows) => rows as NoticeRow[])
+    return fetchAllPaginatedList<NoticeRow>('/notice/fetch')
   }, [])
 
   useEffect(() => {
@@ -118,6 +118,7 @@ export default function NoticePage() {
   }
 
   async function toggleShow(row: NoticeRow) {
+    if (sort.sortMode) return
     try {
       await postJson('/notice/show', { id: row.id })
       load()
@@ -199,6 +200,7 @@ export default function NoticePage() {
         cell: ({ row }) => (
           <Switch
             checked={Boolean(row.original.show)}
+            disabled={sort.sortMode}
             onCheckedChange={() => toggleShow(row.original)}
           />
         ),
@@ -262,6 +264,7 @@ export default function NoticePage() {
                 saving={sort.sortSaving}
                 editLabel={t('notice.table.toolbar.sort.edit')}
                 saveLabel={t('notice.table.toolbar.sort.save')}
+                hint={sort.sortMode ? t('notice.table.toolbar.sortModeHint') : undefined}
                 onEdit={enterSortMode}
                 onSave={handleSaveSort}
                 onCancel={handleCancelSort}

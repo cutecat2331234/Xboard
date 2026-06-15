@@ -268,7 +268,7 @@ class TicketService
 
     public function replyByAdmin($ticketId, $message, $userId): void
     {
-        $ticket = Ticket::where('id', $ticketId)->first();
+        $ticket = Ticket::where('id', $ticketId)->lockForUpdate()->first();
         if (!$ticket) {
             throw new ApiException(__('Ticket does not exist'));
         }
