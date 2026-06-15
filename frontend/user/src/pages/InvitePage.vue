@@ -16,7 +16,7 @@ import {
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useGuestConfig } from '@/composables/useGuestConfig'
 import { useCurrency } from '@/composables/useCurrency'
-import { formatFixedDateTime } from '@/lib/format-date'
+import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { featureEnabled } from '@/lib/feature-flags'
@@ -54,7 +54,7 @@ const detailsPage = ref(1)
 const detailsPageSize = ref(INVITE_PAGE_SIZE)
 const msg = useMessage()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { formatAmount, formatPriceSpaced, load: loadCurrency, code: currencyCode } = useCurrency()
 const transferOpen = ref(false)
 const withdrawOpen = ref(false)
@@ -335,7 +335,7 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
     key: 'created_at',
     fixed: 'right',
     align: 'right',
-    render: (r) => formatFixedDateTime(r.created_at),
+    render: (r) => formatLocaleDateTime(r.created_at, locale.value),
   },
 ])
 
@@ -343,7 +343,7 @@ const detailColumns = computed(() => [
   {
     title: t('invite.incomeTime'),
     key: 'created_at',
-    render: (r: { created_at?: number }) => formatFixedDateTime(r.created_at),
+    render: (r: { created_at?: number }) => formatLocaleDateTime(r.created_at, locale.value),
   },
   {
     title: t('invite.incomeAmount'),

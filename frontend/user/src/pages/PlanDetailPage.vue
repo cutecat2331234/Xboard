@@ -121,6 +121,16 @@ watch(period, () => {
   couponCode.value = ''
 })
 
+watch(
+  () => route.params.id,
+  async (id) => {
+    if (!id) return
+    couponDiscount.value = ''
+    couponCode.value = ''
+    await load()
+  },
+)
+
 async function ensureNoPendingOrder() {
   const blocking = await fetchFirstBlockingOrder()
   if (!blocking) return true

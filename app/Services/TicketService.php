@@ -270,14 +270,14 @@ class TicketService
     {
         $ticket = Ticket::where('id', $ticketId)->first();
         if (!$ticket) {
-            throw new ApiException('工单不存在');
+            throw new ApiException(__('Ticket does not exist'));
         }
         if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
-            throw new ApiException('工单已关闭');
+            throw new ApiException(__('The ticket is closed and cannot be replied'));
         }
         $ticketMessage = $this->reply($ticket, $message, $userId);
         if (!$ticketMessage) {
-            throw new ApiException('工单回复失败');
+            throw new ApiException(__('Ticket reply failed'));
         }
         HookManager::call('ticket.reply.admin.after', [$ticket, $ticketMessage]);
         $this->sendEmailNotify($ticket, $ticketMessage);
@@ -286,7 +286,7 @@ class TicketService
     public function createTicket($userId, $subject, $level, $message)
     {
         if ((int) $level === 2) {
-            throw new ApiException('请使用提现接口发起提现工单');
+            throw new ApiException(__('Please use the withdrawal API to open a withdrawal ticket'));
         }
 
         try {
@@ -298,7 +298,7 @@ class TicketService
 
             if ($openTicketQuery->lockForUpdate()->first()) {
                 DB::rollBack();
-                throw new ApiException('存在未关闭的工单');
+                throw new ApiException(__('There are other unresolved tickets'));
             }
             $ticket = Ticket::create([
                 'user_id' => $userId,
@@ -308,7 +308,7 @@ class TicketService
                 'last_reply_user_id' => $userId,
             ]);
             if (!$ticket) {
-                throw new ApiException('工单创建失败');
+                throw new ApiException(__('Failed to open ticket'));
             }
             $ticketMessage = TicketMessage::create([
                 'user_id' => $userId,
@@ -317,7 +317,7 @@ class TicketService
             ]);
             if (!$ticketMessage) {
                 DB::rollBack();
-                throw new ApiException('工单消息创建失败');
+                throw new ApiException(__('Failed to create ticket message'));
             }
             DB::commit();
             return $ticket;
@@ -344,7 +344,7 @@ class TicketService
                     ->exists()
             ) {
                 DB::rollBack();
-                throw new ApiException('存在未关闭的工单');
+                throw new ApiException(__('There are other unresolved tickets'));
             }
 
             $ticket = Ticket::create([
@@ -355,7 +355,7 @@ class TicketService
                 'last_reply_user_id' => $userId,
             ]);
             if (!$ticket) {
-                throw new ApiException('工单创建失败');
+                throw new ApiException(__('Failed to open ticket'));
             }
             $ticketMessage = TicketMessage::create([
                 'user_id' => $userId,
@@ -364,7 +364,7 @@ class TicketService
             ]);
             if (!$ticketMessage) {
                 DB::rollBack();
-                throw new ApiException('工单消息创建失败');
+                throw new ApiException(__('Failed to create ticket message'));
             }
             DB::commit();
             return $ticket;

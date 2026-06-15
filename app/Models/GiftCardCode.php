@@ -65,10 +65,10 @@ class GiftCardCode extends Model
     public static function getStatusMap(): array
     {
         return [
-            self::STATUS_UNUSED => '未使用',
-            self::STATUS_USED => '已使用',
-            self::STATUS_EXPIRED => '已过期',
-            self::STATUS_DISABLED => '已禁用',
+            self::STATUS_UNUSED => __('Unused'),
+            self::STATUS_USED => __('Used'),
+            self::STATUS_EXPIRED => __('Expired'),
+            self::STATUS_DISABLED => __('Disabled'),
         ];
     }
 
@@ -77,7 +77,7 @@ class GiftCardCode extends Model
      */
     public function getStatusNameAttribute(): string
     {
-        return self::getStatusMap()[$this->status] ?? '未知状态';
+        return self::getStatusMap()[$this->status] ?? __('Unknown status');
     }
 
     /**
