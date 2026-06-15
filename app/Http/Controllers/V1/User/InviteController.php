@@ -115,9 +115,14 @@ class InviteController extends Controller
                 ->whereIn('commission_status', [Order::COMMISSION_STATUS_PENDING, Order::COMMISSION_STATUS_VALID])
                 ->where('invite_user_id', $user->id)
                 ->get(['trade_no', 'commission_balance']);
+            $paidByTradeNo = CommissionLog::query()
+                ->whereIn('trade_no', $pendingOrders->pluck('trade_no'))
+                ->groupBy('trade_no')
+                ->selectRaw('trade_no, COALESCE(SUM(get_amount), 0) as paid')
+                ->pluck('paid', 'trade_no');
             $uncheck_commission_balance = 0;
             foreach ($pendingOrders as $pendingOrder) {
-                $paid = (int) CommissionLog::where('trade_no', $pendingOrder->trade_no)->sum('get_amount');
+                $paid = (int) ($paidByTradeNo[$pendingOrder->trade_no] ?? 0);
                 $uncheck_commission_balance += max(0, (int) $pendingOrder->commission_balance - $paid);
             }
             $heldGiftCard = (int) CommissionLog::where('invite_user_id', $user->id)

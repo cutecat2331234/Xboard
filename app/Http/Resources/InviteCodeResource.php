@@ -21,9 +21,6 @@ class InviteCodeResource extends JsonResource
             "created_at" => $this['created_at'],
             "updated_at" => $this['updated_at']
         ];
-        if (!config('hidden_features.enable_exposed_user_count_fix')) {
-            $data['user_id'] = $this['user_id'];
-        }
         return $data;
     }
 }

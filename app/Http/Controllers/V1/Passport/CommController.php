@@ -7,6 +7,7 @@ use App\Http\Requests\Passport\CommSendEmailVerify;
 use App\Jobs\SendEmailJob;
 use App\Models\InviteCode;
 use App\Models\User;
+use App\Support\AppFeature;
 use App\Services\CaptchaService;
 use App\Utils\CacheKey;
 use App\Utils\Helper;
@@ -77,6 +78,10 @@ class CommController extends Controller
 
     public function pv(Request $request)
     {
+        if (!AppFeature::inviteEnabled()) {
+            return $this->success(true);
+        }
+
         $code = trim((string) $request->input('invite_code', ''));
         if ($code === '') {
             return $this->success(true);

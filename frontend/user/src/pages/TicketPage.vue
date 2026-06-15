@@ -96,12 +96,7 @@ async function create() {
     msg.success(t('common.success'))
     if (created?.id) {
       router.push(`/ticket/${created.id}`)
-      return
     }
-    page.value = 1
-    await load()
-    const first = rows.value[0]
-    if (first?.id) router.push(`/ticket/${first.id}`)
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
   } finally {
