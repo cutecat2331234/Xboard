@@ -193,12 +193,24 @@ class UserController extends Controller
         }
         RateLimiter::hit($rateKey, 3600);
 
-        $user->uuid = Helper::guid(true);
-        $user->token = Helper::guid();
-        if (!$user->save()) {
-            return $this->fail([400, __('Reset failed')]);
+        try {
+            $subscribeUrl = DB::transaction(function () use ($user) {
+                $locked = User::where('id', $user->id)->lockForUpdate()->first();
+                if (!$locked) {
+                    throw new \RuntimeException(__('The user does not exist'));
+                }
+                $locked->uuid = Helper::guid(true);
+                $locked->token = Helper::guid();
+                if (!$locked->save()) {
+                    throw new \RuntimeException(__('Reset failed'));
+                }
+                return Helper::getSubscribeUrl($locked->token);
+            });
+        } catch (\RuntimeException $e) {
+            return $this->fail([400, $e->getMessage()]);
         }
-        return $this->success(Helper::getSubscribeUrl($user->token));
+
+        return $this->success($subscribeUrl);
     }
 
     public function update(UserUpdate $request)

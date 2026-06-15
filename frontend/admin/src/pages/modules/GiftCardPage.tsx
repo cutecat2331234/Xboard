@@ -1030,10 +1030,10 @@ export default function GiftCardPage() {
 
     if (
       !(await confirm(
-        t('giftCard.template.actions.deleteConfirm.title'),
-        t('giftCard.template.actions.deleteConfirm.description'),
+        t('giftCard.code.actions.deleteConfirm.title'),
+        t('giftCard.code.actions.deleteConfirm.description'),
         {
-          confirmLabel: t('giftCard.template.actions.deleteConfirm.confirmText'),
+          confirmLabel: t('giftCard.code.actions.deleteConfirm.confirmText'),
         },
       ))
     )
@@ -1232,7 +1232,7 @@ export default function GiftCardPage() {
 
     () => [
 
-      { accessorKey: 'id', header: 'ID' },
+      { accessorKey: 'id', header: () => t('giftCard.code.table.columns.id') },
 
       { accessorKey: 'code', header: () => t('giftCard.code.table.columns.code') },
 
@@ -1242,7 +1242,7 @@ export default function GiftCardPage() {
 
       { accessorKey: 'template_name', header: () => t('giftCard.code.table.columns.template_name') },
 
-      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.batch_id', 'Batch') },
+      { accessorKey: 'batch_id', header: () => t('giftCard.code.table.columns.batch_id') },
 
       {
 
@@ -1314,7 +1314,7 @@ export default function GiftCardPage() {
 
     () => [
 
-      { accessorKey: 'id', header: 'ID' },
+      { accessorKey: 'id', header: () => t('giftCard.code.table.columns.id') },
 
       { accessorKey: 'user_email', header: () => t('giftCard.usage.table.columns.user_email') },
 
@@ -3076,7 +3076,7 @@ export default function GiftCardPage() {
 
                 <p className="text-xs text-muted-foreground">
 
-                  {t('giftCard.template.form.limits.max_use_per_user.placeholder')}
+                  {t('giftCard.code.form.expires_at.hint')}
 
                 </p>
 
