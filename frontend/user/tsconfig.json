@@ -6,7 +6,10 @@
     "strict": true,
     "jsx": "preserve",
     "skipLibCheck": true,
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.vue"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "../shared/**/*.ts"]
 }
