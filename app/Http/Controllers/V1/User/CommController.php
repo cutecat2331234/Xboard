@@ -58,6 +58,9 @@ class CommController extends Controller
     {
         $request->validate([
             'id' => 'required|integer|exists:v2_payment,id',
+        ], [
+            'id.required' => __('Payment method ID cannot be empty'),
+            'id.exists' => __('Payment method does not exist'),
         ]);
         $payment = Payment::where('id', $request->input('id'))
             ->where('payment', 'StripeCredit')

@@ -28,6 +28,9 @@ class CouponController extends Controller
         $request->validate([
             'plan_id' => 'required|integer|min:1',
             'period' => 'required|string',
+        ], [
+            'plan_id.required' => __('Plan ID cannot be empty'),
+            'period.required' => __('Plan period cannot be empty'),
         ]);
         $couponService = CouponService::findByCode($request->input('code'));
         $couponService->setPlanId($request->input('plan_id'));

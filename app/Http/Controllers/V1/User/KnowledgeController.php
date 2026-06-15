@@ -31,6 +31,9 @@ class KnowledgeController extends Controller
             'id' => 'nullable|sometimes|integer|min:1',
             'language' => 'nullable|sometimes|string|max:10',
             'keyword' => 'nullable|sometimes|string|max:255',
+        ], [
+            'id.integer' => __('Record ID format is invalid'),
+            'keyword.max' => __('Search keyword is too long'),
         ]);
 
         return $request->input('id')
@@ -46,6 +49,8 @@ class KnowledgeController extends Controller
 
         $request->validate([
             'language' => 'nullable|sometimes|string|in:en-US,zh-CN,zh-TW,ru-RU',
+        ], [
+            'language.in' => __('Invalid knowledge language'),
         ]);
 
         $builder = Knowledge::query()

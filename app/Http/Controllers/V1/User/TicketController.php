@@ -47,6 +47,10 @@ class TicketController extends Controller
         $request->validate([
             'current' => 'nullable|integer|min:1',
             'page_size' => 'nullable|integer|min:1|max:100',
+        ], [
+            'current.min' => __('Invalid pagination parameters'),
+            'page_size.min' => __('Invalid pagination parameters'),
+            'page_size.max' => __('Page size cannot exceed 100'),
         ]);
         $current = max(1, (int) $request->input('current', 1));
         $pageSize = min(100, max(1, (int) $request->input('page_size', 20)));
@@ -94,6 +98,9 @@ class TicketController extends Controller
         }
         $request->validate([
             'message' => 'required|string|max:5000',
+        ], [
+            'message.required' => __('Message cannot be empty'),
+            'message.max' => __('Message is too long'),
         ]);
         $ticket = Ticket::where('id', $request->input('id'))
             ->where('user_id', $request->user()->id)
@@ -241,7 +248,7 @@ class TicketController extends Controller
 
                 $user->commission_balance = 0;
                 if (!$user->save()) {
-                    throw new \RuntimeException('Failed to update commission balance');
+                    throw new \RuntimeException(__('Failed to update commission balance'));
                 }
 
                 CommissionLog::create([

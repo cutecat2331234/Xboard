@@ -135,6 +135,10 @@ class GiftCardController extends Controller
         $request->validate([
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
+        ], [
+            'page.min' => __('Invalid pagination parameters'),
+            'per_page.min' => __('Invalid pagination parameters'),
+            'per_page.max' => __('Page size cannot exceed 100'),
         ]);
 
         $perPage = $request->input('per_page', 15);
@@ -180,6 +184,9 @@ class GiftCardController extends Controller
         }
         $request->validate([
             'id' => 'required|integer|min:1',
+        ], [
+            'id.required' => __('Record ID cannot be empty'),
+            'id.integer' => __('Record ID format is invalid'),
         ]);
 
         $usage = GiftCardUsage::with(['template', 'code', 'inviteUser'])

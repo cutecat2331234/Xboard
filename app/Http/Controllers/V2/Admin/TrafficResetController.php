@@ -35,6 +35,13 @@ class TrafficResetController extends Controller
       'end_date' => 'nullable|date|after_or_equal:start_date',
       'per_page' => 'nullable|integer|min:1|max:100',
       'page' => 'nullable|integer|min:1',
+    ], [
+      'reset_type.in' => __('Invalid reset type filter'),
+      'trigger_source.in' => __('Invalid trigger source filter'),
+      'end_date.after_or_equal' => __('End date must be on or after start date'),
+      'per_page.max' => __('Page size cannot exceed 100'),
+      'page.min' => __('Invalid pagination parameters'),
+      'per_page.min' => __('Invalid pagination parameters'),
     ]);
 
     [, $perPage] = Helper::paginateParams(
@@ -109,6 +116,9 @@ class TrafficResetController extends Controller
   {
     $request->validate([
       'days' => 'nullable|integer|min:1|max:365',
+    ], [
+      'days.min' => __('Stats range must be at least 1 day'),
+      'days.max' => __('Stats range cannot exceed 365 days'),
     ]);
 
     $days = $request->get('days', 30);
@@ -141,6 +151,9 @@ class TrafficResetController extends Controller
     $request->validate([
       'user_id' => 'required|integer|exists:v2_user,id',
       'reason' => 'nullable|string|max:255',
+    ], [
+      'user_id.required' => __('User ID cannot be empty'),
+      'user_id.exists' => __('The user does not exist'),
     ]);
 
     try {
@@ -186,6 +199,9 @@ class TrafficResetController extends Controller
   {
     $request->validate([
       'limit' => 'nullable|integer|min:1|max:50',
+    ], [
+      'limit.min' => __('Invalid pagination parameters'),
+      'limit.max' => __('History limit cannot exceed 50'),
     ]);
 
     $user = User::find($userId);
