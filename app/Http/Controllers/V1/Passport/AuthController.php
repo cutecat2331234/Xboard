@@ -95,6 +95,12 @@ class AuthController extends Controller
         $email = $request->input('email');
         $password = $request->input('password');
 
+        $loginIpKey = 'login-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($loginIpKey, 60)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($loginIpKey, 60);
+
         [$success, $result] = $this->loginService->login($email, $password);
 
         if (!$success) {

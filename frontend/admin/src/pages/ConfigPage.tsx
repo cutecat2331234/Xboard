@@ -547,6 +547,16 @@ export default function ConfigPage() {
                         checked={Boolean(invite.invite_never_expire)}
                         onChange={(v) => update('invite', 'invite_never_expire', v, true)}
                       />
+                      {invite.invite_never_expire ? (
+                        <FormField
+                          type="number"
+                          label={t('settings.invite.invite_code_max_uses.title')}
+                          description={t('settings.invite.invite_code_max_uses.description')}
+                          value={String(invite.invite_code_max_uses ?? 0)}
+                          placeholder={t('settings.invite.invite_code_max_uses.placeholder')}
+                          onChange={(v) => update('invite', 'invite_code_max_uses', Number(v) || 0)}
+                        />
+                      ) : null}
                       <SwitchField
                         label={t('settings.invite.commission_first_time.title')}
                         description={t('settings.invite.commission_first_time.description')}
@@ -591,6 +601,14 @@ export default function ConfigPage() {
                         description={t('settings.invite.withdraw_close.description')}
                         checked={Boolean(invite.withdraw_close_enable)}
                         onChange={(v) => update('invite', 'withdraw_close_enable', v, true)}
+                      />
+                      <FormField
+                        type="number"
+                        label={t('settings.invite.withdraw_ticket_stale_days.title')}
+                        description={t('settings.invite.withdraw_ticket_stale_days.description')}
+                        value={String(invite.withdraw_ticket_stale_days ?? 14)}
+                        placeholder={t('settings.invite.withdraw_ticket_stale_days.placeholder')}
+                        onChange={(v) => update('invite', 'withdraw_ticket_stale_days', Number(v) || 14)}
                       />
                       <FormField
                         type="number"

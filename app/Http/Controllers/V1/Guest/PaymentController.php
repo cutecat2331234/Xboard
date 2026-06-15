@@ -182,10 +182,23 @@ class PaymentController extends Controller
                 return true;
             }
         }
-        if ($order->coupon_id) {
-            Coupon::where('id', $order->coupon_id)
-                ->whereNotNull('limit_use')
-                ->decrement('limit_use');
+        if ($order->coupon_id && !$order->coupon_consumed) {
+            $orderService = new OrderService($order);
+            try {
+                $orderService->consumeOrderCoupon();
+                $order->refresh();
+            } catch (\Throwable $e) {
+                Log::warning('Payment notify: cannot consume coupon for cancelled order reactivation', [
+                    'trade_no' => $order->trade_no,
+                    'error' => $e->getMessage(),
+                ]);
+                $this->creditOrphanPaymentOnce(
+                    $order,
+                    $callbackNo,
+                    'cancelled order reactivation coupon consume failed'
+                );
+                return true;
+            }
         }
 
         Log::info('Payment notify: reactivating cancelled order after verified payment', [

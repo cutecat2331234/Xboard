@@ -119,6 +119,7 @@ class OrderController extends Controller
             $orderService = new OrderService($order);
             $userService = app(UserService::class);
             $orderService->deductOrderBalance($user, $userService);
+            $orderService->consumeOrderCoupon();
             $order->refresh();
 
             if ($order->total_amount <= 0) {

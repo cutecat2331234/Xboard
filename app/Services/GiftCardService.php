@@ -260,7 +260,7 @@ class GiftCardService
         }
 
         $inviteUser = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
-        if (!$inviteUser) {
+        if (!$inviteUser || $inviteUser->banned) {
             return null;
         }
 

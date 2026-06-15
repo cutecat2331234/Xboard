@@ -28,7 +28,10 @@ class CouponService
         return new self(Coupon::where('code', $code)->lockForUpdate()->first());
     }
 
-    public function use(Order $order): bool
+    /**
+     * Validate coupon and compute discount on the order (does not consume global limit_use).
+     */
+    public function applyToOrder(Order $order): bool
     {
         $this->setPlanId($order->plan_id);
         $this->setUserId($order->user_id);
@@ -47,16 +50,31 @@ class CouponService
         if ($order->discount_amount > $order->total_amount) {
             $order->discount_amount = $order->total_amount;
         }
-        if ($this->coupon->limit_use !== NULL) {
-            if ($this->coupon->limit_use <= 0) {
-                return false;
-            }
-            $this->coupon->limit_use = $this->coupon->limit_use - 1;
-            if (!$this->coupon->save()) {
-                return false;
-            }
-        }
         return true;
+    }
+
+    /**
+     * Consume one global coupon use (idempotent when called on already-consumed orders).
+     */
+    public function consumeLimit(): bool
+    {
+        if ($this->coupon->limit_use === null) {
+            return true;
+        }
+        if ($this->coupon->limit_use <= 0) {
+            return false;
+        }
+        $this->coupon->limit_use = $this->coupon->limit_use - 1;
+        return (bool) $this->coupon->save();
+    }
+
+    /** @deprecated Use applyToOrder() + consumeLimit() at checkout */
+    public function use(Order $order): bool
+    {
+        if (!$this->applyToOrder($order)) {
+            return false;
+        }
+        return $this->consumeLimit();
     }
 
     public function getId()

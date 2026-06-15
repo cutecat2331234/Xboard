@@ -119,6 +119,18 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
     fixed: 'right',
     render: (row) =>
       h('div', { class: 'order-actions' }, [
+        row.status === 0
+          ? h(
+              NButton,
+              {
+                text: true,
+                type: 'primary',
+                onClick: () => router.push(`/order/${row.trade_no}`),
+              },
+              { default: () => t('order.pay') },
+            )
+          : null,
+        row.status === 0 ? h(NDivider, { vertical: true }) : null,
         h(
           NButton,
           {

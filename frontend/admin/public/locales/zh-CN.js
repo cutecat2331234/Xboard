@@ -2381,6 +2381,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "title": "邀请码永不失效",
         "description": "开启后邀请码被使用后将不会失效，否则使用过后即失效。"
       },
+      "invite_code_max_uses": {
+        "title": "永久邀请码最大使用次数",
+        "description": "开启「邀请码永不失效」后，每个邀请码最多可被使用此次数（0 表示不限制）。",
+        "placeholder": "请输入每个邀请码最大使用次数"
+      },
       "commission_first_time": {
         "title": "佣金仅首次发放",
         "description": "开启后被邀请人首次支付时才会产生佣金，可以在用户管理对用户进行单独配置。"
@@ -2402,6 +2407,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "withdraw_close": {
         "title": "关闭提现",
         "description": "关闭后将禁止用户申请提现，且邀请佣金将会直接进入用户余额。"
+      },
+      "withdraw_ticket_stale_days": {
+        "title": "提现工单超时天数",
+        "description": "超过此天数且管理员未回复的提现工单，将由计划任务自动恢复余额并关闭。",
+        "placeholder": "超时天数（默认 14）"
       },
       "withdraw_fee_rate": {
         "title": "提现/划转手续费率",
