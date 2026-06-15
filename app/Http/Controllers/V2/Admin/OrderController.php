@@ -142,6 +142,10 @@ class OrderController extends Controller
 
     public function paid(Request $request)
     {
+        $request->validate([
+            'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
+        ]);
+
         return DB::transaction(function () use ($request) {
             $order = Order::where('trade_no', $request->input('trade_no'))
                 ->lockForUpdate()
@@ -167,6 +171,10 @@ class OrderController extends Controller
 
     public function cancel(Request $request)
     {
+        $request->validate([
+            'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
+        ]);
+
         return DB::transaction(function () use ($request) {
             $order = Order::where('trade_no', $request->input('trade_no'))
                 ->lockForUpdate()

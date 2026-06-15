@@ -283,8 +283,12 @@ class UserService
             return;
         }
 
-        if ($registerIp && $this->isTryOutIpLimited($registerIp)) {
-            return;
+        if ($registerIp) {
+            $key = \App\Utils\CacheKey::get('TRY_OUT_IP_LIMIT', $registerIp);
+            $hours = max(1, (int) admin_setting('try_out_hour', 1));
+            if (!\Illuminate\Support\Facades\Cache::add($key, 1, $hours * 3600)) {
+                return;
+            }
         }
 
         $plan = Plan::find(admin_setting('try_out_plan_id'));
@@ -298,22 +302,5 @@ class UserService
         $user->expired_at = time() + (admin_setting('try_out_hour', 1) * 3600);
         $user->speed_limit = $plan->speed_limit;
         $user->device_limit = $plan->device_limit;
-
-        if ($registerIp) {
-            $this->markTryOutIpUsed($registerIp);
-        }
-    }
-
-    private function isTryOutIpLimited(string $ip): bool
-    {
-        $key = \App\Utils\CacheKey::get('TRY_OUT_IP_LIMIT', $ip);
-        return (int) \Illuminate\Support\Facades\Cache::get($key, 0) >= 1;
-    }
-
-    private function markTryOutIpUsed(string $ip): void
-    {
-        $hours = max(1, (int) admin_setting('try_out_hour', 1));
-        $key = \App\Utils\CacheKey::get('TRY_OUT_IP_LIMIT', $ip);
-        \Illuminate\Support\Facades\Cache::put($key, 1, $hours * 3600 * 24);
     }
 }

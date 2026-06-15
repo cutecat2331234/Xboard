@@ -127,6 +127,8 @@ export default {
     catNotice: "Thông báo"
   },
   auth: {
+    defaultTitle: 'Xboard',
+    defaultDescription: 'Professional network acceleration service',
     or: "hoặc",
     loginFailed: "Đăng nhập thất bại",
     registerFailed: "Đăng ký thất bại"
@@ -164,6 +166,11 @@ export default {
     sessionKicked: "Tài khoản đã đăng nhập ở thiết bị khác. Vui lòng đăng nhập lại.",
     loginFailed: "Đăng nhập thất bại",
     commConfigFailed: "Không tải được cấu hình trang. Một số tính năng có thể không khả dụng — hãy làm mới trang và thử lại.",
+    tooManyAttempts: "Quá nhiều lần thử. Vui lòng thử lại sau.",
+    telegramLoginUnavailable: "Đăng nhập Telegram không khả dụng.",
+    featureDisabled: "Tính năng này đã bị tắt.",
+    currencyConversionTimeout: "Chuyển đổi tiền tệ quá thời gian. Vui lòng thử lại sau.",
+    openTicketExists: "Bạn đã có một ticket đang mở. Hãy đóng nó trước khi tạo mới.",
     orderNotFound: "Không tìm thấy đơn hàng",
     orderNotFoundOrPaid: "Đơn hàng không tồn tại hoặc đã được thanh toán",
     planNotFound: "Gói đăng ký không tồn tại",
@@ -315,6 +322,8 @@ export default {
     detailTitle: "Chi tiết đơn hàng",
     selectPayment: "Chọn phương thức thanh toán",
     paymentLocked: "Đơn hàng đã khóa phương thức thanh toán. Hủy đơn để chọn phương thức khác",
+    redirectPaymentHint: "Hoàn tất thanh toán trên tab trình duyệt mới. Trang này sẽ tự cập nhật khi thanh toán thành công.",
+    redirectPopupBlocked: "Trình duyệt đã chặn cửa sổ pop-up. Hãy cho phép pop-up cho trang này và thử lại.",
     paymentMethod: "Phương thức thanh toán",
     totalTitle: "Tổng đơn hàng",
     checkout: "Thanh toán",

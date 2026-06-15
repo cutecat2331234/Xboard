@@ -191,26 +191,36 @@ class OrderController extends Controller
             ]);
 
             if (($result['type'] ?? null) === 2 && !empty($result['data']) && !empty($result['callback_no'])) {
-                DB::transaction(function () use ($userId, $tradeNo, $result) {
-                    $order = Order::where('trade_no', $tradeNo)
+                try {
+                    DB::transaction(function () use ($userId, $tradeNo, $result) {
+                        $order = Order::where('trade_no', $tradeNo)
+                            ->where('user_id', $userId)
+                            ->lockForUpdate()
+                            ->first();
+                        if (!$order) {
+                            throw new ApiException(__('Order does not exist or has been paid'));
+                        }
+                        if ((int) $order->status !== Order::STATUS_PENDING) {
+                            throw new ApiException(__('Order does not exist or has been paid'));
+                        }
+                        $orderService = new OrderService($order);
+                        if (!$orderService->paid((string) $result['callback_no'])) {
+                            throw new ApiException(__('Payment failed. Please check your credit card information'));
+                        }
+                        $order->refresh();
+                        if ((int) $order->status !== Order::STATUS_COMPLETED) {
+                            throw new ApiException(__('Payment failed. Please check your credit card information'));
+                        }
+                    });
+                } catch (\Throwable $e) {
+                    $lockedOrder = Order::where('trade_no', $tradeNo)
                         ->where('user_id', $userId)
-                        ->lockForUpdate()
                         ->first();
-                    if (!$order) {
-                        throw new ApiException(__('Order does not exist or has been paid'));
+                    if ($lockedOrder) {
+                        (new OrderService($lockedOrder))->revertCheckoutReservation();
                     }
-                    if ((int) $order->status !== Order::STATUS_PENDING) {
-                        throw new ApiException(__('Order does not exist or has been paid'));
-                    }
-                    $orderService = new OrderService($order);
-                    if (!$orderService->paid((string) $result['callback_no'])) {
-                        throw new ApiException(__('Payment failed. Please check your credit card information'));
-                    }
-                    $order->refresh();
-                    if ((int) $order->status !== Order::STATUS_COMPLETED) {
-                        throw new ApiException(__('Payment failed. Please check your credit card information'));
-                    }
-                });
+                    throw $e;
+                }
 
                 return response([
                     'type' => -1,
@@ -222,6 +232,21 @@ class OrderController extends Controller
                 'type' => $result['type'],
                 'data' => $result['data'],
             ]);
+        } catch (\Throwable $e) {
+            $lockedOrder = Order::where('trade_no', $tradeNo)
+                ->where('user_id', $userId)
+                ->first();
+            if ($lockedOrder) {
+                (new OrderService($lockedOrder))->revertCheckoutReservation();
+            }
+            if ($e instanceof ApiException) {
+                throw $e;
+            }
+            Log::error('Checkout gateway failed', [
+                'trade_no' => $tradeNo,
+                'error' => $e->getMessage(),
+            ]);
+            throw new ApiException(__('Payment gateway request failed'));
         } finally {
             Cache::forget($checkoutLock);
         }
