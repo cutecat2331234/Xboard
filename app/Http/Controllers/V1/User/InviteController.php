@@ -75,6 +75,7 @@ class InviteController extends Controller
         $pageSize = min(100, max(10, (int) ($request->input('page_size') ?: 10)));
         $builder = CommissionLog::where('invite_user_id', $request->user()->id)
             ->where('get_amount', '>', 0)
+            ->whereNotNull('credited_at')
             ->where('trade_no', 'not like', 'transfer:%')
             ->where('trade_no', 'not like', 'withdraw:%')
             ->orderBy('created_at', 'DESC');
@@ -117,6 +118,7 @@ class InviteController extends Controller
             }
             $validCommission = (int) CommissionLog::where('invite_user_id', $user->id)
                 ->where('get_amount', '>', 0)
+                ->whereNotNull('credited_at')
                 ->where('trade_no', 'not like', 'transfer:%')
                 ->where('trade_no', 'not like', 'withdraw:%')
                 ->sum('get_amount');

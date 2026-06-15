@@ -48,7 +48,7 @@ export default {
     problem: "遇到問題",
     problemDesc: "遇到問題可以透過工單與我們溝通",
     copyLink: "複製訂閱連結",
-    unpaidOrders: "您有 {count} 筆待支付訂單",
+    unpaidOrders: "您有 {count} 筆待支付或開通中的訂單",
     payNow: "立即支付",
     openTickets: "您有 {count} 個待處理工單",
     goView: "前往查看",

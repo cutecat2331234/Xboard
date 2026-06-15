@@ -2638,6 +2638,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "reject_withdraw_confirm_title": "确认拒绝提现？",
       "reject_withdraw_confirm_description": "将关闭工单并恢复用户被冻结的佣金。"
     },
+    "alreadyClosed": "工单已关闭",
+    "withdrawCloseRequired": "提现工单需先标记为已打款或已驳回后再关闭",
     "reply": {
       "label": "回复"
     },

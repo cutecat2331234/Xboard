@@ -441,7 +441,9 @@ export default function GiftCardPage() {
 
     void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
 
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
     fetchJsonObject<Record<string, string>>('/gift-card/types')
 
@@ -2417,9 +2419,7 @@ export default function GiftCardPage() {
                     }))
                   }
                   options={plans.map((p) => ({ value: Number(p.id), label: String(p.name) }))}
-                  placeholder={t('giftCard.template.form.conditions.allowed_plans.placeholder', {
-                    defaultValue: '选择允许兑换的套餐 (留空则不限制)',
-                  })}
+                  placeholder={t('giftCard.template.form.conditions.allowed_plans.placeholder')}
                 />
 
                 <FormInlineMultiSelect
@@ -2432,9 +2432,7 @@ export default function GiftCardPage() {
                     }))
                   }
                   options={plans.map((p) => ({ value: Number(p.id), label: String(p.name) }))}
-                  placeholder={t('giftCard.template.form.conditions.disallowed_plans.placeholder', {
-                    defaultValue: '选择禁止兑换的套餐 (留空则不限制)',
-                  })}
+                  placeholder={t('giftCard.template.form.conditions.disallowed_plans.placeholder')}
                 />
 
               </div>

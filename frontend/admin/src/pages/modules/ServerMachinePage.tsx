@@ -163,9 +163,7 @@ export default function ServerMachinePage() {
     setInfoLoading(true)
     try {
       if (kind === 'token') {
-        const res = await fetchJsonObject<{ token?: string }>(
-          `/server/machine/getToken${buildQuery({ id: row.id })}`,
-        )
+        const res = await postJson<{ token?: string }>('/server/machine/getToken', { id: row.id })
         setInfoToken(res.token ?? '')
       } else if (kind === 'install') {
         const res = await fetchJsonObject<{ command?: string }>(

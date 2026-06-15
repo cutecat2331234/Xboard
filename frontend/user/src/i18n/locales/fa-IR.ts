@@ -48,7 +48,7 @@ export default {
     problem: "مشکلی دارم",
     problemDesc: "در صورت بروز مشکل می‌توانید از طریق تیکت با ما در ارتباط باشید",
     copyLink: "کپی لینک اشتراک",
-    unpaidOrders: "شما {count} سفارش پرداخت‌نشده دارید",
+    unpaidOrders: "شما {count} سفارش پرداخت‌نشده یا در حال پردازش دارید",
     payNow: "پرداخت اکنون",
     openTickets: "شما {count} تیکت باز دارید",
     goView: "مشاهده",

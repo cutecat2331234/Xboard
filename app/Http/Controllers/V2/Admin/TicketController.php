@@ -176,20 +176,4 @@ class TicketController extends Controller
             return $this->fail([500101, '关闭失败']);
         }
     }
-
-    public function show($ticketId)
-    {
-        $ticket = Ticket::with([
-            'user',
-            'messages' => function ($query) {
-                $query->with(['user']);
-            }
-        ])->findOrFail($ticketId);
-
-        $ticket->messages->each(fn($msg) => $msg->setRelation('ticket', $ticket));
-
-        return response()->json([
-            'data' => $ticket
-        ]);
-    }
 }

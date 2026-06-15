@@ -48,7 +48,7 @@ export default {
     problem: "Tôi gặp vấn đề",
     problemDesc: "Nếu bạn gặp sự cố, hãy liên hệ với chúng tôi qua vé hỗ trợ",
     copyLink: "Sao chép liên kết đăng ký",
-    unpaidOrders: "Bạn có {count} đơn hàng chưa thanh toán",
+    unpaidOrders: "Bạn có {count} đơn hàng chưa thanh toán hoặc đang xử lý",
     payNow: "Thanh toán ngay",
     openTickets: "Bạn có {count} phiếu hỗ trợ đang mở",
     goView: "Xem",

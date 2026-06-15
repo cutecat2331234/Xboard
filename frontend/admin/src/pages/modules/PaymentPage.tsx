@@ -69,8 +69,10 @@ export default function PaymentPage() {
 
   useEffect(() => {
     load()
-    fetchJsonList('/payment/getPaymentMethods').then((rows) => setMethods(rows as string[]))
-  }, [load])
+    fetchJsonList('/payment/getPaymentMethods')
+      .then((rows) => setMethods(rows as string[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
+  }, [load, t])
 
   async function loadPaymentForm(payment: string, id?: number) {
     try {

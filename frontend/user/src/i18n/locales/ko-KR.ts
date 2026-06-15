@@ -48,7 +48,7 @@ export default {
     problem: "문제 발생",
     problemDesc: "문제가 발생하면 서포트 티켓을 통해 문의하세요",
     copyLink: "구독 링크 복사",
-    unpaidOrders: "미결제 주문이 {count}건 있습니다",
+    unpaidOrders: "미결제 또는 처리 중인 주문이 {count}건 있습니다",
     payNow: "지금 결제",
     openTickets: "처리 중인 티켓이 {count}건 있습니다",
     goView: "보기",
