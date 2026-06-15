@@ -6,6 +6,11 @@ function pad2(n: number): string {
   return String(n).padStart(2, '0')
 }
 
+const dateTimeOptions: Intl.DateTimeFormatOptions = {
+  dateStyle: 'short',
+  timeStyle: 'medium',
+}
+
 /** Legacy umi Vf(): YYYY-MM-DD HH:mm:ss (24h). */
 export function formatFixedDateTime(ts: number | null | undefined): string {
   if (!ts) return ''
@@ -27,5 +32,12 @@ export function formatLocaleDate(ts: number | null | undefined, locale: string):
 
 export function formatLocaleDateTime(ts: number | null | undefined, locale: string): string {
   if (!ts) return '—'
-  return new Date(toEpochMs(ts)).toLocaleString(locale)
+  return new Date(toEpochMs(ts)).toLocaleString(locale, dateTimeOptions)
+}
+
+export function formatLocaleDateTimeFromIso(iso: string | null | undefined, locale: string): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleString(locale, dateTimeOptions)
 }

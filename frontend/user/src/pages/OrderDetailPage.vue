@@ -257,9 +257,17 @@ async function load() {
 
     if (order.value.status === 0) {
 
-      methods.value = await fetchPaymentMethods()
+      try {
 
-      applyPaymentSelection()
+        methods.value = await fetchPaymentMethods()
+
+        applyPaymentSelection()
+
+      } catch (e: unknown) {
+
+        msg.warning(resolveApiError(e, t))
+
+      }
 
     }
 
@@ -605,7 +613,7 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.productTraffic') }}：</div>
 
-          <div class="info-value">{{ formatPlanTrafficGb(order.plan?.transfer_enable ?? 0) }}</div>
+          <div class="info-value">{{ formatPlanTrafficGb(order.plan?.transfer_enable ?? 0, t('common.units.gb')) }}</div>
 
         </div>
 

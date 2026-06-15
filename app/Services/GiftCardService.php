@@ -14,6 +14,7 @@ use App\Models\TrafficResetLog;
 use App\Models\User;
 use App\Support\AppFeature;
 use App\Support\CommissionChain;
+use App\Support\OnetimeCommission;
 use App\Services\PlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -322,22 +323,7 @@ class GiftCardService
             return true;
         }
 
-        $hasPaidOrder = Order::where('user_id', $this->user->id)
-            ->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
-            ->whereRaw('(COALESCE(total_amount, 0) + COALESCE(balance_amount, 0) + COALESCE(surplus_amount, 0)) > 0')
-            ->exists();
-        if ($hasPaidOrder) {
-            return false;
-        }
-
-        if (GiftCardUsage::where('user_id', $this->user->id)->whereNotNull('invite_rewards')->exists()) {
-            return false;
-        }
-
-        return !CommissionLog::where('user_id', $this->user->id)
-            ->where('trade_no', 'like', 'giftcard:%')
-            ->where('get_amount', '>', 0)
-            ->exists();
+        return !OnetimeCommission::consumedByUser((int) $this->user->id);
     }
 
     protected function shouldHoldGiftCardCommission(): bool

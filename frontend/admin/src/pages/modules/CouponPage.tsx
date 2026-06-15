@@ -66,7 +66,7 @@ function tsToInput(ts?: number) {
 }
 
 function inputToTs(value: string) {
-  if (!value) return Math.floor(Date.now() / 1000)
+  if (!value) return null
   return Math.floor(new Date(value).getTime() / 1000)
 }
 
@@ -197,8 +197,12 @@ export default function CouponPage() {
         code: form.code || undefined,
         type: form.type,
         value: form.type === 1 ? Math.round(Number(form.value) * 100) : form.value,
-        started_at: inputToTs(String(form.started_at_input ?? '')),
-        ended_at: inputToTs(String(form.ended_at_input ?? '')),
+      }
+      if (form.started_at_input) {
+        payload.started_at = inputToTs(String(form.started_at_input))
+      }
+      if (form.ended_at_input) {
+        payload.ended_at = inputToTs(String(form.ended_at_input))
       }
       if (form.limit_use !== '') payload.limit_use = Number(form.limit_use)
       if (form.limit_use_with_user !== '') payload.limit_use_with_user = Number(form.limit_use_with_user)

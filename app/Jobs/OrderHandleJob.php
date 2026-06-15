@@ -77,6 +77,9 @@ class OrderHandleJob implements ShouldQueue, ShouldBeUnique
                     break;
                 case Order::STATUS_PROCESSING:
                     if (!$order->paid_at) {
+                        if ($order->callback_no) {
+                            break;
+                        }
                         if (time() - (int) $order->updated_at < 120) {
                             break;
                         }

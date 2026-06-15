@@ -22,7 +22,7 @@ class GiftCardController extends Controller
             'type' => 'integer|min:1|max:10',
             'status' => 'integer|in:0,1',
             'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1|max:1000',
+            'per_page' => 'integer|min:1|max:100',
         ]);
 
         $query = GiftCardTemplate::query();
@@ -359,7 +359,7 @@ class GiftCardController extends Controller
             'batch_id' => 'string',
             'status' => 'integer|in:0,1,2,3',
             'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1|max:500',
+            'per_page' => 'integer|min:1|max:100',
         ]);
 
         $query = GiftCardCode::with(['template', 'user']);
@@ -471,7 +471,7 @@ class GiftCardController extends Controller
             'template_id' => 'integer|exists:v2_gift_card_template,id',
             'user_id' => 'integer|exists:v2_user,id',
             'page' => 'integer|min:1',
-            'per_page' => 'integer|min:1|max:500',
+            'per_page' => 'integer|min:1|max:100',
         ]);
 
         $query = GiftCardUsage::with(['template', 'code', 'user', 'inviteUser']);

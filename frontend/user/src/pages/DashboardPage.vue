@@ -23,6 +23,14 @@ const msg = useMessage()
 const router = useRouter()
 const route = useRoute()
 const { t, locale } = useI18n()
+
+const trafficUnits = computed(() => ({
+  b: t('common.units.b'),
+  kb: t('common.units.kb'),
+  mb: t('common.units.mb'),
+  gb: t('common.units.gb'),
+  tb: t('common.units.tb'),
+}))
 const subscribe = ref<SubscribeInfo | null>(null)
 const subscribeUrl = ref('')
 const hasPlan = ref(false)
@@ -302,7 +310,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
         <span v-if="showSpeedLimit">{{ t('dashboard.speedLimit', { speed: subscribe!.speed_limit! }) }}</span>
       </div>
       <div class="sub-traffic">
-        <span>{{ formatBytes(usedTraffic) }} / {{ formatBytes(totalTraffic) }}</span>
+        <span>{{ formatBytes(usedTraffic, trafficUnits) }} / {{ formatBytes(totalTraffic, trafficUnits) }}</span>
         <n-progress type="line" :percentage="trafficUsagePercent" :show-indicator="false" status="success" />
       </div>
       <n-alert v-if="!subscribeUrl" class="mb-3" type="warning" :show-icon="true">

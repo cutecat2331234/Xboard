@@ -22,6 +22,14 @@ const loadError = ref(false)
 const msg = useMessage()
 const { t } = useI18n()
 
+const trafficUnits = computed(() => ({
+  b: t('common.units.b'),
+  kb: t('common.units.kb'),
+  mb: t('common.units.mb'),
+  gb: t('common.units.gb'),
+  tb: t('common.units.tb'),
+}))
+
 function serverRate(row: TrafficRow): number {
   const raw = row.server_rate ?? row.rate ?? 1
   const n = parseFloat(String(raw))
@@ -37,12 +45,12 @@ const columns = computed(() => [
   {
     title: t('traffic.upload'),
     key: 'u',
-    render: (r: TrafficRow) => formatBytes(r.u / serverRate(r)),
+    render: (r: TrafficRow) => formatBytes(r.u / serverRate(r), trafficUnits.value),
   },
   {
     title: t('traffic.download'),
     key: 'd',
-    render: (r: TrafficRow) => formatBytes(r.d / serverRate(r)),
+    render: (r: TrafficRow) => formatBytes(r.d / serverRate(r), trafficUnits.value),
   },
   {
     title: t('traffic.rate'),
@@ -66,7 +74,7 @@ const columns = computed(() => [
       ]),
     key: 'total',
     fixed: 'right' as const,
-    render: (r: TrafficRow) => formatBytes((r.u + r.d) / serverRate(r)),
+    render: (r: TrafficRow) => formatBytes((r.u + r.d) / serverRate(r), trafficUnits.value),
   },
 ])
 

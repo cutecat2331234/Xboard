@@ -241,6 +241,11 @@ export default function TicketPage() {
         cell: ({ row }) => formatAdminDateTime(row.original.updated_at),
       },
       {
+        accessorKey: 'created_at',
+        header: () => t('ticket.columns.created_at'),
+        cell: ({ row }) => formatAdminDateTime(row.original.created_at),
+      },
+      {
         id: 'actions',
         header: () => t('common.table.columns.actions'),
         cell: ({ row }) => (

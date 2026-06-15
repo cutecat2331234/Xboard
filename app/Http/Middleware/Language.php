@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\App;
 
 class Language
 {
+    private const ALLOWED_LOCALES = ['en-US', 'zh-CN', 'zh-TW', 'ru-RU'];
+
     public function handle($request, Closure $next)
     {
-        if ($request->header('content-language')) {
-            App::setLocale($request->header('content-language'));
+        $locale = $request->header('content-language');
+        if ($locale && in_array($locale, self::ALLOWED_LOCALES, true)) {
+            App::setLocale($locale);
         }
         return $next($request);
     }

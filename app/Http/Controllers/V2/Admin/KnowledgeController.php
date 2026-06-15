@@ -15,10 +15,11 @@ class KnowledgeController extends Controller
     public function fetch(Request $request)
     {
         if ($request->input('id')) {
-            $knowledge = Knowledge::find($request->input('id'))->toArray();
-            if (!$knowledge)
+            $knowledge = Knowledge::find($request->input('id'));
+            if (!$knowledge) {
                 return $this->fail([400202, '知识不存在']);
-            return $this->success($knowledge);
+            }
+            return $this->success($knowledge->toArray());
         }
         $data = Knowledge::select(['title', 'id', 'updated_at', 'category', 'show'])
             ->orderBy('sort', 'ASC')
@@ -40,8 +41,12 @@ class KnowledgeController extends Controller
                 return $this->fail([500, '创建失败']);
             }
         } else {
+            $knowledge = Knowledge::find($request->input('id'));
+            if (!$knowledge) {
+                return $this->fail([400202, '知识不存在']);
+            }
             try {
-                Knowledge::find($request->input('id'))->update($params);
+                $knowledge->update($params);
             } catch (\Exception $e) {
                 \Log::error($e);
                 return $this->fail([500, '创建失败']);
@@ -82,6 +87,9 @@ class KnowledgeController extends Controller
             DB::beginTransaction();
             foreach ($request->input('ids') as $k => $v) {
                 $knowledge = Knowledge::find($v);
+                if (!$knowledge) {
+                    continue;
+                }
                 $knowledge->timestamps = false;
                 $knowledge->update(['sort' => $k + 1]);
             }
