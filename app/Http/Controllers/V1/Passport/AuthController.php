@@ -187,7 +187,10 @@ class AuthController extends Controller
 
         if (!$authorization) {
             return response()->json([
-                'message' => ResponseEnum::CLIENT_HTTP_UNAUTHORIZED
+                'status' => 'fail',
+                'message' => __(ResponseEnum::CLIENT_HTTP_UNAUTHORIZED[1]),
+                'data' => null,
+                'error' => null,
             ], 401);
         }
 
@@ -195,7 +198,10 @@ class AuthController extends Controller
 
         if (!$user) {
             return response()->json([
-                'message' => ResponseEnum::CLIENT_HTTP_UNAUTHORIZED_EXPIRED
+                'status' => 'fail',
+                'message' => __(ResponseEnum::CLIENT_HTTP_UNAUTHORIZED_EXPIRED[1]),
+                'data' => null,
+                'error' => null,
             ], 401);
         }
 

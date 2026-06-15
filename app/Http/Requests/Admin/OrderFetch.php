@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Concerns\NormalizesLegacyFilterConditions;
 use Illuminate\Foundation\Http\FormRequest;
 
 class OrderFetch extends FormRequest
 {
+    use NormalizesLegacyFilterConditions;
     /**
      * Get the validation rules that apply to the request.
      *
@@ -15,7 +17,7 @@ class OrderFetch extends FormRequest
     {
         return [
             'filter.*.key' => 'required|in:email,trade_no,status,commission_status,user_id,invite_user_id,callback_no,commission_balance',
-            'filter.*.condition' => 'required|in:>,<,=,>=,<=,模糊,!=',
+            'filter.*.condition' => 'required|in:>,<,=,>=,<=,like,!=',
             'filter.*.value' => ''
         ];
     }
