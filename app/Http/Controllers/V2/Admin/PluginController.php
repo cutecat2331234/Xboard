@@ -128,11 +128,27 @@ class PluginController extends Controller
     /**
      * 安装插件
      */
+    private function pluginCodeMessages(): array
+    {
+        return [
+            'code.required' => __('Plugin code cannot be empty'),
+        ];
+    }
+
+    private function pluginConfigMessages(): array
+    {
+        return [
+            'code.required' => __('Plugin code cannot be empty'),
+            'config.required' => __('Config parameter cannot be empty'),
+            'config.array' => __('Config parameter cannot be empty'),
+        ];
+    }
+
     public function install(Request $request)
     {
         $request->validate([
             'code' => 'required|string'
-        ]);
+        ], $this->pluginCodeMessages());
 
         try {
             $this->pluginManager->install($request->input('code'));
@@ -149,7 +165,7 @@ class PluginController extends Controller
     {
         $request->validate([
             'code' => 'required|string'
-        ]);
+        ], $this->pluginCodeMessages());
 
         $code = $request->input('code');
         $plugin = Plugin::where('code', $code)->first();
@@ -172,7 +188,7 @@ class PluginController extends Controller
     {
         $request->validate([
             'code' => 'required|string',
-        ]);
+        ], $this->pluginCodeMessages());
         try {
             $this->pluginManager->update($request->input('code'));
             return $this->success(true);
@@ -188,7 +204,7 @@ class PluginController extends Controller
     {
         $request->validate([
             'code' => 'required|string'
-        ]);
+        ], $this->pluginCodeMessages());
 
         try {
             $this->pluginManager->enable($request->input('code'));
@@ -205,7 +221,7 @@ class PluginController extends Controller
     {
         $request->validate([
             'code' => 'required|string'
-        ]);
+        ], $this->pluginCodeMessages());
 
         try {
             $this->pluginManager->disable($request->input('code'));
@@ -222,7 +238,7 @@ class PluginController extends Controller
     {
         $request->validate([
             'code' => 'required|string'
-        ]);
+        ], $this->pluginCodeMessages());
 
         try {
             $config = $this->configService->getConfig($request->input('code'));
@@ -240,7 +256,7 @@ class PluginController extends Controller
         $request->validate([
             'code' => 'required|string',
             'config' => 'required|array'
-        ]);
+        ], $this->pluginConfigMessages());
 
         try {
             $this->configService->updateConfig(
@@ -306,7 +322,7 @@ class PluginController extends Controller
     {
         $request->validate([
             'code' => 'required|string'
-        ]);
+        ], $this->pluginCodeMessages());
 
         $code = $request->input('code');
 

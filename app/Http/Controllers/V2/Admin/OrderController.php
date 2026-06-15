@@ -34,6 +34,10 @@ class OrderController extends Controller
     {
         $request->validate([
             'id' => 'required|integer|min:1',
+        ], [
+            'id.required' => __('Order ID cannot be empty'),
+            'id.integer' => __('Order ID format is invalid'),
+            'id.min' => __('Order ID format is invalid'),
         ]);
         $order = Order::with(['user', 'plan', 'commission_log', 'invite_user'])->find($request->input('id'));
         if (!$order)
@@ -149,6 +153,8 @@ class OrderController extends Controller
     {
         $request->validate([
             'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
+        ], [
+            'trade_no.required' => __('Trade number cannot be empty'),
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -178,6 +184,8 @@ class OrderController extends Controller
     {
         $request->validate([
             'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
+        ], [
+            'trade_no.required' => __('Trade number cannot be empty'),
         ]);
 
         return DB::transaction(function () use ($request) {

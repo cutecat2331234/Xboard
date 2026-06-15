@@ -23,6 +23,14 @@ class GiftCardController extends Controller
             'status' => 'integer|in:0,1',
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
+        ], [
+            'type.integer' => __('Invalid gift card type'),
+            'type.min' => __('Invalid gift card type'),
+            'type.max' => __('Invalid gift card type'),
+            'status.in' => __('Invalid filter condition'),
+            'page.min' => __('Invalid pagination parameters'),
+            'per_page.min' => __('Invalid pagination parameters'),
+            'per_page.max' => __('Page size cannot exceed 100'),
         ]);
 
         $query = GiftCardTemplate::query();
@@ -159,6 +167,15 @@ class GiftCardController extends Controller
             'background_image' => 'sometimes|nullable|string|url|max:255',
             'theme_color' => 'sometimes|nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
             'sort' => 'sometimes|integer|min:0',
+        ], [
+            'id.required' => __('Gift card template ID cannot be empty'),
+            'id.integer' => __('Gift card template ID format is invalid'),
+            'name.required' => __('Gift card name cannot be empty'),
+            'type.required' => __('Gift card type cannot be empty'),
+            'type.in' => __('Invalid gift card type'),
+            'rewards.required' => __('Reward configuration cannot be empty'),
+            'theme_color.regex' => __('Invalid theme color format'),
+            'background_image.url' => __('Background image must be a valid URL'),
         ]);
 
         $template = GiftCardTemplate::find($validatedData['id']);
@@ -204,6 +221,9 @@ class GiftCardController extends Controller
     {
         $request->validate([
             'id' => 'required|integer|exists:v2_gift_card_template,id',
+        ], [
+            'id.required' => __('Gift card template ID cannot be empty'),
+            'id.integer' => __('Gift card template ID format is invalid'),
         ]);
 
         try {
@@ -362,6 +382,12 @@ class GiftCardController extends Controller
             'status' => 'integer|in:0,1,2,3',
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
+        ], [
+            'template_id.integer' => __('Gift card template ID format is invalid'),
+            'status.in' => __('Invalid filter condition'),
+            'page.min' => __('Invalid pagination parameters'),
+            'per_page.min' => __('Invalid pagination parameters'),
+            'per_page.max' => __('Page size cannot exceed 100'),
         ]);
 
         $query = GiftCardCode::with(['template', 'user']);
@@ -413,6 +439,11 @@ class GiftCardController extends Controller
         $request->validate([
             'id' => 'required|integer|exists:v2_gift_card_code,id',
             'action' => 'required|string|in:disable,enable',
+        ], [
+            'id.required' => __('Record ID cannot be empty'),
+            'id.integer' => __('Record ID format is invalid'),
+            'action.required' => __('Action type cannot be empty'),
+            'action.in' => __('Invalid action type'),
         ]);
 
         $code = GiftCardCode::find($request->input('id'));
@@ -449,6 +480,8 @@ class GiftCardController extends Controller
     {
         $request->validate([
             'batch_id' => 'required|string|exists:v2_gift_card_code,batch_id',
+        ], [
+            'batch_id.required' => __('Batch ID cannot be empty'),
         ]);
 
         $codes = GiftCardCode::where('batch_id', $request->input('batch_id'))
@@ -472,6 +505,12 @@ class GiftCardController extends Controller
             'user_id' => 'integer|exists:v2_user,id',
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
+        ], [
+            'template_id.integer' => __('Gift card template ID format is invalid'),
+            'user_id.integer' => __('User ID format is invalid'),
+            'page.min' => __('Invalid pagination parameters'),
+            'per_page.min' => __('Invalid pagination parameters'),
+            'per_page.max' => __('Page size cannot exceed 100'),
         ]);
 
         $query = GiftCardUsage::with(['template', 'code', 'user', 'inviteUser']);
@@ -514,6 +553,9 @@ class GiftCardController extends Controller
         $request->validate([
             'start_date' => 'date_format:Y-m-d',
             'end_date' => 'date_format:Y-m-d',
+        ], [
+            'start_date.date_format' => __('Invalid date format'),
+            'end_date.date_format' => __('Invalid date format'),
         ]);
 
         $startDate = $request->input('start_date', date('Y-m-d', strtotime('-30 days')));
@@ -582,6 +624,9 @@ class GiftCardController extends Controller
             'expires_at' => 'sometimes|nullable|integer',
             'max_usage' => 'sometimes|integer|min:1|max:1000',
             'status' => 'sometimes|integer|in:0,1,2,3',
+        ], [
+            'id.required' => __('Record ID cannot be empty'),
+            'id.integer' => __('Record ID format is invalid'),
         ]);
 
         $code = GiftCardCode::find($validatedData['id']);
@@ -627,6 +672,9 @@ class GiftCardController extends Controller
     {
         $request->validate([
             'id' => 'required|integer|exists:v2_gift_card_code,id',
+        ], [
+            'id.required' => __('Record ID cannot be empty'),
+            'id.integer' => __('Record ID format is invalid'),
         ]);
 
         try {

@@ -102,6 +102,9 @@ class NoticeController extends Controller
     {
         $params = $request->validate([
             'ids' => 'required|array'
+        ], [
+            'ids.required' => __('Invalid parameters'),
+            'ids.array' => __('Invalid parameters'),
         ]);
 
         try {

@@ -57,6 +57,10 @@ class MailTemplateController extends Controller
             'name' => 'required|string',
             'subject' => 'required|string|max:255',
             'content' => 'required|string',
+        ], [
+            'name.required' => __('Mail template name cannot be empty'),
+            'subject.required' => __('Email subject cannot be empty'),
+            'content.required' => __('Mail content cannot be empty'),
         ]);
 
         $meta = MailTemplate::getMeta($params['name']);
