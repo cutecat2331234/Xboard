@@ -459,8 +459,9 @@ export interface EchKeyPair {
 }
 
 export async function generateEchKey(publicName?: string): Promise<EchKeyPair> {
-  const qs = publicName ? buildQuery({ public_name: publicName }) : ''
-  return fetchJsonObject<EchKeyPair>(`/server/manage/generateEchKey${qs}`)
+  return postJson<EchKeyPair>('/server/manage/generateEchKey', {
+    public_name: publicName ?? '',
+  })
 }
 
 export async function fetchConfig(): Promise<Record<string, unknown>> {

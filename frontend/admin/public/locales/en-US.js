@@ -2612,6 +2612,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "reject_withdraw_confirm_title": "Reject withdrawal?",
       "reject_withdraw_confirm_description": "This will close the ticket and restore the withheld commission to the user."
     },
+    "alreadyClosed": "Ticket is already closed",
+    "withdrawCloseRequired": "Withdraw tickets must be approved or rejected before closing",
     "reply": {
       "label": "Reply"
     },
@@ -3681,7 +3683,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "codeNotFound": "Redemption code not found",
       "templateDisabled": "This gift card type is disabled",
       "deleteFailed": "Delete failed",
-      "updateFailed": "Update failed"
+      "updateFailed": "Update failed",
+      "templateHasCodes": "Cannot delete: this template still has redemption codes"
     }
   },
   "knowledge": {

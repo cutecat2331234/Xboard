@@ -39,7 +39,7 @@ import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 
 import { useCurrency } from '@/composables/useCurrency'
-import { formatBytes } from '@/lib/format-traffic'
+import { formatPlanTrafficGb } from '@/lib/format-traffic'
 
 import QRCode from 'qrcode'
 
@@ -605,7 +605,7 @@ onUnmounted(stopPoll)
 
           <div class="info-label">{{ t('order.productTraffic') }}：</div>
 
-          <div class="info-value">{{ formatBytes(order.plan?.transfer_enable ?? 0) }}</div>
+          <div class="info-value">{{ formatPlanTrafficGb(order.plan?.transfer_enable ?? 0) }}</div>
 
         </div>
 
@@ -776,7 +776,7 @@ onUnmounted(stopPoll)
 
           <div v-if="periodPlanPrice != null" class="summary-panel__plan-price">
 
-            {{ symbol }}{{ (periodPlanPrice / 100).toFixed(2) }}
+            {{ formatPrice(periodPlanPrice) }}
 
           </div>
 
@@ -786,7 +786,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.surplus') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.surplus_amount / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.surplus_amount) }}</span>
 
         </div>
 
@@ -794,7 +794,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.discountLabel') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.discount_amount / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.discount_amount) }}</span>
 
         </div>
 
@@ -802,7 +802,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.refund') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.surplus_credit / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.surplus_credit) }}</span>
 
         </div>
 
@@ -810,7 +810,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.balancePay') }}</span>
 
-          <span class="summary-panel__amount">-{{ symbol }}{{ (order.balance_amount / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">-{{ formatPrice(order.balance_amount) }}</span>
 
         </div>
 
@@ -818,7 +818,7 @@ onUnmounted(stopPoll)
 
           <span class="summary-panel__muted">{{ t('order.handlingFee') }}</span>
 
-          <span class="summary-panel__amount">+{{ symbol }}{{ (handlingPreview / 100).toFixed(2) }}</span>
+          <span class="summary-panel__amount">+{{ formatPrice(handlingPreview) }}</span>
 
         </div>
 
@@ -826,7 +826,7 @@ onUnmounted(stopPoll)
 
           <div class="summary-panel__muted">{{ t('order.grandTotal') }}</div>
 
-          <div class="summary-panel__grand">{{ symbol }} {{ (payTotal / 100).toFixed(2) }} {{ code }}</div>
+          <div class="summary-panel__grand">{{ formatPrice(payTotal) }}</div>
 
         </div>
 

@@ -286,13 +286,15 @@ class GiftCardService
         $inviteUser = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
         if ($inviteUser && !$inviteUser->banned
             && isset($rewards['transfer_enable']) && $rewards['transfer_enable'] > 0) {
-            $inviteTransfer = (int) ($rewards['transfer_enable'] * $rate);
-            if ($inviteTransfer > 0) {
-                $inviteUser->transfer_enable = ($inviteUser->transfer_enable ?? 0) + $inviteTransfer;
-                if (!$inviteUser->save()) {
-                    throw new \RuntimeException('Failed to add invite reward traffic');
+            $totalTrafficPool = (int) ($rewards['transfer_enable'] * $rate);
+            if ($totalTrafficPool > 0) {
+                $paidTraffic = $this->distributeInviteTrafficPool(
+                    (int) $this->user->invite_user_id,
+                    $totalTrafficPool
+                );
+                if ($paidTraffic > 0) {
+                    $inviteRewards['transfer_enable'] = $paidTraffic;
                 }
-                $inviteRewards['transfer_enable'] = $inviteTransfer;
             }
         }
 
@@ -380,6 +382,55 @@ class GiftCardService
                     'order_amount' => $orderAmount,
                     'get_amount' => $remaining,
                 ]);
+                $paidTotal += $remaining;
+            }
+        }
+
+        return $paidTotal;
+    }
+
+    protected function distributeInviteTrafficPool(int $inviteUserId, int $totalPool): int
+    {
+        $shareLevels = CommissionChain::shareLevels();
+        $remaining = $totalPool;
+        $paidTotal = 0;
+        $currentInviteId = $inviteUserId;
+
+        for ($level = 0; $level < 3; $level++) {
+            if ($remaining <= 0) {
+                break;
+            }
+            $inviter = User::where('id', $currentInviteId)->lockForUpdate()->first();
+            if (!$inviter || $inviter->banned) {
+                break;
+            }
+            if (!isset($shareLevels[$level])) {
+                $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
+                continue;
+            }
+            $share = (int) round($totalPool * ($shareLevels[$level] / 100));
+            $payAmount = min(max(0, $share), $remaining);
+            if ($payAmount <= 0) {
+                $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
+                continue;
+            }
+
+            $inviter->transfer_enable = ($inviter->transfer_enable ?? 0) + $payAmount;
+            if (!$inviter->save()) {
+                throw new \RuntimeException('Failed to add invite reward traffic');
+            }
+            $paidTotal += $payAmount;
+            $remaining -= $payAmount;
+            $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
+        }
+
+        if ($remaining > 0) {
+            $directInviter = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
+            if ($directInviter && !$directInviter->banned) {
+                $directInviter->transfer_enable = ($directInviter->transfer_enable ?? 0) + $remaining;
+                if (!$directInviter->save()) {
+                    throw new \RuntimeException('Failed to add invite reward traffic');
+                }
                 $paidTotal += $remaining;
             }
         }

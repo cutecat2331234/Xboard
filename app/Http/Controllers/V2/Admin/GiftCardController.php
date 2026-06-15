@@ -543,11 +543,12 @@ class GiftCardController extends Controller
             ->orderBy('date')
             ->get();
 
-        // 类型统计
-        $typeStats = GiftCardUsage::with('template')
+        // 类型统计（与每日统计使用相同日期范围）
+        $typeStatsQuery = GiftCardUsage::with('template')
             ->selectRaw('template_id, COUNT(*) as count')
-            ->groupBy('template_id')
-            ->get()
+            ->whereRaw("{$dateExpression} BETWEEN ? AND ?", [$startDate, $endDate])
+            ->groupBy('template_id');
+        $typeStats = $typeStatsQuery->get()
             ->map(function ($item) {
                 return [
                     'template_name' => $item->template->name ?? '',

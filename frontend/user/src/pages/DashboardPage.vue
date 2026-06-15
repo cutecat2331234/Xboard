@@ -32,6 +32,7 @@ const notices = ref<NoticeItem[]>([])
 const popupNotice = ref<NoticeItem | null>(null)
 const unpaidOrders = ref(0)
 const openTickets = ref(0)
+const inviteCount = ref(0)
 const ticketsEnabled = computed(() => featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null))
 const knowledgeEnabled = computed(() => featureEnabled(commConfig.value?.knowledge_enable, commConfig.value != null))
 const announcementsEnabled = computed(() => featureEnabled(commConfig.value?.announcement_enable, commConfig.value != null))
@@ -60,6 +61,12 @@ const trafficWarnThreshold = computed(() => resolveTrafficWarnRate(commConfig.va
 
 const showTrafficAlert = computed(
   () => hasActiveSubscription.value && trafficUsagePercent.value >= trafficWarnThreshold.value,
+)
+const showDeviceLimit = computed(
+  () => hasActiveSubscription.value && subscribe.value?.device_limit != null && subscribe.value.device_limit > 0,
+)
+const showSpeedLimit = computed(
+  () => hasActiveSubscription.value && subscribe.value?.speed_limit != null && subscribe.value.speed_limit > 0,
 )
 
 async function load() {
@@ -138,6 +145,7 @@ onMounted(async () => {
     if (ticketsEnabled.value) {
       openTickets.value = stat[1] ?? 0
     }
+    inviteCount.value = stat[2] ?? 0
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   }
@@ -201,6 +209,17 @@ function onShortcut(item: { to?: string; action?: () => void }) {
 <template>
   <div class="mb-1 md:mb-10">
   <div class="dash-alerts">
+    <n-alert
+      v-if="inviteCount > 0"
+      type="info"
+      :show-icon="false"
+      bordered
+      closable
+      class="mb-1"
+    >
+      {{ t('dashboard.invitedUsers', { count: inviteCount }) }}
+      <n-button text strong @click="router.push('/invite')">{{ t('dashboard.goView') }}</n-button>
+    </n-alert>
     <n-alert
       v-if="ticketsEnabled && openTickets > 0"
       type="warning"
@@ -270,6 +289,8 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       <div class="sub-meta">
         <span>{{ t('dashboard.expireAt') }}: {{ formatExpire(subscribe?.expired_at, locale) }}</span>
         <span v-if="subscribe?.reset_day != null">{{ t('dashboard.resetDay', { day: subscribe.reset_day }) }}</span>
+        <span v-if="showDeviceLimit">{{ t('dashboard.deviceLimit', { count: subscribe!.device_limit! }) }}</span>
+        <span v-if="showSpeedLimit">{{ t('dashboard.speedLimit', { speed: subscribe!.speed_limit! }) }}</span>
       </div>
       <div class="sub-traffic">
         <span>{{ formatBytes(usedTraffic) }} / {{ formatBytes(totalTraffic) }}</span>

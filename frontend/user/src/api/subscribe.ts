@@ -8,6 +8,8 @@ export interface SubscribeInfo {
   u?: number
   d?: number
   transfer_enable?: number
+  device_limit?: number | null
+  speed_limit?: number | null
   expired_at?: number | null
   next_reset_at?: number | null
 }
