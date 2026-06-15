@@ -35,19 +35,21 @@ class ConfigController extends Controller
 
     public function testSendMail(Request $request)
     {
+        $appName = admin_setting('app_name', 'XBoard');
         $mailLog = MailService::sendEmail([
             'email' => $request->user()->email,
-            'subject' => 'This is xboard test email',
+            'subject' => __('config.test_mail.subject', ['app' => $appName]),
             'template_name' => 'notify',
             'template_value' => [
-                'name' => admin_setting('app_name', 'XBoard'),
-                'content' => 'This is xboard test email',
+                'name' => $appName,
+                'content' => __('config.test_mail.content'),
                 'url' => admin_setting('app_url')
             ]
         ]);
-        return response([
-            'data' => $mailLog,
-        ]);
+        if ($mailLog['error']) {
+            return $this->fail([500, __('Send failed: :error', ['error' => $mailLog['error']])]);
+        }
+        return $this->success($mailLog);
     }
     public function setTelegramWebhook(Request $request)
     {

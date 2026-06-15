@@ -82,7 +82,7 @@ class KnowledgeController extends Controller
         $request->validate([
             'id' => 'required|numeric'
         ], [
-            'id.required' => '知识库ID不能为空'
+            'id.required' => __('Article ID cannot be empty'),
         ]);
         $knowledge = Knowledge::find($request->input('id'));
         if (!$knowledge) {
@@ -101,8 +101,8 @@ class KnowledgeController extends Controller
         $request->validate([
             'ids' => 'required|array'
         ], [
-            'ids.required' => '参数有误',
-            'ids.array' => '参数有误'
+            'ids.required' => __('Invalid parameters'),
+            'ids.array' => __('Invalid parameters'),
         ]);
         try {
             DB::beginTransaction();
@@ -124,7 +124,7 @@ class KnowledgeController extends Controller
         $request->validate([
             'id' => 'required|numeric'
         ], [
-            'id.required' => '知识库ID不能为空'
+            'id.required' => __('Article ID cannot be empty'),
         ]);
         $knowledge = Knowledge::find($request->input('id'));
         if (!$knowledge) {

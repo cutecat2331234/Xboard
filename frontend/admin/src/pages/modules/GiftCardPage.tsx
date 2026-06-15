@@ -1151,7 +1151,13 @@ export default function GiftCardPage() {
 
       { accessorKey: 'name', header: () => t('giftCard.template.table.columns.name') },
 
-      { accessorKey: 'type_name', header: () => t('giftCard.template.table.columns.type') },
+      { accessorKey: 'type_name', header: () => t('giftCard.template.table.columns.type'), cell: ({ row }) => {
+        const type = row.original.type
+        if (type != null && type !== '') {
+          return t(`giftCard.types.${type}`, { defaultValue: String(row.original.type_name ?? type) })
+        }
+        return String(row.original.type_name ?? '—')
+      } },
 
       { accessorKey: 'status', header: () => t('giftCard.template.table.columns.status'), cell: ({ row }) => (
         row.original.status ? t('giftCard.common.enabled') : t('giftCard.common.disabled')
