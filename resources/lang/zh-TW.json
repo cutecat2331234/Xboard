@@ -631,5 +631,18 @@
     "subscribe.info.reset_in_days": "距離下次重置剩餘：:days 天",
     "subscribe.info.remaining_traffic": "剩餘流量：:traffic",
     "Email suffix cannot be empty": "郵箱後綴不能為空",
-    "Payment amount format is invalid": "支付金額格式無效"
+    "Payment amount format is invalid": "支付金額格式無效",
+    "WebSocket URL must include http(s)://": "WebSocket 地址必須包含 http(s)://",
+    "Withdrawal fee rate format is invalid": "提現費率格式無效",
+    "Withdrawal fee rate must be between 0 and 1": "提現費率必須在 0 到 1 之間",
+    "Withdraw ticket stale days format is invalid": "提現工單過期天數格式無效",
+    "Withdraw ticket stale days must be between 1 and 90": "提現工單過期天數必須在 1 到 90 之間",
+    "Invite code max uses format is invalid": "邀請碼最大使用次數格式無效",
+    "Traffic warning threshold format is invalid": "流量提醒閾值格式無效",
+    "Traffic warning threshold must be between 1 and 100": "流量提醒閾值必須在 1 到 100 之間",
+    "Invalid traffic reset method": "無效的流量重置方式",
+    "Invalid order event type": "無效的訂單事件類型",
+    "Invalid sidebar theme": "無效的側邊欄主題",
+    "Invalid header theme": "無效的頂欄主題",
+    "Invalid frontend theme color": "無效的前端主題色"
 }

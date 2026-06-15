@@ -235,6 +235,11 @@ export default {
     giftCardLimitReached: '이 기프트 카드 사용 한도에 도달했습니다',
     giftCardQueryFailed: '조회에 실패했습니다. 나중에 다시 시도하세요.',
     giftCardUnavailable: '기프트 카드를 사용할 수 없습니다',
+    messageTooLong: '메시지가 너무 깁니다',
+    searchKeywordTooLong: '검색어가 너무 깁니다',
+    planPeriodEmpty: '플랜 주기를 입력하세요',
+    recordIdRequired: '레코드 ID를 입력하세요',
+    commissionUpdateFailed: '커미션 잔액 업데이트에 실패했습니다',
 },
   common: {
     loading: "로딩 중...",

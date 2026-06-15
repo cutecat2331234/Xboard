@@ -235,6 +235,11 @@ export default {
     giftCardLimitReached: 'به سقف استفاده از این کارت هدیه رسیده‌اید',
     giftCardQueryFailed: 'استعلام ناموفق بود، بعداً دوباره تلاش کنید.',
     giftCardUnavailable: 'کارت هدیه در دسترس نیست',
+    messageTooLong: 'پیام خیلی طولانی است',
+    searchKeywordTooLong: 'کلمه جستجو خیلی طولانی است',
+    planPeriodEmpty: 'دوره پلن نمی‌تواند خالی باشد',
+    recordIdRequired: 'شناسه رکورد نمی‌تواند خالی باشد',
+    commissionUpdateFailed: 'به‌روزرسانی موجودی کمیسیون ناموفق بود',
 },
   common: {
     loading: "در حال بارگذاری...",

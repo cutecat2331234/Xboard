@@ -236,6 +236,11 @@ export default {
     giftCardLimitReached: 'Bạn đã đạt giới hạn sử dụng thẻ quà tặng này',
     giftCardQueryFailed: 'Truy vấn thất bại, vui lòng thử lại sau.',
     giftCardUnavailable: 'Thẻ quà tặng không khả dụng',
+    messageTooLong: 'Tin nhắn quá dài',
+    searchKeywordTooLong: 'Từ khóa tìm kiếm quá dài',
+    planPeriodEmpty: 'Chu kỳ gói không được để trống',
+    recordIdRequired: 'ID bản ghi không được để trống',
+    commissionUpdateFailed: 'Không thể cập nhật số dư hoa hồng',
 },
   common: {
     loading: "Đang tải...",

@@ -669,5 +669,18 @@
     "subscribe.info.reset_in_days": ":days day(s) until next reset",
     "subscribe.info.remaining_traffic": "Remaining traffic: :traffic",
     "Email suffix cannot be empty": "Email suffix cannot be empty",
-    "Payment amount format is invalid": "Payment amount format is invalid"
+    "Payment amount format is invalid": "Payment amount format is invalid",
+    "WebSocket URL must include http(s)://": "WebSocket URL must include http(s)://",
+    "Withdrawal fee rate format is invalid": "Withdrawal fee rate format is invalid",
+    "Withdrawal fee rate must be between 0 and 1": "Withdrawal fee rate must be between 0 and 1",
+    "Withdraw ticket stale days format is invalid": "Withdraw ticket stale days format is invalid",
+    "Withdraw ticket stale days must be between 1 and 90": "Withdraw ticket stale days must be between 1 and 90",
+    "Invite code max uses format is invalid": "Invite code max uses format is invalid",
+    "Traffic warning threshold format is invalid": "Traffic warning threshold format is invalid",
+    "Traffic warning threshold must be between 1 and 100": "Traffic warning threshold must be between 1 and 100",
+    "Invalid traffic reset method": "Invalid traffic reset method",
+    "Invalid order event type": "Invalid order event type",
+    "Invalid sidebar theme": "Invalid sidebar theme",
+    "Invalid header theme": "Invalid header theme",
+    "Invalid frontend theme color": "Invalid frontend theme color"
 }

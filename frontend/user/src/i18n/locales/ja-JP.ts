@@ -235,6 +235,11 @@ export default {
     giftCardLimitReached: 'このギフトカードの利用上限に達しました',
     giftCardQueryFailed: '照会に失敗しました。後でもう一度お試しください。',
     giftCardUnavailable: 'ギフトカードは利用できません',
+    messageTooLong: 'メッセージが長すぎます',
+    searchKeywordTooLong: '検索キーワードが長すぎます',
+    planPeriodEmpty: 'プラン周期を入力してください',
+    recordIdRequired: 'レコードIDを入力してください',
+    commissionUpdateFailed: 'コミッション残高の更新に失敗しました',
 },
   common: {
     loading: "読み込み中...",

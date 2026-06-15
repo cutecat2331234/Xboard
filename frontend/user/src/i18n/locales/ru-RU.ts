@@ -178,6 +178,11 @@ export default {
     giftCardDisabled: 'Этот тип подарочной карты отключён',
     giftCardIneligible: 'Вы не можете активировать эту карту',
     giftCardLimitReached: 'Достигнут лимит использования этой карты',
+    messageTooLong: 'Сообщение слишком длинное',
+    searchKeywordTooLong: 'Поисковый запрос слишком длинный',
+    planPeriodEmpty: 'Период тарифа не может быть пустым',
+    recordIdRequired: 'ID записи не может быть пустым',
+    commissionUpdateFailed: 'Не удалось обновить комиссионный баланс',
   },
   invite: {
     ...enUS.invite,
