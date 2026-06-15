@@ -139,6 +139,9 @@ export default {
   },
   errors: {
     giftCardRedeemFailed: "Redemption failed. Please try again later.",
+    giftCardCodeEmpty: 'Redemption code cannot be empty',
+    giftCardCodeMin: 'Redemption code must be at least 8 characters',
+    giftCardCodeMax: 'Redemption code cannot exceed 32 characters',
     couponPerUserLimit: "This coupon can only be used {limit} time(s) per person",
     couponNotStarted: "This coupon has not yet started",
     incorrectCredentials: 'Incorrect email or password',

@@ -22,8 +22,8 @@ class UserUpdate extends FormRequest
     public function messages()
     {
         return [
-            'show.in' => __('Incorrect format of expiration reminder'),
-            'renew.in' => __('Incorrect traffic alert format')
+            'remind_expire.in' => __('Incorrect format of expiration reminder'),
+            'remind_traffic.in' => __('Incorrect traffic alert format'),
         ];
     }
 }

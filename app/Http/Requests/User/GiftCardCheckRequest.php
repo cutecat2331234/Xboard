@@ -25,4 +25,16 @@ class GiftCardCheckRequest extends FormRequest
             'code' => 'required|string|min:8|max:32',
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'code.required' => __('Redemption code cannot be empty'),
+            'code.min' => __('Redemption code must be at least 8 characters'),
+            'code.max' => __('Redemption code cannot exceed 32 characters'),
+        ];
+    }
 }

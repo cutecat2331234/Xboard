@@ -139,6 +139,9 @@ export default {
   },
   errors: {
     giftCardRedeemFailed: "兑换失败，请稍后重试",
+    giftCardCodeEmpty: '请输入兑换码',
+    giftCardCodeMin: '兑换码长度不能少于8位',
+    giftCardCodeMax: '兑换码长度不能超过32位',
     couponPerUserLimit: "每人只能使用此优惠券 {limit} 次",
     couponNotStarted: "优惠券尚未开始",
     incorrectCredentials: '邮箱或密码错误',
