@@ -164,6 +164,7 @@ export default {
     registerTooFrequent: "註冊頻繁，請等待 {minute} 分鐘後再次嘗試",
     invalidCaptcha: "驗證碼有誤",
     invalidCaptchaType: "驗證碼設定無效",
+    invalidEmailVerificationPurpose: "無效的郵箱驗證用途",
     emailCodeSentRecently: "驗證碼已傳送，請過一會兒再請求",
     emailNotRegistered: "該郵箱不存在系統中",
     resetFailed: "重置失敗",

@@ -51,6 +51,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "cancel": "取消",
       "save": "保存",
       "success": "保存成功"
+    },
+    "validation": {
+      "name_required": "主题名称不能为空",
+      "name_format": "主题名称格式无效",
+      "config_required": "主题配置不能为空",
+      "render_failed": "主题渲染失败。如更新主题，参数可能发生变化请重新配置主题后再试。"
     }
   },
   "machine": {
@@ -210,6 +216,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "loading": "加载中...",
     "error": "错误",
     "invalidParameters": "参数有误",
+    "invalidSort": "参数有误",
+    "invalidFileType": "无效的文件类型",
+    "operationFailed": "操作失败",
     "success": "成功",
     "save": "保存",
     "cancel": "取消",
@@ -422,7 +431,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "deleteSuccess": "插件删除成功",
       "deleteError": "插件删除失败",
       "disableBeforeUninstall": "请先禁用插件后再卸载",
-      "coreDeleteForbidden": "该插件为系统核心插件，不允许删除"
+      "coreDeleteForbidden": "该插件为系统核心插件，不允许删除",
+      "notEnabled": "插件未启用",
+      "codeRequired": "插件代码不能为空"
     }
   },
   "group": {
@@ -636,7 +647,15 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "assign": {
       "amountExceedsPrice": "支付金额不能超过订阅标价",
       "userBanned": "该用户已被封禁，无法分配订阅",
-      "createFailed": "订单创建失败"
+      "createFailed": "订单创建失败",
+      "planRequired": "订阅不能为空",
+      "emailRequired": "邮箱不能为空",
+      "amountRequired": "支付金额不能为空",
+      "periodRequired": "订阅周期不能为空",
+      "periodInvalid": "订阅周期格式有误",
+      "pendingOrder": "该用户还有待支付的订单，无法分配",
+      "invalidPeriod": "无效的套餐周期",
+      "fulfillmentFailed": "订单开通失败"
     },
     "messages": {
       "notFound": "订单不存在",
@@ -907,7 +926,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "batchResetFailed": "批量重置失败",
         "selectUpdate": "请选择要更新的节点",
         "noUpdatableFields": "没有可更新的字段",
-        "batchUpdateFailed": "批量更新失败"
+        "batchUpdateFailed": "批量更新失败",
+        "nodeIdRequired": "节点 ID 不能为空",
+        "localPortRequired": "本地端口不能为空",
+        "fetchConfigFailed": "获取节点配置失败"
       }
     },
     "columns": {
@@ -2844,7 +2866,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "notFound": "支付方式不存在",
       "disabled": "支付方式不存在或未启用",
       "siteUrlRequired": "请在站点配置中配置站点地址",
-      "saveFailed": "保存失败"
+      "saveFailed": "保存失败",
+      "gatewayFailed": "支付网关请求失败"
     },
     "table": {
       "columns": {
@@ -2922,7 +2945,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         },
         "payment": {
           "required": "请选择支付接口"
-        }
+        },
+        "display_name_required": "显示名称不能为空",
+        "gateway_required": "网关参数不能为空",
+        "config_required": "配置参数不能为空",
+        "fixed_fee_format": "固定手续费格式有误",
+        "percent_fee_range": "百分比手续费范围须在0-100之间",
+        "id_format": "支付方式ID格式无效"
       },
       "buttons": {
         "cancel": "取消",
@@ -3129,6 +3158,17 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "emailSuffixRequired": "邮箱后缀不能为空",
       "countMax": "生成数量最大为500个",
       "countInteger": "生成数量必须为数字"
+    },
+    "messages": {
+      "notFound": "该用户不存在",
+      "emailExists": "邮箱已在系统中存在",
+      "planNotFound": "订阅计划不存在",
+      "userIdsRequired": "user_ids不能为空",
+      "userIdRequired": "用户ID不能为空",
+      "saveFailed": "保存失败",
+      "updateFailed": "更新失败",
+      "processingFailed": "处理失败",
+      "operationFailed": "操作失败"
     },
     "invite": {
       "selfInviter": "不能将自己设为邀请人",
@@ -3921,7 +3961,18 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "codeResetUnused": "兑换码不可改回未使用",
       "maxUsageBelowCount": "最大使用次数不能小于已使用次数",
       "usedCodeDelete": "已使用的礼品卡不可删除",
-      "codeHasUsage": "礼品卡存在使用记录，不可删除"
+      "codeHasUsage": "礼品卡存在使用记录，不可删除",
+      "typeEmpty": "礼品卡类型不能为空",
+      "typeInvalid": "无效的礼品卡类型",
+      "rewardRequired": "奖励配置不能为空",
+      "themeColorInvalid": "主题色格式不正确",
+      "templateRequired": "请选择礼品卡模板",
+      "countRequired": "请指定生成数量",
+      "countMax": "单次最多生成10000个兑换码",
+      "prefixFormat": "前缀只能包含大写字母和数字",
+      "templateIdEmpty": "礼品卡模板ID不能为空",
+      "templateIdFormat": "礼品卡模板ID格式无效",
+      "batchIdRequired": "批次ID不能为空"
     }
   },
   "knowledge": {

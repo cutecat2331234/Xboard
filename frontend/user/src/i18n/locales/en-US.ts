@@ -166,6 +166,7 @@ export default {
     registerTooFrequent: 'Registering too frequently. Try again after {minute} minute(s).',
     invalidCaptcha: 'Captcha verification failed',
     invalidCaptchaType: 'Invalid captcha configuration',
+    invalidEmailVerificationPurpose: 'Invalid email verification purpose',
     emailCodeSentRecently: 'Verification code already sent. Please wait before requesting again.',
     emailNotRegistered: 'This email is not registered',
     resetFailed: 'Password reset failed',

@@ -688,5 +688,6 @@
     "Rate time range start time format is invalid (use HH:MM)": "Rate time range start time format is invalid (use HH:MM)",
     "Rate time range end time format is invalid (use HH:MM)": "Rate time range end time format is invalid (use HH:MM)",
     "Rate multiplier format is invalid": "Rate multiplier format is invalid",
-    "Rate multiplier cannot be less than 0": "Rate multiplier cannot be less than 0"
+    "Rate multiplier cannot be less than 0": "Rate multiplier cannot be less than 0",
+    "User has an unpaid or pending order, please try again later or cancel it": "User has an unpaid or pending order, please try again later or cancel it"
 }

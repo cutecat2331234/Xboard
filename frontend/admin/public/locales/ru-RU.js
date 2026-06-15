@@ -51,6 +51,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "cancel": "Отмена",
       "save": "Сохранить",
       "success": "Настройки успешно сохранены"
+    },
+    "validation": {
+      "name_required": "Theme name cannot be empty",
+      "name_format": "Invalid theme name format",
+      "config_required": "Theme config cannot be empty",
+      "render_failed": "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again."
     }
   },
   "machine": {
@@ -212,6 +218,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "loading": "Загрузка...",
     "error": "Ошибка",
     "invalidParameters": "Неверные параметры",
+    "invalidSort": "Invalid sort parameters",
+    "invalidFileType": "Invalid file type",
+    "operationFailed": "Operation failed",
     "success": "Успех",
     "save": "Сохранить",
     "cancel": "Отмена",
@@ -417,7 +426,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "deleteSuccess": "Плагин удален",
       "deleteError": "Ошибка удаления плагина",
       "disableBeforeUninstall": "Сначала отключите плагин перед удалением",
-      "coreDeleteForbidden": "Системные плагины нельзя удалить"
+      "coreDeleteForbidden": "Системные плагины нельзя удалить",
+      "notEnabled": "Plugin is not enabled",
+      "codeRequired": "Plugin code cannot be empty"
     }
   },
   "group": {
@@ -626,7 +637,15 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "assign": {
       "amountExceedsPrice": "Сумма оплаты не может превышать цену тарифа",
       "userBanned": "Пользователь заблокирован и не может получить подписку",
-      "createFailed": "Не удалось создать заказ"
+      "createFailed": "Не удалось создать заказ",
+      "planRequired": "Plan is required",
+      "emailRequired": "Email cannot be empty",
+      "amountRequired": "Payment amount cannot be empty",
+      "periodRequired": "Subscription period cannot be empty",
+      "periodInvalid": "Subscription period format is invalid",
+      "pendingOrder": "User has an unpaid or pending order, please try again later or cancel it",
+      "invalidPeriod": "Invalid plan period",
+      "fulfillmentFailed": "Order fulfillment failed"
     },
     "messages": {
       "notFound": "Order does not exist",
@@ -925,7 +944,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "batchResetFailed": "Не удалось выполнить пакетный сброс",
         "selectUpdate": "Выберите узлы для обновления",
         "noUpdatableFields": "Нет полей для обновления",
-        "batchUpdateFailed": "Не удалось выполнить пакетное обновление"
+        "batchUpdateFailed": "Не удалось выполнить пакетное обновление",
+        "nodeIdRequired": "Node ID cannot be empty",
+        "localPortRequired": "Local port cannot be empty",
+        "fetchConfigFailed": "Failed to fetch node config"
       }
     },
     "columns": {
@@ -2766,7 +2788,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "notFound": "Способ оплаты не найден",
       "disabled": "Способ оплаты не существует или отключён",
       "siteUrlRequired": "Укажите URL сайта в настройках перед добавлением способов оплаты",
-      "saveFailed": "Не удалось сохранить способ оплаты"
+      "saveFailed": "Не удалось сохранить способ оплаты",
+      "gatewayFailed": "Payment gateway request failed"
     },
     "table": {
       "columns": {
@@ -2844,7 +2867,13 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         },
         "payment": {
           "required": "Пожалуйста, выберите платежный шлюз"
-        }
+        },
+        "display_name_required": "Display name cannot be empty",
+        "gateway_required": "Gateway parameter cannot be empty",
+        "config_required": "Config parameter cannot be empty",
+        "fixed_fee_format": "Invalid fixed handling fee format",
+        "percent_fee_range": "Handling fee percent must be between 0 and 100",
+        "id_format": "Payment method ID format is invalid"
       },
       "buttons": {
         "cancel": "Отмена",
@@ -3045,6 +3074,17 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "emailSuffixRequired": "Email suffix cannot be empty",
       "countMax": "Generate count cannot exceed 500",
       "countInteger": "Generate count must be an integer"
+    },
+    "messages": {
+      "notFound": "The user does not exist",
+      "emailExists": "Email already exists",
+      "planNotFound": "Subscription plan does not exist",
+      "userIdsRequired": "User IDs cannot be empty",
+      "userIdRequired": "User ID is required",
+      "saveFailed": "Save failed",
+      "updateFailed": "Update failed",
+      "processingFailed": "Processing failed",
+      "operationFailed": "Operation failed"
     },
     "invite": {
       "selfInviter": "Нельзя указать себя в качестве пригласившего",
@@ -3772,7 +3812,18 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "codeResetUnused": "Код нельзя вернуть в статус «не использован»",
       "maxUsageBelowCount": "Макс. использований не может быть меньше текущего числа",
       "usedCodeDelete": "Использованную карту нельзя удалить",
-      "codeHasUsage": "Нельзя удалить: есть записи об использовании"
+      "codeHasUsage": "Нельзя удалить: есть записи об использовании",
+      "typeEmpty": "Gift card type cannot be empty",
+      "typeInvalid": "Invalid gift card type",
+      "rewardRequired": "Reward configuration cannot be empty",
+      "themeColorInvalid": "Invalid theme color format",
+      "templateRequired": "Gift card template is required",
+      "countRequired": "Generation count is required",
+      "countMax": "At most 10000 redemption codes can be generated at once",
+      "prefixFormat": "Prefix may only contain uppercase letters and digits",
+      "templateIdEmpty": "Gift card template ID cannot be empty",
+      "templateIdFormat": "Gift card template ID format is invalid",
+      "batchIdRequired": "Batch ID cannot be empty"
     }
   },
   "knowledge": {

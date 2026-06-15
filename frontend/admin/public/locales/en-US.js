@@ -51,6 +51,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "cancel": "Cancel",
       "save": "Save",
       "success": "Settings saved successfully"
+    },
+    "validation": {
+      "name_required": "Theme name cannot be empty",
+      "name_format": "Invalid theme name format",
+      "config_required": "Theme config cannot be empty",
+      "render_failed": "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again."
     }
   },
   "machine": {
@@ -212,6 +218,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "loading": "Loading...",
     "error": "Error",
     "invalidParameters": "Invalid parameters",
+    "invalidSort": "Invalid sort parameters",
+    "invalidFileType": "Invalid file type",
+    "operationFailed": "Operation failed",
     "success": "Success",
     "save": "Save",
     "cancel": "Cancel",
@@ -424,7 +433,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "deleteSuccess": "Plugin deleted successfully",
       "deleteError": "Failed to delete plugin",
       "disableBeforeUninstall": "Disable the plugin before uninstalling",
-      "coreDeleteForbidden": "Core plugins cannot be deleted"
+      "coreDeleteForbidden": "Core plugins cannot be deleted",
+      "notEnabled": "Plugin is not enabled",
+      "codeRequired": "Plugin code cannot be empty"
     }
   },
   "group": {
@@ -637,7 +648,15 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "assign": {
       "amountExceedsPrice": "Payment amount cannot exceed the plan list price.",
       "userBanned": "This user is banned and cannot receive a subscription.",
-      "createFailed": "Failed to create the order."
+      "createFailed": "Failed to create the order.",
+      "planRequired": "Plan is required",
+      "emailRequired": "Email cannot be empty",
+      "amountRequired": "Payment amount cannot be empty",
+      "periodRequired": "Subscription period cannot be empty",
+      "periodInvalid": "Subscription period format is invalid",
+      "pendingOrder": "User has an unpaid or pending order, please try again later or cancel it",
+      "invalidPeriod": "Invalid plan period",
+      "fulfillmentFailed": "Order fulfillment failed"
     },
     "messages": {
       "notFound": "Order does not exist",
@@ -935,7 +954,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "batchResetFailed": "Batch reset failed",
         "selectUpdate": "Select nodes to update",
         "noUpdatableFields": "No updatable fields provided",
-        "batchUpdateFailed": "Batch update failed"
+        "batchUpdateFailed": "Batch update failed",
+        "nodeIdRequired": "Node ID cannot be empty",
+        "localPortRequired": "Local port cannot be empty",
+        "fetchConfigFailed": "Failed to fetch node config"
       }
     },
     "columns": {
@@ -2818,7 +2840,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "notFound": "Payment method not found",
       "disabled": "Payment method does not exist or is disabled",
       "siteUrlRequired": "Configure the site URL in settings before adding payment methods",
-      "saveFailed": "Failed to save payment method"
+      "saveFailed": "Failed to save payment method",
+      "gatewayFailed": "Payment gateway request failed"
     },
     "table": {
       "columns": {
@@ -2896,7 +2919,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         },
         "payment": {
           "required": "Please select a payment gateway"
-        }
+        },
+        "display_name_required": "Display name cannot be empty",
+        "gateway_required": "Gateway parameter cannot be empty",
+        "config_required": "Config parameter cannot be empty",
+        "fixed_fee_format": "Invalid fixed handling fee format",
+        "percent_fee_range": "Handling fee percent must be between 0 and 100",
+        "id_format": "Payment method ID format is invalid"
       },
       "buttons": {
         "cancel": "Cancel",
@@ -3103,6 +3132,17 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "emailSuffixRequired": "Email suffix cannot be empty",
       "countMax": "Generate count cannot exceed 500",
       "countInteger": "Generate count must be an integer"
+    },
+    "messages": {
+      "notFound": "The user does not exist",
+      "emailExists": "Email already exists",
+      "planNotFound": "Subscription plan does not exist",
+      "userIdsRequired": "User IDs cannot be empty",
+      "userIdRequired": "User ID is required",
+      "saveFailed": "Save failed",
+      "updateFailed": "Update failed",
+      "processingFailed": "Processing failed",
+      "operationFailed": "Operation failed"
     },
     "invite": {
       "selfInviter": "Cannot set yourself as inviter.",
@@ -3895,7 +3935,18 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "codeResetUnused": "Redemption code cannot be reset to unused",
       "maxUsageBelowCount": "Max usage cannot be less than the current usage count",
       "usedCodeDelete": "Used gift cards cannot be deleted",
-      "codeHasUsage": "Cannot delete: this gift card has usage records"
+      "codeHasUsage": "Cannot delete: this gift card has usage records",
+      "typeEmpty": "Gift card type cannot be empty",
+      "typeInvalid": "Invalid gift card type",
+      "rewardRequired": "Reward configuration cannot be empty",
+      "themeColorInvalid": "Invalid theme color format",
+      "templateRequired": "Gift card template is required",
+      "countRequired": "Generation count is required",
+      "countMax": "At most 10000 redemption codes can be generated at once",
+      "prefixFormat": "Prefix may only contain uppercase letters and digits",
+      "templateIdEmpty": "Gift card template ID cannot be empty",
+      "templateIdFormat": "Gift card template ID format is invalid",
+      "batchIdRequired": "Batch ID cannot be empty"
     }
   },
   "knowledge": {

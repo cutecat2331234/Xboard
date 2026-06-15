@@ -651,5 +651,6 @@
     "Rate time range start time format is invalid (use HH:MM)": "Неверный формат времени начала диапазона (используйте HH:MM)",
     "Rate time range end time format is invalid (use HH:MM)": "Неверный формат времени окончания диапазона (используйте HH:MM)",
     "Rate multiplier format is invalid": "Неверный формат множителя тарифа",
-    "Rate multiplier cannot be less than 0": "Множитель тарифа не может быть меньше 0"
+    "Rate multiplier cannot be less than 0": "Множитель тарифа не может быть меньше 0",
+    "User has an unpaid or pending order, please try again later or cancel it": "User has an unpaid or pending order, please try again later or cancel it"
 }
