@@ -211,6 +211,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
   "common": {
     "loading": "Загрузка...",
     "error": "Ошибка",
+    "invalidParameters": "Неверные параметры",
     "success": "Успех",
     "save": "Сохранить",
     "cancel": "Отмена",
@@ -2642,6 +2643,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "reject_withdraw_confirm_title": "Отклонить вывод?",
       "reject_withdraw_confirm_description": "Тикет будет закрыт, удержанная комиссия будет возвращена пользователю."
     },
+    "alreadyClosed": "Тикет уже закрыт",
+    "withdrawCloseRequired": "Для закрытия тикета вывода укажите одобрение или отклонение",
+    "idRequired": "ID тикета обязателен",
+    "messageRequired": "Сообщение не может быть пустым",
+    "finalizeWithdrawFailed": "Не удалось подтвердить выплату по выводу",
+    "restoreWithdrawFailed": "Не удалось восстановить комиссию по выводу",
     "reply": {
       "label": "Ответ"
     },
@@ -3670,6 +3677,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
   },
   "knowledge": {
     "title": "База знаний",
+    "idRequired": "ID статьи обязателен",
     "description": "Здесь вы можете управлять статьями базы знаний, включая их добавление, удаление и редактирование.",
     "columns": {
       "id": "ID",

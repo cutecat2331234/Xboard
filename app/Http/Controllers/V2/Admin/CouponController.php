@@ -185,20 +185,44 @@ class CouponController extends Controller
             return $this->fail([500, __('Generation failed')]);
         }
 
-        $data = "名称,类型,金额或比例,开始时间,结束时间,可用次数,可用于订阅,券码,生成时间\r\n";
-        foreach ($coupons as $coupon) {
-            $type = ['', '金额', '比例'][$coupon['type']];
-            $value = ['', ($coupon['value'] / 100), $coupon['value']][$coupon['type']];
-            $startTime = date('Y-m-d H:i:s', $coupon['started_at']);
-            $endTime = date('Y-m-d H:i:s', $coupon['ended_at']);
-            $limitUse = $coupon['limit_use'] ?? '不限制';
-            $createTime = date('Y-m-d H:i:s', $coupon['created_at']);
-            $limitPlanIds = isset($coupon['limit_plan_ids']) ? implode("/", $coupon['limit_plan_ids']) : '不限制';
-            $data .= "{$coupon['name']},{$type},{$value},{$startTime},{$endTime},{$limitUse},{$limitPlanIds},{$coupon['code']},{$createTime}\r\n";
-        }
-
-        return response()->streamDownload(function () use ($data) {
-            echo $data;
+        return response()->streamDownload(function () use ($coupons) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($handle, [
+                __('csv.coupon.name'),
+                __('csv.coupon.type'),
+                __('csv.coupon.value'),
+                __('csv.coupon.started_at'),
+                __('csv.coupon.ended_at'),
+                __('csv.coupon.limit_use'),
+                __('csv.coupon.limit_plans'),
+                __('csv.coupon.code'),
+                __('csv.coupon.created_at'),
+            ]);
+            $typeLabels = ['', __('coupon.type.amount'), __('coupon.type.percent')];
+            foreach ($coupons as $coupon) {
+                $type = $typeLabels[$coupon['type']] ?? '';
+                $value = ['', ($coupon['value'] / 100), $coupon['value']][$coupon['type']];
+                $startTime = date('Y-m-d H:i:s', $coupon['started_at']);
+                $endTime = date('Y-m-d H:i:s', $coupon['ended_at']);
+                $limitUse = ($coupon['limit_use'] ?? null) === null ? __('Unlimited') : $coupon['limit_use'];
+                $createTime = date('Y-m-d H:i:s', $coupon['created_at']);
+                $limitPlanIds = isset($coupon['limit_plan_ids']) && is_array($coupon['limit_plan_ids'])
+                    ? implode('/', $coupon['limit_plan_ids'])
+                    : __('Unlimited');
+                fputcsv($handle, [
+                    $coupon['name'],
+                    $type,
+                    $value,
+                    $startTime,
+                    $endTime,
+                    $limitUse,
+                    $limitPlanIds,
+                    $coupon['code'],
+                    $createTime,
+                ]);
+            }
+            fclose($handle);
         }, 'coupons.csv', [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);

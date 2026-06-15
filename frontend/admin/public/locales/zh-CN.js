@@ -209,6 +209,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   "common": {
     "loading": "加载中...",
     "error": "错误",
+    "invalidParameters": "参数有误",
     "success": "成功",
     "save": "保存",
     "cancel": "取消",
@@ -2722,6 +2723,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "alreadyClosed": "工单已关闭",
     "withdrawCloseRequired": "提现工单需先标记为已打款或已驳回后再关闭",
+    "idRequired": "工单ID不能为空",
+    "messageRequired": "消息不能为空",
+    "finalizeWithdrawFailed": "提现打款确认失败",
+    "restoreWithdrawFailed": "恢复提现佣金失败",
     "reply": {
       "label": "回复"
     },
@@ -3821,6 +3826,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   },
   "knowledge": {
     "title": "知识库管理",
+    "idRequired": "知识库ID不能为空",
     "description": "在这里可以配置知识库，包括添加、删除、编辑等操作。",
     "editSort": "编辑排序",
     "saveSort": "保存排序",

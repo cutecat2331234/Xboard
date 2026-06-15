@@ -125,8 +125,8 @@ class TicketController extends Controller
             'id' => 'required|numeric',
             'message' => 'required|string|max:5000'
         ], [
-            'id.required' => '工单ID不能为空',
-            'message.required' => '消息不能为空'
+            'id.required' => __('Ticket ID cannot be empty'),
+            'message.required' => __('Message cannot be empty'),
         ]);
         $ticketService = new TicketService();
         $ticketService->replyByAdmin(
@@ -144,25 +144,25 @@ class TicketController extends Controller
             'withdraw_rejected' => 'nullable|boolean',
             'withdraw_paid' => 'nullable|boolean',
         ], [
-            'id.required' => '工单ID不能为空'
+            'id.required' => __('Ticket ID cannot be empty'),
         ]);
         try {
             DB::transaction(function () use ($request) {
                 $ticket = Ticket::where('id', $request->input('id'))->lockForUpdate()->firstOrFail();
                 if ((int) $ticket->status !== Ticket::STATUS_OPENING) {
-                    throw new \RuntimeException('Already closed');
+                    throw new \RuntimeException(__('Ticket is already closed'));
                 }
                 if (TicketService::isWithdrawTicket($ticket)) {
                     if ($request->boolean('withdraw_paid')) {
                         if (!TicketService::finalizeWithdrawPayout($ticket)) {
-                            throw new \RuntimeException('Failed to finalize withdraw payout');
+                            throw new \RuntimeException(__('Failed to finalize withdraw payout'));
                         }
                     } elseif ($request->boolean('withdraw_rejected')) {
                         if (!TicketService::restoreWithdrawCommission($ticket)) {
-                            throw new \RuntimeException('Failed to restore withdraw commission');
+                            throw new \RuntimeException(__('Failed to restore withdraw commission'));
                         }
                     } else {
-                        throw new \RuntimeException('Withdraw ticket requires withdraw_paid or withdraw_rejected');
+                        throw new \RuntimeException(__('Withdraw ticket requires withdraw_paid or withdraw_rejected'));
                     }
                 }
                 $ticket->status = Ticket::STATUS_CLOSED;

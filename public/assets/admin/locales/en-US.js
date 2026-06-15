@@ -211,6 +211,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   "common": {
     "loading": "Loading...",
     "error": "Error",
+    "invalidParameters": "Invalid parameters",
     "success": "Success",
     "save": "Save",
     "cancel": "Cancel",
@@ -2696,6 +2697,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "alreadyClosed": "Ticket is already closed",
     "withdrawCloseRequired": "Withdraw tickets must be approved or rejected before closing",
+    "idRequired": "Ticket ID is required",
+    "messageRequired": "Message cannot be empty",
+    "finalizeWithdrawFailed": "Failed to finalize withdraw payout",
+    "restoreWithdrawFailed": "Failed to restore withdraw commission",
     "reply": {
       "label": "Reply"
     },
@@ -3795,6 +3800,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   },
   "knowledge": {
     "title": "Knowledge Base",
+    "idRequired": "Article ID is required",
     "description": "Here you can configure the knowledge base, including adding, deleting, and editing operations.",
     "columns": {
       "id": "ID",
