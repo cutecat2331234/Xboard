@@ -445,6 +445,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "deleteButton": "Delete",
       "createSuccess": "Created Successfully",
       "updateSuccess": "Updated Successfully",
+      "notFound": "Group not found",
+      "nameRequired": "Group name cannot be empty",
+      "usedByNodes": "Cannot delete: this group is used by nodes",
+      "usedByPlans": "Cannot delete: this group is used by plans",
+      "usedByUsers": "Cannot delete: this group is used by users",
       "nameValidation": {
         "min": "Group name must be at least 2 characters",
         "max": "Group name cannot exceed 50 characters",
@@ -1814,7 +1819,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "deleteButton": "Delete",
       "deleteSuccess": "Deleted Successfully",
       "createSuccess": "Created Successfully",
-      "updateSuccess": "Updated Successfully"
+      "updateSuccess": "Updated Successfully",
+      "notFound": "Route not found",
+      "saveFailed": "Failed to save route",
+      "createFailed": "Failed to create route"
     }
   },
   "settings": {
@@ -2460,6 +2468,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
           "baseUrl": "Base URL"
         }
       },
+      "webhookMissing": "Telegram Webhook URL is not configured",
+      "tokenMissing": "Telegram Bot Token is not configured",
       "bot_enable": {
         "title": "Enable Telegram Binding Guide",
         "description": "When enabled, a Telegram binding guide will be displayed on the user side to help users bind their Telegram accounts for notifications."
@@ -2685,6 +2695,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "description": "Configure payment methods including Alipay, WeChat Pay, etc.",
     "delete": {
       "pendingOrders": "Cannot delete: pending or processing orders still use this payment method"
+    },
+    "messages": {
+      "notFound": "Payment method not found",
+      "disabled": "Payment method does not exist or is disabled",
+      "siteUrlRequired": "Configure the site URL in settings before adding payment methods",
+      "saveFailed": "Failed to save payment method"
     },
     "table": {
       "columns": {

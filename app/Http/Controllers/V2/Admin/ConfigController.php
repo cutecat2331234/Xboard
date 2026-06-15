@@ -58,12 +58,12 @@ class ConfigController extends Controller
         $baseOverride = trim((string) $request->input('telegram_webhook_url', ''));
         $hookUrl = $this->resolveTelegramWebhookUrl($baseOverride !== '' ? $baseOverride : null);
         if (blank($hookUrl)) {
-            return $this->fail([422, 'Telegram Webhook地址未配置']);
+            return $this->fail([422, __('Telegram Webhook URL is not configured')]);
         }
         $botToken = trim((string) $request->input('telegram_bot_token', ''))
             ?: admin_setting('telegram_bot_token');
         if (blank($botToken)) {
-            return $this->fail([422, 'Telegram Bot Token 未配置']);
+            return $this->fail([422, __('Telegram Bot Token is not configured')]);
         }
         $hookUrl .= '?' . http_build_query([
             'access_token' => \App\Utils\Helper::telegramWebhookAccessToken($botToken),
@@ -246,14 +246,14 @@ class ConfigController extends Controller
             $l2 = (int) ($data['commission_distribution_l2'] ?? admin_setting('commission_distribution_l2', 0));
             $l3 = (int) ($data['commission_distribution_l3'] ?? admin_setting('commission_distribution_l3', 0));
             if ($l1 + $l2 + $l3 !== 100) {
-                return $this->fail([422, '三级分销比例合计必须等于100%']);
+                return $this->fail([422, __('Level 1 + Level 2 + Level 3 ratios must equal 100%')]);
             }
         }
 
         if (array_key_exists('invite_commission', $data)) {
             $rate = (int) $data['invite_commission'];
             if ($rate < 0 || $rate > 100) {
-                return $this->fail([422, '邀请佣金比例必须在0-100之间']);
+                return $this->fail([422, __('Invite commission rate must be between 0 and 100')]);
             }
         }
 

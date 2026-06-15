@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\V2\Admin\Server;
 
-use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\ServerRoute;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class RouteController extends Controller
@@ -13,9 +13,7 @@ class RouteController extends Controller
     public function fetch(Request $request)
     {
         $routes = ServerRoute::get();
-        return [
-            'data' => $routes
-        ];
+        return $this->success($routes);
     }
 
     public function save(Request $request)
@@ -26,42 +24,52 @@ class RouteController extends Controller
             'action' => 'required|in:block,direct,dns,proxy',
             'action_value' => 'nullable'
         ], [
-            'remarks.required' => '备注不能为空',
-            'match.required' => '匹配值不能为空',
-            'action.required' => '动作类型不能为空',
-            'action.in' => '动作类型参数有误'
+            'remarks.required' => __('Remarks cannot be empty'),
+            'match.required' => __('Match value cannot be empty'),
+            'action.required' => __('Action type cannot be empty'),
+            'action.in' => __('Invalid action type'),
         ]);
         $params['match'] = array_filter($params['match']);
-        // TODO: remove on 1.8.0
         if ($request->input('id')) {
             try {
-                $route = ServerRoute::find($request->input('id'));
-                if (!$route) {
-                    return $this->fail([404, '路由不存在']);
-                }
-                $route->update($params);
-                return $this->success(true);
+                return DB::transaction(function () use ($request, $params) {
+                    $route = ServerRoute::where('id', $request->input('id'))->lockForUpdate()->first();
+                    if (!$route) {
+                        return $this->fail([404, __('Route does not exist')]);
+                    }
+                    $route->update($params);
+                    return $this->success(true);
+                });
             } catch (\Exception $e) {
                 Log::error($e);
-                return $this->fail([500,'保存失败']);
+                return $this->fail([500, __('Save failed')]);
             }
         }
-        try{
+        try {
             ServerRoute::create($params);
             return $this->success(true);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500,'创建失败']);
+            return $this->fail([500, __('Create failed')]);
         }
     }
 
     public function drop(Request $request)
     {
-        $route = ServerRoute::find($request->input('id'));
-        if (!$route) throw new ApiException('路由不存在');
-        if (!$route->delete()) throw new ApiException('删除失败');
-        return [
-            'data' => true
-        ];
+        try {
+            return DB::transaction(function () use ($request) {
+                $route = ServerRoute::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$route) {
+                    return $this->fail([404, __('Route does not exist')]);
+                }
+                if (!$route->delete()) {
+                    return $this->fail([500, __('Delete failed')]);
+                }
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Delete failed')]);
+        }
     }
 }

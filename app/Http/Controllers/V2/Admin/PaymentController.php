@@ -44,25 +44,34 @@ class PaymentController extends Controller
             $paymentService = new PaymentService($request->input('payment'), $request->input('id'));
             return $this->success(collect($paymentService->form()));
         } catch (\Exception $e) {
-            return $this->fail([400, '支付方式不存在或未启用']);
+            return $this->fail([400, __('Payment method does not exist or is disabled')]);
         }
     }
 
     public function show(Request $request)
     {
-        $payment = Payment::find($request->input('id'));
-        if (!$payment)
-            return $this->fail([400202, '支付方式不存在']);
-        $payment->enable = !$payment->enable;
-        if (!$payment->save())
-            return $this->fail([500, '保存失败']);
-        return $this->success(true);
+        try {
+            return DB::transaction(function () use ($request) {
+                $payment = Payment::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$payment) {
+                    return $this->fail([400202, __('Payment method does not exist')]);
+                }
+                $payment->enable = !$payment->enable;
+                if (!$payment->save()) {
+                    return $this->fail([500, __('Save failed')]);
+                }
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Save failed')]);
+        }
     }
 
     public function save(Request $request)
     {
         if (!admin_setting('app_url')) {
-            return $this->fail([400, '请在站点配置中配置站点地址']);
+            return $this->fail([400, __('Configure site URL in settings before adding payment methods')]);
         }
         $params = $request->validate([
             'name' => 'required',
@@ -73,45 +82,58 @@ class PaymentController extends Controller
             'handling_fee_fixed' => 'nullable|integer',
             'handling_fee_percent' => 'nullable|numeric|between:0,100'
         ], [
-            'name.required' => '显示名称不能为空',
-            'payment.required' => '网关参数不能为空',
-            'config.required' => '配置参数不能为空',
-            'notify_domain.url' => '自定义通知域名格式有误',
-            'handling_fee_fixed.integer' => '固定手续费格式有误',
-            'handling_fee_percent.between' => '百分比手续费范围须在0-100之间'
+            'name.required' => __('Display name cannot be empty'),
+            'payment.required' => __('Gateway parameter cannot be empty'),
+            'config.required' => __('Config parameter cannot be empty'),
+            'notify_domain.url' => __('Invalid custom notify domain URL'),
+            'handling_fee_fixed.integer' => __('Invalid fixed handling fee format'),
+            'handling_fee_percent.between' => __('Handling fee percent must be between 0 and 100'),
         ]);
         if ($request->input('id')) {
-            $payment = Payment::find($request->input('id'));
-            if (!$payment)
-                return $this->fail([400202, '支付方式不存在']);
             try {
-                $payment->update($params);
+                return DB::transaction(function () use ($request, $params) {
+                    $payment = Payment::where('id', $request->input('id'))->lockForUpdate()->first();
+                    if (!$payment) {
+                        return $this->fail([400202, __('Payment method does not exist')]);
+                    }
+                    $payment->update($params);
+                    return $this->success(true);
+                });
             } catch (\Exception $e) {
                 Log::error($e);
-                return $this->fail([500, '保存失败']);
+                return $this->fail([500, __('Save failed')]);
             }
-            return $this->success(true);
         }
         $params['uuid'] = Helper::randomChar(8);
         if (!Payment::create($params)) {
-            return $this->fail([500, '保存失败']);
+            return $this->fail([500, __('Save failed')]);
         }
         return $this->success(true);
     }
 
     public function drop(Request $request)
     {
-        $payment = Payment::find($request->input('id'));
-        if (!$payment) {
-            return $this->fail([400202, '支付方式不存在']);
+        try {
+            return DB::transaction(function () use ($request) {
+                $payment = Payment::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$payment) {
+                    return $this->fail([400202, __('Payment method does not exist')]);
+                }
+                $pendingOrders = Order::where('payment_id', $payment->id)
+                    ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                    ->count();
+                if ($pendingOrders > 0) {
+                    return $this->fail([400, __('Payment method has pending or processing orders and cannot be deleted')]);
+                }
+                if (!$payment->delete()) {
+                    return $this->fail([500, __('Delete failed')]);
+                }
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Delete failed')]);
         }
-        $pendingOrders = Order::where('payment_id', $payment->id)
-            ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
-            ->count();
-        if ($pendingOrders > 0) {
-            return $this->fail([400, '该支付方式仍有待支付或处理中的订单，无法删除']);
-        }
-        return $this->success($payment->delete());
     }
 
 
@@ -120,13 +142,13 @@ class PaymentController extends Controller
         $request->validate([
             'ids' => 'required|array'
         ], [
-            'ids.required' => '参数有误',
-            'ids.array' => '参数有误'
+            'ids.required' => __('Invalid sort parameters'),
+            'ids.array' => __('Invalid sort parameters'),
         ]);
         try {
             DB::beginTransaction();
             foreach ($request->input('ids') as $k => $v) {
-                $payment = Payment::find($v);
+                $payment = Payment::where('id', $v)->lockForUpdate()->first();
                 if (!$payment || !$payment->update(['sort' => $k + 1])) {
                     throw new \Exception();
                 }
@@ -134,7 +156,7 @@ class PaymentController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->fail([500, '保存失败']);
+            return $this->fail([500, __('Save failed')]);
         }
 
         return $this->success(true);
