@@ -259,7 +259,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "viewOptions": {
         "button": "显示列",
         "label": "切换显示列"
-      }
+      },
+      "selectAllAria": "全选行",
+      "selectRowAria": "选择行",
+      "sortAsc": "升序排列",
+      "sortDesc": "降序排列"
     },
     "update": {
       "title": "系统更新",

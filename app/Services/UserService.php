@@ -279,6 +279,19 @@ class UserService
     }
 
     /**
+     * Release try-out IP slot (e.g. when registration fails after slot was taken).
+     */
+    public static function releaseTryOutIpSlot(?string $registerIp): void
+    {
+        if (!$registerIp) {
+            return;
+        }
+        \Illuminate\Support\Facades\Cache::forget(
+            \App\Utils\CacheKey::get('TRY_OUT_IP_LIMIT', $registerIp)
+        );
+    }
+
+    /**
      * 设置试用计划
      */
     private function setTryOutPlan(User $user, ?string $registerIp = null): void
@@ -290,14 +303,6 @@ class UserService
             return;
         }
 
-        if ($registerIp) {
-            $key = \App\Utils\CacheKey::get('TRY_OUT_IP_LIMIT', $registerIp);
-            $hours = max(1, (int) admin_setting('try_out_hour', 1));
-            if (!\Illuminate\Support\Facades\Cache::add($key, 1, $hours * 3600)) {
-                return;
-            }
-        }
-
         $plan = Plan::find(admin_setting('try_out_plan_id'));
         if (!$plan) {
             return;
@@ -305,6 +310,14 @@ class UserService
 
         if (!(new PlanService($plan))->hasCapacity($plan)) {
             return;
+        }
+
+        if ($registerIp) {
+            $key = \App\Utils\CacheKey::get('TRY_OUT_IP_LIMIT', $registerIp);
+            $hours = max(1, (int) admin_setting('try_out_hour', 1));
+            if (!\Illuminate\Support\Facades\Cache::add($key, 1, $hours * 3600)) {
+                return;
+            }
         }
 
         $user->transfer_enable = $plan->transfer_enable * 1073741824;

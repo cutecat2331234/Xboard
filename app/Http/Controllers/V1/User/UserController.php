@@ -253,7 +253,6 @@ class UserController extends Controller
                 if (
                     \App\Models\Ticket::where('user_id', $user->id)
                         ->where('status', 0)
-                        ->where('level', 2)
                         ->exists()
                 ) {
                     throw new \Exception(__('You already have a pending withdrawal request'));

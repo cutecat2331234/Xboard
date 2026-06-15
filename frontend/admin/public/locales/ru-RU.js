@@ -254,7 +254,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "viewOptions": {
         "button": "Столбцы",
         "label": "Переключить видимость столбцов"
-      }
+      },
+      "selectAllAria": "Выбрать все строки",
+      "selectRowAria": "Выбрать строку",
+      "sortAsc": "Сортировка по возрастанию",
+      "sortDesc": "Сортировка по убыванию"
     },
     "update": {
       "title": "System Update",

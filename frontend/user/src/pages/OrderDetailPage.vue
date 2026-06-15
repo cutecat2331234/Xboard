@@ -422,7 +422,7 @@ async function handleCheckoutResult(res: { type: number; data: string | boolean 
 
     msg.success(t('order.paySuccess'))
 
-    load()
+    await load()
 
     return
 
@@ -600,6 +600,8 @@ watch(
   () => route.params.trade_no,
   () => {
     resetCheckoutState()
+    order.value = null
+    pageLoading.value = true
     void load()
   },
 )

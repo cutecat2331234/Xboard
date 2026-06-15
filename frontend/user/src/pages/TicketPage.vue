@@ -42,8 +42,9 @@ const levelOptions = computed(() => [
   { label: t('ticket.levelHigh'), value: 2 },
 ])
 
-function levelLabel(value: number) {
-  return levelOptions.value[value]?.label ?? String(value)
+function levelLabel(row: TicketItem) {
+  if (isWithdrawTicket(row)) return t('ticket.levelWithdraw')
+  return levelOptions.value[row.level]?.label ?? String(row.level)
 }
 
 function ticketStatusDotClass(row: TicketItem) {
@@ -140,7 +141,7 @@ const columns = computed<DataTableColumns<TicketItem>>(() => [
   {
     title: t('ticket.level'),
     key: 'level',
-    render: (r) => levelLabel(r.level),
+    render: (r) => levelLabel(r),
   },
   {
     title: t('ticket.status'),

@@ -259,7 +259,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "viewOptions": {
         "button": "显示列",
         "label": "切换显示列"
-      }
+      },
+      "selectAllAria": "全选行",
+      "selectRowAria": "选择行",
+      "sortAsc": "升序排列",
+      "sortDesc": "降序排列"
     },
     "update": {
       "title": "系统更新",
@@ -3573,6 +3577,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "title": "兑换码管理",
       "form": {
         "generate": "生成兑换码",
+        "expires_at": {
+          "hint": "留空表示永不过期"
+        },
         "template_id": {
           "label": "选择模板",
           "placeholder": "请选择一个模板来生成兑换码"
@@ -3613,6 +3620,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
           "template_name": "模板名称",
           "status": "状态",
           "expires_at": "过期时间",
+          "batch_id": "批次",
           "usage_count": "已用次数",
           "max_usage": "可用次数",
           "created_at": "创建时间"
@@ -3622,6 +3630,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "enable": "启用",
         "disable": "禁用",
         "export": "导出",
+        "deleteConfirm": {
+          "title": "确认删除兑换码？",
+          "description": "此兑换码将被永久删除，确定要继续吗？",
+          "confirmText": "删除"
+        },
         "exportConfirm": {
           "title": "确认导出",
           "description": "将导出选定批次的所有兑换码为文本文件。确定要继续吗？",

@@ -761,7 +761,7 @@ export default function UserPage() {
         {label}
         <ArrowUpDown className={`h-3.5 w-3.5 ${sort ? 'text-primary' : 'opacity-50'}`} />
         {sort ? (
-          <span className="sr-only">{sort.desc ? 'desc' : 'asc'}</span>
+          <span className="sr-only">{sort.desc ? t('common.table.sortDesc') : t('common.table.sortAsc')}</span>
         ) : null}
       </button>
     )
@@ -778,7 +778,7 @@ export default function UserPage() {
             className="h-4 w-4 rounded border-input"
             checked={allPageSelected}
             onChange={togglePageAll}
-            aria-label="select all"
+            aria-label={t('common.table.selectAllAria')}
           />
         ),
         cell: ({ row }) => (
@@ -787,7 +787,7 @@ export default function UserPage() {
             className="h-4 w-4 rounded border-input"
             checked={row.original.id != null && selectedIds.has(row.original.id)}
             onChange={() => toggleRow(row.original.id)}
-            aria-label="select row"
+            aria-label={t('common.table.selectRowAria')}
           />
         ),
       },
