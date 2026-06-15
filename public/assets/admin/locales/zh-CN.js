@@ -681,6 +681,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "onlineUsers": "在线用户",
       "onlineDevices": "在线设备",
       "onlineNodes": "在线节点",
+      "onlineSnapshot": "近 10 分钟内活跃",
       "pendingTickets": "待处理工单",
       "hasPendingTickets": "有工单需要处理",
       "noPendingTickets": "无待处理工单",
@@ -2908,10 +2909,37 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       }
     }
   },
+  "order": {
+    "assign": {
+      "amountExceedsPrice": "支付金额不能超过订阅标价",
+      "userBanned": "该用户已被封禁，无法分配订阅",
+      "createFailed": "订单创建失败"
+    },
+    "commission": {
+      "alreadyPaid": "该订单已有佣金记录，不可重新标记为待确认"
+    }
+  },
+  "coupon": {
+    "notFound": "优惠券不存在"
+  },
   "user": {
     "manage": {
       "title": "用户管理",
       "description": "在这里可以管理用户，包括增加、删除、编辑、查询等操作。"
+    },
+    "delete": {
+      "pendingWithdraw": "用户存在待处理的提现工单，请先处理后再删除",
+      "pendingOrder": "用户存在支付处理中的订单，请等待开通完成或退款后再删除",
+      "nonZeroBalance": "用户仍有站内余额或佣金余额，请先清零后再删除",
+      "openOrders": "无法取消用户未完成订单，请先处理订单后再删除",
+      "failed": "删除失败"
+    },
+    "generate": {
+      "missingParams": "请提供 email_prefix 或 generate_count"
+    },
+    "invite": {
+      "selfInviter": "不能将自己设为邀请人",
+      "cycleDetected": "邀请链存在循环，无法设置"
     },
     "columns": {
       "is_admin": "管理员",

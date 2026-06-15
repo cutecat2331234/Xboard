@@ -84,8 +84,16 @@ async function reset() {
     negativeText: t('common.cancel'),
     onPositiveClick: async () => {
       try {
-        await resetSecurity()
-        msg.success(t('common.success'))
+        const url = await resetSecurity()
+        if (url) {
+          dialog.success({
+            title: t('profile.resetSubscribe'),
+            content: t('profile.resetSuccessWithUrl', { url }),
+            positiveText: t('common.confirm'),
+          })
+        } else {
+          msg.success(t('common.success'))
+        }
       } catch (e: unknown) {
         msg.error(resolveApiError(e, t))
       }

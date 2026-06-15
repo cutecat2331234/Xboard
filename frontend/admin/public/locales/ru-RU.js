@@ -670,6 +670,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "onlineUsers": "Онлайн",
       "onlineDevices": "Устройств онлайн",
       "onlineNodes": "Узлов онлайн",
+      "onlineSnapshot": "За последние 10 минут",
       "pendingTickets": "Открытых тикетов",
       "hasPendingTickets": "Есть тикеты, требующие ответа",
       "noPendingTickets": "Нет открытых тикетов",

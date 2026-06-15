@@ -75,7 +75,7 @@ class PaymentController extends Controller
                     ]);
                     return false;
                 }
-                return $this->reactivateCancelledOrder($order, $callbackNo);
+                return $this->reactivateCancelledOrder($order, $callbackNo, $verify);
             }
 
             if ($order->status === Order::STATUS_PROCESSING) {
@@ -157,12 +157,12 @@ class PaymentController extends Controller
         });
     }
 
-    private function reactivateCancelledOrder(Order $order, string $callbackNo): bool
+    private function reactivateCancelledOrder(Order $order, string $callbackNo, array $verify): bool
     {
         if (in_array((int) $order->type, [Order::TYPE_NEW_PURCHASE, Order::TYPE_UPGRADE], true)) {
             $plan = Plan::find($order->plan_id);
             if ($plan && !(new PlanService($plan))->hasCapacity($plan, $order)) {
-                $this->creditOrphanPaymentOnce($order, $callbackNo, 'cancelled order reactivation blocked by sold out plan');
+                $this->creditOrphanPaymentOnce($order, $callbackNo, $verify, 'cancelled order reactivation blocked by sold out plan');
                 return true;
             }
         }
@@ -178,8 +178,21 @@ class PaymentController extends Controller
         }
 
         $orderService = new OrderService($order);
-        if (!$orderService->paid($callbackNo)) {
-            return false;
+        try {
+            if (!$orderService->paid($callbackNo)) {
+                $this->revertReactivatedOrder($order);
+                $this->creditOrphanPaymentOnce($order, $callbackNo, $verify, 'cancelled order reactivation failed');
+                return true;
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Payment notify: cancelled order reactivation threw', [
+                'trade_no' => $order->trade_no,
+                'callback_no' => $callbackNo,
+                'error' => $e->getMessage(),
+            ]);
+            $this->revertReactivatedOrder($order->fresh() ?? $order);
+            $this->creditOrphanPaymentOnce($order, $callbackNo, $verify, 'cancelled order reactivation exception');
+            return true;
         }
 
         $order->refresh();
@@ -188,6 +201,17 @@ class PaymentController extends Controller
         }
 
         return true;
+    }
+
+    private function revertReactivatedOrder(Order $order): void
+    {
+        if ((int) $order->status !== Order::STATUS_PENDING) {
+            return;
+        }
+        $order->status = Order::STATUS_CANCELLED;
+        $order->paid_at = null;
+        $order->callback_no = null;
+        $order->save();
     }
 
     private function handleTerminalOrderNotify(Order $order, array $verify, string $callbackNo): bool
@@ -207,6 +231,7 @@ class PaymentController extends Controller
             $this->creditOrphanPaymentOnce(
                 $order,
                 $callbackNo,
+                $verify,
                 'terminal order status ' . $order->status
             );
         }
@@ -214,7 +239,7 @@ class PaymentController extends Controller
         return true;
     }
 
-    private function creditOrphanPaymentOnce(Order $order, string $callbackNo, string $reason): void
+    private function creditOrphanPaymentOnce(Order $order, string $callbackNo, array $verify, string $reason): void
     {
         $cacheKey = $this->orphanCreditCacheKey($order->trade_no, $callbackNo);
         if (Cache::has($cacheKey)) {
@@ -234,7 +259,7 @@ class PaymentController extends Controller
         }
 
         try {
-            $this->creditOrphanPayment($order, $callbackNo, $reason);
+            $this->creditOrphanPayment($order, $callbackNo, $verify, $reason);
             $this->markOrphanCreditProcessed($order->trade_no, $callbackNo);
         } catch (\Throwable $e) {
             Cache::forget($cacheKey);
@@ -257,9 +282,13 @@ class PaymentController extends Controller
         return CacheKey::get('PAYMENT_ORPHAN_CREDIT', $tradeNo . ':' . $callbackNo);
     }
 
-    private function creditOrphanPayment(Order $order, string $callbackNo, string $reason): void
+    private function creditOrphanPayment(Order $order, string $callbackNo, array $verify, string $reason): void
     {
-        $creditCents = (int) $order->total_amount + (int) ($order->handling_amount ?? 0);
+        if (isset($verify['amount']) && $this->verifyAmount($order, (int) $verify['amount'])) {
+            $creditCents = (int) $verify['amount'];
+        } else {
+            $creditCents = (int) $order->total_amount + (int) ($order->handling_amount ?? 0);
+        }
         if ($creditCents <= 0) {
             Log::warning('Payment notify: orphan payment with nothing to credit', [
                 'trade_no' => $order->trade_no,

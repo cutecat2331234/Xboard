@@ -678,6 +678,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "onlineUsers": "Online Users",
       "onlineDevices": "Online Devices",
       "onlineNodes": "Online Nodes",
+      "onlineSnapshot": "Last 10 minutes",
       "pendingTickets": "Pending Tickets",
       "hasPendingTickets": "There are tickets that need attention",
       "noPendingTickets": "No pending tickets",
@@ -2882,10 +2883,37 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       }
     }
   },
+  "order": {
+    "assign": {
+      "amountExceedsPrice": "Payment amount cannot exceed the plan list price.",
+      "userBanned": "This user is banned and cannot receive a subscription.",
+      "createFailed": "Failed to create the order."
+    },
+    "commission": {
+      "alreadyPaid": "This order already has commission records and cannot be marked pending again."
+    }
+  },
+  "coupon": {
+    "notFound": "Coupon not found."
+  },
   "user": {
     "manage": {
       "title": "User Management",
       "description": "Here you can manage users, including adding, deleting, editing, and querying operations."
+    },
+    "delete": {
+      "pendingWithdraw": "User has a pending withdrawal ticket. Resolve it before deleting.",
+      "pendingOrder": "User has an order being processed. Wait for completion or refund before deleting.",
+      "nonZeroBalance": "User still has balance or commission. Clear balances before deleting.",
+      "openOrders": "User has open orders. Resolve orders before deleting.",
+      "failed": "Failed to delete user."
+    },
+    "generate": {
+      "missingParams": "Provide email_prefix or generate_count."
+    },
+    "invite": {
+      "selfInviter": "Cannot set yourself as inviter.",
+      "cycleDetected": "Invite chain cycle detected."
     },
     "columns": {
       "is_admin": "Admin",

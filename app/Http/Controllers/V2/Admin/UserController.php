@@ -333,6 +333,17 @@ class UserController extends Controller
                 return $this->fail([400, __('Current product is sold out')]);
             }
             $params['group_id'] = $plan->group_id;
+            if ((int) $params['plan_id'] !== (int) $user->plan_id) {
+                if (!$request->has('transfer_enable')) {
+                    $params['transfer_enable'] = $plan->transfer_enable * 1073741824;
+                }
+                if (!$request->has('speed_limit')) {
+                    $params['speed_limit'] = $plan->speed_limit;
+                }
+                if (!$request->has('device_limit')) {
+                    $params['device_limit'] = $plan->device_limit;
+                }
+            }
         }
 
         $actor = $request->user();

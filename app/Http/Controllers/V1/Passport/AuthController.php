@@ -191,6 +191,12 @@ class AuthController extends Controller
             ], 401);
         }
 
+        $rateKey = 'passport-quick-login:' . $user->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 5)) {
+            return $this->fail([429, __('Request failed, please try again later')]);
+        }
+        RateLimiter::hit($rateKey, 60);
+
         $url = $this->loginService->generateQuickLoginUrl($user, $request->input('redirect'));
         return $this->success($url);
     }

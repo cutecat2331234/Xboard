@@ -520,21 +520,21 @@ export default function DashboardPage() {
         <StatCard
           title={t('dashboard.stats.onlineUsers')}
           value={String(stats.onlineUsers ?? 0)}
-          subtitle={t('dashboard.stats.realtimeUsers')}
+          subtitle={t('dashboard.stats.onlineSnapshot')}
           icon={Wifi}
           iconClassName="text-emerald-500"
         />
         <StatCard
           title={t('dashboard.stats.onlineDevices')}
           value={String(stats.onlineDevices ?? 0)}
-          subtitle={t('dashboard.stats.vsLastWeek')}
+          subtitle={t('dashboard.stats.onlineSnapshot')}
           icon={MonitorSmartphone}
           iconClassName="text-blue-500"
         />
         <StatCard
           title={t('dashboard.stats.onlineNodes')}
           value={String(stats.onlineNodes ?? 0)}
-          subtitle={t('dashboard.stats.todayPeak')}
+          subtitle={t('dashboard.stats.onlineSnapshot')}
           icon={ServerCog}
           iconClassName="text-amber-500"
         />

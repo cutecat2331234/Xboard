@@ -218,7 +218,10 @@ class GiftCardService
             if (!$plan) {
                 throw new ApiException('关联套餐不存在');
             }
-            if (!(new PlanService($plan))->hasCapacity($plan)) {
+            $planService = new PlanService($plan);
+            $alreadyOnPlan = (int) $this->user->plan_id === (int) $plan->id
+                && ($this->user->expired_at === null || (int) $this->user->expired_at > time());
+            if (!$alreadyOnPlan && !$planService->hasCapacity($plan)) {
                 throw new ApiException(__('Current product is sold out'));
             }
             app(TrafficResetService::class)->performReset($this->user, TrafficResetLog::SOURCE_GIFT_CARD);

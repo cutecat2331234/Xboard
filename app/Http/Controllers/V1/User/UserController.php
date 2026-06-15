@@ -41,9 +41,15 @@ class UserController extends Controller
 
     public function removeActiveSession(Request $request)
     {
+        $request->validate([
+            'session_id' => 'required|string',
+        ]);
         $user = $request->user();
         $authService = new AuthService($user);
-        return $this->success($authService->removeSession($request->input('session_id')));
+        if (!$authService->removeSession($request->input('session_id'))) {
+            return $this->fail([404, __('Record not found')]);
+        }
+        return $this->success(true);
     }
 
     public function logout(Request $request)

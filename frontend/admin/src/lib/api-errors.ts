@@ -43,6 +43,21 @@ const MESSAGE_MAP: Record<string, string> = {
   '处理失败': 'common.error',
   '生成失败': 'common.error',
   'user_ids不能为空': 'common.error',
+  '用户存在待处理的提现工单，请先处理后再删除': 'user.delete.pendingWithdraw',
+  '用户存在支付处理中的订单，请等待开通完成或退款后再删除': 'user.delete.pendingOrder',
+  '用户仍有站内余额或佣金余额，请先清零后再删除': 'user.delete.nonZeroBalance',
+  '无法取消用户未完成订单，请先处理订单后再删除': 'user.delete.openOrders',
+  '删除失败': 'user.delete.failed',
+  '请提供 email_prefix 或 generate_count': 'user.generate.missingParams',
+  '支付金额不能超过订阅标价': 'order.assign.amountExceedsPrice',
+  '该订单已有佣金记录，不可重新标记为待确认': 'order.commission.alreadyPaid',
+  '该用户已被封禁，无法分配订阅': 'order.assign.userBanned',
+  '订单创建失败': 'order.assign.createFailed',
+  'Cannot set yourself as inviter': 'user.invite.selfInviter',
+  'Invite chain cycle detected': 'user.invite.cycleDetected',
+  '优惠券不存在': 'coupon.notFound',
+  '不能将自己设为邀请人': 'user.invite.selfInviter',
+  '邀请链存在循环，无法设置': 'user.invite.cycleDetected',
 }
 
 function extractMessage(error: unknown): string {
