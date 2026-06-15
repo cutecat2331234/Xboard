@@ -140,21 +140,20 @@ class ConfigSave extends FormRequest
 
     public function messages()
     {
-        // illiteracy prompt
         return [
-            'app_url.url' => '站点URL格式不正确，必须携带http(s)://',
-            'subscribe_url.url' => '订阅URL格式不正确，必须携带http(s)://',
-            'server_token.min' => '通讯密钥长度必须大于16位',
-            'tos_url.url' => '服务条款URL格式不正确，必须携带http(s)://',
-            'telegram_webhook_url.url' => 'Telegram Webhook地址格式不正确，必须携带http(s)://',
-            'telegram_discuss_link.url' => 'Telegram群组地址必须为URL格式，必须携带http(s)://',
-            'logo.url' => 'LOGO URL格式不正确，必须携带https(s)://',
-            'secure_path.min' => '后台路径长度最小为8位',
-            'secure_path.regex' => '后台路径只能为字母或数字',
-            'captcha_type.in' => '人机验证类型只能选择 recaptcha、turnstile 或 recaptcha-v3',
-            'recaptcha_v3_score_threshold.numeric' => 'reCAPTCHA v3 分数阈值必须为数字',
-            'recaptcha_v3_score_threshold.min' => 'reCAPTCHA v3 分数阈值不能小于0',
-            'recaptcha_v3_score_threshold.max' => 'reCAPTCHA v3 分数阈值不能大于1'
+            'app_url.url' => __('Site URL must include http(s)://'),
+            'subscribe_url.url' => __('Subscribe URL must include http(s)://'),
+            'server_token.min' => __('Server token must be at least 16 characters'),
+            'tos_url.url' => __('Terms of service URL must include http(s)://'),
+            'telegram_webhook_url.url' => __('Telegram webhook URL must include http(s)://'),
+            'telegram_discuss_link.url' => __('Telegram group link must be a valid URL with http(s)://'),
+            'logo.url' => __('Logo URL must include http(s)://'),
+            'secure_path.min' => __('Secure admin path must be at least 8 characters'),
+            'secure_path.regex' => __('Secure admin path may only contain letters and numbers'),
+            'captcha_type.in' => __('Captcha type must be recaptcha, turnstile, or recaptcha-v3'),
+            'recaptcha_v3_score_threshold.numeric' => __('reCAPTCHA v3 score threshold must be numeric'),
+            'recaptcha_v3_score_threshold.min' => __('reCAPTCHA v3 score threshold cannot be less than 0'),
+            'recaptcha_v3_score_threshold.max' => __('reCAPTCHA v3 score threshold cannot be greater than 1'),
         ];
     }
 }

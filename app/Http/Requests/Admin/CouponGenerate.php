@@ -32,21 +32,21 @@ class CouponGenerate extends FormRequest
     public function messages()
     {
         return [
-            'generate_count.integer' => '生成数量必须为数字',
-            'generate_count.max' => '生成数量最大为500个',
-            'name.required' => '名称不能为空',
-            'type.required' => '类型不能为空',
-            'type.in' => '类型格式有误',
-            'value.required' => '金额或比例不能为空',
-            'value.integer' => '金额或比例格式有误',
-            'started_at.required' => '开始时间不能为空',
-            'started_at.integer' => '开始时间格式有误',
-            'ended_at.required' => '结束时间不能为空',
-            'ended_at.integer' => '结束时间格式有误',
-            'limit_use.integer' => '最大使用次数格式有误',
-            'limit_use_with_user.integer' => '限制用户使用次数格式有误',
-            'limit_plan_ids.array' => '指定订阅格式有误',
-            'limit_period.array' => '指定周期格式有误'
+            'generate_count.integer' => __('Generate count must be an integer'),
+            'generate_count.max' => __('Generate count cannot exceed 500'),
+            'name.required' => __('Name cannot be empty'),
+            'type.required' => __('Coupon type cannot be empty'),
+            'type.in' => __('Coupon type format is invalid'),
+            'value.required' => __('Amount or percent cannot be empty'),
+            'value.integer' => __('Amount or percent format is invalid'),
+            'started_at.required' => __('Start time cannot be empty'),
+            'started_at.integer' => __('Start time format is invalid'),
+            'ended_at.required' => __('End time cannot be empty'),
+            'ended_at.integer' => __('End time format is invalid'),
+            'limit_use.integer' => __('Max usage format is invalid'),
+            'limit_use_with_user.integer' => __('Per-user usage limit format is invalid'),
+            'limit_plan_ids.array' => __('Applicable plans must be an array'),
+            'limit_period.array' => __('Applicable periods must be an array'),
         ];
     }
 }

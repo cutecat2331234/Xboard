@@ -66,8 +66,8 @@ class PlanSave extends FormRequest
             // 验证周期是否有效
             if (!in_array($period, $validPeriods)) {
                 $validator->errors()->add(
-                    "prices.{$period}", 
-                    "不支持的订阅周期: {$period}"
+                    "prices.{$period}",
+                    __('Unsupported subscription period: :period', ['period' => $period])
                 );
                 continue;
             }
@@ -79,13 +79,13 @@ class PlanSave extends FormRequest
                 
                 if ($numericPrice === null) {
                     $validator->errors()->add(
-                        "prices.{$period}", 
-                        "价格必须是数字格式"
+                        "prices.{$period}",
+                        __('Price must be a number')
                     );
                 } elseif ($numericPrice < 0) {
                     $validator->errors()->add(
-                        "prices.{$period}", 
-                        "价格必须大于等于 0（如不需要此周期请留空）"
+                        "prices.{$period}",
+                        __('Price must be greater than or equal to 0 (leave blank if unused)')
                     );
                 }
             }
@@ -122,22 +122,22 @@ class PlanSave extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => '套餐名称不能为空',
-            'name.max' => '套餐名称不能超过 255 个字符',
-            'transfer_enable.required' => '流量配额不能为空',
-            'transfer_enable.integer' => '流量配额必须是整数',
-            'transfer_enable.min' => '流量配额必须大于 0',
-            'prices.array' => '价格配置格式错误',
-            'prices.*.numeric' => '价格必须是数字',
-            'prices.*.min' => '价格不能为负数',
-            'group_id.integer' => '权限组ID必须是整数',
-            'speed_limit.integer' => '速度限制必须是整数',
-            'speed_limit.min' => '速度限制不能为负数',
-            'device_limit.integer' => '设备限制必须是整数',
-            'device_limit.min' => '设备限制不能为负数',
-            'capacity_limit.integer' => '容量限制必须是整数',
-            'capacity_limit.min' => '容量限制不能为负数',
-            'tags.array' => '标签格式必须是数组',
+            'name.required' => __('Plan name cannot be empty'),
+            'name.max' => __('Plan name cannot exceed 255 characters'),
+            'transfer_enable.required' => __('Traffic quota cannot be empty'),
+            'transfer_enable.integer' => __('Traffic quota must be an integer'),
+            'transfer_enable.min' => __('Traffic quota must be greater than 0'),
+            'prices.array' => __('Price configuration format is invalid'),
+            'prices.*.numeric' => __('Price must be numeric'),
+            'prices.*.min' => __('Price cannot be negative'),
+            'group_id.integer' => __('Group ID must be an integer'),
+            'speed_limit.integer' => __('Speed limit must be an integer'),
+            'speed_limit.min' => __('Speed limit cannot be negative'),
+            'device_limit.integer' => __('Device limit must be an integer'),
+            'device_limit.min' => __('Device limit cannot be negative'),
+            'capacity_limit.integer' => __('Capacity limit must be an integer'),
+            'capacity_limit.min' => __('Capacity limit cannot be negative'),
+            'tags.array' => __('Tags must be an array'),
         ];
     }
 
