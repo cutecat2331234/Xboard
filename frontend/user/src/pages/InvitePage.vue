@@ -1,19 +1,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  NButton,
-  NCard,
-  NDataTable,
-  NIcon,
-  NModal,
-  NInput,
-  NNumberAnimation,
-  NPagination,
-  NSelect,
-  NSpace,
-  NSpin,
-  useMessage,
+import { NButton, NCard, NDataTable, NIcon, NModal, NInput, NNumberAnimation, NPagination, NSelect, NSpace, NSpin, NTag, useMessage,
   type DataTableColumns,
   type PaginationInfo,
 } from 'naive-ui'
@@ -323,6 +311,23 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
           { default: () => t('invite.copyLink') },
         ),
       ]),
+  },
+  {
+    title: t('invite.pv'),
+    key: 'pv',
+    width: 80,
+    render: (r) => String(r.pv ?? 0),
+  },
+  {
+    title: t('invite.status'),
+    key: 'status',
+    width: 100,
+    render: (r) =>
+      h(
+        NTag,
+        { size: 'small', type: r.status ? 'default' : 'success', round: true },
+        { default: () => (r.status ? t('invite.statusUsed') : t('invite.statusUnused')) },
+      ),
   },
   {
     title: t('invite.createdAt'),

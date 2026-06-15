@@ -362,6 +362,10 @@ export default function GiftCardPage() {
 
   const [templates, setTemplates] = useState<TemplateRow[]>([])
 
+  const [templatesPage, setTemplatesPage] = useState(1)
+
+  const [templatesTotal, setTemplatesTotal] = useState(0)
+
   const [codes, setCodes] = useState<CodeRow[]>([])
 
   const [codesPage, setCodesPage] = useState(1)
@@ -377,6 +381,12 @@ export default function GiftCardPage() {
   const [stats, setStats] = useState<Record<string, unknown>>({})
   const [dailyUsages, setDailyUsages] = useState<Array<{ date?: string; count?: number }>>([])
   const [typeStats, setTypeStats] = useState<Array<{ template_name?: string; type_name?: string; count?: number }>>([])
+  const [statsStartDate, setStatsStartDate] = useState(() => {
+    const d = new Date()
+    d.setDate(d.getDate() - 30)
+    return d.toISOString().slice(0, 10)
+  })
+  const [statsEndDate, setStatsEndDate] = useState(() => new Date().toISOString().slice(0, 10))
 
   const [plans, setPlans] = useState<PlanRow[]>([])
 
@@ -465,15 +475,18 @@ export default function GiftCardPage() {
 
     setLoading(true)
 
-    fetchPaginatedList<TemplateRow>('/gift-card/templates', { per_page: 100 })
+    fetchPaginatedList<TemplateRow>('/gift-card/templates', { page: templatesPage, per_page: listPageSize })
 
-      .then((res) => setTemplates(res.data))
+      .then((res) => {
+        setTemplates(res.data)
+        setTemplatesTotal(res.total)
+      })
 
       .catch((e) => toastApiError(e, toast, t, t('common.error')))
 
       .finally(() => setLoading(false))
 
-  }, [t])
+  }, [templatesPage, t])
 
 
 
@@ -525,11 +538,13 @@ export default function GiftCardPage() {
 
     setLoading(true)
 
+    const qs = `?start_date=${encodeURIComponent(statsStartDate)}&end_date=${encodeURIComponent(statsEndDate)}`
+
     fetchJsonObject<{
       total_stats?: Record<string, unknown>
       daily_usages?: Array<{ date?: string; count?: number }>
       type_stats?: Array<{ template_name?: string; type_name?: string; count?: number }>
-    }>('/gift-card/statistics')
+    }>(`/gift-card/statistics${qs}`)
 
       .then((res) => {
         setStats(res.total_stats ?? {})
@@ -541,7 +556,7 @@ export default function GiftCardPage() {
 
       .finally(() => setLoading(false))
 
-  }, [t])
+  }, [statsStartDate, statsEndDate, t])
 
 
 
@@ -1338,6 +1353,8 @@ export default function GiftCardPage() {
 
   const usagesPageCount = Math.max(1, Math.ceil(usagesTotal / listPageSize))
 
+  const templatesPageCount = Math.max(1, Math.ceil(templatesTotal / listPageSize))
+
 
 
   return (
@@ -1426,9 +1443,17 @@ export default function GiftCardPage() {
 
               loading={loading}
 
-              pageSize={20}
+              pageSize={listPageSize}
 
               alwaysShowPagination
+
+              totalItems={templatesTotal}
+
+              pageIndex={templatesPage - 1}
+
+              pageCount={templatesPageCount}
+
+              onPageIndexChange={(idx) => setTemplatesPage(idx + 1)}
 
               tableClassName="relative overflow-auto rounded-md border bg-card"
 
@@ -1497,6 +1522,30 @@ export default function GiftCardPage() {
 
 
         <TabsContent value="statistics" className="mt-6 flex-1">
+
+          <div className="mb-4 flex flex-wrap items-end gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">{t('giftCard.statistics.dateRange.start')}</Label>
+              <input
+                type="date"
+                className={cn(giftDialogInputCls, 'h-8')}
+                value={statsStartDate}
+                onChange={(e) => setStatsStartDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">{t('giftCard.statistics.dateRange.end')}</Label>
+              <input
+                type="date"
+                className={cn(giftDialogInputCls, 'h-8')}
+                value={statsEndDate}
+                onChange={(e) => setStatsEndDate(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" size="sm" className="h-8" onClick={() => loadStats()}>
+              {t('common.refresh', 'Refresh')}
+            </Button>
+          </div>
 
           {loading ? (
 
@@ -2733,6 +2782,38 @@ export default function GiftCardPage() {
                       onChange={(e) => setForm((f) => ({ ...f, background_image: e.target.value }))}
 
                     />
+
+                  </div>
+
+                  <div className="space-y-1.5">
+
+                    <Label className={dialogFieldLabelCls}>{t('giftCard.template.form.theme_color.label')}</Label>
+
+                    <div className="flex items-center gap-2">
+
+                      <input
+
+                        type="color"
+
+                        className="h-9 w-12 cursor-pointer rounded border bg-transparent p-0.5"
+
+                        value={form.theme_color || '#1890ff'}
+
+                        onChange={(e) => setForm((f) => ({ ...f, theme_color: e.target.value }))}
+
+                      />
+
+                      <input
+
+                        className={giftDialogInputCls}
+
+                        value={form.theme_color}
+
+                        onChange={(e) => setForm((f) => ({ ...f, theme_color: e.target.value }))}
+
+                      />
+
+                    </div>
 
                   </div>
 

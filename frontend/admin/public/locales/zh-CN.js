@@ -3707,7 +3707,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "codeNotFound": "兑换码不存在",
       "templateDisabled": "该礼品卡类型已停用",
       "deleteFailed": "删除失败",
-      "updateFailed": "更新失败"
+      "updateFailed": "更新失败",
+      "templateHasCodes": "该模板下存在兑换码，无法删除"
     }
   },
   "knowledge": {

@@ -63,6 +63,9 @@ const MESSAGE_MAP: Record<string, string> = {
   '该礼品卡类型已停用': 'giftCard.messages.templateDisabled',
   '删除失败': 'giftCard.messages.deleteFailed',
   '更新失败': 'giftCard.messages.updateFailed',
+  '该模板下存在兑换码，无法删除': 'giftCard.messages.templateHasCodes',
+  'Already closed': 'ticket.alreadyClosed',
+  'Withdraw ticket requires withdraw_paid or withdraw_rejected': 'ticket.withdrawCloseRequired',
 }
 
 function extractMessage(error: unknown): string {

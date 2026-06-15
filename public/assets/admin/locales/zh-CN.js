@@ -2638,6 +2638,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "reject_withdraw_confirm_title": "确认拒绝提现？",
       "reject_withdraw_confirm_description": "将关闭工单并恢复用户被冻结的佣金。"
     },
+    "alreadyClosed": "工单已关闭",
+    "withdrawCloseRequired": "提现工单需先标记为已打款或已驳回后再关闭",
     "reply": {
       "label": "回复"
     },
@@ -3707,7 +3709,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "codeNotFound": "兑换码不存在",
       "templateDisabled": "该礼品卡类型已停用",
       "deleteFailed": "删除失败",
-      "updateFailed": "更新失败"
+      "updateFailed": "更新失败",
+      "templateHasCodes": "该模板下存在兑换码，无法删除"
     }
   },
   "knowledge": {

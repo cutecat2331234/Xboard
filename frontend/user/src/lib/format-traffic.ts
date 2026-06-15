@@ -6,6 +6,13 @@ export function formatBytes(bytes: number): string {
   return `${val.toFixed(i > 0 ? 2 : 0)} ${units[i]}`
 }
 
+/** Plan catalog stores transfer_enable in GB; user subscription uses bytes. */
+export function formatPlanTrafficGb(gb: number): string {
+  if (!gb || gb <= 0) return '0 GB'
+  const rounded = Number.isInteger(gb) ? String(gb) : gb.toFixed(2).replace(/\.?0+$/, '')
+  return `${rounded} GB`
+}
+
 import { formatLocaleDate } from './format-date'
 
 export function formatExpire(ts: number | null | undefined, locale: string): string {
