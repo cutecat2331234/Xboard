@@ -69,7 +69,7 @@ class Handler extends ExceptionHandler
             $code = $exception->getCode();
             $message = $exception->getMessage();
             $errors = $exception->errors();
-            return $this->fail([$code, $message],null,$errors);
+            return $this->fail([$code, $message], null, $errors);
         }
         return parent::render($request, $exception);
     }

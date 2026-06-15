@@ -8,9 +8,26 @@ export interface ApiResponse<T = unknown> {
   status?: string
   data?: T
   message?: string
+  error?: Record<string, string[] | string> | null
   total?: number
   current_page?: number
   code?: number
+}
+
+function resolveApiFailureMessage(payload: ApiResponse<unknown>, fallback: string): string {
+  if (payload.message?.trim()) {
+    return payload.message.trim()
+  }
+  if (payload.error && typeof payload.error === 'object') {
+    const details = Object.values(payload.error)
+      .flatMap((value) => (Array.isArray(value) ? value : [value]))
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+    if (details.length > 0) {
+      return details[0]
+    }
+  }
+  return fallback
 }
 
 export function getAuthData(): string | null {
@@ -43,7 +60,7 @@ export async function logoutAdmin(): Promise<void> {
 
 function parseApiError(result: ApiResponse<unknown>): void {
   if (result.status === 'fail') {
-    throw new Error(result.message || 'Request failed')
+    throw new Error(resolveApiFailureMessage(result, 'Request failed'))
   }
 }
 
@@ -77,7 +94,7 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     let message = response.statusText
     try {
       const payload = (await response.json()) as ApiResponse
-      message = payload.message ?? message
+      message = resolveApiFailureMessage(payload, message || 'Request failed')
     } catch {
       // ignore
     }
@@ -311,7 +328,7 @@ export async function downloadAdminFile(
     let message = response.statusText
     try {
       const payload = (await response.json()) as ApiResponse
-      message = payload.message ?? message
+      message = resolveApiFailureMessage(payload, message || 'Download failed')
     } catch {
       // ignore
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\V2\Server;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\ServerMachine;
 use App\Models\ServerMachineLoadHistory;
@@ -52,6 +53,11 @@ class MachineController extends Controller
             'disk.used' => 'nullable|integer|min:0',
             'net.in_speed' => 'nullable|numeric|min:0',
             'net.out_speed' => 'nullable|numeric|min:0',
+        ], [
+            'cpu.required' => __('CPU usage is required'),
+            'cpu.numeric' => __('CPU usage format is invalid'),
+            'mem.total.required' => __('Memory total is required'),
+            'mem.used.required' => __('Memory used is required'),
         ]);
 
         $machine = $this->authenticateMachine($request);
@@ -122,6 +128,9 @@ class MachineController extends Controller
         $request->validate([
             'machine_id' => 'required|integer',
             'token' => 'required|string',
+        ], [
+            'machine_id.required' => __('Machine ID is required'),
+            'token.required' => __('Token cannot be empty'),
         ]);
 
         $machine = ServerMachine::where('id', $request->input('machine_id'))
@@ -129,7 +138,7 @@ class MachineController extends Controller
             ->first();
 
         if (!$machine || !$machine->is_active) {
-            abort(403, 'Machine not found or disabled');
+            throw new ApiException(__('Machine not found or disabled'), 403);
         }
 
         $machine->forceFill(['last_seen_at' => now()->timestamp])->saveQuietly();

@@ -79,7 +79,11 @@ class ServerHandshakeTest extends TestCase
         ]);
 
         $response->assertStatus(400);
-        $response->assertJson(['message' => 'Server does not exist']);
+        $response->assertJson([
+            'status' => 'fail',
+            'message' => __('Server does not exist'),
+            'data' => null,
+        ]);
     }
 
     public function test_v2_machine_handshake_with_machine_id_and_no_node(): void

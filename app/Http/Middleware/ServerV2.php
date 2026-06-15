@@ -34,27 +34,32 @@ class ServerV2
                 'string', 'required',
                 function ($attribute, $value, $fail) {
                     if ($value !== admin_setting('server_token')) {
-                        $fail("Invalid {$attribute}");
+                        $fail(__('Invalid token'));
                     }
                 },
             ],
             'node_id' => $isHandshake ? 'nullable|integer' : 'required|integer|min:1',
+        ], [
+            'token.required' => __('Token cannot be empty'),
+            'node_id.required' => __('Node ID is required'),
+            'node_id.integer' => __('Node ID format is invalid'),
+            'node_id.min' => __('Node ID format is invalid'),
         ]);
 
         $nodeId = $request->input('node_id');
         if ($nodeId === null || $nodeId === '') {
             if (!$isHandshake) {
-                throw new ApiException('node_id is required');
+                throw new ApiException(__('Node ID is required'));
             }
             return;
         }
 
         $serverInfo = ServerService::getServer($nodeId);
         if (!$serverInfo) {
-            throw new ApiException('Server does not exist');
+            throw new ApiException(__('Server does not exist'));
         }
         if (!(int) $serverInfo->enabled) {
-            throw new ApiException('Server is disabled', 403);
+            throw new ApiException(__('Server is disabled'), 403);
         }
 
         $request->attributes->set('node_info', $serverInfo);
@@ -68,6 +73,13 @@ class ServerV2
             'machine_id' => 'required|integer',
             'token' => 'required|string',
             'node_id' => $isHandshake ? 'nullable|integer' : 'required|integer|min:1',
+        ], [
+            'machine_id.required' => __('Machine ID is required'),
+            'machine_id.integer' => __('Machine ID format is invalid'),
+            'token.required' => __('Token cannot be empty'),
+            'node_id.required' => __('Node ID is required'),
+            'node_id.integer' => __('Node ID format is invalid'),
+            'node_id.min' => __('Node ID format is invalid'),
         ]);
 
         $machine = ServerMachine::where('id', $request->input('machine_id'))
@@ -75,11 +87,11 @@ class ServerV2
             ->first();
 
         if (!$machine) {
-            throw new ApiException('Machine not found or invalid token', 401);
+            throw new ApiException(__('Machine not found or invalid token'), 401);
         }
 
         if (!$machine->is_active) {
-            throw new ApiException('Machine is disabled', 403);
+            throw new ApiException(__('Machine is disabled'), 403);
         }
 
         $nodeId = (int) $request->input('node_id');
@@ -90,7 +102,7 @@ class ServerV2
                 ->first();
 
             if (!$serverInfo) {
-                throw new ApiException('Node not found on this machine');
+                throw new ApiException(__('Node not found on this machine'));
             }
 
             $request->attributes->set('node_info', $serverInfo);
