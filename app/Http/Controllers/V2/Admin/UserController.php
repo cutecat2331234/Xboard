@@ -571,22 +571,39 @@ class UserController extends Controller
             // Single user generation with email_prefix
             $email = $request->input('email_prefix') . '@' . $request->input('email_suffix');
 
-            if (User::byEmail($email)->exists()) {
-                return $this->fail([400201, __('Email already exists')]);
-            }
+            try {
+                DB::beginTransaction();
+                if (User::byEmail($email)->lockForUpdate()->exists()) {
+                    DB::rollBack();
+                    return $this->fail([400201, __('Email already exists')]);
+                }
 
-            $userService = app(UserService::class);
-            $user = $userService->createUser([
-                'email' => $email,
-                'password' => $request->input('password') ?? $email,
-                'plan_id' => $request->input('plan_id'),
-                'expired_at' => $request->input('expired_at'),
-            ]);
+                $userService = app(UserService::class);
+                $user = $userService->createUser([
+                    'email' => $email,
+                    'password' => $request->input('password') ?? $email,
+                    'plan_id' => $request->input('plan_id'),
+                    'expired_at' => $request->input('expired_at'),
+                ]);
 
-            if (!$user->save()) {
+                if (!$user->save()) {
+                    DB::rollBack();
+                    return $this->fail([500, __('Generation failed')]);
+                }
+                DB::commit();
+                return $this->success(true);
+            } catch (QueryException $e) {
+                DB::rollBack();
+                if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'UNIQUE')) {
+                    return $this->fail([400201, __('Email already exists')]);
+                }
+                Log::error($e);
+                return $this->fail([500, __('Generation failed')]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error($e);
                 return $this->fail([500, __('Generation failed')]);
             }
-            return $this->success(true);
         }
 
         if ($request->input('generate_count')) {
@@ -815,10 +832,15 @@ class UserController extends Controller
         } // all: ignore filter/sort
 
         try {
+            DB::beginTransaction();
             $userIds = (clone $builder)->pluck('id');
-            $builder->update([
-                'banned' => 1
-            ]);
+            if ($userIds->isNotEmpty()) {
+                User::whereIn('id', $userIds)->lockForUpdate()->get();
+                User::whereIn('id', $userIds)->update([
+                    'banned' => 1
+                ]);
+            }
+            DB::commit();
             foreach ($userIds as $userId) {
                 $bannedUser = User::find($userId);
                 if ($bannedUser) {
@@ -827,6 +849,7 @@ class UserController extends Controller
                 NodeUserSyncJob::dispatch($userId, 'updated');
             }
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error($e);
             return $this->fail([500, __('Processing failed')]);
         }
@@ -839,37 +862,52 @@ class UserController extends Controller
             'id' => 'required|integer|exists:App\Models\User,id',
             'invite_user_id' => 'nullable|integer|exists:App\Models\User,id',
         ], [
-            'id.required' => '用户ID不能为空',
-            'id.exists' => '用户不存在',
-            'invite_user_id.exists' => '邀请人不存在',
+            'id.required' => __('User ID cannot be empty'),
+            'id.exists' => __('The user does not exist'),
+            'invite_user_id.exists' => __('Inviter does not exist'),
         ]);
 
-        $user = User::find($request->input('id'));
-        $inviteUserId = $request->input('invite_user_id');
-
-        if ($inviteUserId && (int) $inviteUserId === (int) $user->id) {
-            return $this->fail([400, __('Cannot set yourself as inviter')]);
-        }
-
-        if ($inviteUserId) {
-            $inviter = User::find($inviteUserId);
-            if (!$inviter || $inviter->banned) {
-                return $this->fail([400, __('Inviter is banned and cannot be assigned')]);
-            }
-        }
-
         try {
-            InviteChain::assertValid((int) $user->id, $inviteUserId ? (int) $inviteUserId : null);
-        } catch (\InvalidArgumentException $e) {
-            return $this->fail([400, $e->getMessage()]);
-        }
+            DB::beginTransaction();
+            $user = User::where('id', $request->input('id'))->lockForUpdate()->first();
+            if (!$user) {
+                DB::rollBack();
+                return $this->fail([400202, __('The user does not exist')]);
+            }
 
-        $user->invite_user_id = $inviteUserId ?: null;
-        if (!$user->save()) {
+            $inviteUserId = $request->input('invite_user_id');
+
+            if ($inviteUserId && (int) $inviteUserId === (int) $user->id) {
+                DB::rollBack();
+                return $this->fail([400, __('Cannot set yourself as inviter')]);
+            }
+
+            if ($inviteUserId) {
+                $inviter = User::find($inviteUserId);
+                if (!$inviter || $inviter->banned) {
+                    DB::rollBack();
+                    return $this->fail([400, __('Inviter is banned and cannot be assigned')]);
+                }
+            }
+
+            InviteChain::assertValid((int) $user->id, $inviteUserId ? (int) $inviteUserId : null);
+
+            $user->invite_user_id = $inviteUserId ?: null;
+            if (!$user->save()) {
+                DB::rollBack();
+                return $this->fail([500, __('Save failed')]);
+            }
+
+            DB::commit();
+            return $this->success(true);
+        } catch (\InvalidArgumentException $e) {
+            DB::rollBack();
+            return $this->fail([400, $e->getMessage()]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e);
             return $this->fail([500, __('Save failed')]);
         }
-
-        return $this->success(true);
     }
 
     // Delete user and related data.

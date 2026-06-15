@@ -176,5 +176,18 @@
     "Generation failed": "生成失敗",
     "User IDs cannot be empty": "user_ids不能為空",
     "Provide email_prefix or generate_count": "請提供 email_prefix 或 generate_count",
-    "Processing failed": "處理失敗"
+    "Processing failed": "處理失敗",
+    "Template has existing codes and cannot be deleted": "該模板下存在兌換碼，無法刪除",
+    "Redemption code used cannot be enabled": "兌換碼已使用，無法啟用",
+    "Redemption code expired cannot be enabled": "兌換碼已過期，無法啟用",
+    "Operation failed": "操作失敗",
+    "Redemption code cannot be reset to unused": "兌換碼不可改回未使用",
+    "Max usage cannot be less than usage count": "最大使用次數不能小於已使用次數",
+    "Used gift card cannot be deleted": "已使用的禮品卡不可刪除",
+    "Gift card has usage records and cannot be deleted": "禮品卡存在使用記錄，不可刪除",
+    "Coupon does not exist": "優惠券不存在",
+    "Coupon ID cannot be empty": "優惠券ID不能為空",
+    "Coupon ID must be numeric": "優惠券ID必須為數字",
+    "Inviter does not exist": "邀請人不存在",
+    "User ID cannot be empty": "用戶ID不能為空"
 }
