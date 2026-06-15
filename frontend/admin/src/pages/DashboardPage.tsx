@@ -99,7 +99,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-import { formatAdminMoney, loadAdminCurrency } from '@/lib/currency'
+import { formatAdminMoney, formatAdminMoneyFromMajor, loadAdminCurrency } from '@/lib/currency'
 
 
 
@@ -324,7 +324,7 @@ export default function DashboardPage() {
 
         date: String(row.date ?? ''),
 
-        value: chartMode === 'amount' ? Number(row.paid_total ?? 0) / 100 : Number(row.paid_count ?? 0),
+        value: chartMode === 'amount' ? Number(row.paid_total ?? 0) : Number(row.paid_count ?? 0),
 
       })),
 
@@ -565,17 +565,17 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="xb-stack-1">
               <div className="text-sm text-muted-foreground">{t('dashboard.overview.totalIncome')}</div>
-              <div className="text-2xl font-bold">{formatMoney(paidTotal)}</div>
+              <div className="text-2xl font-bold">{formatAdminMoneyFromMajor(paidTotal)}</div>
               <div className="text-xs text-muted-foreground">
                 {t('dashboard.overview.totalTransactions', { count: paidCount })}
               </div>
               <div className="text-xs text-muted-foreground">
-                {t('dashboard.overview.avgOrderAmount')} {formatMoney(avgOrder)}
+                {t('dashboard.overview.avgOrderAmount')} {formatAdminMoneyFromMajor(avgOrder)}
               </div>
             </div>
             <div className="xb-stack-1">
               <div className="text-sm text-muted-foreground">{t('dashboard.overview.totalCommission')}</div>
-              <div className="text-2xl font-bold">{formatMoney(commissionTotal)}</div>
+              <div className="text-2xl font-bold">{formatAdminMoneyFromMajor(commissionTotal)}</div>
               <div className="text-xs text-muted-foreground">
                 {t('dashboard.overview.totalTransactions', { count: commissionCount })}
               </div>

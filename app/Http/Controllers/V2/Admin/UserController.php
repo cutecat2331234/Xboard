@@ -795,6 +795,13 @@ class UserController extends Controller
             return $this->fail([400, '不能将自己设为邀请人']);
         }
 
+        if ($inviteUserId) {
+            $inviter = User::find($inviteUserId);
+            if (!$inviter || $inviter->banned) {
+                return $this->fail([400, '邀请人已被封禁，无法设置']);
+            }
+        }
+
         try {
             InviteChain::assertValid((int) $user->id, $inviteUserId ? (int) $inviteUserId : null);
         } catch (\InvalidArgumentException $e) {

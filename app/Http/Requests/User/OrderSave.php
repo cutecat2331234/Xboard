@@ -15,7 +15,7 @@ class OrderSave extends FormRequest
     public function rules()
     {
         return [
-            'plan_id' => 'required',
+            'plan_id' => 'required|integer|exists:v2_plan,id',
             'period' => 'required|in:' . implode(',', PlanService::allowedPeriodInputs()),
             'coupon_code' => 'nullable|string|max:64',
         ];

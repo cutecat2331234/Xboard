@@ -159,44 +159,10 @@ class PaymentController extends Controller
 
     private function reactivateCancelledOrder(Order $order, string $callbackNo): bool
     {
-        if ((int) $order->type === Order::TYPE_NEW_PURCHASE) {
+        if (in_array((int) $order->type, [Order::TYPE_NEW_PURCHASE, Order::TYPE_UPGRADE], true)) {
             $plan = Plan::find($order->plan_id);
-            if ($plan && !(new PlanService($plan))->hasCapacity($plan)) {
+            if ($plan && !(new PlanService($plan))->hasCapacity($plan, $order)) {
                 $this->creditOrphanPaymentOnce($order, $callbackNo, 'cancelled order reactivation blocked by sold out plan');
-                return true;
-            }
-        }
-
-        if ($order->balance_amount) {
-            $userService = new UserService();
-            if (!$userService->addBalance($order->user_id, -((int) $order->balance_amount))) {
-                Log::warning('Payment notify: cannot re-deduct balance for cancelled order, crediting orphan payment', [
-                    'trade_no' => $order->trade_no,
-                    'balance_amount' => $order->balance_amount,
-                ]);
-                $this->creditOrphanPaymentOnce(
-                    $order,
-                    $callbackNo,
-                    'cancelled order reactivation balance re-deduct failed'
-                );
-                return true;
-            }
-        }
-        if ($order->coupon_id && !$order->coupon_consumed) {
-            $orderService = new OrderService($order);
-            try {
-                $orderService->consumeOrderCoupon();
-                $order->refresh();
-            } catch (\Throwable $e) {
-                Log::warning('Payment notify: cannot consume coupon for cancelled order reactivation', [
-                    'trade_no' => $order->trade_no,
-                    'error' => $e->getMessage(),
-                ]);
-                $this->creditOrphanPaymentOnce(
-                    $order,
-                    $callbackNo,
-                    'cancelled order reactivation coupon consume failed'
-                );
                 return true;
             }
         }
