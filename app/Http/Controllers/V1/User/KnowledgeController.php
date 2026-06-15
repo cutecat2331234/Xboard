@@ -73,7 +73,7 @@ class KnowledgeController extends Controller
             ->first();
 
         if (!$knowledge) {
-            return $this->fail([500, __('Article does not exist')]);
+            return $this->fail([404, __('Article does not exist')]);
         }
 
         $knowledge = $knowledge->toArray();
@@ -100,7 +100,7 @@ class KnowledgeController extends Controller
             });
         }
 
-        $knowledges = $builder->get()
+        $knowledges = $builder->limit(300)->get()
             ->map(function ($knowledge) use ($request) {
                 $knowledge = $knowledge->toArray();
                 $knowledge = $this->processKnowledgeContent($knowledge, $request->user());

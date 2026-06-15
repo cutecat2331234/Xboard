@@ -127,6 +127,9 @@ class UserController extends Controller
             return $this->fail([400, __('The user does not exist')]);
         }
         $user['avatar_url'] = 'https://cdn.v2ex.com/gravatar/' . md5($user->email) . '?s=64&d=identicon';
+        if (!AppFeature::commissionEnabled()) {
+            unset($user['commission_balance'], $user['commission_rate']);
+        }
         return $this->success($user);
     }
 
@@ -140,8 +143,9 @@ class UserController extends Controller
                 ->where('user_id', $request->user()->id)
                 ->count(),
             $openTickets,
-            User::where('invite_user_id', $request->user()->id)
-                ->count()
+            AppFeature::inviteEnabled()
+                ? User::where('invite_user_id', $request->user()->id)->count()
+                : 0,
         ];
         return $this->success($stat);
     }
