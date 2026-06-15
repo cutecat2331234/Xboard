@@ -193,7 +193,9 @@ class GiftCardController extends Controller
 
         return $this->success([
             'id' => $usage->id,
-            'code' => $usage->code->code ?? '',
+            'code' => ($usage->code instanceof \App\Models\GiftCardCode && $usage->code->code)
+                ? (substr($usage->code->code, 0, 8) . '****')
+                : '',
             'template' => [
                 'name' => $usage->template->name ?? '',
                 'description' => $usage->template->description ?? '',
@@ -205,13 +207,11 @@ class GiftCardController extends Controller
             'rewards_given' => $usage->rewards_given,
             'invite_rewards' => $usage->invite_rewards,
             'invite_user' => $usage->inviteUser ? [
-                'id' => $usage->inviteUser->id ?? '',
                 'email' => isset($usage->inviteUser->email) ? (substr($usage->inviteUser->email, 0, 3) . '***@***') : '',
             ] : null,
             'user_level_at_use' => $usage->user_level_at_use,
             'plan_id_at_use' => $usage->plan_id_at_use,
             'multiplier_applied' => $usage->multiplier_applied,
-            'ip_address' => $usage->ip_address,
             'notes' => $usage->notes,
             'created_at' => $usage->created_at,
         ]);

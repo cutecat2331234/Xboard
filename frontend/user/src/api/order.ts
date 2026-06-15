@@ -7,6 +7,7 @@ export interface OrderItem {
   period: string
   total_amount: number
   status: number
+  type?: number
   payment_id?: number | null
   created_at: number
   paid_at?: number | null

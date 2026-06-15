@@ -150,6 +150,10 @@ onMounted(async () => {
     msg.warning(t('errors.commConfigFailed'))
     router.replace({ path: route.path, query: {} })
   }
+  if (route.query.feature_disabled === '1') {
+    msg.warning(t('errors.featureDisabled'))
+    router.replace({ path: route.path, query: {} })
+  }
   await auth.loadUser()
   try {
     await loadComm()

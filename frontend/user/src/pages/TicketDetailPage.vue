@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { NCard, NButton, NInput, NScrollbar, NAlert, NSpin, NEmpty, useDialog, useMessage } from 'naive-ui'
 import { fetchTicketById, replyTicket, closeTicket, type TicketItem } from '@/api/ticket'
@@ -125,6 +125,19 @@ onMounted(async () => {
   await load()
   if (ticket.value?.status === 0) startPoll()
 })
+
+watch(
+  () => route.params.id,
+  async (id) => {
+    if (!id) return
+    stopPoll()
+    replyText.value = ''
+    ticket.value = null
+    await load()
+    if (ticket.value?.status === 0) startPoll()
+  },
+)
+
 onUnmounted(stopPoll)
 </script>
 

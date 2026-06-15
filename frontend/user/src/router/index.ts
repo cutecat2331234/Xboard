@@ -109,19 +109,19 @@ router.beforeEach(async (to) => {
       try {
         const comm = await useUserCommConfig().load()
         if (to.path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) {
-          return { path: '/dashboard' }
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
         if (to.path === '/invite' && !featureEnabled(comm.invite_enable, true)) {
-          return { path: '/dashboard' }
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
         if ((to.path === '/ticket' || to.path.startsWith('/ticket/')) && !featureEnabled(comm.ticket_enable, true)) {
-          return { path: '/dashboard' }
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
         if (to.path === '/knowledge' && !featureEnabled(comm.knowledge_enable, true)) {
-          return { path: '/dashboard' }
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
         if (to.path === '/traffic' && !featureEnabled(comm.traffic_log_enable, true)) {
-          return { path: '/dashboard' }
+          return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
       } catch {
         return { path: '/dashboard', query: { comm_error: '1' } }
