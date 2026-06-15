@@ -189,7 +189,7 @@ class GiftCardTemplate extends Model
             $randomRewards = $this->rewards['random_rewards'];
             $totalWeight = array_sum(array_column($randomRewards, 'weight'));
             if ($totalWeight <= 0) {
-                throw new \App\Exceptions\ApiException('盲盒奖励池配置无效');
+                throw new \App\Exceptions\ApiException(__('Mystery box reward pool configuration is invalid'));
             }
             $random = mt_rand(1, $totalWeight);
             $currentWeight = 0;
@@ -292,16 +292,16 @@ class GiftCardTemplate extends Model
         if ($type === self::TYPE_MYSTERY) {
             $pool = $rewards['random_rewards'] ?? [];
             if (!is_array($pool) || count($pool) === 0) {
-                throw new \InvalidArgumentException('盲盒奖池不能为空');
+                throw new \InvalidArgumentException(__('Mystery box reward pool cannot be empty'));
             }
             $totalWeight = 0;
             foreach ($pool as $index => $item) {
                 if (!is_array($item)) {
-                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项格式无效');
+                    throw new \InvalidArgumentException(__('Mystery box reward pool item :index format is invalid', ['index' => $index + 1]));
                 }
                 $weight = (int) ($item['weight'] ?? 0);
                 if ($weight <= 0) {
-                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项权重必须大于 0');
+                    throw new \InvalidArgumentException(__('Mystery box reward pool item :index weight must be greater than 0', ['index' => $index + 1]));
                 }
                 $totalWeight += $weight;
                 $hasReward = (!empty($item['balance']) && (int) $item['balance'] > 0)
@@ -311,11 +311,11 @@ class GiftCardTemplate extends Model
                     || !empty($item['device_limit'])
                     || !empty($item['reset_package']);
                 if (!$hasReward) {
-                    throw new \InvalidArgumentException('盲盒奖池第 ' . ($index + 1) . ' 项至少配置一种奖励');
+                    throw new \InvalidArgumentException(__('Mystery box reward pool item :index must include at least one reward', ['index' => $index + 1]));
                 }
             }
             if ($totalWeight <= 0) {
-                throw new \InvalidArgumentException('盲盒奖池总权重必须大于 0');
+                throw new \InvalidArgumentException(__('Mystery box reward pool total weight must be greater than 0'));
             }
             return;
         }
@@ -323,7 +323,7 @@ class GiftCardTemplate extends Model
         if ($type === self::TYPE_PLAN) {
             $planId = $rewards['plan_id'] ?? null;
             if (!$planId || !Plan::find($planId)) {
-                throw new \InvalidArgumentException('套餐礼品卡必须选择有效套餐');
+                throw new \InvalidArgumentException(__('Plan gift card must select a valid plan'));
             }
         }
     }

@@ -594,5 +594,22 @@
     "Invalid ranking type": "排行類型無效",
     "Failed to update commission balance": "更新佣金餘額失敗",
     "User ID format is invalid": "用戶ID格式無效",
-    "The ticket is closed": "工單已關閉"
+    "The ticket is closed": "工單已關閉",
+    "Theme name cannot be empty": "主題名稱不能為空",
+    "Invalid theme name format": "主題名稱格式無效",
+    "Theme config cannot be empty": "主題配置不能為空",
+    "Plugin code cannot be empty": "插件代碼不能為空",
+    "Gift card template ID cannot be empty": "禮品卡模板ID不能為空",
+    "Gift card template ID format is invalid": "禮品卡模板ID格式無效",
+    "Batch ID cannot be empty": "批次ID不能為空",
+    "Mail template name cannot be empty": "郵件模板名稱不能為空",
+    "Order ID cannot be empty": "訂單ID不能為空",
+    "Order ID format is invalid": "訂單ID格式無效",
+    "Mystery box reward pool configuration is invalid": "盲盒獎勵池配置無效",
+    "Mystery box reward pool cannot be empty": "盲盒獎池不能為空",
+    "Mystery box reward pool item :index format is invalid": "盲盒獎池第 :index 項格式無效",
+    "Mystery box reward pool item :index weight must be greater than 0": "盲盒獎池第 :index 項權重必須大於 0",
+    "Mystery box reward pool item :index must include at least one reward": "盲盒獎池第 :index 項至少配置一種獎勵",
+    "Mystery box reward pool total weight must be greater than 0": "盲盒獎池總權重必須大於 0",
+    "Plan gift card must select a valid plan": "套餐禮品卡必須選擇有效套餐"
 }

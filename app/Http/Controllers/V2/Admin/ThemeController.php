@@ -84,6 +84,9 @@ class ThemeController extends Controller
     {
         $payload = $request->validate([
             'name' => ['required', 'string', 'regex:/^[a-zA-Z0-9_\-]+$/'],
+        ], [
+            'name.required' => __('Theme name cannot be empty'),
+            'name.regex' => __('Invalid theme name format'),
         ]);
         $this->themeService->delete($payload['name']);
         return $this->success(true);
@@ -102,6 +105,8 @@ class ThemeController extends Controller
     {
         $payload = $request->validate([
             'name' => 'required'
+        ], [
+            'name.required' => __('Theme name cannot be empty'),
         ]);
         $this->themeService->switch($payload['name']);
         return $this->success(true);
@@ -111,6 +116,8 @@ class ThemeController extends Controller
     {
         $payload = $request->validate([
             'name' => 'required'
+        ], [
+            'name.required' => __('Theme name cannot be empty'),
         ]);
         $data = $this->themeService->getConfig($payload['name']);
         return $this->success($data);
@@ -121,6 +128,9 @@ class ThemeController extends Controller
         $payload = $request->validate([
             'name' => 'required',
             'config' => 'required'
+        ], [
+            'name.required' => __('Theme name cannot be empty'),
+            'config.required' => __('Theme config cannot be empty'),
         ]);
         $this->themeService->updateConfig($payload['name'], $payload['config']);
         $config = $this->themeService->getConfig($payload['name']);

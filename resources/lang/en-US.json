@@ -632,5 +632,22 @@
     "Invalid ranking type": "Invalid ranking type",
     "Failed to update commission balance": "Failed to update commission balance",
     "User ID format is invalid": "User ID format is invalid",
-    "The ticket is closed": "The ticket is closed"
+    "The ticket is closed": "The ticket is closed",
+    "Theme name cannot be empty": "Theme name cannot be empty",
+    "Invalid theme name format": "Invalid theme name format",
+    "Theme config cannot be empty": "Theme config cannot be empty",
+    "Plugin code cannot be empty": "Plugin code cannot be empty",
+    "Gift card template ID cannot be empty": "Gift card template ID cannot be empty",
+    "Gift card template ID format is invalid": "Gift card template ID format is invalid",
+    "Batch ID cannot be empty": "Batch ID cannot be empty",
+    "Mail template name cannot be empty": "Mail template name cannot be empty",
+    "Order ID cannot be empty": "Order ID cannot be empty",
+    "Order ID format is invalid": "Order ID format is invalid",
+    "Mystery box reward pool configuration is invalid": "Mystery box reward pool configuration is invalid",
+    "Mystery box reward pool cannot be empty": "Mystery box reward pool cannot be empty",
+    "Mystery box reward pool item :index format is invalid": "Mystery box reward pool item :index format is invalid",
+    "Mystery box reward pool item :index weight must be greater than 0": "Mystery box reward pool item :index weight must be greater than 0",
+    "Mystery box reward pool item :index must include at least one reward": "Mystery box reward pool item :index must include at least one reward",
+    "Mystery box reward pool total weight must be greater than 0": "Mystery box reward pool total weight must be greater than 0",
+    "Plan gift card must select a valid plan": "Plan gift card must select a valid plan"
 }

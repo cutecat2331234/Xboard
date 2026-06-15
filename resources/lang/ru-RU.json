@@ -595,5 +595,22 @@
     "Invalid ranking type": "Неверный тип рейтинга",
     "Failed to update commission balance": "Не удалось обновить комиссионный баланс",
     "User ID format is invalid": "Неверный формат ID пользователя",
-    "The ticket is closed": "Тикет закрыт"
+    "The ticket is closed": "Тикет закрыт",
+    "Theme name cannot be empty": "Название темы не может быть пустым",
+    "Invalid theme name format": "Неверный формат названия темы",
+    "Theme config cannot be empty": "Конфигурация темы не может быть пустой",
+    "Plugin code cannot be empty": "Код плагина не может быть пустым",
+    "Gift card template ID cannot be empty": "ID шаблона подарочной карты не может быть пустым",
+    "Gift card template ID format is invalid": "Неверный формат ID шаблона подарочной карты",
+    "Batch ID cannot be empty": "ID партии не может быть пустым",
+    "Mail template name cannot be empty": "Название шаблона письма не может быть пустым",
+    "Order ID cannot be empty": "ID заказа не может быть пустым",
+    "Order ID format is invalid": "Неверный формат ID заказа",
+    "Mystery box reward pool configuration is invalid": "Неверная конфигурация пула наград mystery box",
+    "Mystery box reward pool cannot be empty": "Пул наград mystery box не может быть пустым",
+    "Mystery box reward pool item :index format is invalid": "Неверный формат элемента :index пула наград mystery box",
+    "Mystery box reward pool item :index weight must be greater than 0": "Вес элемента :index пула наград mystery box должен быть больше 0",
+    "Mystery box reward pool item :index must include at least one reward": "Элемент :index пула наград mystery box должен содержать хотя бы одну награду",
+    "Mystery box reward pool total weight must be greater than 0": "Общий вес пула наград mystery box должен быть больше 0",
+    "Plan gift card must select a valid plan": "Подарочная карта тарифа должна содержать действительный тариф"
 }
