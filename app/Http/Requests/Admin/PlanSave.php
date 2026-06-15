@@ -5,7 +5,6 @@ namespace App\Http\Requests\Admin;
 use App\Models\Plan;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PlanSave extends FormRequest
 {
@@ -139,20 +138,5 @@ class PlanSave extends FormRequest
             'capacity_limit.min' => __('Capacity limit cannot be negative'),
             'tags.array' => __('Tags must be an array'),
         ];
-    }
-
-    /**
-     * Handle a failed validation attempt.
-     */
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new HttpResponseException(
-            response()->json([
-                'status' => 'fail',
-                'message' => $validator->errors()->first(),
-                'data' => null,
-                'error' => $validator->errors()->toArray(),
-            ], 422)
-        );
     }
 }

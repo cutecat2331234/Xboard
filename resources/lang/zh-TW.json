@@ -543,5 +543,10 @@
     "Incorrect account or password": "帳號或密碼錯誤",
     "Insufficient points": "積分不足",
     "Plugin is not enabled": "外掛未啟用",
-    "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again.": "主題渲染失敗。如更新主題，參數可能發生變化請重新配置主題後再試。"
+    "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again.": "主題渲染失敗。如更新主題，參數可能發生變化請重新配置主題後再試。",
+    "Invalid data format": "資料格式無效",
+    "Invalid online data": "在線資料無效",
+    "Payment verification failed": "支付驗證失敗",
+    "Payment notify handling failed": "支付回調處理失敗",
+    "Payment notify failed": "支付回調失敗"
 }
