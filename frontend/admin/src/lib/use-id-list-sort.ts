@@ -14,8 +14,8 @@ export function useIdListSort<T extends SortableRow>(items: T[], sortPath: strin
   const [sortSaving, setSortSaving] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
 
-  const enterSort = useCallback(() => {
-    setSortRows([...items])
+  const enterSort = useCallback((overrideItems?: T[]) => {
+    setSortRows([...(overrideItems ?? items)])
     setSortMode(true)
   }, [items])
 

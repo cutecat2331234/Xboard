@@ -6,6 +6,7 @@ use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\NoticeSave;
 use App\Models\Notice;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,11 +14,23 @@ class NoticeController extends Controller
 {
     public function fetch(Request $request)
     {
-        return $this->success(
-            Notice::orderBy('sort', 'ASC')
-                ->orderBy('id', 'DESC')
-                ->get()
-        );
+        $query = Notice::orderBy('sort', 'ASC')->orderBy('id', 'DESC');
+
+        if ($request->filled('title')) {
+            $title = (string) $request->input('title');
+            $query->where('title', 'like', '%' . $title . '%');
+        }
+
+        if ($request->filled('current') || $request->filled('pageSize')) {
+            [$current, $pageSize] = Helper::paginateParams(
+                $request->input('current'),
+                $request->input('pageSize', 20)
+            );
+
+            return $this->paginate($query->paginate($pageSize, ['*'], 'page', $current));
+        }
+
+        return $this->success($query->limit(500)->get());
     }
 
     public function save(NoticeSave $request)

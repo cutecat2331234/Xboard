@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { toastApiError } from '@/lib/api-errors'
+import { formatAdminBytes } from '@/lib/format-bytes'
 import { fetchJsonList, generateEchKey, postJson } from '@/lib/api'
 
 import { cn } from '@/lib/utils'
@@ -150,15 +151,6 @@ type NodeRow = Record<string, unknown> & {
 
   cert_config?: Record<string, unknown> | null
 
-}
-
-function formatBytes(n?: number | null) {
-  if (n == null || n <= 0) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  let i = Math.floor(Math.log(n) / Math.log(1024))
-  if (i < 0) i = 0
-  if (i >= units.length) i = units.length - 1
-  return `${parseFloat((n / 1024 ** i).toFixed(2))} ${units[i]}`
 }
 
 function usedPercent(used: number, total: number) {
@@ -1064,9 +1056,9 @@ export default function ServerManagePage() {
 
           const banned = Boolean(row.original.banned)
 
-          const usedLabel = formatBytes(used)
+          const usedLabel = formatAdminBytes(t, used)
 
-          const totalLabel = formatBytes(total)
+          const totalLabel = formatAdminBytes(t, total)
 
           if (total <= 0) {
 
@@ -1222,7 +1214,7 @@ export default function ServerManagePage() {
 
                 <span className="font-mono">
 
-                  {formatBytes(load.disk?.used)} / {formatBytes(load.disk?.total)}
+                  {formatAdminBytes(t, load.disk?.used)} / {formatAdminBytes(t, load.disk?.total)}
 
                 </span>
 

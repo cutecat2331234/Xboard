@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { adminApi, buildQuery, fetchJsonList, postJson } from '@/lib/api'
+import { adminApi, buildQuery, fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
 import { inputCls, textareaCls } from '@/lib/form-styles'
 import { useIdListSort } from '@/lib/use-id-list-sort'
 import { DataTable } from '@/components/shared/DataTable'
@@ -47,6 +47,9 @@ export default function KnowledgePage() {
   const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const pageSize = 20
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<KnowledgeRow | null>(null)
   const [form, setForm] = useState<KnowledgeRow>({ show: true, language: 'zh-CN' })
@@ -55,16 +58,25 @@ export default function KnowledgePage() {
   const load = useCallback(() => {
     setLoading(true)
     Promise.all([
-      fetchJsonList('/knowledge/fetch'),
+      fetchPaginatedList<KnowledgeRow>('/knowledge/fetch', {
+        current: page,
+        pageSize,
+        title: search.trim() || undefined,
+      }),
       fetchJsonList('/knowledge/getCategory'),
     ])
-      .then(([rows, cats]) => {
-        setData(rows as KnowledgeRow[])
+      .then(([pageRes, cats]) => {
+        setData(pageRes.data)
+        setTotal(pageRes.total ?? pageRes.data.length)
         setCategories(cats as string[])
       })
       .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
-  }, [t])
+  }, [page, pageSize, search, t])
+
+  const loadAll = useCallback(() => {
+    return fetchJsonList('/knowledge/fetch').then((rows) => rows as KnowledgeRow[])
+  }, [])
 
   useEffect(() => {
     load()
@@ -131,17 +143,22 @@ export default function KnowledgePage() {
     }
   }
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return data
-    const q = search.toLowerCase()
-    return data.filter(
-      (row) =>
-        String(row.title ?? '').toLowerCase().includes(q) ||
-        String(row.category ?? '').toLowerCase().includes(q),
-    )
-  }, [data, search])
+  const filtered = useMemo(() => data, [data])
 
   const sort = useIdListSort(filtered, '/knowledge/sort')
+
+  async function enterSortMode() {
+    setLoading(true)
+    try {
+      const rows = await loadAll()
+      setData(rows)
+      sort.enterSort(rows)
+    } catch (e) {
+      toastApiError(e, toast, t, t('common.error'))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   async function handleSaveSort() {
     const ok = await sort.saveSort()
@@ -242,20 +259,39 @@ export default function KnowledgePage() {
                 editLabel={t('knowledge.editSort')}
                 saveLabel={t('knowledge.saveSort')}
                 hint={sort.sortMode ? t('knowledge.sortModeHint') : undefined}
-                onEdit={sort.enterSort}
+                onEdit={enterSortMode}
                 onSave={handleSaveSort}
                 onCancel={sort.cancelSort}
               />
               <Input
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  setPage(1)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setPage(1)
+                    load()
+                  }
+                }}
                 placeholder={t('common.search')}
                 className={`h-8 min-w-[150px] flex-1 sm:w-[150px] lg:w-[250px] ${inputCls}`}
                 disabled={sort.sortMode}
               />
             </div>
           </div>
-          <DataTable columns={columns} data={sort.displayRows} loading={loading} />
+          <DataTable
+            columns={columns}
+            data={sort.displayRows}
+            loading={loading}
+            pageSize={pageSize}
+            alwaysShowPagination={!sort.sortMode}
+            totalItems={total}
+            pageIndex={page - 1}
+            pageCount={Math.max(1, Math.ceil(total / pageSize))}
+            onPageIndexChange={(idx) => setPage(idx + 1)}
+          />
         </div>
       </div>
 

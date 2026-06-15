@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { fetchJsonList, postJson } from '@/lib/api'
+import { fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
 import { useIdListSort } from '@/lib/use-id-list-sort'
 import { DataTable } from '@/components/shared/DataTable'
 import { SortRowControls, SortToolbar } from '@/components/shared/SortToolbar'
@@ -48,6 +48,9 @@ export default function NoticePage() {
   const [data, setData] = useState<NoticeRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const pageSize = 20
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<NoticeRow | null>(null)
   const [form, setForm] = useState<NoticeRow>({ show: 1 })
@@ -55,11 +58,22 @@ export default function NoticePage() {
 
   const load = useCallback(() => {
     setLoading(true)
-    fetchJsonList('/notice/fetch')
-      .then((rows) => setData(rows as NoticeRow[]))
+    fetchPaginatedList<NoticeRow>('/notice/fetch', {
+      current: page,
+      pageSize,
+      title: search.trim() || undefined,
+    })
+      .then((res) => {
+        setData(res.data)
+        setTotal(res.total ?? res.data.length)
+      })
       .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
-  }, [t])
+  }, [page, pageSize, search, t])
+
+  const loadAll = useCallback(() => {
+    return fetchJsonList('/notice/fetch').then((rows) => rows as NoticeRow[])
+  }, [])
 
   useEffect(() => {
     load()
@@ -129,13 +143,22 @@ export default function NoticePage() {
     }
   }
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return data
-    const q = search.toLowerCase()
-    return data.filter((row) => String(row.title ?? '').toLowerCase().includes(q))
-  }, [data, search])
+  const filtered = useMemo(() => data, [data])
 
   const sort = useIdListSort(filtered, '/notice/sort')
+
+  async function enterSortMode() {
+    setLoading(true)
+    try {
+      const rows = await loadAll()
+      setData(rows)
+      sort.enterSort(rows)
+    } catch (e) {
+      toastApiError(e, toast, t, t('common.error'))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   async function handleSaveSort() {
     const ok = await sort.saveSort()
@@ -234,20 +257,39 @@ export default function NoticePage() {
                 saving={sort.sortSaving}
                 editLabel={t('notice.table.toolbar.sort.edit')}
                 saveLabel={t('notice.table.toolbar.sort.save')}
-                onEdit={sort.enterSort}
+                onEdit={enterSortMode}
                 onSave={handleSaveSort}
                 onCancel={sort.cancelSort}
               />
               <Input
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  setPage(1)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setPage(1)
+                    load()
+                  }
+                }}
                 placeholder={t('notice.table.toolbar.search')}
                 className={`h-8 min-w-[150px] flex-1 sm:w-[150px] lg:w-[250px] ${inputCls}`}
                 disabled={sort.sortMode}
               />
             </div>
           </div>
-          <DataTable columns={columns} data={sort.displayRows} loading={loading} />
+          <DataTable
+            columns={columns}
+            data={sort.displayRows}
+            loading={loading}
+            pageSize={pageSize}
+            alwaysShowPagination={!sort.sortMode}
+            totalItems={total}
+            pageIndex={page - 1}
+            pageCount={Math.max(1, Math.ceil(total / pageSize))}
+            onPageIndexChange={(idx) => setPage(idx + 1)}
+          />
         </div>
       </div>
 
