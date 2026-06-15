@@ -35,7 +35,7 @@ class MailTemplateController extends Controller
         $name = $request->input('name');
         $meta = MailTemplate::getMeta($name);
         if (!$meta) {
-            return $this->fail([404, '模板不存在']);
+            return $this->fail([404, __('Mail template does not exist')]);
         }
 
         $db = MailTemplate::where('name', $name)->first();
@@ -61,7 +61,7 @@ class MailTemplateController extends Controller
 
         $meta = MailTemplate::getMeta($params['name']);
         if (!$meta) {
-            return $this->fail([404, '模板不存在']);
+            return $this->fail([404, __('Mail template does not exist')]);
         }
 
         $errors = MailTemplate::validateContent($params['name'], $params['content']);
@@ -83,7 +83,7 @@ class MailTemplateController extends Controller
         $name = $request->input('name');
         $meta = MailTemplate::getMeta($name);
         if (!$meta) {
-            return $this->fail([404, '模板不存在']);
+            return $this->fail([404, __('Mail template does not exist')]);
         }
 
         MailTemplate::where('name', $name)->delete();
@@ -96,7 +96,7 @@ class MailTemplateController extends Controller
         $name = $request->input('name');
         $meta = MailTemplate::getMeta($name);
         if (!$meta) {
-            return $this->fail([404, '模板不存在']);
+            return $this->fail([404, __('Mail template does not exist')]);
         }
 
         $email = $request->input('email', $request->user()->email);
@@ -111,12 +111,12 @@ class MailTemplateController extends Controller
             ]);
 
             if ($log['error']) {
-                return $this->fail([500, '发送失败: ' . $log['error']]);
+                return $this->fail([500, __('Send failed: :error', ['error' => $log['error']])]);
             }
             return $this->success(true);
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '发送失败: ' . $e->getMessage()]);
+            return $this->fail([500, __('Send failed: :error', ['error' => $e->getMessage()])]);
         }
     }
 

@@ -36,15 +36,14 @@ class ManageController extends Controller
             DB::beginTransaction();
             collect($params)->each(function ($item) {
                 if (isset($item['id']) && isset($item['order'])) {
-                    Server::where('id', $item['id'])->update(['sort' => $item['order']]);
+                    Server::where('id', $item['id'])->lockForUpdate()->update(['sort' => $item['order']]);
                 }
             });
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e);
-            return $this->fail([500, '保存失败']);
-
+            return $this->fail([500, __('Save failed')]);
         }
         return $this->success(true);
     }
@@ -53,16 +52,18 @@ class ManageController extends Controller
     {
         $params = $request->validated();
         if ($request->input('id')) {
-            $server = Server::find($request->input('id'));
-            if (!$server) {
-                return $this->fail([400202, '服务器不存在']);
-            }
             try {
-                $server->update($params);
-                return $this->success(true);
+                return DB::transaction(function () use ($request, $params) {
+                    $server = Server::where('id', $request->input('id'))->lockForUpdate()->first();
+                    if (!$server) {
+                        return $this->fail([400202, __('Node does not exist')]);
+                    }
+                    $server->update($params);
+                    return $this->success(true);
+                });
             } catch (\Exception $e) {
                 Log::error($e);
-                return $this->fail([500, '保存失败']);
+                return $this->fail([500, __('Save failed')]);
             }
         }
 
@@ -71,7 +72,7 @@ class ManageController extends Controller
             return $this->success(true);
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '创建失败']);
+            return $this->fail([500, __('Create failed')]);
         }
     }
 
@@ -84,54 +85,59 @@ class ManageController extends Controller
             'enabled' => 'nullable|boolean',
         ]);
 
-        $server = Server::find($request->id);
-        if (!$server) {
-            return $this->fail([400202, '服务器不存在']);
-        }
+        try {
+            return DB::transaction(function () use ($params) {
+                $server = Server::where('id', $params['id'])->lockForUpdate()->first();
+                if (!$server) {
+                    return $this->fail([400202, __('Node does not exist')]);
+                }
 
-        if (array_key_exists('show', $params)) {
-            $server->show = (int) $params['show'];
-        }
-        if (array_key_exists('machine_id', $params)) {
-            $server->machine_id = $params['machine_id'] ?: null;
-        }
-        if (array_key_exists('enabled', $params)) {
-            $server->enabled = (bool) $params['enabled'];
-        }
+                if (array_key_exists('show', $params)) {
+                    $server->show = (int) $params['show'];
+                }
+                if (array_key_exists('machine_id', $params)) {
+                    $server->machine_id = $params['machine_id'] ?: null;
+                }
+                if (array_key_exists('enabled', $params)) {
+                    $server->enabled = (bool) $params['enabled'];
+                }
 
-        if (!$server->save()) {
-            return $this->fail([500, '保存失败']);
-        }
+                if (!$server->save()) {
+                    return $this->fail([500, __('Save failed')]);
+                }
 
-        return $this->success(true);
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Save failed')]);
+        }
     }
 
-    /**
-     * 删除
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function drop(Request $request)
     {
         $request->validate([
             'id' => 'required|integer',
         ]);
-        $server = Server::find($request->id);
-        if (!$server) {
-            return $this->fail([400202, '服务器不存在']);
-        }
-        if ($server->delete() === false) {
-            return $this->fail([500, '删除失败']);
-        }
 
-        return $this->success(true);
+        try {
+            return DB::transaction(function () use ($request) {
+                $server = Server::where('id', $request->id)->lockForUpdate()->first();
+                if (!$server) {
+                    return $this->fail([400202, __('Node does not exist')]);
+                }
+                if ($server->delete() === false) {
+                    return $this->fail([500, __('Delete failed')]);
+                }
+
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Delete failed')]);
+        }
     }
 
-    /**
-     * 批量删除节点
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function batchDelete(Request $request)
     {
         $request->validate([
@@ -141,55 +147,53 @@ class ManageController extends Controller
 
         $ids = $request->input('ids');
         if (empty($ids)) {
-            return $this->fail([400, '请选择要删除的节点']);
+            return $this->fail([400, __('Select nodes to delete')]);
         }
 
         try {
-            $deleted = Server::whereIn('id', $ids)->delete();
-            if ($deleted === false) {
-                return $this->fail([500, '批量删除失败']);
-            }
-            return $this->success(true);
+            return DB::transaction(function () use ($ids) {
+                $locked = Server::whereIn('id', $ids)->lockForUpdate()->pluck('id');
+                if ($locked->isEmpty()) {
+                    return $this->success(true);
+                }
+                $deleted = Server::whereIn('id', $locked)->delete();
+                if ($deleted === false) {
+                    return $this->fail([500, __('Batch delete failed')]);
+                }
+                return $this->success(true);
+            });
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '批量删除失败']);
+            return $this->fail([500, __('Batch delete failed')]);
         }
     }
 
-    /**
-     * 重置节点流量
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function resetTraffic(Request $request)
     {
         $request->validate([
             'id' => 'required|integer',
         ]);
 
-        $server = Server::find($request->id);
-        if (!$server) {
-            return $this->fail([400202, '服务器不存在']);
-        }
-
         try {
-            $server->u = 0;
-            $server->d = 0;
-            $server->save();
-            
-            Log::info("Server {$server->id} ({$server->name}) traffic reset by admin");
-            return $this->success(true);
+            return DB::transaction(function () use ($request) {
+                $server = Server::where('id', $request->id)->lockForUpdate()->first();
+                if (!$server) {
+                    return $this->fail([400202, __('Node does not exist')]);
+                }
+
+                $server->u = 0;
+                $server->d = 0;
+                $server->save();
+
+                Log::info("Server {$server->id} ({$server->name}) traffic reset by admin");
+                return $this->success(true);
+            });
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '重置失败']);
+            return $this->fail([500, __('Reset failed')]);
         }
     }
 
-    /**
-     * 批量重置节点流量
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function batchResetTraffic(Request $request)
     {
         $request->validate([
@@ -199,26 +203,26 @@ class ManageController extends Controller
 
         $ids = $request->input('ids');
         if (empty($ids)) {
-            return $this->fail([400, '请选择要重置的节点']);
+            return $this->fail([400, __('Select nodes to reset traffic')]);
         }
 
         try {
-            Server::whereIn('id', $ids)->update([
-                'u' => 0,
-                'd' => 0,
-            ]);
-            
-            Log::info("Servers " . implode(',', $ids) . " traffic reset by admin");
+            DB::transaction(function () use ($ids) {
+                Server::whereIn('id', $ids)->lockForUpdate()->get();
+                Server::whereIn('id', $ids)->update([
+                    'u' => 0,
+                    'd' => 0,
+                ]);
+            });
+
+            Log::info('Servers ' . implode(',', $ids) . ' traffic reset by admin');
             return $this->success(true);
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '批量重置失败']);
+            return $this->fail([500, __('Batch reset failed')]);
         }
     }
 
-    /**
-     * 批量更新节点属性（show等）
-     */
     public function batchUpdate(Request $request)
     {
         $params = $request->validate([
@@ -231,7 +235,7 @@ class ManageController extends Controller
 
         $ids = $params['ids'];
         if (empty($ids)) {
-            return $this->fail([400, '请选择要更新的节点']);
+            return $this->fail([400, __('Select nodes to update')]);
         }
 
         $update = [];
@@ -246,13 +250,12 @@ class ManageController extends Controller
         }
 
         if (empty($update)) {
-            return $this->fail([400, '没有可更新的字段']);
+            return $this->fail([400, __('No updatable fields')]);
         }
 
         try {
-            $servers = Server::whereIn('id', $ids)->get();
-            DB::transaction(function () use ($servers, $update) {
-                /** @var Server $server */
+            DB::transaction(function () use ($ids, $update) {
+                $servers = Server::whereIn('id', $ids)->lockForUpdate()->get();
                 foreach ($servers as $server) {
                     $server->update($update);
                 }
@@ -260,30 +263,32 @@ class ManageController extends Controller
             return $this->success(true);
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '批量更新失败']);
+            return $this->fail([500, __('Batch update failed')]);
         }
     }
 
-    /**
-     * 复制节点
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function copy(Request $request)
     {
-        $server = Server::find($request->input('id'));
-        if (!$server) {
-            return $this->fail([400202, '服务器不存在']);
+        try {
+            return DB::transaction(function () use ($request) {
+                $server = Server::where('id', $request->input('id'))->lockForUpdate()->first();
+                if (!$server) {
+                    return $this->fail([400202, __('Node does not exist')]);
+                }
+
+                $copiedServer = $server->replicate();
+                $copiedServer->show = 0;
+                $copiedServer->code = null;
+                $copiedServer->u = 0;
+                $copiedServer->d = 0;
+                $copiedServer->save();
+
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Create failed')]);
         }
-
-        $copiedServer = $server->replicate();
-        $copiedServer->show = 0;
-        $copiedServer->code = null;
-        $copiedServer->u = 0;
-        $copiedServer->d = 0;
-        $copiedServer->save();
-
-        return $this->success(true);
     }
 
     /**
@@ -294,7 +299,7 @@ class ManageController extends Controller
     {
         $publicName = $request->input('public_name', 'ech.example.com');
         if (strlen($publicName) < 1 || strlen($publicName) > 253) {
-            throw new ApiException('public_name must be a valid domain (1-253 bytes)');
+            throw new ApiException(__('public_name must be a valid domain (1-253 bytes)'));
         }
 
         // Generate X25519 key pair

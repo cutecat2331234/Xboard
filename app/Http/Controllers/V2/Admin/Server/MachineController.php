@@ -9,6 +9,8 @@ use App\Models\ServerMachine;
 use App\Models\ServerMachineLoadHistory;
 use App\Services\NodeSyncService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
 class MachineController extends Controller
@@ -50,31 +52,41 @@ class MachineController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        if (!empty($params['id'])) {
-            $machine = ServerMachine::find($params['id']);
-            $update = ['name' => $params['name']];
-            if (array_key_exists('notes', $params)) {
-                $update['notes'] = $params['notes'];
-            }
-            if (array_key_exists('is_active', $params)) {
-                $update['is_active'] = $params['is_active'];
-            }
-            $machine->update($update);
-            return $this->success(true);
+        try {
+            return DB::transaction(function () use ($params, $request) {
+                if (!empty($params['id'])) {
+                    $machine = ServerMachine::where('id', $params['id'])->lockForUpdate()->first();
+                    if (!$machine) {
+                        return $this->fail([404, __('Server machine does not exist')]);
+                    }
+                    $update = ['name' => $params['name']];
+                    if (array_key_exists('notes', $params)) {
+                        $update['notes'] = $params['notes'];
+                    }
+                    if (array_key_exists('is_active', $params)) {
+                        $update['is_active'] = $params['is_active'];
+                    }
+                    $machine->update($update);
+                    return $this->success(true);
+                }
+
+                $machine = ServerMachine::create([
+                    'name' => $params['name'],
+                    'notes' => $params['notes'] ?? null,
+                    'is_active' => $params['is_active'] ?? true,
+                    'token' => ServerMachine::generateToken(),
+                ]);
+
+                return $this->success([
+                    'id' => $machine->id,
+                    'token' => $machine->token,
+                    'install_command' => $this->buildInstallCommand($request, $machine),
+                ]);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Save failed')]);
         }
-
-        $machine = ServerMachine::create([
-            'name' => $params['name'],
-            'notes' => $params['notes'] ?? null,
-            'is_active' => $params['is_active'] ?? true,
-            'token' => ServerMachine::generateToken(),
-        ]);
-
-        return $this->success([
-            'id' => $machine->id,
-            'token' => $machine->token,
-            'install_command' => $this->buildInstallCommand($request, $machine),
-        ]);
     }
 
     /**
@@ -86,11 +98,21 @@ class MachineController extends Controller
             'id' => 'required|integer|exists:v2_server_machine,id',
         ]);
 
-        $machine = ServerMachine::find($params['id']);
-        $token = ServerMachine::generateToken();
-        $machine->update(['token' => $token]);
+        try {
+            return DB::transaction(function () use ($params, $request) {
+                $machine = ServerMachine::where('id', $params['id'])->lockForUpdate()->first();
+                if (!$machine) {
+                    return $this->fail([404, __('Server machine does not exist')]);
+                }
+                $token = ServerMachine::generateToken();
+                $machine->update(['token' => $token]);
 
-        return $this->success(['token' => $token]);
+                return $this->success(['token' => $token]);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Save failed')]);
+        }
     }
 
     /**
@@ -138,17 +160,25 @@ class MachineController extends Controller
             'id' => 'required|integer|exists:v2_server_machine,id',
         ]);
 
-        $machine = ServerMachine::find($params['id']);
-        $machineId = $machine->id;
+        try {
+            return DB::transaction(function () use ($params) {
+                $machine = ServerMachine::where('id', $params['id'])->lockForUpdate()->first();
+                if (!$machine) {
+                    return $this->fail([404, __('Server machine does not exist')]);
+                }
+                $machineId = $machine->id;
 
-        // Detach nodes first (sets machine_id = null), then delete and notify
-        Server::where('machine_id', $machineId)->update(['machine_id' => null]);
-        $machine->delete();
+                Server::where('machine_id', $machineId)->update(['machine_id' => null]);
+                $machine->delete();
 
-        // Notify with empty node list so WS process cleans up registry
-        NodeSyncService::notifyMachineNodesChanged($machineId);
+                NodeSyncService::notifyMachineNodesChanged($machineId);
 
-        return $this->success(true);
+                return $this->success(true);
+            });
+        } catch (\Exception $e) {
+            Log::error($e);
+            return $this->fail([500, __('Delete failed')]);
+        }
     }
 
     /**

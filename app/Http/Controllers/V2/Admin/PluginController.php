@@ -141,11 +141,11 @@ class PluginController extends Controller
         try {
             $this->pluginManager->install($request->input('code'));
             return response()->json([
-                'message' => '插件安装成功'
+                'message' => __('Plugin installed successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '插件安装失败：' . $e->getMessage()
+                'message' => __('Plugin install failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -163,18 +163,18 @@ class PluginController extends Controller
         $plugin = Plugin::where('code', $code)->first();
         if ($plugin && $plugin->is_enabled) {
             return response()->json([
-                'message' => '请先禁用插件后再卸载'
+                'message' => __('Disable the plugin before uninstalling'),
             ], 400);
         }
 
         try {
             $this->pluginManager->uninstall($code);
             return response()->json([
-                'message' => '插件卸载成功'
+                'message' => __('Plugin uninstalled successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '插件卸载失败：' . $e->getMessage()
+                'message' => __('Plugin uninstall failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -190,11 +190,11 @@ class PluginController extends Controller
         try {
             $this->pluginManager->update($request->input('code'));
             return response()->json([
-                'message' => '插件升级成功'
+                'message' => __('Plugin upgraded successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '插件升级失败：' . $e->getMessage()
+                'message' => __('Plugin upgrade failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -211,11 +211,11 @@ class PluginController extends Controller
         try {
             $this->pluginManager->enable($request->input('code'));
             return response()->json([
-                'message' => '插件启用成功'
+                'message' => __('Plugin enabled successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '插件启用失败：' . $e->getMessage()
+                'message' => __('Plugin enable failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -232,11 +232,11 @@ class PluginController extends Controller
         try {
             $this->pluginManager->disable($request->input('code'));
             return response()->json([
-                'message' => '插件禁用成功'
+                'message' => __('Plugin disabled successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '插件禁用失败：' . $e->getMessage()
+                'message' => __('Plugin disable failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -257,7 +257,7 @@ class PluginController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '获取配置失败：' . $e->getMessage()
+                'message' => __('Failed to load plugin config: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -279,11 +279,11 @@ class PluginController extends Controller
             );
 
             return response()->json([
-                'message' => '配置更新成功'
+                'message' => __('Plugin config updated successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '配置更新失败：' . $e->getMessage()
+                'message' => __('Plugin config update failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -301,20 +301,20 @@ class PluginController extends Controller
                 'max:10240', // 最大10MB
             ]
         ], [
-            'file.required' => '请选择插件包文件',
-            'file.file' => '无效的文件类型',
-            'file.mimes' => '插件包必须是zip格式',
-            'file.max' => '插件包大小不能超过10MB'
+            'file.required' => __('Plugin package file is required'),
+            'file.file' => __('Invalid file type'),
+            'file.mimes' => __('Plugin package must be a zip file'),
+            'file.max' => __('Plugin package must not exceed 10MB'),
         ]);
 
         try {
             $this->pluginManager->upload($request->file('file'));
             return response()->json([
-                'message' => '插件上传成功'
+                'message' => __('Plugin uploaded successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '插件上传失败：' . $e->getMessage()
+                'message' => __('Plugin upload failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }
@@ -326,12 +326,12 @@ class PluginController extends Controller
     {
         $path = trim((string) $request->query('path', ''));
         if ($path === '') {
-            return $this->fail([400, 'path 参数不能为空']);
+            return $this->fail([400, __('path parameter cannot be empty')]);
         }
 
         $html = $this->pluginManager->renderAdminMenuPage($code, $path, $request);
         if ($html === null) {
-            return $this->fail([404, '插件菜单页面不存在']);
+            return $this->fail([404, __('Plugin menu page does not exist')]);
         }
 
         return response($html, 200)->header('Content-Type', 'text/html; charset=UTF-8');
@@ -351,18 +351,18 @@ class PluginController extends Controller
         // 检查是否为核心插件
         if ($this->pluginManager->isCorePlugin($code)) {
             return response()->json([
-                'message' => '该插件为系统核心插件，不允许删除'
+                'message' => __('Core plugins cannot be deleted'),
             ], 403);
         }
 
         try {
             $this->pluginManager->delete($code);
             return response()->json([
-                'message' => '插件删除成功'
+                'message' => __('Plugin deleted successfully'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => '插件删除失败：' . $e->getMessage()
+                'message' => __('Plugin delete failed: :error', ['error' => $e->getMessage()]),
             ], 400);
         }
     }

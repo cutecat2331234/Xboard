@@ -50,6 +50,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   "machine": {
     "title": "Server Management",
     "description": "Review server health, load, and hosted nodes, then launch node actions from an operations view.",
+    "messages": {
+      "notFound": "Server machine not found"
+    },
     "columns": {
       "id": "ID",
       "name": "Server Name",
@@ -410,7 +413,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "uploadSuccess": "Plugin uploaded successfully",
       "uploadError": "Failed to upload plugin",
       "deleteSuccess": "Plugin deleted successfully",
-      "deleteError": "Failed to delete plugin"
+      "deleteError": "Failed to delete plugin",
+      "disableBeforeUninstall": "Disable the plugin before uninstalling",
+      "coreDeleteForbidden": "Core plugins cannot be deleted"
     }
   },
   "group": {
@@ -896,7 +901,18 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "filtered_by_server": "Viewing nodes hosted by {{server}} (SID:{{id}})",
       "filtered_by_server_description": "New nodes created here can directly reuse the current server as their deployment target.",
       "add_node_to_server": "Add node to this server",
-      "clear_server_filter": "Clear server filter"
+      "clear_server_filter": "Clear server filter",
+      "messages": {
+        "notFound": "Node not found",
+        "selectDelete": "Select nodes to delete",
+        "batchDeleteFailed": "Batch delete failed",
+        "resetFailed": "Failed to reset node traffic",
+        "selectReset": "Select nodes to reset traffic",
+        "batchResetFailed": "Batch reset failed",
+        "selectUpdate": "Select nodes to update",
+        "noUpdatableFields": "No updatable fields provided",
+        "batchUpdateFailed": "Batch update failed"
+      }
     },
     "columns": {
       "sort": "Sort",
@@ -2587,6 +2603,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "discard_description": "This template has unsaved changes. Switching tabs will discard them.",
       "discard_confirm": "Discard",
       "cancel": "Cancel"
+    }
+  },
+  "mailTemplate": {
+    "messages": {
+      "notFound": "Mail template not found",
+      "sendFailed": "Failed to send test email"
     }
   },
   "sidebar": {
