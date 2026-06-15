@@ -215,6 +215,15 @@ const MESSAGE_MAP: Record<string, string> = {
   'Email suffix cannot be empty': 'common.error',
   'Payment amount format is invalid': 'common.error',
   'Commission status format is invalid': 'common.error',
+  'WebSocket URL must include http(s)://': 'common.error',
+  'Invalid traffic reset method': 'common.error',
+  'Invalid order event type': 'common.error',
+  'Invalid sidebar theme': 'common.error',
+  'Invalid header theme': 'common.error',
+  'Invalid frontend theme color': 'common.error',
+  'Traffic warning threshold must be between 1 and 100': 'common.error',
+  'Withdraw ticket stale days must be between 1 and 90': 'common.error',
+  'Withdrawal fee rate must be between 0 and 1': 'common.error',
 }
 
 const MESSAGE_PREFIX_MAP: Array<[string, string]> = [

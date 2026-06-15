@@ -632,5 +632,18 @@
     "subscribe.info.reset_in_days": "До следующего сброса: :days дн.",
     "subscribe.info.remaining_traffic": "Остаток трафика: :traffic",
     "Email suffix cannot be empty": "Суффикс email не может быть пустым",
-    "Payment amount format is invalid": "Неверный формат суммы платежа"
+    "Payment amount format is invalid": "Неверный формат суммы платежа",
+    "WebSocket URL must include http(s)://": "WebSocket URL должен включать http(s)://",
+    "Withdrawal fee rate format is invalid": "Неверный формат комиссии за вывод",
+    "Withdrawal fee rate must be between 0 and 1": "Комиссия за вывод должна быть от 0 до 1",
+    "Withdraw ticket stale days format is invalid": "Неверный формат дней просрочки заявки на вывод",
+    "Withdraw ticket stale days must be between 1 and 90": "Дни просрочки заявки на вывод должны быть от 1 до 90",
+    "Invite code max uses format is invalid": "Неверный формат лимита использования пригласительного кода",
+    "Traffic warning threshold format is invalid": "Неверный формат порога предупреждения о трафике",
+    "Traffic warning threshold must be between 1 and 100": "Порог предупреждения о трафике должен быть от 1 до 100",
+    "Invalid traffic reset method": "Неверный метод сброса трафика",
+    "Invalid order event type": "Неверный тип события заказа",
+    "Invalid sidebar theme": "Неверная тема боковой панели",
+    "Invalid header theme": "Неверная тема верхней панели",
+    "Invalid frontend theme color": "Неверный цвет темы фронтенда"
 }

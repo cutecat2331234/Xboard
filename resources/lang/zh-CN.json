@@ -665,5 +665,18 @@
     "subscribe.info.reset_in_days": "距离下次重置剩余：:days 天",
     "subscribe.info.remaining_traffic": "剩余流量：:traffic",
     "Email suffix cannot be empty": "邮箱后缀不能为空",
-    "Payment amount format is invalid": "支付金额格式无效"
+    "Payment amount format is invalid": "支付金额格式无效",
+    "WebSocket URL must include http(s)://": "WebSocket 地址必须包含 http(s)://",
+    "Withdrawal fee rate format is invalid": "提现费率格式无效",
+    "Withdrawal fee rate must be between 0 and 1": "提现费率必须在 0 到 1 之间",
+    "Withdraw ticket stale days format is invalid": "提现工单过期天数格式无效",
+    "Withdraw ticket stale days must be between 1 and 90": "提现工单过期天数必须在 1 到 90 之间",
+    "Invite code max uses format is invalid": "邀请码最大使用次数格式无效",
+    "Traffic warning threshold format is invalid": "流量提醒阈值格式无效",
+    "Traffic warning threshold must be between 1 and 100": "流量提醒阈值必须在 1 到 100 之间",
+    "Invalid traffic reset method": "无效的流量重置方式",
+    "Invalid order event type": "无效的订单事件类型",
+    "Invalid sidebar theme": "无效的侧边栏主题",
+    "Invalid header theme": "无效的顶栏主题",
+    "Invalid frontend theme color": "无效的前端主题色"
 }
