@@ -135,7 +135,64 @@ const MESSAGE_MAP: Record<string, string> = {
   'Save failed': 'common.error',
   'Generation failed': 'user.generate.failed',
   'Processing failed': 'common.error',
+  'Node does not exist': 'server.manage.messages.notFound',
+  'Select nodes to delete': 'server.manage.messages.selectDelete',
+  'Batch delete failed': 'server.manage.messages.batchDeleteFailed',
+  'Reset failed': 'server.manage.messages.resetFailed',
+  'Select nodes to reset traffic': 'server.manage.messages.selectReset',
+  'Batch reset failed': 'server.manage.messages.batchResetFailed',
+  'Select nodes to update': 'server.manage.messages.selectUpdate',
+  'No updatable fields': 'server.manage.messages.noUpdatableFields',
+  'Batch update failed': 'server.manage.messages.batchUpdateFailed',
+  'Mail template does not exist': 'mailTemplate.messages.notFound',
+  'Server machine does not exist': 'server.machine.messages.notFound',
+  'Disable the plugin before uninstalling': 'plugin.messages.disableBeforeUninstall',
+  'path parameter cannot be empty': 'plugin.runtime.pageNotFoundDescription',
+  'Plugin menu page does not exist': 'plugin.runtime.pageNotFoundDescription',
+  'Core plugins cannot be deleted': 'plugin.messages.coreDeleteForbidden',
+  'Plugin package file is required': 'plugin.upload.error.format',
+  'Plugin package must be a zip file': 'plugin.upload.error.format',
+  'Plugin package must not exceed 10MB': 'plugin.upload.error.format',
+  'Invalid file type': 'common.error',
+  '节点不存在': 'server.manage.messages.notFound',
+  '服务器不存在': 'server.manage.messages.notFound',
+  '请选择要删除的节点': 'server.manage.messages.selectDelete',
+  '批量删除失败': 'server.manage.messages.batchDeleteFailed',
+  '重置失败': 'server.manage.messages.resetFailed',
+  '请选择要重置的节点': 'server.manage.messages.selectReset',
+  '批量重置失败': 'server.manage.messages.batchResetFailed',
+  '请选择要更新的节点': 'server.manage.messages.selectUpdate',
+  '没有可更新的字段': 'server.manage.messages.noUpdatableFields',
+  '批量更新失败': 'server.manage.messages.batchUpdateFailed',
+  '模板不存在': 'mailTemplate.messages.notFound',
+  '请先禁用插件后再卸载': 'plugin.messages.disableBeforeUninstall',
+  '插件菜单页面不存在': 'plugin.runtime.pageNotFoundDescription',
+  'path 参数不能为空': 'plugin.runtime.pageNotFoundDescription',
+  '该插件为系统核心插件，不允许删除': 'plugin.messages.coreDeleteForbidden',
 }
+
+const MESSAGE_PREFIX_MAP: Array<[string, string]> = [
+  ['Plugin install failed:', 'plugin.messages.installError'],
+  ['Plugin uninstall failed:', 'plugin.messages.uninstallError'],
+  ['Plugin upgrade failed:', 'plugin.messages.upgradeError'],
+  ['Plugin enable failed:', 'plugin.messages.enableError'],
+  ['Plugin disable failed:', 'plugin.messages.disableError'],
+  ['Failed to load plugin config:', 'plugin.messages.configLoadError'],
+  ['Plugin config update failed:', 'plugin.messages.configSaveError'],
+  ['Plugin upload failed:', 'plugin.messages.uploadError'],
+  ['Plugin delete failed:', 'plugin.messages.deleteError'],
+  ['Send failed:', 'mailTemplate.messages.sendFailed'],
+  ['插件安装失败：', 'plugin.messages.installError'],
+  ['插件卸载失败：', 'plugin.messages.uninstallError'],
+  ['插件升级失败：', 'plugin.messages.upgradeError'],
+  ['插件启用失败：', 'plugin.messages.enableError'],
+  ['插件禁用失败：', 'plugin.messages.disableError'],
+  ['获取配置失败：', 'plugin.messages.configLoadError'],
+  ['配置更新失败：', 'plugin.messages.configSaveError'],
+  ['插件上传失败：', 'plugin.messages.uploadError'],
+  ['插件删除失败：', 'plugin.messages.deleteError'],
+  ['发送失败:', 'mailTemplate.messages.sendFailed'],
+]
 
 function extractMessage(error: unknown): string {
   if (error instanceof Error) return error.message
@@ -148,6 +205,9 @@ export function resolveApiError(error: unknown, t: TranslateFn, fallback?: strin
   if (!raw) return fallback ?? t('common.error')
   const key = MESSAGE_MAP[raw]
   if (key) return t(key)
+  for (const [prefix, i18nKey] of MESSAGE_PREFIX_MAP) {
+    if (raw.startsWith(prefix)) return t(i18nKey)
+  }
   return raw
 }
 

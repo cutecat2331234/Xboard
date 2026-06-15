@@ -50,6 +50,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
   "machine": {
     "title": "Управление серверами",
     "description": "Просматривайте состояние сервера, нагрузку и размещённые узлы, а также запускайте операции с узлами из операционного представления.",
+    "messages": {
+      "notFound": "Серверная машина не найдена"
+    },
     "columns": {
       "id": "ID",
       "name": "Имя сервера",
@@ -403,7 +406,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "uploadSuccess": "Плагин загружен",
       "uploadError": "Ошибка загрузки плагина",
       "deleteSuccess": "Плагин удален",
-      "deleteError": "Ошибка удаления плагина"
+      "deleteError": "Ошибка удаления плагина",
+      "disableBeforeUninstall": "Сначала отключите плагин перед удалением",
+      "coreDeleteForbidden": "Системные плагины нельзя удалить"
     }
   },
   "group": {
@@ -886,7 +891,18 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "filtered_by_server": "Сейчас показаны узлы сервера {{server}} (SID:{{id}})",
       "filtered_by_server_description": "Новые узлы здесь можно сразу привязать к текущему серверу.",
       "add_node_to_server": "Добавить узел на этот сервер",
-      "clear_server_filter": "Сбросить фильтр сервера"
+      "clear_server_filter": "Сбросить фильтр сервера",
+      "messages": {
+        "notFound": "Узел не найден",
+        "selectDelete": "Выберите узлы для удаления",
+        "batchDeleteFailed": "Не удалось выполнить пакетное удаление",
+        "resetFailed": "Не удалось сбросить трафик",
+        "selectReset": "Выберите узлы для сброса трафика",
+        "batchResetFailed": "Не удалось выполнить пакетный сброс",
+        "selectUpdate": "Выберите узлы для обновления",
+        "noUpdatableFields": "Нет полей для обновления",
+        "batchUpdateFailed": "Не удалось выполнить пакетное обновление"
+      }
     },
     "columns": {
       "sort": "Сортировка",
@@ -2535,6 +2551,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "discard_description": "В этом шаблоне есть несохранённые изменения. При переключении вкладки они будут потеряны.",
       "discard_confirm": "Отменить изменения",
       "cancel": "Отмена"
+    }
+  },
+  "mailTemplate": {
+    "messages": {
+      "notFound": "Шаблон письма не найден",
+      "sendFailed": "Не удалось отправить тестовое письмо"
     }
   },
   "sidebar": {

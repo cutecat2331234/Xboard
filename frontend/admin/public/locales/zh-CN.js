@@ -50,6 +50,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   "machine": {
     "title": "服务器管理",
     "description": "用于查看服务器健康、负载与承载节点，并从运维视角快捷发起节点操作。",
+    "messages": {
+      "notFound": "服务器不存在"
+    },
     "columns": {
       "id": "ID",
       "name": "服务器名称",
@@ -408,7 +411,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "uploadSuccess": "插件上传成功",
       "uploadError": "插件上传失败",
       "deleteSuccess": "插件删除成功",
-      "deleteError": "插件删除失败"
+      "deleteError": "插件删除失败",
+      "disableBeforeUninstall": "请先禁用插件后再卸载",
+      "coreDeleteForbidden": "该插件为系统核心插件，不允许删除"
     }
   },
   "group": {
@@ -868,7 +873,18 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "filtered_by_server": "当前正在查看服务器 {{server}} (SID:{{id}}) 下的节点",
       "filtered_by_server_description": "在这里新增节点时，可以直接复用当前服务器作为部署目标。",
       "add_node_to_server": "新增节点到此服务器",
-      "clear_server_filter": "清除服务器筛选"
+      "clear_server_filter": "清除服务器筛选",
+      "messages": {
+        "notFound": "节点不存在",
+        "selectDelete": "请选择要删除的节点",
+        "batchDeleteFailed": "批量删除失败",
+        "resetFailed": "重置失败",
+        "selectReset": "请选择要重置的节点",
+        "batchResetFailed": "批量重置失败",
+        "selectUpdate": "请选择要更新的节点",
+        "noUpdatableFields": "没有可更新的字段",
+        "batchUpdateFailed": "批量更新失败"
+      }
     },
     "columns": {
       "sort": "排序",
@@ -2612,6 +2628,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "discard_description": "当前模板有未保存的修改，切换标签页将丢失这些修改。",
       "discard_confirm": "丢弃修改",
       "cancel": "取消"
+    }
+  },
+  "mailTemplate": {
+    "messages": {
+      "notFound": "模板不存在",
+      "sendFailed": "发送失败"
     }
   },
   "sidebar": {
