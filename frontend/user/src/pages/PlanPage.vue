@@ -57,6 +57,7 @@ function capacityLabel(p: PlanItem) {
     if (/sold\s*out|售罄/i.test(limit)) return t('errors.planSoldOut')
     const parsed = Number(limit.replace(/[^\d.-]/g, ''))
     if (Number.isFinite(parsed) && parsed <= 0) return t('errors.planSoldOut')
+    if (Number.isFinite(parsed) && parsed > 0) return t('plan.capacityRemaining', { count: parsed })
     return limit
   }
   if (typeof limit === 'number' && limit <= 0) return t('errors.planSoldOut')
@@ -64,7 +65,15 @@ function capacityLabel(p: PlanItem) {
 }
 
 function capacityTagType(p: PlanItem): 'error' | 'default' {
-  return typeof p.capacity_limit === 'string' ? 'error' : 'default'
+  const limit = p.capacity_limit
+  if (limit === null || limit === undefined) return 'default'
+  if (typeof limit === 'string') {
+    if (/sold\s*out|售罄/i.test(limit)) return 'error'
+    const parsed = Number(limit.replace(/[^\d.-]/g, ''))
+    if (Number.isFinite(parsed) && parsed <= 0) return 'error'
+    return 'default'
+  }
+  return limit <= 0 ? 'error' : 'default'
 }
 
 function isTryOutPlan(planId: number) {

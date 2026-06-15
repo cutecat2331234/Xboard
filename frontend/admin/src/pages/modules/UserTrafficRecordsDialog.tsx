@@ -24,15 +24,7 @@ type TrafficRecordRow = {
   record_at?: number
 }
 
-function formatBytes(n?: number) {
-  if (!n) return '0 B'
-  const gb = n / 1073741824
-  if (gb >= 1) return `${gb.toFixed(2)} GB`
-  const mb = n / 1048576
-  if (mb >= 1) return `${mb.toFixed(2)} MB`
-  const kb = n / 1024
-  return `${kb.toFixed(2)} KB`
-}
+import { formatAdminBytes } from '@/lib/format-bytes'
 
 type Props = {
   userId?: number
@@ -87,7 +79,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
         header: () => t('traffic.trafficRecord.upload'),
         cell: ({ row }) => {
           const rate = Number(row.original.server_rate) || 1
-          return formatBytes((row.original.u ?? 0) / rate)
+          return formatAdminBytes(t, (row.original.u ?? 0) / rate)
         },
       },
       {
@@ -95,7 +87,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
         header: () => t('traffic.trafficRecord.download'),
         cell: ({ row }) => {
           const rate = Number(row.original.server_rate) || 1
-          return formatBytes((row.original.d ?? 0) / rate)
+          return formatAdminBytes(t, (row.original.d ?? 0) / rate)
         },
       },
       {
@@ -109,7 +101,7 @@ export function UserTrafficRecordsDialog({ userId, email, open, onOpenChange }: 
         header: () => t('traffic.trafficRecord.total'),
         cell: ({ row }) => {
           const rate = Number(row.original.server_rate) || 1
-          return formatBytes(((row.original.u ?? 0) + (row.original.d ?? 0)) / rate)
+          return formatAdminBytes(t, ((row.original.u ?? 0) + (row.original.d ?? 0)) / rate)
         },
       },
     ],

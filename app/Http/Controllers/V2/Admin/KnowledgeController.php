@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\KnowledgeSave;
 use App\Http\Requests\Admin\KnowledgeSort;
 use App\Models\Knowledge;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -21,10 +22,24 @@ class KnowledgeController extends Controller
             }
             return $this->success($knowledge->toArray());
         }
-        $data = Knowledge::select(['title', 'id', 'updated_at', 'category', 'show'])
-            ->orderBy('sort', 'ASC')
-            ->get();
-        return $this->success($data);
+        $query = Knowledge::select(['title', 'id', 'updated_at', 'category', 'show'])
+            ->orderBy('sort', 'ASC');
+
+        if ($request->filled('title')) {
+            $title = (string) $request->input('title');
+            $query->where('title', 'like', '%' . $title . '%');
+        }
+
+        if ($request->filled('current') || $request->filled('pageSize')) {
+            [$current, $pageSize] = Helper::paginateParams(
+                $request->input('current'),
+                $request->input('pageSize', 20)
+            );
+
+            return $this->paginate($query->paginate($pageSize, ['*'], 'page', $current));
+        }
+
+        return $this->success($query->limit(500)->get());
     }
 
     public function getCategory(Request $request)

@@ -88,6 +88,7 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
 import { i18n } from '@/lib/i18n'
+import { formatAdminBytes } from '@/lib/format-bytes'
 
 import {
 
@@ -123,15 +124,8 @@ function formatFailedAt(value?: string | number) {
 }
 
 
-
 function formatBytes(n?: number) {
-  if (!n) return `0 ${i18n.t('common.units.b')}`
-  const gb = n / 1073741824
-  if (gb >= 1) return `${gb.toFixed(2)} ${i18n.t('common.units.gb')}`
-  const mb = n / 1048576
-  if (mb >= 1) return `${mb.toFixed(2)} ${i18n.t('common.units.mb')}`
-  const kb = n / 1024
-  return `${kb.toFixed(2)} ${i18n.t('common.units.kb')}`
+  return formatAdminBytes(i18n.t.bind(i18n), n)
 }
 
 

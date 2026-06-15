@@ -14,6 +14,7 @@ import {
   postJson,
   type PaginatedResult,
 } from '@/lib/api'
+import { formatAdminBytes } from '@/lib/format-bytes'
 import {
   dialogCompactInputCls,
   dialogFieldInputCls,
@@ -208,17 +209,6 @@ function loadColumnVisibility(): VisibilityState {
 }
 
 const TRAFFIC_GB = 1024 * 1024 * 1024
-
-function formatBytes(n?: number | null) {
-  if (!n) return '0 B'
-  const gb = n / TRAFFIC_GB
-  if (gb >= 1) return `${gb.toFixed(2)} GB`
-  const mb = n / 1048576
-  if (mb >= 1) return `${mb.toFixed(2)} MB`
-  const kb = n / 1024
-  if (kb >= 1) return `${kb.toFixed(2)} KB`
-  return `${n} B`
-}
 
 function bytesToTrafficGb(bytes?: number | null) {
   if (!bytes) return ''
@@ -844,13 +834,13 @@ export default function UserPage() {
         id: 'used_traffic',
         accessorKey: 'total_used',
         header: () => sortHeader('total_used', t('user.columns.used_traffic')),
-        cell: ({ row }) => formatBytes(row.original.total_used),
+        cell: ({ row }) => formatAdminBytes(t, row.original.total_used),
       },
       {
         id: 'total_traffic',
         accessorKey: 'transfer_enable',
         header: () => sortHeader('transfer_enable', t('user.columns.total_traffic')),
-        cell: ({ row }) => formatBytes(row.original.transfer_enable),
+        cell: ({ row }) => formatAdminBytes(t, row.original.transfer_enable),
       },
       {
         accessorKey: 'balance',
