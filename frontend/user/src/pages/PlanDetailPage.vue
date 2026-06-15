@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NCard, NButton, NInput, NRadioGroup, NRadio, NAlert, NTag, NSpin, useMessage, useDialog } from 'naive-ui'
 import { fetchPlanById, PERIOD_OPTIONS, type PlanItem } from '@/api/plan'
-import { saveOrder, cancelOrder, fetchOrders } from '@/api/order'
+import { saveOrder, cancelOrder, fetchFirstBlockingOrder } from '@/api/order'
 import { resolveTryOutPlanId } from '@/api/comm'
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { checkCoupon } from '@/api/coupon'
@@ -122,8 +122,7 @@ watch(period, () => {
 })
 
 async function ensureNoPendingOrder() {
-  const orders = await fetchOrders()
-  const blocking = orders.find((o) => o.status === 0 || o.status === 1)
+  const blocking = await fetchFirstBlockingOrder()
   if (!blocking) return true
   if (blocking.status === 1) {
     msg.warning(t('plan.processingOrderDesc'))

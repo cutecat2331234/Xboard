@@ -2674,6 +2674,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   "payment": {
     "title": "支付配置",
     "description": "在这里可以配置支付方式，包括支付宝、微信等。",
+    "delete": {
+      "pendingOrders": "该支付方式仍有待支付或处理中的订单，无法删除"
+    },
     "table": {
       "columns": {
         "id": "ID",

@@ -25,6 +25,9 @@ const router = useRouter()
 const dialog = useDialog()
 const rows = ref<TicketItem[]>([])
 const loading = ref(false)
+const page = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
 const creating = ref(false)
 const showCreate = ref(false)
 const subject = ref('')
@@ -58,12 +61,25 @@ function ticketStatusLabel(row: TicketItem) {
 async function load() {
   loading.value = true
   try {
-    rows.value = await fetchTickets()
+    const res = await fetchTickets(page.value, pageSize.value)
+    rows.value = res.data ?? []
+    total.value = res.total ?? 0
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
     loading.value = false
   }
+}
+
+function onPageChange(p: number) {
+  page.value = p
+  void load()
+}
+
+function onPageSizeChange(size: number) {
+  pageSize.value = size
+  page.value = 1
+  void load()
 }
 
 async function create() {
@@ -167,7 +183,23 @@ onMounted(load)
       <n-button type="primary" round size="small" @click="showCreate = true">{{ t('ticket.new') }}</n-button>
     </template>
     <n-empty v-if="!loading && rows.length === 0" :description="t('ticket.empty')" />
-    <n-data-table v-else :columns="columns" :data="rows" :loading="loading" :scroll-x="800" />
+    <n-data-table
+      v-else
+      remote
+      :columns="columns"
+      :data="rows"
+      :loading="loading"
+      :scroll-x="800"
+      :pagination="{
+        page,
+        pageSize,
+        itemCount: total,
+        showSizePicker: true,
+        pageSizes: [10, 20, 50],
+        onUpdatePage: onPageChange,
+        onUpdatePageSize: onPageSizeChange,
+      }"
+    />
   </n-card>
 
   <n-modal v-model:show="showCreate" preset="card" :title="t('ticket.new')" style="width: 600px">

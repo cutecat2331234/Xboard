@@ -11,8 +11,13 @@ export interface TicketItem {
   message?: { id: number; message: string; created_at: number; is_me: boolean }[]
 }
 
-export async function fetchTickets() {
-  return request<TicketItem[]>(api.get('/user/ticket/fetch'))
+export async function fetchTickets(page = 1, pageSize = 20) {
+  return request<{
+    data: TicketItem[]
+    total: number
+    current_page: number
+    page_size: number
+  }>(api.get('/user/ticket/fetch', { params: { current: page, page_size: pageSize } }))
 }
 
 export async function fetchTicketById(id: number) {

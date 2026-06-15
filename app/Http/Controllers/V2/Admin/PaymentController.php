@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V2\Admin;
 
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Payment;
 use App\Services\PaymentService;
 use App\Utils\Helper;
@@ -101,8 +102,15 @@ class PaymentController extends Controller
     public function drop(Request $request)
     {
         $payment = Payment::find($request->input('id'));
-        if (!$payment)
+        if (!$payment) {
             return $this->fail([400202, '支付方式不存在']);
+        }
+        $pendingOrders = Order::where('payment_id', $payment->id)
+            ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+            ->count();
+        if ($pendingOrders > 0) {
+            return $this->fail([400, '该支付方式仍有待支付或处理中的订单，无法删除']);
+        }
         return $this->success($payment->delete());
     }
 

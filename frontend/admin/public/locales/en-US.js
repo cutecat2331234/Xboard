@@ -2648,6 +2648,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   "payment": {
     "title": "Payment Configuration",
     "description": "Configure payment methods including Alipay, WeChat Pay, etc.",
+    "delete": {
+      "pendingOrders": "Cannot delete: pending or processing orders still use this payment method"
+    },
     "table": {
       "columns": {
         "id": "ID",

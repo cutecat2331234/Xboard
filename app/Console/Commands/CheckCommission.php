@@ -171,7 +171,10 @@ class CheckCommission extends Command
         CommissionLog::query()
             ->where('trade_no', 'like', 'giftcard:%')
             ->whereNull('credited_at')
-            ->where('get_amount', '>', 0)
+            ->where(function ($query) {
+                $query->where('get_amount', '>', 0)
+                    ->orWhere('order_amount', '>', 0);
+            })
             ->where('created_at', '<=', $cutoff)
             ->orderBy('id')
             ->lazyById(200)
@@ -185,17 +188,21 @@ class CheckCommission extends Command
 
                         $invitee = User::find($entry->user_id);
                         if (!$invitee || !$this->validateCommissionChain($invitee->invite_user_id)) {
-                            $entry->update(['credited_at' => time()]);
+                            $entry->update(['credited_at' => time(), 'get_amount' => 0, 'order_amount' => 0]);
                             return;
                         }
 
                         $inviter = User::where('id', $entry->invite_user_id)->lockForUpdate()->first();
                         if (!$inviter || $inviter->banned) {
-                            $entry->update(['credited_at' => time()]);
+                            $entry->update(['credited_at' => time(), 'get_amount' => 0, 'order_amount' => 0]);
                             return;
                         }
 
-                        GiftCardService::creditCommissionToInviter($inviter, (int) $entry->get_amount);
+                        if ((int) $entry->get_amount > 0) {
+                            GiftCardService::creditCommissionToInviter($inviter, (int) $entry->get_amount);
+                        } elseif ((int) $entry->order_amount > 0) {
+                            GiftCardService::creditTrafficToInviter($inviter, (int) $entry->order_amount);
+                        }
                         $entry->update(['credited_at' => time()]);
                     });
                 } catch (\Throwable $e) {
