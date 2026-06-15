@@ -24,6 +24,12 @@ import {
 
   Users,
 
+  Wifi,
+
+  MonitorSmartphone,
+
+  ServerCog,
+
 } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
@@ -508,6 +514,30 @@ export default function DashboardPage() {
 
         />
 
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          title={t('dashboard.stats.onlineUsers')}
+          value={String(stats.onlineUsers ?? 0)}
+          subtitle={t('dashboard.stats.realtimeUsers')}
+          icon={Wifi}
+          iconClassName="text-emerald-500"
+        />
+        <StatCard
+          title={t('dashboard.stats.onlineDevices')}
+          value={String(stats.onlineDevices ?? 0)}
+          subtitle={t('dashboard.stats.vsLastWeek')}
+          icon={MonitorSmartphone}
+          iconClassName="text-blue-500"
+        />
+        <StatCard
+          title={t('dashboard.stats.onlineNodes')}
+          value={String(stats.onlineNodes ?? 0)}
+          subtitle={t('dashboard.stats.todayPeak')}
+          icon={ServerCog}
+          iconClassName="text-amber-500"
+        />
       </div>
 
       <Card className="rounded-xl border bg-card text-card-foreground shadow">
@@ -1166,7 +1196,7 @@ function FailedJobsDialog({
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
-                {t('common.pagination.previous')}
+                {t('common.table.pagination.previousPage')}
               </Button>
 
               <Button
@@ -1176,7 +1206,7 @@ function FailedJobsDialog({
                 disabled={page >= pageCount}
                 onClick={() => setPage((p) => p + 1)}
               >
-                {t('common.pagination.next')}
+                {t('common.table.pagination.nextPage')}
               </Button>
 
             </div>

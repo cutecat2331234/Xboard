@@ -676,6 +676,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "todayRegistered": "Today Registered",
       "monthlyRegistered": "Monthly Registered",
       "onlineUsers": "Online Users",
+      "onlineDevices": "Online Devices",
+      "onlineNodes": "Online Nodes",
       "pendingTickets": "Pending Tickets",
       "hasPendingTickets": "There are tickets that need attention",
       "noPendingTickets": "No pending tickets",
@@ -796,6 +798,33 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "empty": "No jobs in queue",
       "loading": "Loading queue status...",
       "error": "Failed to load queue status"
+    },
+    "systemStatus": {
+      "title": "System Status",
+      "schedule": "Scheduler",
+      "scheduleLastRun": "Last run: {{time}}",
+      "horizon": "Horizon",
+      "horizonHint": "Queue worker health"
+    },
+    "queueWorkload": {
+      "title": "Queue Workload",
+      "description": "Pending jobs and worker load per queue",
+      "empty": "No queue workload data",
+      "summary": "Wait {{wait}}s · {{processes}} workers"
+    },
+    "auditLog": {
+      "title": "Admin Audit Log",
+      "description": "Recent admin API actions",
+      "keywordPlaceholder": "Search action, URI, IP…",
+      "columns": {
+        "id": "ID",
+        "admin": "Admin",
+        "action": "Action",
+        "method": "Method",
+        "uri": "URI",
+        "ip": "IP",
+        "time": "Time"
+      }
     },
     "common": {
       "refresh": "Refresh",

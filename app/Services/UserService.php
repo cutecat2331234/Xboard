@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Jobs\StatServerJob;
 use App\Jobs\StatUserJob;
 use App\Jobs\TrafficFetchJob;
+use App\Exceptions\ApiException;
 use App\Models\Order;
 use App\Models\Plan;
 use App\Models\Server;
@@ -219,8 +220,14 @@ class UserService
     private function setPlanForUser(User $user, int $planId, ?int $expiredAt = null): void
     {
         $plan = Plan::find($planId);
-        if (!$plan)
+        if (!$plan) {
             return;
+        }
+
+        if ((int) ($user->plan_id ?? 0) !== (int) $plan->id
+            && !(new PlanService($plan))->hasCapacity($plan)) {
+            throw new ApiException(__('Current product is sold out'));
+        }
 
         $user->plan_id = $plan->id;
         $user->group_id = $plan->group_id;
@@ -293,6 +300,10 @@ class UserService
 
         $plan = Plan::find(admin_setting('try_out_plan_id'));
         if (!$plan) {
+            return;
+        }
+
+        if (!(new PlanService($plan))->hasCapacity($plan)) {
             return;
         }
 

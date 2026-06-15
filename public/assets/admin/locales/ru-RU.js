@@ -668,6 +668,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "todayRegistered": "Зарегистрировано сегодня",
       "monthlyRegistered": "Зарегистрировано за месяц",
       "onlineUsers": "Онлайн",
+      "onlineDevices": "Устройств онлайн",
+      "onlineNodes": "Узлов онлайн",
       "pendingTickets": "Открытых тикетов",
       "hasPendingTickets": "Есть тикеты, требующие ответа",
       "noPendingTickets": "Нет открытых тикетов",
@@ -788,6 +790,33 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "empty": "Задач не найдено",
       "loading": "Загрузка статуса очередей...",
       "error": "Ошибка загрузки статуса"
+    },
+    "systemStatus": {
+      "title": "Состояние системы",
+      "schedule": "Планировщик",
+      "scheduleLastRun": "Последний запуск: {{time}}",
+      "horizon": "Horizon",
+      "horizonHint": "Состояние очередей"
+    },
+    "queueWorkload": {
+      "title": "Нагрузка очередей",
+      "description": "Ожидающие задачи и число worker по очередям",
+      "empty": "Нет данных о нагрузке",
+      "summary": "Ожидание {{wait}} с · {{processes}} worker"
+    },
+    "auditLog": {
+      "title": "Журнал действий админа",
+      "description": "Последние API-действия администраторов",
+      "keywordPlaceholder": "Поиск по действию, URI, IP…",
+      "columns": {
+        "id": "ID",
+        "admin": "Админ",
+        "action": "Действие",
+        "method": "Метод",
+        "uri": "URI",
+        "ip": "IP",
+        "time": "Время"
+      }
     },
     "common": {
       "refresh": "Обновить",
@@ -1814,6 +1843,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "withdraw_close": {
         "title": "Отключить вывод средств",
         "description": "Если включено, пользователи не могут запрашивать вывод, комиссия идет сразу на баланс."
+      },
+      "withdraw_ticket_stale_days": {
+        "title": "Дней до автозакрытия тикета вывода",
+        "description": "Тикеты вывода без ответа админа столько дней автоматически закрываются с возвратом комиссии.",
+        "placeholder": "Дней до автовосстановления (по умолчанию 14)"
       },
       "withdraw_fee_rate": {
         "title": "Комиссия за вывод / перевод",

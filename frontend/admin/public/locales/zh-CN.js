@@ -679,6 +679,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "todayRegistered": "今日注册",
       "monthlyRegistered": "月注册",
       "onlineUsers": "在线用户",
+      "onlineDevices": "在线设备",
+      "onlineNodes": "在线节点",
       "pendingTickets": "待处理工单",
       "hasPendingTickets": "有工单需要处理",
       "noPendingTickets": "无待处理工单",
@@ -799,6 +801,33 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "empty": "队列中暂无作业",
       "loading": "正在加载队列状态...",
       "error": "加载队列状态失败"
+    },
+    "systemStatus": {
+      "title": "系统状态",
+      "schedule": "计划任务",
+      "scheduleLastRun": "上次运行：{{time}}",
+      "horizon": "Horizon 队列",
+      "horizonHint": "队列 worker 健康状态"
+    },
+    "queueWorkload": {
+      "title": "队列负载",
+      "description": "各队列待处理任务与 worker 数量",
+      "empty": "暂无队列负载数据",
+      "summary": "等待 {{wait}} 秒 · {{processes}} 个 worker"
+    },
+    "auditLog": {
+      "title": "管理操作审计",
+      "description": "最近的管理员 API 操作记录",
+      "keywordPlaceholder": "搜索操作、URI、IP…",
+      "columns": {
+        "id": "ID",
+        "admin": "管理员",
+        "action": "操作",
+        "method": "方法",
+        "uri": "URI",
+        "ip": "IP",
+        "time": "时间"
+      }
     },
     "common": {
       "refresh": "刷新",

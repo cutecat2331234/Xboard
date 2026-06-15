@@ -102,20 +102,20 @@ export default {
     tryOutHint: "Gói dùng thử đăng ký. Người dùng mới nhận dùng thử tự động; bạn cũng có thể mua tại đây."
   },
   node: {
-    alert: "No access points are available. If you have not subscribed or the subscription has expired, please",
-    empty: "No access points are available. If you have not subscribed or the subscription has expired, please subscribe.",
+    alert: "Không có node khả dụng. Nếu bạn chưa đăng ký hoặc đã hết hạn, vui lòng",
+    empty: "Không có node khả dụng. Nếu bạn chưa đăng ký hoặc đã hết hạn, vui lòng đăng ký.",
     emptyPrefix: "Không có node khả dụng. Nếu bạn chưa đăng ký hoặc đã hết hạn, vui lòng ",
     emptySuffix: ".",
     subscribe: "Đăng ký",
     name: "Tên",
-    type: "Type",
+    type: "Loại",
     rate: "Bội số",
     status: "Trạng thái",
     statusHint: "Trạng thái online của node trong 5 phút qua",
     rateHint: "Lưu lượng sử dụng sẽ được nhân với bội số trước khi khấu trừ",
     tags: "Nhãn",
-    online: "Online",
-    offline: "Offline"
+    online: "Trực tuyến",
+    offline: "Ngoại tuyến"
   },
   knowledge: {
     searchPh: "Tìm kiếm tài liệu…",
@@ -428,8 +428,7 @@ export default {
     description: "Mô tả",
     inviteRewards: "Phần thưởng người mời",
     multiplier: "Hệ số",
-    historyEmpty: "Chưa có lịch sử đổi thưởng",
-    mysteryPreview: "Phần thưởng ngẫu nhiên ({count} mục trong pool — hiển thị sau khi đổi)"
+    historyEmpty: "Chưa có lịch sử đổi thưởng"
   },
   profile: {
     telegramUnbindConfirm: "Hủy liên kết Telegram? Bạn cần gửi /bind cho bot để liên kết lại.",

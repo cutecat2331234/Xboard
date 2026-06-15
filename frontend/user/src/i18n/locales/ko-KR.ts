@@ -427,8 +427,7 @@ export default {
     description: "설명",
     inviteRewards: "초청자 보상",
     multiplier: "배율",
-    historyEmpty: "교환 기록이 없습니다",
-    mysteryPreview: "랜덤 보상 (풀 {count}개 — 교환 후 공개)"
+    historyEmpty: "교환 기록이 없습니다"
   },
   profile: {
     telegramUnbindConfirm: "Telegram 계정 연동을 해제하시겠습니까? 봇에 /bind 를 다시 보내야 합니다.",

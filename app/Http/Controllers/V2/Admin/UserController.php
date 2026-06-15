@@ -19,8 +19,10 @@ use App\Models\User;
 use App\Services\AuthService;
 use App\Jobs\NodeUserSyncJob;
 use App\Services\Plugin\HookManager;
+use App\Services\PlanService;
 use App\Services\TicketService;
 use App\Services\UserService;
+use App\Support\CommissionChain;
 use App\Support\InviteChain;
 use App\Traits\QueryOperators;
 use App\Traits\SafeQueryColumns;
@@ -326,7 +328,25 @@ class UserController extends Controller
             if (!$plan) {
                 return $this->fail([400202, '订阅计划不存在']);
             }
+            if ((int) $params['plan_id'] !== (int) $user->plan_id
+                && !(new PlanService($plan))->hasCapacity($plan)) {
+                return $this->fail([400, __('Current product is sold out')]);
+            }
             $params['group_id'] = $plan->group_id;
+        }
+
+        $actor = $request->user();
+        if (array_key_exists('is_admin', $params) || array_key_exists('is_staff', $params)) {
+            if (!$actor || (int) $actor->id !== 1) {
+                unset($params['is_admin'], $params['is_staff']);
+            } elseif (array_key_exists('is_admin', $params) && !(int) $params['is_admin']) {
+                if ((int) $user->id === (int) $actor->id) {
+                    $adminCount = User::where('is_admin', 1)->where('banned', 0)->count();
+                    if ($adminCount <= 1) {
+                        unset($params['is_admin']);
+                    }
+                }
+            }
         }
         // 处理邀请用户（仅当请求显式携带 invite_user_email 时才更新）
         if ($request->exists('invite_user_email')) {
