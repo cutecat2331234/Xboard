@@ -146,5 +146,17 @@
     "traffic_reset.source.gift_card": "Активация подарочной карты",
     "traffic_reset.reset_success": "Трафик успешно сброшен",
     "traffic_reset.reset_failed": "Ошибка сброса трафика, подробности в логах",
-    "traffic_reset.user_cannot_reset": "Пользователь не может сбросить трафик (аккаунт не активен или нет действующего тарифа)"
+    "traffic_reset.user_cannot_reset": "Пользователь не может сбросить трафик (аккаунт не активен или нет действующего тарифа)",
+    "Create failed": "Не удалось создать",
+    "Delete failed": "Не удалось удалить",
+    "Cannot delete plan with existing orders": "Нельзя удалить тариф: есть связанные заказы",
+    "Cannot delete plan with assigned users": "Нельзя удалить тариф: к нему привязаны пользователи",
+    "Balance cannot be negative": "Баланс не может быть отрицательным",
+    "Commission balance cannot be negative": "Комиссионный баланс не может быть отрицательным",
+    "Pending withdrawal ticket blocks commission balance edit": "Незавершённая заявка на вывод блокирует изменение комиссионного баланса",
+    "Inviter is banned and cannot be assigned": "Пригласивший заблокирован и не может быть назначен",
+    "User has a pending withdrawal ticket": "У пользователя есть незавершённая заявка на вывод. Сначала обработайте её.",
+    "User has a paid order being processed": "У пользователя есть оплаченный заказ в обработке. Дождитесь выполнения или возврата.",
+    "User still has balance or commission balance": "У пользователя остался баланс или комиссия. Обнулите их перед удалением.",
+    "Unable to cancel open orders for this user": "Не удалось отменить открытые заказы пользователя. Сначала обработайте заказы."
 }

@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Services\AuthService;
 use App\Jobs\NodeUserSyncJob;
 use App\Services\Plugin\HookManager;
+use App\Services\OrderService;
 use App\Services\PlanService;
 use App\Services\TicketService;
 use App\Services\UserService;
@@ -29,6 +30,7 @@ use App\Traits\SafeQueryColumns;
 use App\Utils\Helper;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -65,7 +67,7 @@ class UserController extends Controller
 
         $user = User::find($request->input('id'));
         if (!$user)
-            return $this->fail([400202, '用户不存在']);
+            return $this->fail([400202, __('The user does not exist')]);
         $user->token = Helper::guid();
         $user->uuid = Helper::guid(true);
         $result = $user->save();
@@ -297,7 +299,7 @@ class UserController extends Controller
         ]);
         $user = User::find($request->input('id'));
         if (!$user) {
-            return $this->fail([400202, '用户不存在']);
+            return $this->fail([400202, __('The user does not exist')]);
         }
         $user->load('invite_user');
         $user = HookManager::filter('admin.user.detail', $user, $request);
@@ -310,14 +312,8 @@ class UserController extends Controller
 
         $user = User::find($request->input('id'));
         if (!$user) {
-            return $this->fail([400202, '用户不存在']);
+            return $this->fail([400202, __('The user does not exist')]);
         }
-        if (isset($params['email'])) {
-            if (User::byEmail($params['email'])->first() && $user->email !== $params['email']) {
-                return $this->fail([400201, '邮箱已被使用']);
-            }
-        }
-        // 处理密码
         if (isset($params['password'])) {
             $params['password'] = password_hash($params['password'], PASSWORD_DEFAULT);
             $params['password_algo'] = NULL;
@@ -328,7 +324,7 @@ class UserController extends Controller
         if (isset($params['plan_id'])) {
             $plan = Plan::find($params['plan_id']);
             if (!$plan) {
-                return $this->fail([400202, '订阅计划不存在']);
+                return $this->fail([400202, __('Subscription plan does not exist')]);
             }
             if ((int) $params['plan_id'] !== (int) $user->plan_id
                 && !(new PlanService($plan))->hasCapacity($plan)) {
@@ -366,7 +362,7 @@ class UserController extends Controller
             $inviteEmail = trim((string) $request->input('invite_user_email'));
             if ($inviteEmail !== '' && ($inviteUser = User::byEmail($inviteEmail)->first())) {
                 if ($inviteUser->banned) {
-                    return $this->fail([400, '邀请人已被封禁，无法设置']);
+                    return $this->fail([400, __('Inviter is banned and cannot be assigned')]);
                 }
                 try {
                     InviteChain::assertValid((int) $user->id, (int) $inviteUser->id);
@@ -385,7 +381,7 @@ class UserController extends Controller
         }
         if (isset($params['balance'])) {
             if ((float) $request->input('balance') < 0) {
-                return $this->fail([422, '余额不能为负数']);
+                return $this->fail([422, __('Balance cannot be negative')]);
             }
             $params['balance'] = $params['balance'] * 100;
         }
@@ -396,10 +392,10 @@ class UserController extends Controller
                     ->where('level', 2)
                     ->exists()
             ) {
-                return $this->fail([422, '存在未完成的提现工单，无法修改佣金余额']);
+                return $this->fail([422, __('Pending withdrawal ticket blocks commission balance edit')]);
             }
             if ((float) $request->input('commission_balance') < 0) {
-                return $this->fail([422, '佣金余额不能为负数']);
+                return $this->fail([422, __('Commission balance cannot be negative')]);
             }
             $params['commission_balance'] = $params['commission_balance'] * 100;
         }
@@ -418,21 +414,35 @@ class UserController extends Controller
                 if (!$user) {
                     throw new \RuntimeException('user_not_found');
                 }
+                if (isset($params['email']) && $params['email'] !== $user->email) {
+                    if (User::byEmail($params['email'])->where('id', '!=', $user->id)->exists()) {
+                        throw new \RuntimeException('email_taken');
+                    }
+                }
                 $user->update($params);
             });
         } catch (\RuntimeException $e) {
             if ($e->getMessage() === 'user_not_found') {
-                return $this->fail([400202, '用户不存在']);
+                return $this->fail([400202, __('The user does not exist')]);
+            }
+            if ($e->getMessage() === 'email_taken') {
+                return $this->fail([400201, __('Email already exists')]);
             }
             throw $e;
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'Duplicate')) {
+                return $this->fail([400201, __('Email already exists')]);
+            }
+            Log::error($e);
+            return $this->fail([500, __('Save failed')]);
         } catch (\Exception $e) {
             Log::error($e);
-            return $this->fail([500, '保存失败']);
+            return $this->fail([500, __('Save failed')]);
         }
 
         $user = User::find($request->input('id'));
         if (!$user) {
-            return $this->fail([400202, '用户不存在']);
+            return $this->fail([400202, __('The user does not exist')]);
         }
 
         HookManager::call('admin.user.update.after', [
@@ -866,14 +876,20 @@ class UserController extends Controller
             'id.required' => '用户ID不能为空',
             'id.exists' => '用户不存在'
         ]);
-        $user = User::find($request->input('id'));
+        $userId = (int) $request->input('id');
+        $userPreview = User::find($userId);
         HookManager::call('admin.user.destroy.before', [
-            'user' => $user,
+            'user' => $userPreview,
             'request' => $request,
         ]);
 
         try {
             DB::beginTransaction();
+            $user = User::where('id', $userId)->lockForUpdate()->first();
+            if (!$user) {
+                DB::rollBack();
+                return $this->fail([400202, __('The user does not exist')]);
+            }
             $userId = (int) $user->id;
             $pendingWithdraw = Ticket::where('user_id', $userId)
                 ->where('status', Ticket::STATUS_OPENING)
@@ -882,7 +898,7 @@ class UserController extends Controller
                 ->contains(fn (Ticket $ticket) => TicketService::isWithdrawTicket($ticket));
             if ($pendingWithdraw) {
                 DB::rollBack();
-                return $this->fail([400, '用户存在待处理的提现工单，请先处理后再删除']);
+                return $this->fail([400, __('User has a pending withdrawal ticket')]);
             }
             $processingPaidOrder = Order::where('user_id', $userId)
                 ->where('status', Order::STATUS_PROCESSING)
@@ -890,11 +906,11 @@ class UserController extends Controller
                 ->exists();
             if ($processingPaidOrder) {
                 DB::rollBack();
-                return $this->fail([400, '用户存在支付处理中的订单，请等待开通完成或退款后再删除']);
+                return $this->fail([400, __('User has a paid order being processed')]);
             }
             if ((int) $user->balance > 0 || (int) $user->commission_balance > 0) {
                 DB::rollBack();
-                return $this->fail([400, '用户仍有站内余额或佣金余额，请先清零后再删除']);
+                return $this->fail([400, __('User still has balance or commission balance')]);
             }
             $openOrders = Order::where('user_id', $userId)
                 ->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
@@ -907,7 +923,7 @@ class UserController extends Controller
                 $orderService = new OrderService($openOrder);
                 if (!$orderService->cancel()) {
                     DB::rollBack();
-                    return $this->fail([400, '无法取消用户未完成订单，请先处理订单后再删除']);
+                    return $this->fail([400, __('Unable to cancel open orders for this user')]);
                 }
             }
             $ticketIds = $user->tickets()->pluck('id');
@@ -942,7 +958,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e);
-            return $this->fail([500, '删除失败']);
+            return $this->fail([500, __('Delete failed')]);
         }
     }
 

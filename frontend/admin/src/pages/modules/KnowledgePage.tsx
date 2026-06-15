@@ -165,6 +165,11 @@ export default function KnowledgePage() {
     if (ok) load()
   }
 
+  function handleCancelSort() {
+    sort.cancelSort()
+    load()
+  }
+
   const columns = useMemo<ColumnDef<KnowledgeRow, unknown>[]>(
     () => [
       ...(sort.sortMode
@@ -256,12 +261,12 @@ export default function KnowledgePage() {
               <SortToolbar
                 sortMode={sort.sortMode}
                 saving={sort.sortSaving}
-                editLabel={t('knowledge.editSort')}
-                saveLabel={t('knowledge.saveSort')}
-                hint={sort.sortMode ? t('knowledge.sortModeHint') : undefined}
+                editLabel={t('knowledge.toolbar.editSort')}
+                saveLabel={t('knowledge.toolbar.saveSort')}
+                hint={sort.sortMode ? t('knowledge.toolbar.sortModeHint') : undefined}
                 onEdit={enterSortMode}
                 onSave={handleSaveSort}
-                onCancel={sort.cancelSort}
+                onCancel={handleCancelSort}
               />
               <Input
                 value={search}

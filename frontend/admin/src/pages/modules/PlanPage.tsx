@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
-import { fetchJsonList, postJson } from '@/lib/api'
+import { fetchJsonList, fetchPaginatedList, postJson } from '@/lib/api'
 import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 import {
   dialogFieldInputCls,
@@ -172,6 +172,9 @@ export default function PlanPage() {
   const [groups, setGroups] = useState<GroupRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const pageSize = 20
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<PlanRow | null>(null)
   const [form, setForm] = useState<PlanRow>(emptyPlan())
@@ -182,14 +185,27 @@ export default function PlanPage() {
 
   const load = useCallback(() => {
     setLoading(true)
-    Promise.all([fetchJsonList('/plan/fetch'), fetchJsonList('/server/group/fetch')])
-      .then(([plans, grps]) => {
-        setData(plans as PlanRow[])
+    Promise.all([
+      fetchPaginatedList<PlanRow>('/plan/fetch', {
+        current: page,
+        pageSize,
+        name: search.trim() || undefined,
+        with_counts: 1,
+      }),
+      fetchJsonList('/server/group/fetch'),
+    ])
+      .then(([plansRes, grps]) => {
+        setData(plansRes.data)
+        setTotal(plansRes.total ?? plansRes.data.length)
         setGroups(grps as GroupRow[])
       })
       .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
-  }, [t])
+  }, [page, pageSize, search, t])
+
+  const loadAll = useCallback(() => {
+    return fetchJsonList('/plan/fetch').then((rows) => rows as PlanRow[])
+  }, [])
 
   useEffect(() => {
     void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
@@ -309,17 +325,31 @@ export default function PlanPage() {
     setForm((f) => ({ ...f, prices: {} }))
   }
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return data
-    const q = search.toLowerCase()
-    return data.filter((row) => String(row.name ?? '').toLowerCase().includes(q))
-  }, [data, search])
+  const filtered = useMemo(() => data, [data])
 
   const sort = useIdListSort(filtered, '/plan/sort')
+
+  async function enterSortMode() {
+    setLoading(true)
+    try {
+      const rows = await loadAll()
+      setData(rows)
+      sort.enterSort(rows)
+    } catch (e) {
+      toastApiError(e, toast, t, t('common.error'))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   async function handleSaveSort() {
     const ok = await sort.saveSort()
     if (ok) load()
+  }
+
+  function handleCancelSort() {
+    sort.cancelSort()
+    load()
   }
 
   const columns = useMemo<ColumnDef<PlanRow, unknown>[]>(
@@ -468,19 +498,38 @@ export default function PlanPage() {
               saving={sort.sortSaving}
               editLabel={t('subscribe.plan.sort.edit')}
               saveLabel={t('subscribe.plan.sort.save')}
-              onEdit={sort.enterSort}
+              onEdit={enterSortMode}
               onSave={handleSaveSort}
-              onCancel={sort.cancelSort}
+              onCancel={handleCancelSort}
             />
             <Input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(1)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setPage(1)
+                  load()
+                }
+              }}
               placeholder={t('subscribe.plan.search')}
               className={`h-8 min-w-[150px] flex-1 sm:w-[150px] lg:w-[250px] ${inputCls}`}
               disabled={sort.sortMode}
             />
           </div>
-          <DataTable columns={columns} data={sort.displayRows} loading={loading} />
+          <DataTable
+            columns={columns}
+            data={sort.displayRows}
+            loading={loading}
+            pageSize={pageSize}
+            alwaysShowPagination={!sort.sortMode}
+            totalItems={total}
+            pageIndex={page - 1}
+            pageCount={Math.max(1, Math.ceil(total / pageSize))}
+            onPageIndexChange={(idx) => setPage(idx + 1)}
+          />
         </div>
       </div>
 
