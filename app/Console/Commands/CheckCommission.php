@@ -35,7 +35,23 @@ class CheckCommission extends Command
 
     public function autoCheck()
     {
-        if (!(int) admin_setting('commission_auto_check_enable', 1)) {
+        $autoCheckEnabled = (int) admin_setting('commission_auto_check_enable', 1);
+
+        if (!$autoCheckEnabled) {
+            Order::query()
+                ->where('commission_status', Order::COMMISSION_STATUS_PENDING)
+                ->whereNotNull('invite_user_id')
+                ->where('status', Order::STATUS_COMPLETED)
+                ->orderBy('id')
+                ->lazyById(200)
+                ->each(function (Order $order) {
+                    $status = $this->validateCommissionChain($order->invite_user_id)
+                        ? Order::COMMISSION_STATUS_VALID
+                        : Order::COMMISSION_STATUS_INVALID;
+                    Order::where('id', $order->id)
+                        ->where('commission_status', Order::COMMISSION_STATUS_PENDING)
+                        ->update(['commission_status' => $status]);
+                });
             return;
         }
 
@@ -150,11 +166,8 @@ class CheckCommission extends Command
 
     public function autoPayGiftCardCommission(): void
     {
-        if (!(int) admin_setting('commission_auto_check_enable', 1)) {
-            return;
-        }
-
-        $cutoff = strtotime('-3 day', time());
+        $holdEnabled = (int) admin_setting('commission_auto_check_enable', 1);
+        $cutoff = $holdEnabled ? strtotime('-3 day', time()) : time();
         CommissionLog::query()
             ->where('trade_no', 'like', 'giftcard:%')
             ->whereNull('credited_at')
@@ -253,7 +266,8 @@ class CheckCommission extends Command
                 'user_id' => $order->user_id,
                 'trade_no' => $order->trade_no,
                 'order_amount' => $this->orderAmount($order),
-                'get_amount' => $commissionBalance
+                'get_amount' => $commissionBalance,
+                'credited_at' => time(),
             ]);
             $inviteUserId = $inviter->invite_user_id;
             $order->actual_commission_balance = (int) $order->actual_commission_balance + $commissionBalance;
@@ -278,7 +292,8 @@ class CheckCommission extends Command
                     'user_id' => $order->user_id,
                     'trade_no' => $order->trade_no,
                     'order_amount' => $this->orderAmount($order),
-                    'get_amount' => $remaining
+                    'get_amount' => $remaining,
+                    'credited_at' => time(),
                 ]);
                 $order->actual_commission_balance = (int) $order->actual_commission_balance + $remaining;
                 $remaining = 0;
@@ -369,6 +384,7 @@ class CheckCommission extends Command
                 'trade_no' => $order->trade_no,
                 'order_amount' => $this->orderAmount($order),
                 'get_amount' => $payAmount,
+                'credited_at' => time(),
             ]);
             $order->actual_commission_balance = (int) $order->actual_commission_balance + $payAmount;
             $remainingBudget -= $payAmount;
@@ -396,6 +412,7 @@ class CheckCommission extends Command
                     'trade_no' => $order->trade_no,
                     'order_amount' => $this->orderAmount($order),
                     'get_amount' => $payAmount,
+                    'credited_at' => time(),
                 ]);
                 $order->actual_commission_balance = (int) $order->actual_commission_balance + $payAmount;
                 $remainingBudget = 0;

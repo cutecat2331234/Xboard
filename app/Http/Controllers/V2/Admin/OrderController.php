@@ -203,44 +203,54 @@ class OrderController extends Controller
             'commission_status'
         ]);
 
-        $order = Order::where('trade_no', $request->input('trade_no'))
-            ->first();
-        if (!$order) {
-            return $this->fail([400202, '订单不存在']);
-        }
-
-        if (
-            isset($params['commission_status'])
-            && (int) $params['commission_status'] === 2
-            && (int) $order->commission_status !== 2
-        ) {
-            return $this->fail([400, '佣金状态不可手动标记为已结算']);
-        }
-
-        if (
-            (int) $order->commission_status === 2
-            && isset($params['commission_status'])
-            && (int) $params['commission_status'] !== 2
-        ) {
-            return $this->fail([400, '已结算的佣金不可回退']);
-        }
-
-        if (
-            isset($params['commission_status'])
-            && (int) $params['commission_status'] === 1
-            && CommissionLog::where('trade_no', $order->trade_no)->exists()
-        ) {
-            return $this->fail([400, '该订单已有佣金记录，不可重新标记为待确认']);
-        }
-
         try {
-            $order->update($params);
+            return DB::transaction(function () use ($request, $params) {
+                $order = Order::where('trade_no', $request->input('trade_no'))
+                    ->lockForUpdate()
+                    ->first();
+                if (!$order) {
+                    return $this->fail([400202, '订单不存在']);
+                }
+
+                if (
+                    isset($params['commission_status'])
+                    && (int) $params['commission_status'] === 2
+                    && (int) $order->commission_status !== 2
+                ) {
+                    return $this->fail([400, '佣金状态不可手动标记为已结算']);
+                }
+
+                if (
+                    (int) $order->commission_status === 2
+                    && isset($params['commission_status'])
+                    && (int) $params['commission_status'] !== 2
+                ) {
+                    return $this->fail([400, '已结算的佣金不可回退']);
+                }
+
+                if (
+                    isset($params['commission_status'])
+                    && (int) $params['commission_status'] === 1
+                    && CommissionLog::where('trade_no', $order->trade_no)->exists()
+                ) {
+                    return $this->fail([400, '该订单已有佣金记录，不可重新标记为待确认']);
+                }
+
+                if (
+                    isset($params['commission_status'])
+                    && (int) $params['commission_status'] === 3
+                    && (int) $order->commission_status === 2
+                ) {
+                    return $this->fail([400, '已结算的佣金不可标记为无效']);
+                }
+
+                $order->update($params);
+                return $this->success(true);
+            });
         } catch (\Exception $e) {
             Log::error($e);
             return $this->fail([500, '更新失败']);
         }
-
-        return $this->success(true);
     }
 
     public function assign(OrderAssign $request)

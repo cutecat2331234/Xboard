@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ComissionLogResource;
 use App\Http\Resources\InviteCodeResource;
 use App\Models\CommissionLog;
+use App\Models\GiftCardUsage;
 use App\Models\InviteCode;
 use App\Models\Order;
 use App\Models\User;
@@ -100,7 +101,7 @@ class InviteController extends Controller
         if (!$user) {
             return $this->fail([400, __('The user does not exist')]);
         }
-        $user->load(['codes' => fn($query) => $query->where('status', 0)]);
+        $user->load(['codes' => fn ($query) => $query->orderByDesc('created_at')]);
         if ($user->commission_rate) {
             $commission_rate = $user->commission_rate;
         }
@@ -108,10 +109,21 @@ class InviteController extends Controller
         $commissionBalance = 0;
         $validCommission = 0;
         if (AppFeature::commissionEnabled()) {
-            $uncheck_commission_balance = (int) Order::where('status', Order::STATUS_COMPLETED)
-                ->whereIn('commission_status', [0, 1])
+            $pendingOrders = Order::where('status', Order::STATUS_COMPLETED)
+                ->whereIn('commission_status', [Order::COMMISSION_STATUS_PENDING, Order::COMMISSION_STATUS_VALID])
                 ->where('invite_user_id', $user->id)
-                ->sum('commission_balance');
+                ->get(['trade_no', 'commission_balance']);
+            $uncheck_commission_balance = 0;
+            foreach ($pendingOrders as $pendingOrder) {
+                $paid = (int) CommissionLog::where('trade_no', $pendingOrder->trade_no)->sum('get_amount');
+                $uncheck_commission_balance += max(0, (int) $pendingOrder->commission_balance - $paid);
+            }
+            $heldGiftCard = (int) CommissionLog::where('invite_user_id', $user->id)
+                ->where('trade_no', 'like', 'giftcard:%')
+                ->whereNull('credited_at')
+                ->where('get_amount', '>', 0)
+                ->sum('get_amount');
+            $uncheck_commission_balance += $heldGiftCard;
             if (admin_setting('commission_distribution_enable', 0)) {
                 $l1 = (int) admin_setting('commission_distribution_l1', 100);
                 $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));

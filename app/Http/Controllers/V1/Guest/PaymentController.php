@@ -235,6 +235,13 @@ class PaymentController extends Controller
                 ]);
                 return true;
             }
+            if (Cache::has(CacheKey::get('PAYMENT_ORPHAN_CREDIT_DONE', $order->trade_no))) {
+                Log::info('Payment notify: skipping orphan credit; already credited for terminal order', [
+                    'trade_no' => $order->trade_no,
+                    'callback_no' => $callbackNo,
+                ]);
+                return true;
+            }
             $this->creditOrphanPaymentOnce(
                 $order,
                 $callbackNo,
@@ -290,6 +297,7 @@ class PaymentController extends Controller
     private function markOrphanCreditProcessed(string $tradeNo, string $callbackNo): void
     {
         Cache::forever($this->orphanCreditCacheKey($tradeNo, $callbackNo), 1);
+        Cache::forever(CacheKey::get('PAYMENT_ORPHAN_CREDIT_DONE', $tradeNo), 1);
     }
 
     private function orphanCreditCacheKey(string $tradeNo, string $callbackNo): string
