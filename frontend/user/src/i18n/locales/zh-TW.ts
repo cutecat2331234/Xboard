@@ -239,6 +239,11 @@ export default {
     giftCardLimitReached: '您已達到此禮品卡的使用限制',
     giftCardQueryFailed: '查詢失敗，請稍後重試',
     giftCardUnavailable: '禮品卡功能未開啟',
+    messageTooLong: '訊息過長',
+    searchKeywordTooLong: '搜尋關鍵字過長',
+    planPeriodEmpty: '套餐週期不能為空',
+    recordIdRequired: '記錄ID不能為空',
+    commissionUpdateFailed: '更新佣金餘額失敗',
 },
   common: {
     loading: "載入中...",

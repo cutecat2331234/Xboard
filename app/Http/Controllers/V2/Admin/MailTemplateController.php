@@ -32,6 +32,11 @@ class MailTemplateController extends Controller
 
     public function get(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string',
+        ], [
+            'name.required' => __('Mail template name cannot be empty'),
+        ]);
         $name = $request->input('name');
         $meta = MailTemplate::getMeta($name);
         if (!$meta) {
@@ -84,6 +89,11 @@ class MailTemplateController extends Controller
 
     public function reset(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string',
+        ], [
+            'name.required' => __('Mail template name cannot be empty'),
+        ]);
         $name = $request->input('name');
         $meta = MailTemplate::getMeta($name);
         if (!$meta) {
@@ -97,6 +107,13 @@ class MailTemplateController extends Controller
 
     public function test(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'nullable|email',
+        ], [
+            'name.required' => __('Mail template name cannot be empty'),
+            'email.email' => __('Email format is invalid'),
+        ]);
         $name = $request->input('name');
         $meta = MailTemplate::getMeta($name);
         if (!$meta) {

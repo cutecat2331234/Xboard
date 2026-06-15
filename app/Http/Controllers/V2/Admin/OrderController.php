@@ -155,6 +155,7 @@ class OrderController extends Controller
             'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
         ], [
             'trade_no.required' => __('Trade number cannot be empty'),
+            'trade_no.exists' => __('Order does not exist'),
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -186,6 +187,7 @@ class OrderController extends Controller
             'trade_no' => 'required|string|max:64|exists:v2_order,trade_no',
         ], [
             'trade_no.required' => __('Trade number cannot be empty'),
+            'trade_no.exists' => __('Order does not exist'),
         ]);
 
         return DB::transaction(function () use ($request) {

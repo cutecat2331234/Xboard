@@ -241,6 +241,11 @@ export default {
     giftCardLimitReached: '您已达到此礼品卡的使用限制',
     giftCardQueryFailed: '查询失败，请稍后重试',
     giftCardUnavailable: '礼品卡功能未开启',
+    messageTooLong: '消息过长',
+    searchKeywordTooLong: '搜索关键词过长',
+    planPeriodEmpty: '套餐周期不能为空',
+    recordIdRequired: '记录ID不能为空',
+    commissionUpdateFailed: '更新佣金余额失败',
   },
   common: {
     loading: '加载中...',

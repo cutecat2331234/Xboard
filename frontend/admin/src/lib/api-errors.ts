@@ -212,6 +212,9 @@ const MESSAGE_MAP: Record<string, string> = {
   'Mystery box reward pool cannot be empty': 'giftCard.messages.createFailed',
   'Plan gift card must select a valid plan': 'giftCard.messages.createFailed',
   'Message is too long': 'ticket.messageRequired',
+  'Email suffix cannot be empty': 'common.error',
+  'Payment amount format is invalid': 'common.error',
+  'Commission status format is invalid': 'common.error',
 }
 
 const MESSAGE_PREFIX_MAP: Array<[string, string]> = [

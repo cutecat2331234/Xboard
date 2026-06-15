@@ -29,6 +29,8 @@ class OrderAssign extends FormRequest
             'plan_id.required' => __('Plan is required'),
             'email.required' => __('Email cannot be empty'),
             'total_amount.required' => __('Payment amount cannot be empty'),
+            'total_amount.integer' => __('Payment amount format is invalid'),
+            'total_amount.min' => __('Payment amount format is invalid'),
             'period.required' => __('Subscription period cannot be empty'),
             'period.in' => __('Subscription period format is invalid'),
         ];
