@@ -121,8 +121,10 @@ class InviteController extends Controller
             $heldGiftCard = (int) CommissionLog::where('invite_user_id', $user->id)
                 ->where('trade_no', 'like', 'giftcard:%')
                 ->whereNull('credited_at')
-                ->where('get_amount', '>', 0)
-                ->sum('get_amount');
+                ->get(['get_amount', 'order_amount'])
+                ->sum(fn ($log) => (int) $log->get_amount > 0
+                    ? (int) $log->get_amount
+                    : (int) $log->order_amount);
             $uncheck_commission_balance += $heldGiftCard;
             if (admin_setting('commission_distribution_enable', 0)) {
                 $l1 = (int) admin_setting('commission_distribution_l1', 100);

@@ -87,6 +87,12 @@ class RegisterService
             if (!$inviteCodeModel) {
                 return [false, [400, __('Invalid invitation code')]];
             }
+            if ((int) admin_setting('invite_never_expire', 0)) {
+                $maxUses = (int) admin_setting('invite_code_max_uses', 0);
+                if ($maxUses > 0 && (int) $inviteCodeModel->use_count >= $maxUses) {
+                    return [false, [400, __('Invalid invitation code')]];
+                }
+            }
             $inviter = User::find($inviteCodeModel->user_id);
             if (!$inviter || $inviter->banned) {
                 return [false, [400, __('Invalid invitation code')]];

@@ -2,7 +2,7 @@
 import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
-import { fetchOrders, cancelOrder, type OrderItem, canCancelOrder } from '@/api/order'
+import { fetchOrders, cancelOrder, fetchFirstBlockingOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { ORDER_STATUS_KEYS, orderStatusLabel } from '@/lib/order-status'
 import { formatFixedDateTime } from '@/lib/format-date'
@@ -14,6 +14,9 @@ const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
 const statusFilter = ref<number | null>(null)
+const page = ref(1)
+const pageSize = ref(20)
+const total = ref(0)
 const msg = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
@@ -158,7 +161,13 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
 async function loadOrders() {
   loading.value = true
   try {
-    rows.value = await fetchOrders(statusFilter.value ?? undefined)
+    const res = await fetchOrders({
+      status: statusFilter.value ?? undefined,
+      page: page.value,
+      pageSize: pageSize.value,
+    })
+    rows.value = res.data ?? []
+    total.value = res.total ?? 0
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t, t('errors.requestFailed')))
   } finally {
@@ -166,7 +175,19 @@ async function loadOrders() {
   }
 }
 
+function onPageChange(p: number) {
+  page.value = p
+  void loadOrders()
+}
+
+function onPageSizeChange(size: number) {
+  pageSize.value = size
+  page.value = 1
+  void loadOrders()
+}
+
 watch(statusFilter, () => {
+  page.value = 1
   void loadOrders()
 })
 
@@ -194,12 +215,22 @@ onMounted(async () => {
     <n-empty v-if="!loading && rows.length === 0" :description="t('order.empty')" />
     <n-data-table
       v-else
+      remote
       class="order-list-table"
       :columns="columns"
       :data="rows"
       :bordered="false"
       :scroll-x="960"
       :loading="loading"
+      :pagination="{
+        page,
+        pageSize,
+        itemCount: total,
+        showSizePicker: true,
+        pageSizes: [10, 20, 50],
+        onUpdatePage: onPageChange,
+        onUpdatePageSize: onPageSizeChange,
+      }"
     />
   </div>
 </template>

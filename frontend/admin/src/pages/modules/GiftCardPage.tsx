@@ -20,6 +20,7 @@ import {
   inputCls,
 } from '@/lib/form-styles'
 
+import { formatAdminDateTime } from '@/lib/format-datetime'
 import { cn } from '@/lib/utils'
 import { getAdminCurrencySymbol, loadAdminCurrency } from '@/lib/currency'
 
@@ -1319,7 +1320,7 @@ export default function GiftCardPage() {
 
       { accessorKey: 'template_name', header: () => t('giftCard.usage.table.columns.template_name') },
 
-      { accessorKey: 'created_at', header: () => t('giftCard.usage.table.columns.created_at') },
+      { accessorKey: 'created_at', header: () => t('giftCard.usage.table.columns.created_at'), cell: ({ row }) => formatAdminDateTime(row.original.created_at as number | undefined) },
 
     ],
 

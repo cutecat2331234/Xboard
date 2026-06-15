@@ -39,10 +39,25 @@ class TicketController extends Controller
             });
             return $this->success(TicketResource::make($ticket)->additional(['message' => true]));
         }
-        $ticket = Ticket::where('user_id', $request->user()->id)
-            ->orderBy('created_at', 'DESC')
-            ->get();
-        return $this->success(TicketResource::collection($ticket));
+
+        $request->validate([
+            'current' => 'nullable|integer|min:1',
+            'page_size' => 'nullable|integer|min:1|max:100',
+        ]);
+        $current = max(1, (int) $request->input('current', 1));
+        $pageSize = min(100, max(1, (int) $request->input('page_size', 20)));
+
+        $builder = Ticket::where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'DESC');
+        $total = (clone $builder)->count();
+        $tickets = $builder->forPage($current, $pageSize)->get();
+
+        return $this->success([
+            'data' => TicketResource::collection($tickets),
+            'total' => $total,
+            'current_page' => $current,
+            'page_size' => $pageSize,
+        ]);
     }
 
     public function save(TicketSave $request)

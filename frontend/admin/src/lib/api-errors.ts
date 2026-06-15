@@ -66,6 +66,7 @@ const MESSAGE_MAP: Record<string, string> = {
   '该模板下存在兑换码，无法删除': 'giftCard.messages.templateHasCodes',
   'Already closed': 'ticket.alreadyClosed',
   'Withdraw ticket requires withdraw_paid or withdraw_rejected': 'ticket.withdrawCloseRequired',
+  '该支付方式仍有待支付或处理中的订单，无法删除': 'payment.delete.pendingOrders',
 }
 
 function extractMessage(error: unknown): string {

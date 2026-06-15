@@ -290,7 +290,8 @@ class GiftCardService
             if ($totalTrafficPool > 0) {
                 $paidTraffic = $this->distributeInviteTrafficPool(
                     (int) $this->user->invite_user_id,
-                    $totalTrafficPool
+                    $totalTrafficPool,
+                    $tradeNo
                 );
                 if ($paidTraffic > 0) {
                     $inviteRewards['transfer_enable'] = $paidTraffic;
@@ -410,7 +411,38 @@ class GiftCardService
         return $paidTotal;
     }
 
-    protected function distributeInviteTrafficPool(int $inviteUserId, int $totalPool): int
+    protected function recordGiftCardTraffic(int $inviteUserId, string $tradeNo, int $trafficBytes, User $inviter): void
+    {
+        if ($trafficBytes <= 0) {
+            return;
+        }
+        $hold = $this->shouldHoldGiftCardCommission();
+        $now = time();
+        CommissionLog::create([
+            'invite_user_id' => $inviteUserId,
+            'user_id' => $this->user->id,
+            'trade_no' => $tradeNo,
+            'order_amount' => $trafficBytes,
+            'get_amount' => 0,
+            'credited_at' => $hold ? null : $now,
+        ]);
+        if (!$hold) {
+            self::creditTrafficToInviter($inviter, $trafficBytes);
+        }
+    }
+
+    public static function creditTrafficToInviter(User $inviter, int $bytes): void
+    {
+        if ($bytes <= 0) {
+            return;
+        }
+        $inviter->transfer_enable = ($inviter->transfer_enable ?? 0) + $bytes;
+        if (!$inviter->save()) {
+            throw new \RuntimeException('Failed to add invite reward traffic');
+        }
+    }
+
+    protected function distributeInviteTrafficPool(int $inviteUserId, int $totalPool, string $tradeNo): int
     {
         $shareLevels = CommissionChain::shareLevels();
         $remaining = $totalPool;
@@ -436,10 +468,7 @@ class GiftCardService
                 continue;
             }
 
-            $inviter->transfer_enable = ($inviter->transfer_enable ?? 0) + $payAmount;
-            if (!$inviter->save()) {
-                throw new \RuntimeException('Failed to add invite reward traffic');
-            }
+            $this->recordGiftCardTraffic($currentInviteId, $tradeNo, $payAmount, $inviter);
             $paidTotal += $payAmount;
             $remaining -= $payAmount;
             $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
@@ -448,10 +477,7 @@ class GiftCardService
         if ($remaining > 0) {
             $directInviter = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
             if ($directInviter && !$directInviter->banned) {
-                $directInviter->transfer_enable = ($directInviter->transfer_enable ?? 0) + $remaining;
-                if (!$directInviter->save()) {
-                    throw new \RuntimeException('Failed to add invite reward traffic');
-                }
+                $this->recordGiftCardTraffic($directInviter->id, $tradeNo, $remaining, $directInviter);
                 $paidTotal += $remaining;
             }
         }

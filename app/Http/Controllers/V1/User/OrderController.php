@@ -26,16 +26,29 @@ class OrderController extends Controller
     {
         $request->validate([
             'status' => 'nullable|integer|in:0,1,2,3,4',
+            'current' => 'nullable|integer|min:1',
+            'page_size' => 'nullable|integer|min:1|max:100',
         ]);
-        $orders = Order::with('plan')
+
+        $current = max(1, (int) $request->input('current', 1));
+        $pageSize = min(100, max(1, (int) $request->input('page_size', 20)));
+
+        $builder = Order::with('plan')
             ->where('user_id', $request->user()->id)
             ->when($request->input('status') !== null, function ($query) use ($request) {
                 $query->where('status', $request->input('status'));
             })
-            ->orderBy('created_at', 'DESC')
-            ->get();
+            ->orderBy('created_at', 'DESC');
 
-        return $this->success(OrderResource::collection($orders));
+        $total = (clone $builder)->count();
+        $orders = $builder->forPage($current, $pageSize)->get();
+
+        return $this->success([
+            'data' => OrderResource::collection($orders),
+            'total' => $total,
+            'current_page' => $current,
+            'page_size' => $pageSize,
+        ]);
     }
 
     public function detail(Request $request)
@@ -48,7 +61,7 @@ class OrderController extends Controller
             ->where('trade_no', $request->input('trade_no'))
             ->first();
         if (!$order) {
-            return $this->fail([400, __('Order does not exist or has been paid')]);
+            return $this->fail([400, __('Order does not exist')]);
         }
         $order['try_out_plan_id'] = (int) admin_setting('try_out_plan_id');
         if (!$order->plan) {
