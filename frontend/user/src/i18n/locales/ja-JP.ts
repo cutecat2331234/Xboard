@@ -48,7 +48,7 @@ export default {
     problem: "何かお困りですか？",
     problemDesc: "何かお困りでしたら、お問い合わせからご連絡ください。",
     copyLink: "購読リンクをコピー",
-    unpaidOrders: "未払いの注文が {count} 件あります",
+    unpaidOrders: "未払いまたは処理中の注文が {count} 件あります",
     payNow: "今すぐ支払う",
     openTickets: "未対応のチケットが {count} 件あります",
     goView: "確認する",

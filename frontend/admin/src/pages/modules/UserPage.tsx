@@ -377,7 +377,9 @@ export default function UserPage() {
   }, [page, pageSize, filters, sorts, t])
 
   useEffect(() => {
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
   }, [])
 
   useEffect(() => {

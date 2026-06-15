@@ -85,8 +85,17 @@ async function load() {
   }
 }
 
+const BYTES_PER_GB = 1073741824
+
 const usedTraffic = computed(() => (subscribe.value?.u ?? 0) + (subscribe.value?.d ?? 0))
-const totalTraffic = computed(() => subscribe.value?.transfer_enable ?? subscribe.value?.plan?.transfer_enable ?? 0)
+const totalTraffic = computed(() => {
+  const sub = subscribe.value
+  if (!sub) return 0
+  const userQuota = sub.transfer_enable ?? 0
+  if (userQuota > 0) return userQuota
+  const planGb = sub.plan?.transfer_enable ?? 0
+  return planGb > 0 ? planGb * BYTES_PER_GB : 0
+})
 const trafficUsagePercent = computed(() => {
   if (!totalTraffic.value) return 0
   return Math.min(100, (usedTraffic.value / totalTraffic.value) * 100)

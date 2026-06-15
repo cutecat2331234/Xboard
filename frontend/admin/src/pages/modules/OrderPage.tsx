@@ -410,7 +410,9 @@ export default function OrderPage() {
   }, [page, pageSize, search, userIdFilter, typeFilter, periodFilter, statusFilter, commissionFilter, commissionBalanceFilter, statusSortDesc, t])
 
   useEffect(() => {
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
   }, [])
 
   useEffect(() => {

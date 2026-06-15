@@ -733,7 +733,7 @@ export default function PlanPage() {
                   placeholder={t('subscribe.plan.form.content.placeholder')}
                 />
                 <p className="text-xs text-muted-foreground">
-                  {t('subscribe.plan.form.content.markdown_hint', { defaultValue: '支持 Markdown 格式' })}
+                  {t('subscribe.plan.form.content.description')}
                 </p>
                 {showContentPreview && form.content ? (
                   <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap">

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\CommissionLog;
 use App\Support\AppFeature;
 use App\Support\CommissionChain;
+use App\Services\GiftCardService;
 use Illuminate\Console\Command;
 use App\Models\Order;
 use App\Models\User;
@@ -29,6 +30,7 @@ class CheckCommission extends Command
         }
         $this->autoCheck();
         $this->autoPayCommission();
+        $this->autoPayGiftCardCommission();
     }
 
     public function autoCheck()
@@ -144,6 +146,52 @@ class CheckCommission extends Command
     private function validateCommissionChain(?int $inviteUserId): bool
     {
         return CommissionChain::isValid($inviteUserId);
+    }
+
+    public function autoPayGiftCardCommission(): void
+    {
+        if (!(int) admin_setting('commission_auto_check_enable', 1)) {
+            return;
+        }
+
+        $cutoff = strtotime('-3 day', time());
+        CommissionLog::query()
+            ->where('trade_no', 'like', 'giftcard:%')
+            ->whereNull('credited_at')
+            ->where('get_amount', '>', 0)
+            ->where('created_at', '<=', $cutoff)
+            ->orderBy('id')
+            ->lazyById(200)
+            ->each(function (CommissionLog $log) {
+                try {
+                    DB::transaction(function () use ($log) {
+                        $entry = CommissionLog::where('id', $log->id)->lockForUpdate()->first();
+                        if (!$entry || $entry->credited_at !== null) {
+                            return;
+                        }
+
+                        $invitee = User::find($entry->user_id);
+                        if (!$invitee || !$this->validateCommissionChain($invitee->invite_user_id)) {
+                            $entry->update(['credited_at' => time()]);
+                            return;
+                        }
+
+                        $inviter = User::where('id', $entry->invite_user_id)->lockForUpdate()->first();
+                        if (!$inviter || $inviter->banned) {
+                            $entry->update(['credited_at' => time()]);
+                            return;
+                        }
+
+                        GiftCardService::creditCommissionToInviter($inviter, (int) $entry->get_amount);
+                        $entry->update(['credited_at' => time()]);
+                    });
+                } catch (\Throwable $e) {
+                    Log::error('Gift card commission payout failed', [
+                        'log_id' => $log->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            });
     }
 
     public function payHandle($inviteUserId, Order $order): string

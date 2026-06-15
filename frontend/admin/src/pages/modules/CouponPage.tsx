@@ -126,7 +126,9 @@ export default function CouponPage() {
 
   useEffect(() => {
     void loadAdminCurrency().then(() => setCurrencySymbol(getAdminCurrencySymbol()))
-    fetchJsonList('/plan/fetch').then((rows) => setPlans(rows as PlanRow[]))
+    fetchJsonList('/plan/fetch')
+      .then((rows) => setPlans(rows as PlanRow[]))
+      .catch((e) => toastApiError(e, toast, t, t('common.error')))
   }, [])
 
   useEffect(() => {

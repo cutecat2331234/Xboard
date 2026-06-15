@@ -9,6 +9,7 @@ use App\Models\ServerMachine;
 use App\Models\ServerMachineLoadHistory;
 use App\Services\NodeSyncService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class MachineController extends Controller
 {
@@ -100,6 +101,12 @@ class MachineController extends Controller
         $params = $request->validate([
             'id' => 'required|integer|exists:v2_server_machine,id',
         ]);
+
+        $rateKey = 'machine-get-token:' . $request->user()->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 20)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 3600);
 
         $machine = ServerMachine::find($params['id']);
 

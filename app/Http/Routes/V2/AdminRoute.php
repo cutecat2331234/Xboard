@@ -105,7 +105,7 @@ class AdminRoute
                 $router->post('/save', [MachineController::class, 'save']);
                 $router->post('/drop', [MachineController::class, 'drop']);
                 $router->post('/resetToken', [MachineController::class, 'resetToken']);
-                $router->get('/getToken', [MachineController::class, 'getToken']);
+                $router->post('/getToken', [MachineController::class, 'getToken']);
                 $router->get('/installCommand', [MachineController::class, 'installCommand']);
                 $router->get('/nodes', [MachineController::class, 'nodes']);
                 $router->get('/history', [MachineController::class, 'history']);

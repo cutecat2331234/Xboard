@@ -321,10 +321,42 @@ class GiftCardService
             return true;
         }
 
-        return !Order::where('user_id', $this->user->id)
+        $hasPaidOrder = Order::where('user_id', $this->user->id)
             ->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
             ->whereRaw('(COALESCE(total_amount, 0) + COALESCE(balance_amount, 0) + COALESCE(surplus_amount, 0)) > 0')
             ->exists();
+        if ($hasPaidOrder) {
+            return false;
+        }
+
+        return !CommissionLog::where('user_id', $this->user->id)
+            ->where('trade_no', 'like', 'giftcard:%')
+            ->where('get_amount', '>', 0)
+            ->exists();
+    }
+
+    protected function shouldHoldGiftCardCommission(): bool
+    {
+        return (bool) admin_setting('commission_auto_check_enable', 1);
+    }
+
+    protected function recordGiftCardCommission(int $inviteUserId, int $orderAmount, string $tradeNo, int $payAmount, User $inviter): void
+    {
+        $now = time();
+        $hold = $this->shouldHoldGiftCardCommission();
+        $userService = app(UserService::class);
+        $creditedAt = $hold ? null : $now;
+        if (!$hold) {
+            $this->creditInviteReward($userService, $inviter, $payAmount);
+        }
+        CommissionLog::create([
+            'invite_user_id' => $inviteUserId,
+            'user_id' => $this->user->id,
+            'trade_no' => $tradeNo,
+            'order_amount' => $orderAmount,
+            'get_amount' => $payAmount,
+            'credited_at' => $creditedAt,
+        ]);
     }
 
     protected function distributeInviteRewardPool(
@@ -337,7 +369,6 @@ class GiftCardService
         $remaining = $totalPool;
         $paidTotal = 0;
         $currentInviteId = $inviteUserId;
-        $userService = app(UserService::class);
 
         for ($level = 0; $level < 3; $level++) {
             if ($remaining <= 0) {
@@ -358,14 +389,7 @@ class GiftCardService
                 continue;
             }
 
-            $this->creditInviteReward($userService, $inviter, $payAmount);
-            CommissionLog::create([
-                'invite_user_id' => $currentInviteId,
-                'user_id' => $this->user->id,
-                'trade_no' => $tradeNo,
-                'order_amount' => $orderAmount,
-                'get_amount' => $payAmount,
-            ]);
+            $this->recordGiftCardCommission($currentInviteId, $orderAmount, $tradeNo, $payAmount, $inviter);
             $paidTotal += $payAmount;
             $remaining -= $payAmount;
             $currentInviteId = (int) ($inviter->invite_user_id ?? 0);
@@ -374,14 +398,7 @@ class GiftCardService
         if ($remaining > 0) {
             $directInviter = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
             if ($directInviter && !$directInviter->banned) {
-                $this->creditInviteReward($userService, $directInviter, $remaining);
-                CommissionLog::create([
-                    'invite_user_id' => $directInviter->id,
-                    'user_id' => $this->user->id,
-                    'trade_no' => $tradeNo,
-                    'order_amount' => $orderAmount,
-                    'get_amount' => $remaining,
-                ]);
+                $this->recordGiftCardCommission($directInviter->id, $orderAmount, $tradeNo, $remaining, $directInviter);
                 $paidTotal += $remaining;
             }
         }
@@ -438,11 +455,12 @@ class GiftCardService
         return $paidTotal;
     }
 
-    protected function creditInviteReward(UserService $userService, User $inviter, int $amount): void
+    public static function creditCommissionToInviter(User $inviter, int $amount): void
     {
         if ($amount <= 0) {
             return;
         }
+        $userService = app(UserService::class);
         if ((int) admin_setting('withdraw_close_enable', 0)) {
             if (!$userService->addBalance($inviter->id, $amount)) {
                 throw new \RuntimeException('Failed to add invite reward balance');
@@ -453,6 +471,14 @@ class GiftCardService
         if (!$inviter->save()) {
             throw new \RuntimeException('Failed to add invite reward commission');
         }
+    }
+
+    protected function creditInviteReward(UserService $userService, User $inviter, int $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+        self::creditCommissionToInviter($inviter, $amount);
     }
 
     /**
