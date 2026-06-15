@@ -13,7 +13,7 @@ class UserRoute
             'middleware' => 'user'
         ], function ($router) {
             // User
-            $router->get('/resetSecurity', [UserController::class, 'resetSecurity']);
+            $router->post('/resetSecurity', [UserController::class, 'resetSecurity']);
             $router->get('/info', [UserController::class, 'info']);
         });
     }

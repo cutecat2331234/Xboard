@@ -108,7 +108,13 @@ class CouponService
     {
         $usedCount = Order::where('coupon_id', $this->coupon->id)
             ->where('user_id', $this->userId)
-            ->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED, Order::STATUS_PROCESSING, Order::STATUS_PENDING])
+            ->where(function ($query) {
+                $query->whereIn('status', [Order::STATUS_COMPLETED, Order::STATUS_DISCOUNTED])
+                    ->orWhere(function ($pending) {
+                        $pending->whereIn('status', [Order::STATUS_PENDING, Order::STATUS_PROCESSING])
+                            ->where('coupon_consumed', true);
+                    });
+            })
             ->count();
         if ($usedCount >= $this->coupon->limit_use_with_user) {
             return false;
