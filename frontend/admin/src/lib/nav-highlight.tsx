@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { useLocation, useNavigation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 type NavHighlightContextValue = {
   activePath: string
@@ -17,20 +17,17 @@ const NavHighlightContext = createContext<NavHighlightContextValue | null>(null)
 
 export function NavHighlightProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
-  const navigation = useNavigation()
   const [override, setOverride] = useState<string | null>(null)
 
   useEffect(() => {
     setOverride(null)
   }, [location.pathname])
 
+  // HashRouter has no data-router navigation state; Sidebar/CommandMenu set override on click for instant highlight.
   const activePath = useMemo(() => {
-    if (navigation.state !== 'idle' && navigation.location) {
-      return navigation.location.pathname
-    }
     if (override !== null) return override
     return location.pathname
-  }, [navigation.state, navigation.location, override, location.pathname])
+  }, [override, location.pathname])
 
   const value = useMemo(
     () => ({

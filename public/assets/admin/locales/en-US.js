@@ -51,6 +51,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "cancel": "Cancel",
       "save": "Save",
       "success": "Settings saved successfully"
+    },
+    "validation": {
+      "name_required": "Theme name cannot be empty",
+      "name_format": "Invalid theme name format",
+      "config_required": "Theme config cannot be empty",
+      "render_failed": "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again."
     }
   },
   "machine": {
@@ -212,6 +218,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "loading": "Loading...",
     "error": "Error",
     "invalidParameters": "Invalid parameters",
+    "invalidSort": "Invalid sort parameters",
+    "invalidFileType": "Invalid file type",
+    "operationFailed": "Operation failed",
     "success": "Success",
     "save": "Save",
     "cancel": "Cancel",
@@ -424,7 +433,9 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "deleteSuccess": "Plugin deleted successfully",
       "deleteError": "Failed to delete plugin",
       "disableBeforeUninstall": "Disable the plugin before uninstalling",
-      "coreDeleteForbidden": "Core plugins cannot be deleted"
+      "coreDeleteForbidden": "Core plugins cannot be deleted",
+      "notEnabled": "Plugin is not enabled",
+      "codeRequired": "Plugin code cannot be empty"
     }
   },
   "group": {
@@ -584,6 +595,12 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "cancel": "Cancel",
         "submit": "Submit",
         "success": "Successfully submitted"
+      },
+      "validation": {
+        "title_required": "Title cannot be empty",
+        "content_required": "Content cannot be empty",
+        "img_url_format": "Image URL format is invalid",
+        "tags_array": "Tags must be an array"
       }
     }
   },
@@ -637,7 +654,31 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "assign": {
       "amountExceedsPrice": "Payment amount cannot exceed the plan list price.",
       "userBanned": "This user is banned and cannot receive a subscription.",
-      "createFailed": "Failed to create the order."
+      "createFailed": "Failed to create the order.",
+      "planRequired": "Plan is required",
+      "emailRequired": "Email cannot be empty",
+      "amountRequired": "Payment amount cannot be empty",
+      "periodRequired": "Subscription period cannot be empty",
+      "periodInvalid": "Subscription period format is invalid",
+      "pendingOrder": "User has an unpaid or pending order, please try again later or cancel it",
+      "invalidPeriod": "Invalid plan period",
+      "fulfillmentFailed": "Order fulfillment failed"
+    },
+    "messages": {
+      "notFound": "Order does not exist",
+      "notFoundOrPaid": "Order does not exist or has been paid",
+      "pendingOnly": "Only pending orders can be updated this way",
+      "cancelPendingOnly": "You can only cancel pending orders",
+      "cancelProcessingBlocked": "Payment is in progress for this order, cannot cancel",
+      "cancelPaidBlocked": "Paid orders cannot be cancelled; process a refund first",
+      "cancelFailed": "Cancel failed",
+      "commissionSettledManual": "Commission status cannot be manually set to settled",
+      "commissionRevertBlocked": "Settled commission cannot be reverted",
+      "commissionStatusFormat": "Commission status format is invalid",
+      "paymentAmountFormat": "Payment amount format is invalid",
+      "idRequired": "Order ID is required",
+      "idFormat": "Order ID format is invalid",
+      "tradeNoRequired": "Trade number cannot be empty"
     },
     "actions": {
       "markAsPaid": "Mark as Paid",
@@ -649,6 +690,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "userId": "User ID: {{id}}",
       "commissionBalance": "Commission balance: {{value}}",
       "clearAll": "Clear all filters"
+    },
+    "filterValidation": {
+      "key_required": "Filter key cannot be empty",
+      "key_invalid": "Invalid filter key",
+      "condition_required": "Filter condition cannot be empty",
+      "condition_invalid": "Invalid filter condition",
+      "value_required": "Filter value cannot be empty"
     },
     "search": {
       "placeholder": "Search orders..."
@@ -920,7 +968,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "batchResetFailed": "Batch reset failed",
         "selectUpdate": "Select nodes to update",
         "noUpdatableFields": "No updatable fields provided",
-        "batchUpdateFailed": "Batch update failed"
+        "batchUpdateFailed": "Batch update failed",
+        "nodeIdRequired": "Node ID cannot be empty",
+        "localPortRequired": "Local port cannot be empty",
+        "fetchConfigFailed": "Failed to fetch node config"
       }
     },
     "columns": {
@@ -1169,7 +1220,32 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       },
       "submit": "Submit",
       "cancel": "Cancel",
-      "success": "Submitted successfully"
+      "success": "Submitted successfully",
+      "validation": {
+        "type_required": "Node type cannot be empty",
+        "type_invalid": "Invalid node type specified",
+        "name_required": "Node name cannot be empty",
+        "group_required": "Permission group cannot be empty",
+        "group_format": "Permission group format is invalid",
+        "route_format": "Route group format is invalid",
+        "parent_id_format": "Parent ID format is invalid",
+        "host_required": "Node host cannot be empty",
+        "port_required": "Connection port cannot be empty",
+        "server_port_required": "Backend port cannot be empty",
+        "tags_format": "Tags format is invalid",
+        "rate_required": "Rate cannot be empty",
+        "rate_format": "Rate format is invalid",
+        "rate_time_start_format": "Rate time range start time format is invalid (use HH:MM)",
+        "rate_time_end_format": "Rate time range end time format is invalid (use HH:MM)",
+        "rate_multiplier_format": "Rate multiplier format is invalid",
+        "rate_multiplier_min": "Rate multiplier cannot be less than 0",
+        "traffic_limit_integer": "Traffic limit must be an integer",
+        "traffic_limit_min": "Traffic limit cannot be less than 0",
+        "field_required": "The {{field}} field is required",
+        "field_string": "The {{field}} field must be a string",
+        "field_integer": "The {{field}} field must be an integer",
+        "field_invalid": "The {{field}} field has an invalid value"
+      }
     },
     "dynamic_form": {
       "multiplex": {
@@ -1753,6 +1829,23 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "error": {
         "saveFailed": "Failed to save coupon"
       },
+      "validation": {
+        "name_required": "Name cannot be empty",
+        "type_required": "Coupon type cannot be empty",
+        "type_invalid": "Coupon type format is invalid",
+        "value_required": "Amount or percent cannot be empty",
+        "value_format": "Amount or percent format is invalid",
+        "started_at_required": "Start time cannot be empty",
+        "started_at_format": "Start time format is invalid",
+        "ended_at_required": "End time cannot be empty",
+        "ended_at_format": "End time format is invalid",
+        "limit_use_format": "Max usage format is invalid",
+        "limit_use_with_user_format": "Per-user usage limit format is invalid",
+        "limit_plan_ids_array": "Applicable plans must be an array",
+        "limit_period_array": "Applicable periods must be an array",
+        "generate_count_integer": "Generate count must be an integer",
+        "generate_count_max": "Generate count cannot exceed 500"
+      },
       "timeRange": {
         "quickSet": "Quick Set",
         "presets": {
@@ -1831,7 +1924,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "cancel": "Cancel",
       "submit": "Submit",
       "validation": {
-        "remarks": "Please enter valid remarks"
+        "remarks": "Please enter valid remarks",
+        "match_required": "Match value cannot be empty",
+        "action_required": "Action type cannot be empty",
+        "action_invalid": "Invalid action type"
       }
     },
     "toolbar": {
@@ -1853,6 +1949,39 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
   "settings": {
     "title": "System Settings",
     "description": "Manage core system configurations, including site, security, subscription, invite commission, nodes, email, and notifications",
+    "validation": {
+      "app_url_url": "Site URL must include http(s)://",
+      "subscribe_url_url": "Subscribe URL must include http(s)://",
+      "server_token_min": "Server token must be at least 16 characters",
+      "tos_url_url": "Terms of service URL must include http(s)://",
+      "telegram_webhook_url_url": "Telegram webhook URL must include http(s)://",
+      "telegram_discuss_link_url": "Telegram group link must be a valid URL with http(s)://",
+      "logo_url": "Logo URL must include http(s)://",
+      "background_url": "Background image must be a valid URL",
+      "websocket_url": "WebSocket URL must include http(s)://",
+      "secure_path_min": "Secure admin path must be at least 8 characters",
+      "secure_path_regex": "Secure admin path may only contain letters and numbers",
+      "captcha_type_in": "Captcha type must be recaptcha, turnstile, or recaptcha-v3",
+      "recaptcha_v3_score_numeric": "reCAPTCHA v3 score threshold must be numeric",
+      "recaptcha_v3_score_min": "reCAPTCHA v3 score threshold cannot be less than 0",
+      "recaptcha_v3_score_max": "reCAPTCHA v3 score threshold cannot be greater than 1",
+      "invite_commission_range": "Invite commission rate must be between 0 and 100",
+      "commission_rate_format": "Commission rate format is invalid",
+      "commission_rate_min": "Commission rate must be at least 0",
+      "commission_rate_max": "Commission rate cannot exceed 100",
+      "withdraw_fee_rate_format": "Withdrawal fee rate format is invalid",
+      "withdraw_fee_rate_range": "Withdrawal fee rate must be between 0 and 1",
+      "withdraw_ticket_stale_format": "Withdraw ticket stale days format is invalid",
+      "withdraw_ticket_stale_range": "Withdraw ticket stale days must be between 1 and 90",
+      "invite_code_max_uses_format": "Invite code max uses format is invalid",
+      "traffic_warn_rate_format": "Traffic warning threshold format is invalid",
+      "traffic_warn_rate_range": "Traffic warning threshold must be between 1 and 100",
+      "traffic_reset_method_in": "Invalid traffic reset method",
+      "order_event_type_in": "Invalid order event type",
+      "sidebar_theme_in": "Invalid sidebar theme",
+      "header_theme_in": "Invalid header theme",
+      "frontend_theme_color_in": "Invalid frontend theme color"
+    },
     "server": {
       "title": "Server Configuration",
       "description": "Configure node communication and synchronization settings, including communication keys, polling intervals, load balancing and other advanced options.",
@@ -2742,7 +2871,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "notFound": "Payment method not found",
       "disabled": "Payment method does not exist or is disabled",
       "siteUrlRequired": "Configure the site URL in settings before adding payment methods",
-      "saveFailed": "Failed to save payment method"
+      "saveFailed": "Failed to save payment method",
+      "gatewayFailed": "Payment gateway request failed"
     },
     "table": {
       "columns": {
@@ -2820,7 +2950,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         },
         "payment": {
           "required": "Please select a payment gateway"
-        }
+        },
+        "display_name_required": "Display name cannot be empty",
+        "gateway_required": "Gateway parameter cannot be empty",
+        "config_required": "Config parameter cannot be empty",
+        "fixed_fee_format": "Invalid fixed handling fee format",
+        "percent_fee_range": "Handling fee percent must be between 0 and 100",
+        "id_format": "Payment method ID format is invalid"
       },
       "buttons": {
         "cancel": "Cancel",
@@ -2843,6 +2979,14 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "edit": "Edit Sort",
         "save": "Save Sort",
         "sortModeHint": "Drag plans to reorder, then click save"
+      },
+      "sortValidation": {
+        "ids_required": "Plan IDs cannot be empty",
+        "id_format": "Plan ID format is invalid"
+      },
+      "updateValidation": {
+        "show_format": "Sales status format is invalid",
+        "renew_format": "Renewal status format is invalid"
       },
       "columns": {
         "id": "ID",
@@ -2965,6 +3109,27 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "force_update": {
           "label": "Force Update User Plans"
         },
+        "validation": {
+          "name_required": "Plan name cannot be empty",
+          "name_max": "Plan name cannot exceed 255 characters",
+          "traffic_required": "Traffic quota cannot be empty",
+          "traffic_integer": "Traffic quota must be an integer",
+          "traffic_min": "Traffic quota must be greater than 0",
+          "prices_format": "Price configuration format is invalid",
+          "price_numeric": "Price must be numeric",
+          "price_negative": "Price cannot be negative",
+          "price_number": "Price must be a number",
+          "price_min_zero": "Price must be greater than or equal to 0 (leave blank if unused)",
+          "period_unsupported": "Unsupported subscription period",
+          "group_id_integer": "Group ID must be an integer",
+          "speed_limit_integer": "Speed limit must be an integer",
+          "speed_limit_min": "Speed limit cannot be negative",
+          "device_limit_integer": "Device limit must be an integer",
+          "device_limit_min": "Device limit cannot be negative",
+          "capacity_limit_integer": "Capacity limit must be an integer",
+          "capacity_limit_min": "Capacity limit cannot be negative",
+          "tags_array": "Tags must be an array"
+        },
         "submit": {
           "cancel": "Cancel",
           "submit": "Submit",
@@ -3002,7 +3167,21 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "generate": {
       "missingParams": "Provide email_prefix or generate_count.",
-      "failed": "User generation failed."
+      "failed": "User generation failed.",
+      "emailSuffixRequired": "Email suffix cannot be empty",
+      "countMax": "Generate count cannot exceed 500",
+      "countInteger": "Generate count must be an integer"
+    },
+    "messages": {
+      "notFound": "The user does not exist",
+      "emailExists": "Email already exists",
+      "planNotFound": "Subscription plan does not exist",
+      "userIdsRequired": "User IDs cannot be empty",
+      "userIdRequired": "User ID is required",
+      "saveFailed": "Save failed",
+      "updateFailed": "Update failed",
+      "processingFailed": "Processing failed",
+      "operationFailed": "Operation failed"
     },
     "invite": {
       "selfInviter": "Cannot set yourself as inviter.",
@@ -3012,7 +3191,33 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "edit": {
       "negativeBalance": "Balance cannot be negative.",
-      "negativeCommission": "Commission balance cannot be negative."
+      "negativeCommission": "Commission balance cannot be negative.",
+      "validation": {
+        "email_required": "Email cannot be empty",
+        "email_format": "Email format is invalid",
+        "traffic_format": "Traffic format is invalid",
+        "expired_at_format": "Expiry time format is invalid",
+        "ban_status_format": "Ban status format is invalid",
+        "ban_status_required": "Ban status cannot be empty",
+        "admin_status_required": "Admin status cannot be empty",
+        "admin_status_format": "Admin status format is invalid",
+        "staff_status_required": "Staff status cannot be empty",
+        "staff_status_format": "Staff status format is invalid",
+        "plan_format": "Plan format is invalid",
+        "commission_rate_format": "Commission rate format is invalid",
+        "commission_rate_min": "Commission rate must be at least 0",
+        "commission_rate_max": "Commission rate cannot exceed 100",
+        "discount_rate_format": "Discount rate format is invalid",
+        "discount_rate_min": "Discount rate must be at least 0",
+        "discount_rate_max": "Discount rate cannot exceed 100",
+        "upload_traffic_format": "Upload traffic format is invalid",
+        "download_traffic_format": "Download traffic format is invalid",
+        "balance_format": "Balance format is invalid",
+        "commission_balance_format": "Commission balance format is invalid",
+        "password_min": "Password must be at least 8 characters",
+        "speed_limit_format": "Speed limit format is invalid",
+        "device_limit_format": "Device limit format is invalid"
+      }
     },
     "columns": {
       "is_admin": "Admin",
@@ -3090,6 +3295,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "value_number": "Enter Value ({{unit}})",
         "reset": "Reset",
         "apply": "Apply Filter"
+      },
+      "validation": {
+        "key_required": "Filter key cannot be empty",
+        "key_invalid": "Invalid filter key",
+        "condition_required": "Filter condition cannot be empty",
+        "condition_invalid": "Invalid filter condition",
+        "value_required": "Filter value cannot be empty"
       },
       "fields": {
         "email": "Email",
@@ -3374,7 +3586,11 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "apply_system_notice": "Apply system notice template",
       "available_vars": "Available variables",
       "sending": "Sending...",
-      "send": "Send"
+      "send": "Send",
+      "validation": {
+        "subject_required": "Email subject cannot be empty",
+        "content_required": "Mail content cannot be empty"
+      }
     },
     "dialog": {
       "title": "User Details",
@@ -3795,7 +4011,18 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "codeResetUnused": "Redemption code cannot be reset to unused",
       "maxUsageBelowCount": "Max usage cannot be less than the current usage count",
       "usedCodeDelete": "Used gift cards cannot be deleted",
-      "codeHasUsage": "Cannot delete: this gift card has usage records"
+      "codeHasUsage": "Cannot delete: this gift card has usage records",
+      "typeEmpty": "Gift card type cannot be empty",
+      "typeInvalid": "Invalid gift card type",
+      "rewardRequired": "Reward configuration cannot be empty",
+      "themeColorInvalid": "Invalid theme color format",
+      "templateRequired": "Gift card template is required",
+      "countRequired": "Generation count is required",
+      "countMax": "At most 10000 redemption codes can be generated at once",
+      "prefixFormat": "Prefix may only contain uppercase letters and digits",
+      "templateIdEmpty": "Gift card template ID cannot be empty",
+      "templateIdFormat": "Gift card template ID format is invalid",
+      "batchIdRequired": "Batch ID cannot be empty"
     }
   },
   "knowledge": {
@@ -3846,6 +4073,29 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "sortModeHint": "Drag knowledge items to sort, click save when done",
       "editSort": "Edit Sort",
       "saveSort": "Save Sort"
+    },
+    "validation": {
+      "title_required": "Title cannot be empty",
+      "category_required": "Category cannot be empty",
+      "body_required": "Content cannot be empty",
+      "language_required": "Language cannot be empty",
+      "language_invalid": "Invalid knowledge language",
+      "show_boolean": "Display status must be boolean",
+      "category_name_required": "Category name cannot be empty",
+      "category_language_required": "Category language cannot be empty",
+      "ids_required": "Knowledge IDs cannot be empty",
+      "ids_format": "Knowledge ID format is invalid",
+      "category_list_required": "Category list cannot be empty",
+      "category_list_format": "Category format is invalid"
+    }
+  },
+  "mail": {
+    "validation": {
+      "type_required": "Send type cannot be empty",
+      "type_invalid": "Send type format is invalid",
+      "subject_required": "Email subject cannot be empty",
+      "content_required": "Content cannot be empty",
+      "receiver_array": "Recipients must be an array"
     }
   }
 };

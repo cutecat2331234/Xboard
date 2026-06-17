@@ -51,6 +51,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "cancel": "取消",
       "save": "保存",
       "success": "保存成功"
+    },
+    "validation": {
+      "name_required": "主题名称不能为空",
+      "name_format": "主题名称格式无效",
+      "config_required": "主题配置不能为空",
+      "render_failed": "主题渲染失败。如更新主题，参数可能发生变化请重新配置主题后再试。"
     }
   },
   "machine": {
@@ -210,6 +216,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "loading": "加载中...",
     "error": "错误",
     "invalidParameters": "参数有误",
+    "invalidSort": "参数有误",
+    "invalidFileType": "无效的文件类型",
+    "operationFailed": "操作失败",
     "success": "成功",
     "save": "保存",
     "cancel": "取消",
@@ -422,7 +431,9 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "deleteSuccess": "插件删除成功",
       "deleteError": "插件删除失败",
       "disableBeforeUninstall": "请先禁用插件后再卸载",
-      "coreDeleteForbidden": "该插件为系统核心插件，不允许删除"
+      "coreDeleteForbidden": "该插件为系统核心插件，不允许删除",
+      "notEnabled": "插件未启用",
+      "codeRequired": "插件代码不能为空"
     }
   },
   "group": {
@@ -583,6 +594,12 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "cancel": "取消",
         "submit": "提交",
         "success": "提交成功"
+      },
+      "validation": {
+        "title_required": "标题不能为空",
+        "content_required": "内容不能为空",
+        "img_url_format": "图片URL格式不正确",
+        "tags_array": "标签格式不正确"
       }
     }
   },
@@ -636,7 +653,31 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "assign": {
       "amountExceedsPrice": "支付金额不能超过订阅标价",
       "userBanned": "该用户已被封禁，无法分配订阅",
-      "createFailed": "订单创建失败"
+      "createFailed": "订单创建失败",
+      "planRequired": "订阅不能为空",
+      "emailRequired": "邮箱不能为空",
+      "amountRequired": "支付金额不能为空",
+      "periodRequired": "订阅周期不能为空",
+      "periodInvalid": "订阅周期格式有误",
+      "pendingOrder": "该用户还有待支付的订单，无法分配",
+      "invalidPeriod": "无效的套餐周期",
+      "fulfillmentFailed": "订单开通失败"
+    },
+    "messages": {
+      "notFound": "订单不存在",
+      "notFoundOrPaid": "订单不存在或已支付",
+      "pendingOnly": "只能对待支付的订单进行操作",
+      "cancelPendingOnly": "只能取消待支付订单",
+      "cancelProcessingBlocked": "该订单支付处理中，无法取消",
+      "cancelPaidBlocked": "已支付订单不可取消，请先处理退款",
+      "cancelFailed": "取消失败",
+      "commissionSettledManual": "佣金状态不可手动标记为已结算",
+      "commissionRevertBlocked": "已结算的佣金不可回退",
+      "commissionStatusFormat": "佣金状态格式不正确",
+      "paymentAmountFormat": "支付金额格式无效",
+      "idRequired": "订单ID不能为空",
+      "idFormat": "订单ID格式无效",
+      "tradeNoRequired": "订单号不能为空"
     },
     "form": {
       "period": "周期",
@@ -652,6 +693,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "userId": "用户 ID：{{id}}",
       "commissionBalance": "佣金余额：{{value}}",
       "clearAll": "清除全部筛选"
+    },
+    "filterValidation": {
+      "key_required": "过滤键不能为空",
+      "key_invalid": "过滤键参数有误",
+      "condition_required": "过滤条件不能为空",
+      "condition_invalid": "过滤条件参数有误",
+      "value_required": "过滤值不能为空"
     },
     "search": {
       "placeholder": "搜索订单..."
@@ -892,7 +940,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "batchResetFailed": "批量重置失败",
         "selectUpdate": "请选择要更新的节点",
         "noUpdatableFields": "没有可更新的字段",
-        "batchUpdateFailed": "批量更新失败"
+        "batchUpdateFailed": "批量更新失败",
+        "nodeIdRequired": "节点 ID 不能为空",
+        "localPortRequired": "本地端口不能为空",
+        "fetchConfigFailed": "获取节点配置失败"
       }
     },
     "columns": {
@@ -1156,7 +1207,32 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       },
       "submit": "提交",
       "cancel": "取消",
-      "success": "提交成功"
+      "success": "提交成功",
+      "validation": {
+        "type_required": "节点类型不能为空",
+        "type_invalid": "节点类型无效",
+        "name_required": "节点名称不能为空",
+        "group_required": "权限组不能为空",
+        "group_format": "权限组格式不正确",
+        "route_format": "路由组格式不正确",
+        "parent_id_format": "父ID格式不正确",
+        "host_required": "节点地址不能为空",
+        "port_required": "连接端口不能为空",
+        "server_port_required": "后端服务端口不能为空",
+        "tags_format": "标签格式不正确",
+        "rate_required": "倍率不能为空",
+        "rate_format": "倍率格式不正确",
+        "rate_time_start_format": "动态倍率开始时间格式无效（请使用 HH:MM）",
+        "rate_time_end_format": "动态倍率结束时间格式无效（请使用 HH:MM）",
+        "rate_multiplier_format": "倍率乘数格式无效",
+        "rate_multiplier_min": "倍率乘数不能小于 0",
+        "traffic_limit_integer": "流量上限必须是整数",
+        "traffic_limit_min": "流量上限不能小于0",
+        "field_required": "{{field}} 不能为空",
+        "field_string": "{{field}} 必须是字符串",
+        "field_integer": "{{field}} 必须是整数",
+        "field_invalid": "{{field}} 的值不合法"
+      }
     },
     "dynamic_form": {
       "multiplex": {
@@ -1774,6 +1850,23 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "error": {
         "saveFailed": "保存优惠券失败"
       },
+      "validation": {
+        "name_required": "名称不能为空",
+        "type_required": "类型不能为空",
+        "type_invalid": "类型格式有误",
+        "value_required": "金额或比例不能为空",
+        "value_format": "金额或比例格式有误",
+        "started_at_required": "开始时间不能为空",
+        "started_at_format": "开始时间格式有误",
+        "ended_at_required": "结束时间不能为空",
+        "ended_at_format": "结束时间格式有误",
+        "limit_use_format": "最大使用次数格式有误",
+        "limit_use_with_user_format": "限制用户使用次数格式有误",
+        "limit_plan_ids_array": "指定订阅格式有误",
+        "limit_period_array": "指定周期格式有误",
+        "generate_count_integer": "生成数量必须为数字",
+        "generate_count_max": "生成数量最大为500个"
+      },
       "timeRange": {
         "quickSet": "快速设置",
         "presets": {
@@ -1852,7 +1945,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "cancel": "取消",
       "submit": "提交",
       "validation": {
-        "remarks": "请输入有效的备注"
+        "remarks": "请输入有效的备注",
+        "match_required": "匹配值不能为空",
+        "action_required": "动作类型不能为空",
+        "action_invalid": "无效的动作类型"
       }
     },
     "toolbar": {
@@ -1874,6 +1970,39 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
   "settings": {
     "title": "系统设置",
     "description": "管理系统核心配置，包括站点、安全、订阅、邀请佣金、节点、邮件和通知等设置",
+    "validation": {
+      "app_url_url": "站点URL格式不正确，必须携带http(s)://",
+      "subscribe_url_url": "订阅URL格式不正确，必须携带http(s)://",
+      "server_token_min": "通讯密钥长度必须大于16位",
+      "tos_url_url": "服务条款URL格式不正确，必须携带http(s)://",
+      "telegram_webhook_url_url": "Telegram Webhook地址格式不正确，必须携带http(s)://",
+      "telegram_discuss_link_url": "Telegram群组地址必须为URL格式，必须携带http(s)://",
+      "logo_url": "LOGO URL格式不正确，必须携带http(s)://",
+      "background_url": "背景图片必须是有效的URL",
+      "websocket_url": "WebSocket 地址必须包含 http(s)://",
+      "secure_path_min": "后台路径长度最小为8位",
+      "secure_path_regex": "后台路径只能为字母或数字",
+      "captcha_type_in": "人机验证类型只能选择 recaptcha、turnstile 或 recaptcha-v3",
+      "recaptcha_v3_score_numeric": "reCAPTCHA v3 分数阈值必须为数字",
+      "recaptcha_v3_score_min": "reCAPTCHA v3 分数阈值不能小于0",
+      "recaptcha_v3_score_max": "reCAPTCHA v3 分数阈值不能大于1",
+      "invite_commission_range": "邀请佣金比例必须在0-100之间",
+      "commission_rate_format": "推荐返利比例格式不正确",
+      "commission_rate_min": "推荐返利比例最小为0",
+      "commission_rate_max": "推荐返利比例最大为100",
+      "withdraw_fee_rate_format": "提现费率格式无效",
+      "withdraw_fee_rate_range": "提现费率必须在 0 到 1 之间",
+      "withdraw_ticket_stale_format": "提现工单过期天数格式无效",
+      "withdraw_ticket_stale_range": "提现工单过期天数必须在 1 到 90 之间",
+      "invite_code_max_uses_format": "邀请码最大使用次数格式无效",
+      "traffic_warn_rate_format": "流量提醒阈值格式无效",
+      "traffic_warn_rate_range": "流量提醒阈值必须在 1 到 100 之间",
+      "traffic_reset_method_in": "无效的流量重置方式",
+      "order_event_type_in": "无效的订单事件类型",
+      "sidebar_theme_in": "无效的侧边栏主题",
+      "header_theme_in": "无效的顶栏主题",
+      "frontend_theme_color_in": "无效的前端主题色"
+    },
     "site": {
       "title": "站点设置",
       "description": "配置站点基本信息，包括站点名称、描述、货币单位等核心设置。",
@@ -2768,7 +2897,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "notFound": "支付方式不存在",
       "disabled": "支付方式不存在或未启用",
       "siteUrlRequired": "请在站点配置中配置站点地址",
-      "saveFailed": "保存失败"
+      "saveFailed": "保存失败",
+      "gatewayFailed": "支付网关请求失败"
     },
     "table": {
       "columns": {
@@ -2846,7 +2976,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         },
         "payment": {
           "required": "请选择支付接口"
-        }
+        },
+        "display_name_required": "显示名称不能为空",
+        "gateway_required": "网关参数不能为空",
+        "config_required": "配置参数不能为空",
+        "fixed_fee_format": "固定手续费格式有误",
+        "percent_fee_range": "百分比手续费范围须在0-100之间",
+        "id_format": "支付方式ID格式无效"
       },
       "buttons": {
         "cancel": "取消",
@@ -2869,6 +3005,14 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "edit": "编辑排序",
         "save": "保存排序",
         "sortModeHint": "拖拽套餐进行排序，完成后点击保存"
+      },
+      "sortValidation": {
+        "ids_required": "订阅计划ID不能为空",
+        "id_format": "订阅计划ID格式有误"
+      },
+      "updateValidation": {
+        "show_format": "销售状态格式不正确",
+        "renew_format": "续费状态格式不正确"
       },
       "columns": {
         "id": "ID",
@@ -2991,6 +3135,27 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "force_update": {
           "label": "强制更新用户套餐"
         },
+        "validation": {
+          "name_required": "套餐名称不能为空",
+          "name_max": "套餐名称不能超过 255 个字符",
+          "traffic_required": "流量配额不能为空",
+          "traffic_integer": "流量配额必须是整数",
+          "traffic_min": "流量配额必须大于 0",
+          "prices_format": "价格配置格式不正确",
+          "price_numeric": "价格必须是数字",
+          "price_negative": "价格不能为负数",
+          "price_number": "价格必须是数字",
+          "price_min_zero": "价格必须大于等于 0（如不需要此周期请留空）",
+          "period_unsupported": "不支持的订阅周期",
+          "group_id_integer": "分组ID必须是整数",
+          "speed_limit_integer": "速度限制必须是整数",
+          "speed_limit_min": "速度限制不能为负数",
+          "device_limit_integer": "设备限制必须是整数",
+          "device_limit_min": "设备限制不能为负数",
+          "capacity_limit_integer": "容量限制必须是整数",
+          "capacity_limit_min": "容量限制不能为负数",
+          "tags_array": "标签必须是数组"
+        },
         "submit": {
           "cancel": "取消",
           "submit": "提交",
@@ -3028,7 +3193,21 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "generate": {
       "missingParams": "请提供 email_prefix 或 generate_count",
-      "failed": "用户生成失败"
+      "failed": "用户生成失败",
+      "emailSuffixRequired": "邮箱后缀不能为空",
+      "countMax": "生成数量最大为500个",
+      "countInteger": "生成数量必须为数字"
+    },
+    "messages": {
+      "notFound": "该用户不存在",
+      "emailExists": "邮箱已在系统中存在",
+      "planNotFound": "订阅计划不存在",
+      "userIdsRequired": "user_ids不能为空",
+      "userIdRequired": "用户ID不能为空",
+      "saveFailed": "保存失败",
+      "updateFailed": "更新失败",
+      "processingFailed": "处理失败",
+      "operationFailed": "操作失败"
     },
     "invite": {
       "selfInviter": "不能将自己设为邀请人",
@@ -3038,7 +3217,33 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "edit": {
       "negativeBalance": "余额不能为负数",
-      "negativeCommission": "佣金余额不能为负数"
+      "negativeCommission": "佣金余额不能为负数",
+      "validation": {
+        "email_required": "邮箱不能为空",
+        "email_format": "邮箱格式不正确",
+        "traffic_format": "流量格式不正确",
+        "expired_at_format": "到期时间格式不正确",
+        "ban_status_format": "是否封禁格式不正确",
+        "ban_status_required": "是否封禁不能为空",
+        "admin_status_required": "是否管理员不能为空",
+        "admin_status_format": "是否管理员格式不正确",
+        "staff_status_required": "是否员工不能为空",
+        "staff_status_format": "是否员工格式不正确",
+        "plan_format": "订阅计划格式不正确",
+        "commission_rate_format": "推荐返利比例格式不正确",
+        "commission_rate_min": "推荐返利比例最小为0",
+        "commission_rate_max": "推荐返利比例最大为100",
+        "discount_rate_format": "专属折扣比例格式不正确",
+        "discount_rate_min": "专属折扣比例最小为0",
+        "discount_rate_max": "专属折扣比例最大为100",
+        "upload_traffic_format": "上行流量格式不正确",
+        "download_traffic_format": "下行流量格式不正确",
+        "balance_format": "余额格式不正确",
+        "commission_balance_format": "佣金格式不正确",
+        "password_min": "密码长度最小8位",
+        "speed_limit_format": "限速格式不正确",
+        "device_limit_format": "设备数量格式不正确"
+      }
     },
     "columns": {
       "is_admin": "管理员",
@@ -3116,6 +3321,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "value_number": "输入数值({{unit}})",
         "reset": "重置",
         "apply": "应用筛选"
+      },
+      "validation": {
+        "key_required": "过滤键不能为空",
+        "key_invalid": "过滤键参数有误",
+        "condition_required": "过滤条件不能为空",
+        "condition_invalid": "过滤条件参数有误",
+        "value_required": "过滤值不能为空"
       },
       "fields": {
         "email": "邮箱",
@@ -3400,7 +3612,11 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "apply_system_notice": "套用系统通知模板",
       "available_vars": "可用变量",
       "sending": "发送中...",
-      "send": "发送"
+      "send": "发送",
+      "validation": {
+        "subject_required": "主题不能为空",
+        "content_required": "发送内容不能为空"
+      }
     },
     "dialog": {
       "title": "用户详情",
@@ -3821,7 +4037,18 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "codeResetUnused": "兑换码不可改回未使用",
       "maxUsageBelowCount": "最大使用次数不能小于已使用次数",
       "usedCodeDelete": "已使用的礼品卡不可删除",
-      "codeHasUsage": "礼品卡存在使用记录，不可删除"
+      "codeHasUsage": "礼品卡存在使用记录，不可删除",
+      "typeEmpty": "礼品卡类型不能为空",
+      "typeInvalid": "无效的礼品卡类型",
+      "rewardRequired": "奖励配置不能为空",
+      "themeColorInvalid": "主题色格式不正确",
+      "templateRequired": "请选择礼品卡模板",
+      "countRequired": "请指定生成数量",
+      "countMax": "单次最多生成10000个兑换码",
+      "prefixFormat": "前缀只能包含大写字母和数字",
+      "templateIdEmpty": "礼品卡模板ID不能为空",
+      "templateIdFormat": "礼品卡模板ID格式无效",
+      "batchIdRequired": "批次ID不能为空"
     }
   },
   "knowledge": {
@@ -3875,6 +4102,29 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "sortModeHint": "拖拽知识条目进行排序，完成后点击保存",
       "editSort": "编辑排序",
       "saveSort": "保存排序"
+    },
+    "validation": {
+      "title_required": "标题不能为空",
+      "category_required": "分类不能为空",
+      "body_required": "内容不能为空",
+      "language_required": "语言不能为空",
+      "language_invalid": "知识库语言无效",
+      "show_boolean": "显示状态必须为布尔值",
+      "category_name_required": "分类名称不能为空",
+      "category_language_required": "分类语言不能为空",
+      "ids_required": "知识ID不能为空",
+      "ids_format": "知识ID格式有误",
+      "category_list_required": "分类列表不能为空",
+      "category_list_format": "分类格式有误"
+    }
+  },
+  "mail": {
+    "validation": {
+      "type_required": "发送类型不能为空",
+      "type_invalid": "发送类型格式有误",
+      "subject_required": "主题不能为空",
+      "content_required": "内容不能为空",
+      "receiver_array": "收件人格式有误"
     }
   }
 };

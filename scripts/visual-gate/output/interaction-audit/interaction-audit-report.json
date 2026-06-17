@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-06-17T06:45:28.572Z",
+  "ref": "http://127.0.0.1:17001",
+  "cmp": "http://127.0.0.1:17002",
+  "scenarioCount": 11,
+  "gapCount": 0,
+  "gaps": [],
+  "results": [
+    {
+      "id": "user-dashboard-shortcut-hover",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "user-dashboard-carousel-transition",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "user-invite-number-animation",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "user-knowledge-collapse",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "user-sidebar-menu-hover",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "user-auth-tab-switch",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "admin-dashboard-sections",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "admin-dashboard-chart-tab",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "admin-user-create-dialog",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "admin-sidebar-nav-hover",
+      "gapCount": 0,
+      "gaps": []
+    },
+    {
+      "id": "user-ticket-create-dialog",
+      "gapCount": 0,
+      "gaps": []
+    }
+  ]
+}

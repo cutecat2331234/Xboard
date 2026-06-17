@@ -74,11 +74,6 @@ import {
 } from '@/lib/api'
 
 import { SystemUpdateNotice } from '@/components/dashboard/SystemUpdateNotice'
-import {
-  AuditLogPanel,
-  QueueWorkloadPanel,
-  SystemStatusPanel,
-} from '@/components/dashboard/SystemMonitorPanels'
 import { FormSelect } from '@/components/shared/FormSelect'
 import { StatCard } from '@/components/shared/StatCard'
 
@@ -674,14 +669,7 @@ export default function DashboardPage() {
 
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <SystemStatusPanel />
-        <QueueWorkloadPanel />
-      </div>
-
-      <AuditLogPanel />
-
-      {/* 7001 legacy dashboard has no system-status / queue-workload / audit-log sections below. */}
+      {/* 7001 legacy dashboard ends after queue cards; omit rewrite-only monitor panels. */}
 
       <FailedJobsDialog
         open={failedJobsOpen}

@@ -190,6 +190,7 @@ function SidebarNav({
 }
 
 export const Sidebar = memo(function Sidebar() {
+  const { t } = useTranslation()
   const { title, logo, version } = getSettings()
   const { plugins, error: pluginError } = usePluginList()
   const pluginGroups = useMemo(() => buildPluginNavGroups(plugins), [plugins])

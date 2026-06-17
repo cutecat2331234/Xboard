@@ -1,4 +1,4 @@
-.PHONY: parity parity-smoke parity-full parity-check parity-status imitation-done help
+.PHONY: parity parity-smoke parity-full parity-check parity-status parity-interaction imitation-done help
 
 help:
 	@echo "Xboard parity targets (7001 ref vs 7002 cmp):"
@@ -7,6 +7,7 @@ help:
 	@echo "  make parity-check  - strict validate 87 parity + 2 cmp-only"
 	@echo "  make parity-smoke  - quick smoke (~15 min)"
 	@echo "  make parity-full   - full suite (~65 min, 87 parity + 2 cmp-only)"
+	@echo "  make parity-interaction - human-like UX audit (hover/dialog/tabs/animation)"
 	@echo "  make parity-status - alias for parity"
 
 parity parity-status:
@@ -20,6 +21,9 @@ parity-smoke:
 
 parity-full:
 	@node scripts/visual-gate/parity-status.mjs --full
+
+parity-interaction:
+	@node scripts/visual-gate/interaction-audit.mjs
 
 imitation-done:
 	@node scripts/visual-gate/parity-status.mjs --check

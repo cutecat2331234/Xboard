@@ -3,12 +3,12 @@
  */
 import { chromium } from 'playwright'
 
-const REF = 'http://127.0.0.1:7001'
-const CMP = 'http://127.0.0.1:7002'
-const USER_EMAIL = 'admin@example.com'
-const USER_PASS = 'your-password'
-const ADMIN_EMAIL = 'admin@example.com'
-const ADMIN_PASS = 'your-password'
+const REF = process.env.REF_BASE || 'http://127.0.0.1:7001'
+const CMP = process.env.CMP_BASE || 'http://127.0.0.1:7002'
+const USER_EMAIL = process.env.USER_EMAIL || process.env.ADMIN_EMAIL || 'admin@example.com'
+const USER_PASS = process.env.USER_PASSWORD || process.env.ADMIN_PASSWORD || 'your-password'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || USER_EMAIL
+const ADMIN_PASS = process.env.ADMIN_PASSWORD || USER_PASS
 
 const USER_ROUTES = [
   'login',
@@ -24,6 +24,33 @@ const USER_ROUTES = [
   'ticket',
   'profile',
 ]
+
+const ADMIN_ROUTE_HASH = {
+  'sign-in': 'sign-in',
+  dashboard: '',
+  'config/system': 'config/system',
+  'config/plugin': 'config/plugin',
+  theme: 'config/theme',
+  plan: 'finance/plan',
+  order: 'finance/order',
+  user: 'user/manage',
+  ticket: 'user/ticket',
+  server_manage: 'server/manage',
+  server_group: 'server/group',
+  server_route: 'server/route',
+  server_machine: 'server/machine',
+  payment: 'config/payment',
+  coupon: 'finance/coupon',
+  'gift-card': 'finance/gift-card',
+  knowledge: 'config/knowledge',
+  notice: 'config/notice',
+}
+
+function adminRouteHash(route) {
+  if (route === 'sign-in') return 'sign-in'
+  if (route === 'dashboard') return ''
+  return ADMIN_ROUTE_HASH[route] ?? route.replace(/_/g, '/')
+}
 
 const ADMIN_ROUTES = [
   'sign-in',
@@ -86,6 +113,20 @@ async function collectSections(page) {
 }
 
 async function userLogin(page, base) {
+  const res = await fetch(`${base}/api/v1/passport/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ email: USER_EMAIL, password: USER_PASS }),
+  }).catch(() => null)
+  const json = res ? await res.json().catch(() => ({})) : {}
+  const auth = json.data?.auth_data
+  if (auth) {
+    await page.goto(`${base}/#/login`, { waitUntil: 'domcontentloaded', timeout: 120000 })
+    await page.evaluate((token) => localStorage.setItem('xboard_auth_data', token), auth)
+    await page.goto(`${base}/#/dashboard`, { waitUntil: 'domcontentloaded', timeout: 120000 })
+    await page.waitForTimeout(2000)
+    return
+  }
   await page.goto(`${base}/#/login`, { waitUntil: 'domcontentloaded', timeout: 120000 })
   await page.waitForTimeout(2000)
   const email = page.locator('input[placeholder*="邮箱"], input[placeholder*="Email"], input[type="email"]').first()
@@ -101,7 +142,25 @@ async function userLogin(page, base) {
 }
 
 async function adminLogin(page, base, securePath) {
+  const res = await fetch(`${base}/api/v2/passport/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS }),
+  }).catch(() => null)
+  const json = res ? await res.json().catch(() => ({})) : {}
+  const auth = json.data?.auth_data
   await page.goto(`${base}/${securePath}/#/sign-in`, { waitUntil: 'domcontentloaded', timeout: 120000 })
+  await page.evaluate((token) => {
+    if (token) localStorage.setItem('xboard_admin_auth_data', token)
+    localStorage.setItem('xboard_admin_locale', 'zh-CN')
+    localStorage.setItem('i18nextLng', 'zh-CN')
+  }, auth || '')
+  if (auth) {
+    await page.goto(`${base}/${securePath}#/`, { waitUntil: 'domcontentloaded', timeout: 120000 })
+    await page.waitForTimeout(2500)
+    const bodyLen = (await page.locator('body').innerText()).length
+    if (bodyLen > 200) return
+  }
   await page.waitForTimeout(2000)
   const email = page.locator('input[type="email"], input[name="email"], input[placeholder*="邮箱"]').first()
   if (await email.isVisible().catch(() => false)) {
@@ -150,13 +209,18 @@ async function sweepAdminRoute(route, securePath) {
     ['7002', CMP],
   ]) {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
-    await ctx.addInitScript(() => localStorage.setItem('xboard_locale', 'zh-CN'))
+    await ctx.addInitScript(() => {
+      localStorage.setItem('xboard_admin_locale', 'zh-CN')
+      localStorage.setItem('i18nextLng', 'zh-CN')
+    })
     const p = await ctx.newPage()
     if (route === 'sign-in') {
-      await p.goto(`${base}/${securePath}/#/${route}`, { waitUntil: 'domcontentloaded', timeout: 120000 })
+      await p.goto(`${base}/${securePath}/#/sign-in`, { waitUntil: 'domcontentloaded', timeout: 120000 })
     } else {
       await adminLogin(p, base, securePath)
-      await p.goto(`${base}/${securePath}/#/${route}`, { waitUntil: 'domcontentloaded', timeout: 120000 }).catch(() => {})
+      const hash = adminRouteHash(route)
+      const path = hash ? `#/${hash}` : '#/'
+      await p.goto(`${base}/${securePath}${path}`, { waitUntil: 'domcontentloaded', timeout: 120000 }).catch(() => {})
     }
     await p.waitForTimeout(2500)
     results[label] = {

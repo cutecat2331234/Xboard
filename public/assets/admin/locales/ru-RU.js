@@ -51,6 +51,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "cancel": "Отмена",
       "save": "Сохранить",
       "success": "Настройки успешно сохранены"
+    },
+    "validation": {
+      "name_required": "Theme name cannot be empty",
+      "name_format": "Invalid theme name format",
+      "config_required": "Theme config cannot be empty",
+      "render_failed": "Theme rendering failed. If you updated the theme, settings may have changed — please reconfigure the theme and try again."
     }
   },
   "machine": {
@@ -212,6 +218,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "loading": "Загрузка...",
     "error": "Ошибка",
     "invalidParameters": "Неверные параметры",
+    "invalidSort": "Invalid sort parameters",
+    "invalidFileType": "Invalid file type",
+    "operationFailed": "Operation failed",
     "success": "Успех",
     "save": "Сохранить",
     "cancel": "Отмена",
@@ -417,7 +426,9 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "deleteSuccess": "Плагин удален",
       "deleteError": "Ошибка удаления плагина",
       "disableBeforeUninstall": "Сначала отключите плагин перед удалением",
-      "coreDeleteForbidden": "Системные плагины нельзя удалить"
+      "coreDeleteForbidden": "Системные плагины нельзя удалить",
+      "notEnabled": "Plugin is not enabled",
+      "codeRequired": "Plugin code cannot be empty"
     }
   },
   "group": {
@@ -573,6 +584,12 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "cancel": "Отмена",
         "submit": "Отправить",
         "success": "Успешно отправлено"
+      },
+      "validation": {
+        "title_required": "Заголовок не может быть пустым",
+        "content_required": "Содержимое не может быть пустым",
+        "img_url_format": "Неверный формат URL изображения",
+        "tags_array": "Теги должны быть массивом"
       }
     }
   },
@@ -626,7 +643,31 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     "assign": {
       "amountExceedsPrice": "Сумма оплаты не может превышать цену тарифа",
       "userBanned": "Пользователь заблокирован и не может получить подписку",
-      "createFailed": "Не удалось создать заказ"
+      "createFailed": "Не удалось создать заказ",
+      "planRequired": "Plan is required",
+      "emailRequired": "Email cannot be empty",
+      "amountRequired": "Payment amount cannot be empty",
+      "periodRequired": "Subscription period cannot be empty",
+      "periodInvalid": "Subscription period format is invalid",
+      "pendingOrder": "User has an unpaid or pending order, please try again later or cancel it",
+      "invalidPeriod": "Invalid plan period",
+      "fulfillmentFailed": "Order fulfillment failed"
+    },
+    "messages": {
+      "notFound": "Order does not exist",
+      "notFoundOrPaid": "Order does not exist or has been paid",
+      "pendingOnly": "Only pending orders can be marked as paid",
+      "cancelPendingOnly": "You can only cancel pending orders",
+      "cancelProcessingBlocked": "Payment is in progress for this order, cannot cancel",
+      "cancelPaidBlocked": "Paid orders cannot be cancelled; process a refund first",
+      "cancelFailed": "Cancel failed",
+      "commissionSettledManual": "Commission status cannot be manually set to settled",
+      "commissionRevertBlocked": "Settled commission cannot be reverted",
+      "commissionStatusFormat": "Commission status format is invalid",
+      "paymentAmountFormat": "Payment amount format is invalid",
+      "idRequired": "Order ID is required",
+      "idFormat": "Order ID format is invalid",
+      "tradeNoRequired": "Trade number cannot be empty"
     },
     "actions": {
       "markAsPaid": "Пометить как оплаченный",
@@ -638,6 +679,13 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "userId": "ID пользователя: {{id}}",
       "commissionBalance": "Баланс комиссии: {{value}}",
       "clearAll": "Сбросить все фильтры"
+    },
+    "filterValidation": {
+      "key_required": "Ключ фильтра не может быть пустым",
+      "key_invalid": "Неверный ключ фильтра",
+      "condition_required": "Условие фильтра не может быть пустым",
+      "condition_invalid": "Неверное условие фильтра",
+      "value_required": "Значение фильтра не может быть пустым"
     },
     "search": {
       "placeholder": "Поиск заказов..."
@@ -910,7 +958,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "batchResetFailed": "Не удалось выполнить пакетный сброс",
         "selectUpdate": "Выберите узлы для обновления",
         "noUpdatableFields": "Нет полей для обновления",
-        "batchUpdateFailed": "Не удалось выполнить пакетное обновление"
+        "batchUpdateFailed": "Не удалось выполнить пакетное обновление",
+        "nodeIdRequired": "Node ID cannot be empty",
+        "localPortRequired": "Local port cannot be empty",
+        "fetchConfigFailed": "Failed to fetch node config"
       }
     },
     "columns": {
@@ -1142,7 +1193,32 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       },
       "submit": "Отправить",
       "cancel": "Отмена",
-      "success": "Успешно отправлено"
+      "success": "Успешно отправлено",
+      "validation": {
+        "type_required": "Тип узла не может быть пустым",
+        "type_invalid": "Invalid node type specified",
+        "name_required": "Имя узла не может быть пустым",
+        "group_required": "Permission group cannot be empty",
+        "group_format": "Permission group format is invalid",
+        "route_format": "Route group format is invalid",
+        "parent_id_format": "Parent ID format is invalid",
+        "host_required": "Node host cannot be empty",
+        "port_required": "Connection port cannot be empty",
+        "server_port_required": "Backend port cannot be empty",
+        "tags_format": "Tags format is invalid",
+        "rate_required": "Rate cannot be empty",
+        "rate_format": "Rate format is invalid",
+        "rate_time_start_format": "Неверный формат времени начала диапазона (используйте HH:MM)",
+        "rate_time_end_format": "Неверный формат времени окончания диапазона (используйте HH:MM)",
+        "rate_multiplier_format": "Неверный формат множителя тарифа",
+        "rate_multiplier_min": "Множитель тарифа не может быть меньше 0",
+        "traffic_limit_integer": "Traffic limit must be an integer",
+        "traffic_limit_min": "Traffic limit cannot be less than 0",
+        "field_required": "Поле {{field}} обязательно",
+        "field_string": "Поле {{field}} должно быть строкой",
+        "field_integer": "Поле {{field}} должно быть целым числом",
+        "field_invalid": "Недопустимое значение поля {{field}}"
+      }
     },
     "dynamic_form": {
       "multiplex": {
@@ -1719,6 +1795,23 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "error": {
         "saveFailed": "Не удалось сохранить купон"
       },
+      "validation": {
+        "name_required": "Название не может быть пустым",
+        "type_required": "Тип купона не может быть пустым",
+        "type_invalid": "Неверный формат типа купона",
+        "value_required": "Сумма или процент не может быть пустым",
+        "value_format": "Неверный формат суммы или процента",
+        "started_at_required": "Время начала не может быть пустым",
+        "started_at_format": "Неверный формат времени начала",
+        "ended_at_required": "Время окончания не может быть пустым",
+        "ended_at_format": "Неверный формат времени окончания",
+        "limit_use_format": "Неверный формат максимального числа использований",
+        "limit_use_with_user_format": "Неверный формат лимита использований на пользователя",
+        "limit_plan_ids_array": "Применимые планы должны быть массивом",
+        "limit_period_array": "Применимые периоды должны быть массивом",
+        "generate_count_integer": "Количество генерации должно быть целым числом",
+        "generate_count_max": "Количество генерации не может превышать 500"
+      },
       "timeRange": {
         "quickSet": "Быстрая установка",
         "presets": {
@@ -1797,7 +1890,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "cancel": "Отмена",
       "submit": "Отправить",
       "validation": {
-        "remarks": "Введите корректное примечание"
+        "remarks": "Введите корректное примечание",
+        "match_required": "Match value cannot be empty",
+        "action_required": "Action type cannot be empty",
+        "action_invalid": "Invalid action type"
       }
     },
     "toolbar": {
@@ -1819,6 +1915,39 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
   "settings": {
     "title": "Системные настройки",
     "description": "Управление основными конфигурациями системы, включая сайт, безопасность, подписки, реферальную программу, узлы и уведомления.",
+    "validation": {
+      "app_url_url": "URL сайта должен включать http(s)://",
+      "subscribe_url_url": "Subscribe URL must include http(s)://",
+      "server_token_min": "Server token must be at least 16 characters",
+      "tos_url_url": "URL пользовательского соглашения должен включать http(s)://",
+      "telegram_webhook_url_url": "Telegram webhook URL must include http(s)://",
+      "telegram_discuss_link_url": "Ссылка на группу Telegram должна быть действительным URL с http(s)://",
+      "logo_url": "Logo URL must include http(s)://",
+      "background_url": "Фоновое изображение должно быть действительным URL",
+      "websocket_url": "WebSocket URL должен включать http(s)://",
+      "secure_path_min": "Secure admin path must be at least 8 characters",
+      "secure_path_regex": "Secure admin path may only contain letters and numbers",
+      "captcha_type_in": "Captcha type must be recaptcha, turnstile, or recaptcha-v3",
+      "recaptcha_v3_score_numeric": "reCAPTCHA v3 score threshold must be numeric",
+      "recaptcha_v3_score_min": "reCAPTCHA v3 score threshold cannot be less than 0",
+      "recaptcha_v3_score_max": "reCAPTCHA v3 score threshold cannot be greater than 1",
+      "invite_commission_range": "Комиссия за приглашение должна быть от 0 до 100",
+      "commission_rate_format": "Commission rate format is invalid",
+      "commission_rate_min": "Commission rate must be at least 0",
+      "commission_rate_max": "Commission rate cannot exceed 100",
+      "withdraw_fee_rate_format": "Неверный формат комиссии за вывод",
+      "withdraw_fee_rate_range": "Комиссия за вывод должна быть от 0 до 1",
+      "withdraw_ticket_stale_format": "Неверный формат дней просрочки заявки на вывод",
+      "withdraw_ticket_stale_range": "Дни просрочки заявки на вывод должны быть от 1 до 90",
+      "invite_code_max_uses_format": "Неверный формат лимита использования пригласительного кода",
+      "traffic_warn_rate_format": "Неверный формат порога предупреждения о трафике",
+      "traffic_warn_rate_range": "Порог предупреждения о трафике должен быть от 1 до 100",
+      "traffic_reset_method_in": "Неверный метод сброса трафика",
+      "order_event_type_in": "Неверный тип события заказа",
+      "sidebar_theme_in": "Неверная тема боковой панели",
+      "header_theme_in": "Неверная тема верхней панели",
+      "frontend_theme_color_in": "Неверный цвет темы фронтенда"
+    },
     "server": {
       "title": "Конфигурация сервера",
       "description": "Настройка связи и синхронизации узлов, включая ключи связи, интервалы опроса, балансировку нагрузки и другие параметры.",
@@ -2690,7 +2819,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "notFound": "Способ оплаты не найден",
       "disabled": "Способ оплаты не существует или отключён",
       "siteUrlRequired": "Укажите URL сайта в настройках перед добавлением способов оплаты",
-      "saveFailed": "Не удалось сохранить способ оплаты"
+      "saveFailed": "Не удалось сохранить способ оплаты",
+      "gatewayFailed": "Payment gateway request failed"
     },
     "table": {
       "columns": {
@@ -2768,7 +2898,13 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         },
         "payment": {
           "required": "Пожалуйста, выберите платежный шлюз"
-        }
+        },
+        "display_name_required": "Display name cannot be empty",
+        "gateway_required": "Gateway parameter cannot be empty",
+        "config_required": "Config parameter cannot be empty",
+        "fixed_fee_format": "Invalid fixed handling fee format",
+        "percent_fee_range": "Handling fee percent must be between 0 and 100",
+        "id_format": "Payment method ID format is invalid"
       },
       "buttons": {
         "cancel": "Отмена",
@@ -2790,6 +2926,14 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "sort": {
         "edit": "Изменить порядок",
         "save": "Сохранить порядок"
+      },
+      "sortValidation": {
+        "ids_required": "ID тарифных планов не могут быть пустыми",
+        "id_format": "Неверный формат ID тарифного плана"
+      },
+      "updateValidation": {
+        "show_format": "Неверный формат статуса продаж",
+        "renew_format": "Неверный формат статуса продления"
       },
       "columns": {
         "id": "ID",
@@ -2912,6 +3056,27 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "force_update": {
           "label": "Принудительно обновить планы пользователей"
         },
+        "validation": {
+          "name_required": "Plan name cannot be empty",
+          "name_max": "Plan name cannot exceed 255 characters",
+          "traffic_required": "Traffic quota cannot be empty",
+          "traffic_integer": "Traffic quota must be an integer",
+          "traffic_min": "Traffic quota must be greater than 0",
+          "prices_format": "Price configuration format is invalid",
+          "price_numeric": "Price must be numeric",
+          "price_negative": "Price cannot be negative",
+          "price_number": "Price must be a number",
+          "price_min_zero": "Price must be greater than or equal to 0 (leave blank if unused)",
+          "period_unsupported": "Unsupported subscription period",
+          "group_id_integer": "Group ID must be an integer",
+          "speed_limit_integer": "Speed limit must be an integer",
+          "speed_limit_min": "Speed limit cannot be negative",
+          "device_limit_integer": "Device limit must be an integer",
+          "device_limit_min": "Device limit cannot be negative",
+          "capacity_limit_integer": "Capacity limit must be an integer",
+          "capacity_limit_min": "Capacity limit cannot be negative",
+          "tags_array": "Tags must be an array"
+        },
         "submit": {
           "cancel": "Отмена",
           "submit": "Отправить",
@@ -2944,7 +3109,21 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "generate": {
       "missingParams": "Укажите email_prefix или generate_count",
-      "failed": "Не удалось создать пользователя"
+      "failed": "Не удалось создать пользователя",
+      "emailSuffixRequired": "Email suffix cannot be empty",
+      "countMax": "Generate count cannot exceed 500",
+      "countInteger": "Generate count must be an integer"
+    },
+    "messages": {
+      "notFound": "The user does not exist",
+      "emailExists": "Email already exists",
+      "planNotFound": "Subscription plan does not exist",
+      "userIdsRequired": "User IDs cannot be empty",
+      "userIdRequired": "User ID is required",
+      "saveFailed": "Save failed",
+      "updateFailed": "Update failed",
+      "processingFailed": "Processing failed",
+      "operationFailed": "Operation failed"
     },
     "invite": {
       "selfInviter": "Нельзя указать себя в качестве пригласившего",
@@ -2954,7 +3133,33 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "edit": {
       "negativeBalance": "Баланс не может быть отрицательным",
-      "negativeCommission": "Комиссионный баланс не может быть отрицательным"
+      "negativeCommission": "Комиссионный баланс не может быть отрицательным",
+      "validation": {
+        "email_required": "Email не может быть пустым",
+        "email_format": "Неверный формат email",
+        "traffic_format": "Неверный формат трафика",
+        "expired_at_format": "Неверный формат времени истечения",
+        "ban_status_format": "Неверный формат статуса блокировки",
+        "ban_status_required": "Статус блокировки не может быть пустым",
+        "admin_status_required": "Статус администратора не может быть пустым",
+        "admin_status_format": "Неверный формат статуса администратора",
+        "staff_status_required": "Статус персонала не может быть пустым",
+        "staff_status_format": "Неверный формат статуса персонала",
+        "plan_format": "Неверный формат тарифного плана",
+        "commission_rate_format": "Неверный формат комиссионной ставки",
+        "commission_rate_min": "Комиссионная ставка должна быть не менее 0",
+        "commission_rate_max": "Комиссионная ставка не может превышать 100",
+        "discount_rate_format": "Неверный формат скидки",
+        "discount_rate_min": "Скидка должна быть не менее 0",
+        "discount_rate_max": "Скидка не может превышать 100",
+        "upload_traffic_format": "Неверный формат исходящего трафика",
+        "download_traffic_format": "Неверный формат входящего трафика",
+        "balance_format": "Неверный формат баланса",
+        "commission_balance_format": "Неверный формат комиссионного баланса",
+        "password_min": "Пароль должен содержать не менее 8 символов",
+        "speed_limit_format": "Неверный формат ограничения скорости",
+        "device_limit_format": "Неверный формат лимита устройств"
+      }
     },
     "columns": {
       "is_admin": "Админ",
@@ -3032,6 +3237,13 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "value_number": "Введите значение ({{unit}})",
         "reset": "Сброс",
         "apply": "Применить фильтр"
+      },
+      "validation": {
+        "key_required": "Ключ фильтра не может быть пустым",
+        "key_invalid": "Неверный ключ фильтра",
+        "condition_required": "Условие фильтра не может быть пустым",
+        "condition_invalid": "Неверное условие фильтра",
+        "value_required": "Значение фильтра не может быть пустым"
       },
       "fields": {
         "email": "Email",
@@ -3307,7 +3519,11 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "apply_system_notice": "Применить шаблон уведомления",
       "available_vars": "Доступные переменные",
       "sending": "Отправка...",
-      "send": "Отправить"
+      "send": "Отправить",
+      "validation": {
+        "subject_required": "Тема письма не может быть пустой",
+        "content_required": "Содержимое письма не может быть пустым"
+      }
     },
     "dialog": {
       "title": "Детали пользователя",
@@ -3672,7 +3888,18 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "codeResetUnused": "Код нельзя вернуть в статус «не использован»",
       "maxUsageBelowCount": "Макс. использований не может быть меньше текущего числа",
       "usedCodeDelete": "Использованную карту нельзя удалить",
-      "codeHasUsage": "Нельзя удалить: есть записи об использовании"
+      "codeHasUsage": "Нельзя удалить: есть записи об использовании",
+      "typeEmpty": "Gift card type cannot be empty",
+      "typeInvalid": "Invalid gift card type",
+      "rewardRequired": "Reward configuration cannot be empty",
+      "themeColorInvalid": "Invalid theme color format",
+      "templateRequired": "Gift card template is required",
+      "countRequired": "Generation count is required",
+      "countMax": "At most 10000 redemption codes can be generated at once",
+      "prefixFormat": "Prefix may only contain uppercase letters and digits",
+      "templateIdEmpty": "Gift card template ID cannot be empty",
+      "templateIdFormat": "Gift card template ID format is invalid",
+      "batchIdRequired": "Batch ID cannot be empty"
     }
   },
   "knowledge": {
@@ -3723,6 +3950,29 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "sortModeHint": "Перетаскивайте элементы для сортировки, затем нажмите сохранить",
       "editSort": "Изменить порядок",
       "saveSort": "Сохранить порядок"
+    },
+    "validation": {
+      "title_required": "Заголовок не может быть пустым",
+      "category_required": "Категория не может быть пустой",
+      "body_required": "Содержимое не может быть пустым",
+      "language_required": "Язык не может быть пустым",
+      "language_invalid": "Неверный язык базы знаний",
+      "show_boolean": "Статус отображения должен быть логическим значением",
+      "category_name_required": "Название категории не может быть пустым",
+      "category_language_required": "Язык категории не может быть пустым",
+      "ids_required": "ID статей не могут быть пустыми",
+      "ids_format": "Неверный формат ID статьи",
+      "category_list_required": "Список категорий не может быть пустым",
+      "category_list_format": "Неверный формат категории"
+    }
+  },
+  "mail": {
+    "validation": {
+      "type_required": "Тип отправки не может быть пустым",
+      "type_invalid": "Неверный формат типа отправки",
+      "subject_required": "Тема письма не может быть пустой",
+      "content_required": "Содержимое не может быть пустым",
+      "receiver_array": "Получатели должны быть массивом"
     }
   }
 };

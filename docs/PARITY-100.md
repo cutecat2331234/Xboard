@@ -77,6 +77,26 @@ GitHub Actions `.github/workflows/parity-check.yml` 与 Gitea Actions `.gitea/wo
 | plan-add | ~1.02% |
 | server-add | ~1.81% |
 
+## 交互 / 动画审计（2026-06-17 新增）
+
+除静态像素 gate 外，可用 **human-like 交互审计** 覆盖 hover、弹窗、Tab 切换、折叠、轮播箭头等：
+
+```bash
+make parity-interaction
+# 或
+REF_BASE=http://127.0.0.1:7001 CMP_BASE=http://127.0.0.1:7002 \
+SECURE_PATH=<secure> ADMIN_EMAIL=... ADMIN_PASSWORD=... \
+node scripts/visual-gate/interaction-audit.mjs
+```
+
+报告：`scripts/visual-gate/output/interaction-audit/interaction-audit-report.json`
+
+扩展功能扫描（可点击元素 / 卡片区块对比）：
+
+```bash
+node scripts/visual-gate/live-sweep-ext.mjs
+```
+
 ## 相关文档
 
 - `scripts/visual-gate/README.md` — 用法与路由列表
