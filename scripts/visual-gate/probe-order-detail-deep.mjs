@@ -8,7 +8,7 @@ const email = 'admin@example.com'
 const password = 'your-password'
 
 async function ensureFixtures(base) {
-  const securePath = ''
+  const securePath = process.env.SECURE_PATH || ''
   const login = async (ver) => {
     const res = await fetch(`${base}/api/${ver}/passport/auth/login`, {
       method: 'POST',

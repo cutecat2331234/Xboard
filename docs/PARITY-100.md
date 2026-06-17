@@ -80,5 +80,4 @@ GitHub Actions `.github/workflows/parity-check.yml` 与 Gitea Actions `.gitea/wo
 ## 相关文档
 
 - `scripts/visual-gate/README.md` — 用法与路由列表
-- `docs/IMITATION-PLAN-ROUND-37.md` — 验收闭环 JSON
-- `docs/AI-HANDOFF.md` — 给后续 AI 的交接
+- 运行前请设置环境变量：`REF_BASE`、`CMP_BASE`、`SECURE_PATH`（见 visual-gate README）

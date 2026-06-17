@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 
 const REF = 'http://127.0.0.1:7001'
-const SECURE = ''
+const SECURE = process.env.SECURE_PATH || ''
 
 async function login(page) {
   await page.goto(`${REF}/${SECURE}#/sign-in`, { waitUntil: 'domcontentloaded', timeout: 90000 })

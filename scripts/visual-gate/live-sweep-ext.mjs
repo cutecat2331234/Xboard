@@ -196,7 +196,7 @@ function diffResults(side, route, results) {
 }
 
 async function detectSecurePath() {
-  return process.env.ADMIN_SECURE_PATH || ''
+  return process.env.ADMIN_SECURE_PATH || process.env.SECURE_PATH || ''
 }
 
 const gaps = []

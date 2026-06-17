@@ -1,6 +1,6 @@
 import { chromium } from 'playwright'
 
-const SECURE = ''
+const SECURE = process.env.SECURE_PATH || ''
 const HASH = '#/config/system/subscribe-template'
 
 async function login(page, base) {

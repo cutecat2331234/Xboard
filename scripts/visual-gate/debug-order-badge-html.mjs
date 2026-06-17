@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const pwPath = path.join(root, 'scripts/visual-gate/node_modules/playwright/index.mjs')
 const { chromium } = await import(pathToFileURL(pwPath).href)
-const securePath = ''
+const securePath = process.env.SECURE_PATH || ''
 
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })

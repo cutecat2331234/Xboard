@@ -9,7 +9,7 @@ import { chromium } from 'playwright'
 const __dir = path.dirname(fileURLToPath(import.meta.url))
 const REF = 'http://127.0.0.1:7001'
 const CMP = 'http://127.0.0.1:7002'
-const SECURE = ''
+const SECURE = process.env.SECURE_PATH || ''
 
 const PAGES = [
   {

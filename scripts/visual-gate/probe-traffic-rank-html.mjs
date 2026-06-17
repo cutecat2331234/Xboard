@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 
 const REF = 'http://127.0.0.1:7001'
-const SEC = ''
+const SEC = process.env.SECURE_PATH || ''
 
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })

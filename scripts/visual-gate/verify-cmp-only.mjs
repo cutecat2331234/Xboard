@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const cmpBase = process.env.CMP_BASE || 'http://127.0.0.1:7002'
-const securePath = process.env.SECURE_PATH || ''
+const securePath = process.env.SECURE_PATH || process.env.SECURE_PATH || ''
 const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com'
 const adminPassword = process.env.ADMIN_PASSWORD || 'your-password'
 const outDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'output', 'cmp-only')

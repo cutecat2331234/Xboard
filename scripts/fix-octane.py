@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import paramiko
 import sys
 import time
@@ -24,7 +25,11 @@ cmds = [
 
 for attempt in range(6):
     try:
-        ssh = paramiko.SSHClient()
+        if not HOST or not PASS:
+    print("Set DEPLOY_HOST and DEPLOY_PASS.", file=sys.stderr)
+    sys.exit(1)
+
+ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(HOST, username=USER, password=PASS, timeout=90)
         for c in cmds:

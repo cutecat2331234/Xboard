@@ -12,7 +12,7 @@ const cmpBase = 'http://127.0.0.1:7002'
 const BOX = { x: 236, y: 60, w: 1044, h: 840 }
 const email = 'admin@example.com'
 const password = 'your-password'
-const securePath = ''
+const securePath = process.env.SECURE_PATH || ''
 
 async function passportLogin(base) {
   const res = await fetch(`${base}/api/v1/passport/auth/login`, {

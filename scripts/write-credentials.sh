@@ -1,16 +1,24 @@
 #!/bin/bash
-SECURE=$(php8.5 -r "require '/opt/xboard/vendor/autoload.php'; \$a=require '/opt/xboard/bootstrap/app.php'; \$a->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); echo admin_setting('secure_path')?:hash('crc32b',config('app.key'));" 2>/dev/null)
-cat > /root/xboard-credentials.txt <<EOF
-Xboard 登录凭据（2026-06-08 重置）
+# Write admin login hints to a local file (paths/credentials from environment).
+set -euo pipefail
+
+APP_ROOT="${APP_ROOT:-/opt/xboard}"
+OUT="${CREDENTIALS_FILE:-/root/xboard-credentials.txt}"
+APP_URL="${APP_URL:-http://127.0.0.1:7001}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@example.com}"
+
+SECURE=$(php8.5 -r "require '${APP_ROOT}/vendor/autoload.php'; \$a=require '${APP_ROOT}/bootstrap/app.php'; \$a->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); echo admin_setting('secure_path')?:hash('crc32b',config('app.key'));" 2>/dev/null || true)
+
+cat > "$OUT" <<EOF
+Xboard 登录凭据（请妥善保管，勿提交到 Git）
 ================================
-用户前台（7001 / 7002 通用）:
-  邮箱: admin@example.com
-  密码: your-password
+用户前台:
+  邮箱: ${ADMIN_EMAIL}
+  密码: （安装时设置，见 .env / 安装日志）
 
 管理后台:
-  http://127.0.0.1:7001/${SECURE}
-  http://127.0.0.1:7002/${SECURE}
+  ${APP_URL}/${SECURE}
   同上邮箱密码
 EOF
-chmod 600 /root/xboard-credentials.txt
-cat /root/xboard-credentials.txt
+chmod 600 "$OUT"
+cat "$OUT"

@@ -8,7 +8,7 @@ import { chromium } from 'playwright'
 const __dir = path.dirname(fileURLToPath(import.meta.url))
 const REF = 'http://127.0.0.1:7001'
 const CMP = 'http://127.0.0.1:7002'
-const SEC = ''
+const SEC = process.env.SECURE_PATH || ''
 const HASH = '#/config/system/safe'
 
 const clips = [

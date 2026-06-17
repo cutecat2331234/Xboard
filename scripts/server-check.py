@@ -1,9 +1,11 @@
+import sys
 #!/usr/bin/env python3
+import os
 import paramiko
 
-HOST = "127.0.0.1"
-USER = "root"
-PASS = ""
+HOST = os.environ.get("DEPLOY_HOST", "")
+USER = os.environ.get("DEPLOY_USER", "root")
+PASS = os.environ.get("DEPLOY_PASS", "")
 
 cmds = [
     "uname -a",
@@ -15,6 +17,10 @@ cmds = [
     "test -d /opt/xboard && echo XBOARD_EXISTS || echo NO_XBOARD",
     "test -d /opt/Xboard-master && echo DOCKER_STACK_EXISTS || echo NO_DOCKER_STACK",
 ]
+
+if not HOST or not PASS:
+    print("Set DEPLOY_HOST and DEPLOY_PASS.", file=sys.stderr)
+    sys.exit(1)
 
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

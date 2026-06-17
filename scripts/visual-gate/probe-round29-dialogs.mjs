@@ -13,7 +13,7 @@ const env = {
   ...process.env,
   REF_BASE: process.env.VG_REF || process.env.REF_BASE || 'http://127.0.0.1:7001',
   CMP_BASE: process.env.VG_CMP || process.env.CMP_BASE || 'http://127.0.0.1:7002',
-  SECURE_PATH: process.env.VG_SECURE || process.env.SECURE_PATH || '',
+  SECURE_PATH: process.env.VG_SECURE || process.env.SECURE_PATH || process.env.SECURE_PATH || '',
   ADMIN_LOCALE: process.env.ADMIN_LOCALE || 'zh-CN',
   SIDE: 'admin',
 }

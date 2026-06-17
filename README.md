@@ -27,8 +27,6 @@
 
 克隆后必须**本地构建前端**，否则页面无法正常加载。
 
-> 仓库 Git 对象约 **22 MB**（源码）。若在 Gitea 仍看到较大体积，请在仓库设置中执行 **Git 垃圾回收**，并清理已无引用的 LFS 孤儿对象。
-
 ## 功能特性
 
 - Laravel 13 + Octane (Swoole) 高性能后端
@@ -36,6 +34,7 @@
 - 用户端：Vue3 + TypeScript + Naive UI
 - 插件体系、队列（Horizon）、Redis 缓存
 - Docker / 1Panel / aaPanel 等多种部署方式
+- 节点后端：`xboard-node/`（Go，可与面板联动部署）
 
 ## 技术栈
 
@@ -45,14 +44,12 @@
 | 管理端源码 | `frontend/admin` → 构建到 `public/assets/admin` |
 | 用户端源码 | `frontend/user` → 构建到 `theme/Xboard/assets` |
 | 主题模板 | `theme/Xboard/`（blade、config，不含 assets） |
+| 节点服务 | `xboard-node/` |
 | 缓存 / 队列 | Redis |
 
 ## 仓库地址
 
-| 远程 | 地址 |
-|------|------|
-| Gitea（主） | http://https://github.com/cutecat2331234/Xboard |
-| GitHub | https://github.com/cutecat2331234/Xboard |
+https://github.com/cutecat2331234/Xboard
 
 ## 环境要求
 
@@ -65,13 +62,6 @@
 ## 快速开始
 
 ### 1. 克隆仓库
-
-```bash
-git clone http://https://github.com/cutecat2331234/Xboard.git
-cd Xboard
-```
-
-或从 GitHub：
 
 ```bash
 git clone https://github.com/cutecat2331234/Xboard.git
@@ -121,36 +111,6 @@ php artisan octane:start --server=swoole --host=0.0.0.0 --port=7001
 php artisan horizon
 ```
 
-## 7001 vs 7002 仿写验收（100% 完工）
-
-双端口对比环境：`7001` 闭源原版 · `7002` 开源仿写（见 `docs/FRONTEND-COMPARE.md`）。
-
-| 维度 | 状态 |
-|------|------|
-| Visual Gate 像素 | **87/87 PASS** |
-| Cmp-only（7002 独有） | **2/2 PASS** |
-| **合计** | **89/89 PASS** |
-| 功能覆盖（相对后端 API） | **100%** |
-
-```bash
-# 一键确认仿造线 100%（校验报告 + 完工 banner）
-make imitation-done
-
-# 严格校验报告（CI / 发版前）
-make parity-check
-
-# 查看上次全量报告
-make parity
-
-# 日常 smoke（~15 min，含 cmp-only）
-make parity-smoke
-
-# 发版前全量（~65 min）
-make parity-full
-```
-
-详情：`docs/PARITY-100.md` · 报告：`scripts/visual-gate/output/parity-suite-report.json`
-
 ### 5. Docker 一键部署（可选）
 
 详见 [Docker Compose 部署文档](./docs/en/installation/docker-compose.md)。
@@ -163,10 +123,11 @@ Xboard/
 ├── frontend/
 │   ├── admin/              # 管理端 React 源码
 │   └── user/               # 用户端 Vue3 源码
+├── xboard-node/            # 节点后端（Go）
 ├── theme/Xboard/           # 用户端主题模板（blade、config）
 ├── public/                 # Web 根目录（构建后生成 assets）
 ├── plugins-core/           # 内置插件
-├── docs/                   # 文档与截图
+├── docs/                   # 文档
 └── tests/
 ```
 
@@ -179,7 +140,7 @@ npm --prefix frontend/admin run dev
 npm --prefix frontend/user run dev
 ```
 
-默认 `vite.config.ts` 可能将 API 代理到远程地址。对接本地后端时，请将 proxy 目标改为 `http://localhost:7001`。
+本地开发时，可通过环境变量 `VITE_API_PROXY` 将 API 代理指向后端（默认 `http://127.0.0.1:7001`）。
 
 修改前端后重新 `npm run build`，**不要**将 `public/assets/` 或 `theme/Xboard/assets/` 提交到 Git。
 
@@ -190,6 +151,7 @@ npm --prefix frontend/user run dev
 - [1Panel 部署](./docs/en/installation/1panel.md)
 - [aaPanel 部署](./docs/en/installation/aapanel.md)
 - [从 v2board 迁移](./docs/en/migration/v2board-dev.md)
+- [Visual Gate 验收说明](./docs/PARITY-100.md)
 
 ## 质量检查
 
@@ -197,8 +159,11 @@ npm --prefix frontend/user run dev
 # 静态分析
 vendor/bin/phpstan analyse --memory-limit=1G
 
-# 测试
+# 单元测试
 vendor/bin/phpunit
+
+# Visual Gate 报告校验（CI）
+make parity-check
 ```
 
 ## 预览
@@ -211,19 +176,13 @@ vendor/bin/phpunit
 
 本项目仅供学习与交流。使用本项目所产生的任何后果由使用者自行承担。
 
-## 维护状态
-
-**7001→7002 仿写线已 100% 完工**（89 场景 Visual Gate + 功能 API 覆盖，见 `docs/PARITY-100.md`）。
-
-当前为轻量维护：修复关键缺陷与安全问题；前端改动后请跑 `make parity-smoke` 或 `make parity-check`。
-
 ## 参与贡献
 
 欢迎提交 Issue 与 Pull Request。提交前请确认：
 
 1. **不要**提交 `public/assets/`、`theme/Xboard/assets/`、`legacy-dist/` 等构建产物
 2. 前端改动需在本地完成 `npm run build` 验证
-3. 若同时维护 Gitea 与 GitHub，推送后请确认两边同步
+3. **不要**在文档、脚本或提交信息中写入服务器 IP、密码、管理路径等敏感信息
 
 ## License
 

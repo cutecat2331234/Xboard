@@ -2,7 +2,7 @@ import { chromium } from 'playwright'
 
 const REF = 'http://127.0.0.1:7001'
 const CMP = 'http://127.0.0.1:7002'
-const SEC = ''
+const SEC = process.env.SECURE_PATH || ''
 
 async function probe(base, label) {
   const browser = await chromium.launch()

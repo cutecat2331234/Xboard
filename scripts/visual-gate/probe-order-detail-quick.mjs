@@ -7,7 +7,7 @@ const { chromium } = await import(pathToFileURL(pwPath).href)
 
 const email = 'admin@example.com'
 const password = 'your-password'
-const securePath = ''
+const securePath = process.env.SECURE_PATH || ''
 const base = 'http://127.0.0.1:7001'
 
 async function login(v) {

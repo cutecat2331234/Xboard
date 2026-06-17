@@ -43,9 +43,9 @@ prebuilt frontends: the user site (Vue3, served at `/`) and the admin panel
 - Build: `npm --prefix frontend/admin run build` and `npm --prefix frontend/user run build`
   (outputs overwrite the committed assets under `public/assets/admin` and
   `theme/Xboard/assets` — avoid committing rebuilt assets unless intended).
-- Dev servers (`npm run dev`) proxy `/api` to a remote server (`127.0.0.1:7001`)
-  in the committed `vite.config.ts`. To develop against the local backend, point that
-  proxy at `http://localhost:7001` instead.
+- Dev servers (`npm run dev`) proxy `/api` via `VITE_API_PROXY` (default
+  `http://127.0.0.1:7001` in `vite.config.ts`). Override when the backend runs
+  on another host/port.
 
 ### Lint & tests
 - Lint: `vendor/bin/phpstan analyse --memory-limit=1G` (level 5). There are

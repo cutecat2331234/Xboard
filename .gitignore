@@ -29,6 +29,10 @@ frontend/*/node_modules/
 frontend/*/.vite/
 frontend/*/dist/
 scripts/**/node_modules/
+scripts/visual-gate/*.log
+scripts/visual-gate/**/*.log
+scripts/visual-gate/gate-*.txt
+scripts/visual-gate/debug-*.txt
 # Frontend build outputs — run npm run build locally
 public/assets/
 public/theme/

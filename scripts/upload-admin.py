@@ -1,12 +1,13 @@
+import sys
 #!/usr/bin/env python3
 """Upload public/assets/admin submodule to server when git submodule clone fails."""
 import os
 import paramiko
 from pathlib import Path
 
-HOST = "127.0.0.1"
-USER = "root"
-PASS = ""
+HOST = os.environ.get("DEPLOY_HOST", "")
+USER = os.environ.get("DEPLOY_USER", "root")
+PASS = os.environ.get("DEPLOY_PASS", "")
 LOCAL_ADMIN = Path(__file__).resolve().parents[1] / "public" / "assets" / "admin"
 REMOTE_DIR = "/opt/xboard/public/assets/admin"
 
@@ -26,7 +27,11 @@ def upload_dir(sftp, local: Path, remote: str) -> None:
 
 
 def main():
-    ssh = paramiko.SSHClient()
+    if not HOST or not PASS:
+    print("Set DEPLOY_HOST and DEPLOY_PASS.", file=sys.stderr)
+    sys.exit(1)
+
+ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(HOST, username=USER, password=PASS, timeout=30)
     ssh.exec_command(f"mkdir -p {REMOTE_DIR}")

@@ -2,7 +2,7 @@ import { chromium } from 'playwright'
 
 const CMP = 'http://127.0.0.1:7002'
 const REF = 'http://127.0.0.1:7001'
-const SEC = ''
+const SEC = process.env.SECURE_PATH || ''
 
 const ROUTES = [
   ['config-subscribe-template', '#/config/system/subscribe-template'],

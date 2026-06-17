@@ -6,7 +6,7 @@ import pixelmatch from 'pixelmatch'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const pwPath = path.join(root, 'scripts/visual-gate/node_modules/playwright/index.mjs')
 const { chromium } = await import(pathToFileURL(pwPath).href)
-const securePath = ''
+const securePath = process.env.SECURE_PATH || ''
 
 const regions = [
   { name: 'sidebar', x: 0, y: 0, w: 256, h: 900 },

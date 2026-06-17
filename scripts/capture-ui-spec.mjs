@@ -17,7 +17,7 @@ const args = Object.fromEntries(
 
 const base = args.base || 'http://127.0.0.1:7001'
 const side = args.side || 'user'
-const securePath = args['secure-path'] || ''
+const securePath = args['secure-path'] || process.env.SECURE_PATH || ''
 const adminEmail = args['admin-email'] || 'admin@example.com'
 const adminPassword = args['admin-password'] || 'your-password'
 

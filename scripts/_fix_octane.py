@@ -1,6 +1,12 @@
+import sys
 #!/usr/bin/env python3
+import os
 import paramiko
 import time
+
+if not HOST or not PASS:
+    print("Set DEPLOY_HOST and DEPLOY_PASS.", file=sys.stderr)
+    sys.exit(1)
 
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

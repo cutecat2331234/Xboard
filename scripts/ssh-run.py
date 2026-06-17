@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
-import paramiko
+"""Upload a local file and run it on a remote host (credentials via env)."""
+import os
 import sys
 from pathlib import Path
 
-HOST = "127.0.0.1"
-USER = "root"
-PASS = ""
+import paramiko
+
+HOST = os.environ.get("DEPLOY_HOST", "")
+USER = os.environ.get("DEPLOY_USER", "root")
+PASS = os.environ.get("DEPLOY_PASS", "")
+
 
 def main():
+    if not HOST or not PASS:
+        print("Set DEPLOY_HOST and DEPLOY_PASS (optional DEPLOY_USER).", file=sys.stderr)
+        sys.exit(1)
+
     local = Path(sys.argv[1])
     remote = sys.argv[2] if len(sys.argv) > 2 else f"/root/{local.name}"
     local.write_bytes(local.read_bytes().replace(b"\r\n", b"\n"))
@@ -30,6 +38,7 @@ def main():
     code = stdout.channel.recv_exit_status()
     ssh.close()
     sys.exit(code)
+
 
 if __name__ == "__main__":
     main()

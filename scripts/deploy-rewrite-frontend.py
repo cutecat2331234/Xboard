@@ -6,9 +6,9 @@ import sys
 import paramiko
 from pathlib import Path
 
-HOST = "127.0.0.1"
-USER = "root"
-PASS = ""
+HOST = os.environ.get("DEPLOY_HOST", "")
+USER = os.environ.get("DEPLOY_USER", "root")
+PASS = os.environ.get("DEPLOY_PASS", "")
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -49,7 +49,11 @@ def main() -> None:
     if manifest.exists():
         target.write_text(manifest.read_text(encoding="utf-8"), encoding="utf-8")
 
-    ssh = paramiko.SSHClient()
+    if not HOST or not PASS:
+    print("Set DEPLOY_HOST and DEPLOY_PASS.", file=sys.stderr)
+    sys.exit(1)
+
+ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(HOST, username=USER, password=PASS, timeout=60)
     sftp = ssh.open_sftp()

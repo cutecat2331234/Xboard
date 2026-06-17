@@ -5,7 +5,7 @@ import { chromium } from 'playwright'
 
 const REF = 'http://127.0.0.1:7001'
 const CMP = 'http://127.0.0.1:7002'
-const SEC = ''
+const SEC = process.env.SECURE_PATH || ''
 
 const PAGES = [
   { hash: '#/config/system/safe', label: '邮箱验证', type: 'switch' },
