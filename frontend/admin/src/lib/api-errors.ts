@@ -520,7 +520,73 @@ const MESSAGE_MAP: Record<string, string> = {
   'Plan ID format is invalid': 'subscribe.plan.sortValidation.id_format',
   '订阅计划ID不能为空': 'subscribe.plan.sortValidation.ids_required',
   '订阅计划ID格式有误': 'subscribe.plan.sortValidation.id_format',
+  'Ban status cannot be empty': 'user.edit.validation.ban_status_required',
+  '是否封禁不能为空': 'user.edit.validation.ban_status_required',
+  'Filter key cannot be empty': 'user.filter.validation.key_required',
+  'Invalid filter key': 'user.filter.validation.key_invalid',
+  'Filter condition cannot be empty': 'user.filter.validation.condition_required',
+  'Invalid filter condition': 'user.filter.validation.condition_invalid',
+  'Filter value cannot be empty': 'user.filter.validation.value_required',
+  '筛选键不能为空': 'user.filter.validation.key_required',
+  '过滤键不能为空': 'user.filter.validation.key_required',
+  '过滤键参数有误': 'user.filter.validation.key_invalid',
+  '过滤条件不能为空': 'user.filter.validation.condition_required',
+  '过滤条件参数有误': 'user.filter.validation.condition_invalid',
+  '过滤值不能为空': 'user.filter.validation.value_required',
+  '筛选键无效': 'user.filter.validation.key_invalid',
+  '筛选条件不能为空': 'user.filter.validation.condition_required',
+  '筛选条件无效': 'user.filter.validation.condition_invalid',
+  '筛选值不能为空': 'user.filter.validation.value_required',
+  'Sales status format is invalid': 'subscribe.plan.updateValidation.show_format',
+  'Renewal status format is invalid': 'subscribe.plan.updateValidation.renew_format',
+  '销售状态格式有误': 'subscribe.plan.updateValidation.show_format',
+  '销售状态格式不正确': 'subscribe.plan.updateValidation.show_format',
+  '续费状态格式有误': 'subscribe.plan.updateValidation.renew_format',
+  '续费状态格式不正确': 'subscribe.plan.updateValidation.renew_format',
+  'Trade number cannot be empty': 'order.messages.tradeNoRequired',
+  '订单号不能为空': 'order.messages.tradeNoRequired',
 }
+
+type AdminErrorPattern = {
+  test: (message: string) => boolean
+  key: string
+  params?: (message: string) => Record<string, string | number> | undefined
+}
+
+const ERROR_PATTERNS: AdminErrorPattern[] = [
+  {
+    test: (m) => /^The .+ field is required$/.test(m),
+    key: 'server.form.validation.field_required',
+    params: (m) => {
+      const hit = m.match(/^The (.+) field is required$/)
+      return hit ? { field: hit[1] } : undefined
+    },
+  },
+  {
+    test: (m) => /^The .+ field must be a string$/.test(m),
+    key: 'server.form.validation.field_string',
+    params: (m) => {
+      const hit = m.match(/^The (.+) field must be a string$/)
+      return hit ? { field: hit[1] } : undefined
+    },
+  },
+  {
+    test: (m) => /^The .+ field must be an integer$/.test(m),
+    key: 'server.form.validation.field_integer',
+    params: (m) => {
+      const hit = m.match(/^The (.+) field must be an integer$/)
+      return hit ? { field: hit[1] } : undefined
+    },
+  },
+  {
+    test: (m) => /^The .+ field has an invalid value$/.test(m),
+    key: 'server.form.validation.field_invalid',
+    params: (m) => {
+      const hit = m.match(/^The (.+) field has an invalid value$/)
+      return hit ? { field: hit[1] } : undefined
+    },
+  },
+]
 
 const MESSAGE_PREFIX_MAP: Array<[string, string]> = [
   ['Plugin install failed:', 'plugin.messages.installError'],
@@ -562,6 +628,12 @@ export function resolveApiError(error: unknown, t: TranslateFn, fallback?: strin
   if (key) return t(key)
   for (const [prefix, i18nKey] of MESSAGE_PREFIX_MAP) {
     if (raw.startsWith(prefix)) return t(i18nKey)
+  }
+  for (const pattern of ERROR_PATTERNS) {
+    if (pattern.test(raw)) {
+      const params = pattern.params?.(raw)
+      return t(pattern.key, params)
+    }
   }
   return raw
 }

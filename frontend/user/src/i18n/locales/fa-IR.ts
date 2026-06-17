@@ -135,7 +135,12 @@ export default {
     defaultDescription: "سرویس حرفه‌ای شتاب‌دهی شبکه",
     or: "یا",
     loginFailed: "ورود ناموفق بود",
-    registerFailed: "ثبت‌نام ناموفق بود"
+    registerFailed: "ثبت‌نام ناموفق بود",
+    validation: {
+      email_required: 'Email cannot be empty',
+      email_format: 'Email format is incorrect',
+      password_required: 'Password cannot be empty',
+    },
   },
   errors: {
     giftCardRedeemFailed: "بازخرید ناموفق بود. لطفاً بعداً دوباره تلاش کنید.",
@@ -199,6 +204,9 @@ export default {
     pendingWithdrawTicket: 'شما یک درخواست برداشت در انتظار دارید',
     withdrawMinimum: 'حداقل مبلغ برداشت {limit} است',
     planChangeDisabled: 'در حال حاضر تغییر طرح مجاز نیست. با پشتیبانی تماس بگیرید یا تیکت ثبت کنید.',
+    wrongPlanPeriod: 'Invalid plan period',
+    withdrawMethodEmpty: 'Withdrawal method cannot be empty',
+    withdrawAccountEmpty: 'Withdrawal account cannot be empty',
     withdrawMethodUnsupported: 'روش برداشت پشتیبانی نمی‌شود',
     invalidCoupon: 'کد تخفیف نامعتبر است',
     couponEmpty: 'لطفاً کد تخفیف را وارد کنید',

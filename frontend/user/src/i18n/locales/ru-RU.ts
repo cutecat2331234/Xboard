@@ -31,6 +31,11 @@ export default {
     or: 'или',
     loginFailed: 'Ошибка входа',
     registerFailed: 'Ошибка регистрации',
+    validation: {
+      email_required: 'Email не может быть пустым',
+      email_format: 'Неверный формат email',
+      password_required: 'Пароль не может быть пустым',
+    },
   },
   nav: {
     ...enUS.nav,

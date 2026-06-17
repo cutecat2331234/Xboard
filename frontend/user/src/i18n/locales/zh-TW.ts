@@ -134,7 +134,12 @@ export default {
     defaultTitle: "歡迎回來",
     or: "或",
     loginFailed: "登入失敗",
-    registerFailed: "註冊失敗"
+    registerFailed: "註冊失敗",
+    validation: {
+      email_required: '郵箱不能為空',
+      email_format: '郵箱格式不正確',
+      password_required: '密碼不能為空',
+    },
   },
   errors: {
     couponPerUserLimit: "每人只能使用此優惠券 {limit} 次",
@@ -204,6 +209,9 @@ export default {
     pendingWithdrawTicket: '您已有待處理的提現申請',
     withdrawMinimum: '目前最低提現金額為 {limit}',
     planChangeDisabled: '目前不允許更改訂閱，請聯絡客服或提交工單',
+    wrongPlanPeriod: '套餐週期參數有誤',
+    withdrawMethodEmpty: '提現方式不能為空',
+    withdrawAccountEmpty: '提現賬號不能為空',
     withdrawMethodUnsupported: '不支援的提現方式',
     invalidCoupon: '優惠券無效',
     couponEmpty: '請輸入優惠券碼',

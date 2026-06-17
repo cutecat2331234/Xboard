@@ -135,7 +135,12 @@ export default {
     defaultDescription: '전문 네트워크 가속 서비스',
     or: "또는",
     loginFailed: "로그인에 실패했습니다",
-    registerFailed: "등록에 실패했습니다"
+    registerFailed: "등록에 실패했습니다",
+    validation: {
+      email_required: 'Email cannot be empty',
+      email_format: 'Email format is incorrect',
+      password_required: 'Password cannot be empty',
+    },
   },
   errors: {
     giftCardRedeemFailed: "교환에 실패했습니다. 나중에 다시 시도하세요.",
@@ -199,6 +204,9 @@ export default {
     pendingWithdrawTicket: '처리 중인 출금 신청이 이미 있습니다',
     withdrawMinimum: '최소 출금 금액은 {limit}입니다',
     planChangeDisabled: '현재 구독 변경이 허용되지 않습니다. 고객센터 또는 티켓으로 문의하세요',
+    wrongPlanPeriod: 'Invalid plan period',
+    withdrawMethodEmpty: 'Withdrawal method cannot be empty',
+    withdrawAccountEmpty: 'Withdrawal account cannot be empty',
     withdrawMethodUnsupported: '지원되지 않는 출금 방식입니다',
     invalidCoupon: '유효하지 않은 쿠폰입니다',
     couponEmpty: '쿠폰 코드를 입력하세요',

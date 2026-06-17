@@ -666,7 +666,8 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "commissionStatusFormat": "Commission status format is invalid",
       "paymentAmountFormat": "Payment amount format is invalid",
       "idRequired": "Order ID is required",
-      "idFormat": "Order ID format is invalid"
+      "idFormat": "Order ID format is invalid",
+      "tradeNoRequired": "Trade number cannot be empty"
     },
     "actions": {
       "markAsPaid": "Пометить как оплаченный",
@@ -678,6 +679,13 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
       "userId": "ID пользователя: {{id}}",
       "commissionBalance": "Баланс комиссии: {{value}}",
       "clearAll": "Сбросить все фильтры"
+    },
+    "filterValidation": {
+      "key_required": "Ключ фильтра не может быть пустым",
+      "key_invalid": "Неверный ключ фильтра",
+      "condition_required": "Условие фильтра не может быть пустым",
+      "condition_invalid": "Неверное условие фильтра",
+      "value_required": "Значение фильтра не может быть пустым"
     },
     "search": {
       "placeholder": "Поиск заказов..."
@@ -2923,6 +2931,10 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "ids_required": "ID тарифных планов не могут быть пустыми",
         "id_format": "Неверный формат ID тарифного плана"
       },
+      "updateValidation": {
+        "show_format": "Неверный формат статуса продаж",
+        "renew_format": "Неверный формат статуса продления"
+      },
       "columns": {
         "id": "ID",
         "show": "Показывать",
@@ -3128,6 +3140,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "traffic_format": "Неверный формат трафика",
         "expired_at_format": "Неверный формат времени истечения",
         "ban_status_format": "Неверный формат статуса блокировки",
+        "ban_status_required": "Статус блокировки не может быть пустым",
         "admin_status_required": "Статус администратора не может быть пустым",
         "admin_status_format": "Неверный формат статуса администратора",
         "staff_status_required": "Статус персонала не может быть пустым",
@@ -3224,6 +3237,13 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
         "value_number": "Введите значение ({{unit}})",
         "reset": "Сброс",
         "apply": "Применить фильтр"
+      },
+      "validation": {
+        "key_required": "Ключ фильтра не может быть пустым",
+        "key_invalid": "Неверный ключ фильтра",
+        "condition_required": "Условие фильтра не может быть пустым",
+        "condition_invalid": "Неверное условие фильтра",
+        "value_required": "Значение фильтра не может быть пустым"
       },
       "fields": {
         "email": "Email",

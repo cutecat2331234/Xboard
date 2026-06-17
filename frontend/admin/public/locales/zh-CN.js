@@ -676,7 +676,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "commissionStatusFormat": "佣金状态格式不正确",
       "paymentAmountFormat": "支付金额格式无效",
       "idRequired": "订单ID不能为空",
-      "idFormat": "订单ID格式无效"
+      "idFormat": "订单ID格式无效",
+      "tradeNoRequired": "订单号不能为空"
     },
     "form": {
       "period": "周期",
@@ -692,6 +693,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "userId": "用户 ID：{{id}}",
       "commissionBalance": "佣金余额：{{value}}",
       "clearAll": "清除全部筛选"
+    },
+    "filterValidation": {
+      "key_required": "过滤键不能为空",
+      "key_invalid": "过滤键参数有误",
+      "condition_required": "过滤条件不能为空",
+      "condition_invalid": "过滤条件参数有误",
+      "value_required": "过滤值不能为空"
     },
     "search": {
       "placeholder": "搜索订单..."
@@ -3002,6 +3010,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "ids_required": "订阅计划ID不能为空",
         "id_format": "订阅计划ID格式有误"
       },
+      "updateValidation": {
+        "show_format": "销售状态格式不正确",
+        "renew_format": "续费状态格式不正确"
+      },
       "columns": {
         "id": "ID",
         "show": "显示",
@@ -3212,6 +3224,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "traffic_format": "流量格式不正确",
         "expired_at_format": "到期时间格式不正确",
         "ban_status_format": "是否封禁格式不正确",
+        "ban_status_required": "是否封禁不能为空",
         "admin_status_required": "是否管理员不能为空",
         "admin_status_format": "是否管理员格式不正确",
         "staff_status_required": "是否员工不能为空",
@@ -3308,6 +3321,13 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "value_number": "输入数值({{unit}})",
         "reset": "重置",
         "apply": "应用筛选"
+      },
+      "validation": {
+        "key_required": "过滤键不能为空",
+        "key_invalid": "过滤键参数有误",
+        "condition_required": "过滤条件不能为空",
+        "condition_invalid": "过滤条件参数有误",
+        "value_required": "过滤值不能为空"
       },
       "fields": {
         "email": "邮箱",

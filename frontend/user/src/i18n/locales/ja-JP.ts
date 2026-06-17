@@ -135,7 +135,12 @@ export default {
     defaultDescription: "プロフェッショナルなネットワーク加速サービス",
     or: "または",
     loginFailed: "ログインに失敗しました",
-    registerFailed: "登録に失敗しました"
+    registerFailed: "登録に失敗しました",
+    validation: {
+      email_required: 'Email cannot be empty',
+      email_format: 'Email format is incorrect',
+      password_required: 'Password cannot be empty',
+    },
   },
   errors: {
     giftCardRedeemFailed: "引き換えに失敗しました。後でもう一度お試しください。",
@@ -199,6 +204,9 @@ export default {
     pendingWithdrawTicket: '処理中の出金申請が既にあります',
     withdrawMinimum: '最低出金額は {limit} です',
     planChangeDisabled: '現在プラン変更はできません。サポートまたはチケットでお問い合わせください',
+    wrongPlanPeriod: 'Invalid plan period',
+    withdrawMethodEmpty: 'Withdrawal method cannot be empty',
+    withdrawAccountEmpty: 'Withdrawal account cannot be empty',
     withdrawMethodUnsupported: 'サポートされていない出金方法です',
     invalidCoupon: '無効なクーポンです',
     couponEmpty: 'クーポンコードを入力してください',

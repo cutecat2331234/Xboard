@@ -135,7 +135,12 @@ export default {
     defaultDescription: 'Dịch vụ tăng tốc mạng chuyên nghiệp',
     or: "hoặc",
     loginFailed: "Đăng nhập thất bại",
-    registerFailed: "Đăng ký thất bại"
+    registerFailed: "Đăng ký thất bại",
+    validation: {
+      email_required: 'Email cannot be empty',
+      email_format: 'Email format is incorrect',
+      password_required: 'Password cannot be empty',
+    },
   },
   errors: {
     giftCardRedeemFailed: "Quy đổi thất bại. Vui lòng thử lại sau.",
@@ -200,6 +205,9 @@ export default {
     pendingWithdrawTicket: "Bạn đã có yêu cầu rút tiền đang chờ",
     withdrawMinimum: "Số tiền rút tối thiểu là {limit}",
     planChangeDisabled: "Hiện không cho đổi gói. Vui lòng liên hệ hỗ trợ hoặc mở phiếu.",
+    wrongPlanPeriod: 'Invalid plan period',
+    withdrawMethodEmpty: 'Withdrawal method cannot be empty',
+    withdrawAccountEmpty: 'Withdrawal account cannot be empty',
     withdrawMethodUnsupported: 'Phương thức rút tiền không được hỗ trợ',
     invalidCoupon: 'Mã giảm giá không hợp lệ',
     couponEmpty: 'Vui lòng nhập mã giảm giá',

@@ -677,7 +677,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "commissionStatusFormat": "Commission status format is invalid",
       "paymentAmountFormat": "Payment amount format is invalid",
       "idRequired": "Order ID is required",
-      "idFormat": "Order ID format is invalid"
+      "idFormat": "Order ID format is invalid",
+      "tradeNoRequired": "Trade number cannot be empty"
     },
     "actions": {
       "markAsPaid": "Mark as Paid",
@@ -689,6 +690,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "userId": "User ID: {{id}}",
       "commissionBalance": "Commission balance: {{value}}",
       "clearAll": "Clear all filters"
+    },
+    "filterValidation": {
+      "key_required": "Filter key cannot be empty",
+      "key_invalid": "Invalid filter key",
+      "condition_required": "Filter condition cannot be empty",
+      "condition_invalid": "Invalid filter condition",
+      "value_required": "Filter value cannot be empty"
     },
     "search": {
       "placeholder": "Search orders..."
@@ -2976,6 +2984,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "ids_required": "Plan IDs cannot be empty",
         "id_format": "Plan ID format is invalid"
       },
+      "updateValidation": {
+        "show_format": "Sales status format is invalid",
+        "renew_format": "Renewal status format is invalid"
+      },
       "columns": {
         "id": "ID",
         "show": "Show",
@@ -3186,6 +3198,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "traffic_format": "Traffic format is invalid",
         "expired_at_format": "Expiry time format is invalid",
         "ban_status_format": "Ban status format is invalid",
+        "ban_status_required": "Ban status cannot be empty",
         "admin_status_required": "Admin status cannot be empty",
         "admin_status_format": "Admin status format is invalid",
         "staff_status_required": "Staff status cannot be empty",
@@ -3282,6 +3295,13 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "value_number": "Enter Value ({{unit}})",
         "reset": "Reset",
         "apply": "Apply Filter"
+      },
+      "validation": {
+        "key_required": "Filter key cannot be empty",
+        "key_invalid": "Invalid filter key",
+        "condition_required": "Filter condition cannot be empty",
+        "condition_invalid": "Invalid filter condition",
+        "value_required": "Filter value cannot be empty"
       },
       "fields": {
         "email": "Email",

@@ -239,7 +239,7 @@ class MachineController extends Controller
     private function buildInstallCommand(Request $request, ServerMachine $machine): string
     {
         $panelUrl = rtrim((string) (admin_setting('app_url') ?: $request->getSchemeAndHttpHost()), '/');
-        $installerUrl = 'https://raw.githubusercontent.com/cedar2025/xboard-node/dev/install.sh';
+        $installerUrl = $this->nodeInstallerUrl();
 
         return sprintf(
             'curl -fsSL %s | sudo bash -s -- --mode machine --panel %s --token %s --machine-id %d',
@@ -248,5 +248,16 @@ class MachineController extends Controller
             escapeshellarg($machine->token),
             $machine->id
         );
+    }
+
+    private function nodeInstallerUrl(): string
+    {
+        if (is_file(base_path('xboard-node/install.sh'))) {
+            $repo = (string) config('xboard.node_installer_repository', 'https://raw.githubusercontent.com/cutecat2331234/Xboard/master');
+
+            return rtrim($repo, '/') . '/xboard-node/install.sh';
+        }
+
+        return 'https://raw.githubusercontent.com/cedar2025/xboard-node/dev/install.sh';
     }
 }

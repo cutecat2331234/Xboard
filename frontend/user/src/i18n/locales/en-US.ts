@@ -26,6 +26,11 @@ export default {
     or: 'or',
     loginFailed: 'Login failed',
     registerFailed: 'Registration failed',
+    validation: {
+      email_required: 'Email cannot be empty',
+      email_format: 'Email format is incorrect',
+      password_required: 'Password cannot be empty',
+    },
   },
   nav: {
     dashboard: 'Dashboard',
@@ -206,7 +211,9 @@ export default {
     serverError: 'Something went wrong. We are working on it.',
     pageNotFound: 'Page not found',
     planChangeDisabled: 'Plan changes are currently disabled. Please contact support or open a ticket.',
-    withdrawMethodUnsupported: 'Unsupported withdrawal method',
+    wrongPlanPeriod: 'Invalid plan period',
+    withdrawMethodEmpty: 'Withdrawal method cannot be empty',
+    withdrawAccountEmpty: 'Withdrawal account cannot be empty',
     invalidCoupon: 'Invalid coupon',
     couponEmpty: 'Please enter a coupon code',
     couponExpired: 'This coupon has expired',
@@ -499,5 +506,11 @@ export default {
     telegramBotUnavailable: 'Telegram bot is unavailable. Please try again later.',
     telegramUnbindConfirm: 'Unbind your Telegram account? You will need to send /bind to the bot again.',
     telegramGroup: 'Join Telegram group',
+    validation: {
+      old_password_required: 'Old password cannot be empty',
+      new_password_required: 'New password cannot be empty',
+      remind_expire_format: 'Expiration reminder format is incorrect',
+      remind_traffic_format: 'Traffic alert format is incorrect',
+    },
   },
 }

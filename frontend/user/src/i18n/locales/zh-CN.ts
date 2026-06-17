@@ -26,6 +26,11 @@ export default {
     or: '或',
     loginFailed: '登录失败',
     registerFailed: '注册失败',
+    validation: {
+      email_required: '邮箱不能为空',
+      email_format: '邮箱格式不正确',
+      password_required: '密码不能为空',
+    },
   },
   nav: {
     dashboard: '仪表盘',
@@ -206,6 +211,9 @@ export default {
     pageNotFound: '页面不存在',
     planChangeDisabled: '当前不允许更改订阅，请联系客服或提交工单',
     withdrawMethodUnsupported: '不支持的提现方式',
+    wrongPlanPeriod: '套餐周期参数有误',
+    withdrawMethodEmpty: '提现方式不能为空',
+    withdrawAccountEmpty: '提现账号不能为空',
     invalidCoupon: '优惠券无效',
     couponEmpty: '请输入优惠券码',
     couponExpired: '优惠券已过期',
@@ -491,5 +499,11 @@ export default {
     telegramBotUnavailable: 'Telegram 机器人暂不可用，请稍后再试。',
     telegramUnbindConfirm: '确定要解绑 Telegram 账号吗？解绑后需重新通过机器人 /bind 绑定。',
     telegramGroup: '加入 Telegram 讨论群',
+    validation: {
+      old_password_required: '旧密码不能为空',
+      new_password_required: '新密码不能为空',
+      remind_expire_format: '过期提醒参数有误',
+      remind_traffic_format: '流量提醒参数有误',
+    },
   },
 }
