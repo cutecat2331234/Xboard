@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref, watch } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
-import { fetchOrders, cancelOrder, fetchFirstBlockingOrder, type OrderItem, canCancelOrder } from '@/api/order'
+import { NButton, NDataTable, NDivider, NEmpty, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
+import { fetchOrders, cancelOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { ORDER_STATUS_KEYS, orderStatusLabel } from '@/lib/order-status'
-import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatPanelDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { useCurrency } from '@/composables/useCurrency'
@@ -13,24 +13,19 @@ import { useCurrency } from '@/composables/useCurrency'
 const router = useRouter()
 const rows = ref<OrderItem[]>([])
 const loading = ref(true)
-const statusFilter = ref<number | null>(null)
 const page = ref(1)
-const pageSize = ref(20)
+const pageSize = ref(50)
 const total = ref(0)
 const msg = useMessage()
 const dialog = useDialog()
-const { t, locale } = useI18n()
-const { formatPrice, load: loadCurrency } = useCurrency()
+const { t } = useI18n()
+const { formatAmount, load: loadCurrency } = useCurrency()
 
 function formatOrderAmount(cents: number) {
-  return formatPrice(cents)
+  return formatAmount(cents)
 }
 
-function orderStatusDotClass(status: number) {
-  if (status === 3) return 'status-dot status-dot--ok'
-  if (status === 4) return 'status-dot status-dot--info'
-  if (status === 1) return 'status-dot status-dot--info'
-  if (status === 0) return 'status-dot status-dot--warn'
+function orderStatusDotClass(_status: number) {
   return 'status-dot status-dot--bad'
 }
 
@@ -39,14 +34,6 @@ function periodLabel(period?: string) {
   const hit = PERIOD_OPTIONS.find((o) => o.key === period)
   return hit ? t(hit.labelKey) : period
 }
-
-const statusOptions = computed(() => [
-  { label: t('order.filterAll'), value: null as number | null },
-  ...Object.entries(ORDER_STATUS_KEYS).map(([value, key]) => ({
-    label: t(key),
-    value: Number(value),
-  })),
-])
 
 function renderTradeNoCell(row: OrderItem) {
   const tradeNo = row.trade_no
@@ -83,26 +70,25 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.listTradeNo'),
     key: 'trade_no',
+    width: 296,
     render: (row) => renderTradeNoCell(row),
-  },
-  {
-    title: t('order.productName'),
-    key: 'plan',
-    render: (row) => row.plan?.name ?? '—',
   },
   {
     title: t('order.period'),
     key: 'period',
+    width: 110,
     render: (row) => h(NTag, { round: true, size: 'small' }, () => periodLabel(row.period)),
   },
   {
     title: t('order.amount'),
     key: 'total_amount',
+    width: 121,
     render: (row) => formatOrderAmount(row.total_amount),
   },
   {
     title: t('order.status'),
     key: 'status',
+    width: 158,
     render: (row) =>
       h('div', { class: 'flex items-center' }, [
         h('div', {
@@ -114,26 +100,16 @@ const columns = computed<DataTableColumns<OrderItem>>(() => [
   {
     title: t('order.createdAt'),
     key: 'created_at',
-    render: (row) => formatLocaleDateTime(row.created_at, locale.value),
+    width: 168,
+    render: (row) => formatPanelDateTime(row.created_at),
   },
   {
     title: t('common.actions'),
     key: 'actions',
+    width: 176,
     fixed: 'right',
     render: (row) =>
       h('div', { class: 'order-actions' }, [
-        row.status === 0
-          ? h(
-              NButton,
-              {
-                text: true,
-                type: 'primary',
-                onClick: () => router.push(`/order/${row.trade_no}`),
-              },
-              { default: () => t('order.pay') },
-            )
-          : null,
-        row.status === 0 ? h(NDivider, { vertical: true }) : null,
         h(
           NButton,
           {
@@ -162,7 +138,6 @@ async function loadOrders() {
   loading.value = true
   try {
     const res = await fetchOrders({
-      status: statusFilter.value ?? undefined,
       page: page.value,
       pageSize: pageSize.value,
     })
@@ -186,11 +161,6 @@ function onPageSizeChange(size: number) {
   void loadOrders()
 }
 
-watch(statusFilter, () => {
-  page.value = 1
-  void loadOrders()
-})
-
 onMounted(async () => {
   try {
     await loadCurrency()
@@ -203,46 +173,15 @@ onMounted(async () => {
 
 <template>
   <div class="order-page">
-    <div class="order-page__toolbar">
-      <n-select
-        v-model:value="statusFilter"
-        :options="statusOptions"
-        :placeholder="t('order.filterAll')"
-        class="order-page__filter"
-        clearable
-      />
-    </div>
     <n-empty v-if="!loading && rows.length === 0" :description="t('order.empty')" />
     <n-data-table
       v-else
-      remote
       class="order-list-table"
       :columns="columns"
       :data="rows"
       :bordered="false"
-      :scroll-x="960"
       :loading="loading"
-      :pagination="{
-        page,
-        pageSize,
-        itemCount: total,
-        showSizePicker: true,
-        pageSizes: [10, 20, 50],
-        onUpdatePage: onPageChange,
-        onUpdatePageSize: onPageSizeChange,
-      }"
+      :pagination="false"
     />
   </div>
 </template>
-
-<style scoped>
-.order-page__toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 12px;
-}
-.order-page__filter {
-  width: 200px;
-  max-width: 100%;
-}
-</style>

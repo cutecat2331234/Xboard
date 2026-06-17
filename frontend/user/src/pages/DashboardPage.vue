@@ -291,7 +291,7 @@ function onShortcut(item: { to?: string; action?: () => void }) {
       closable
       class="mb-1"
     >
-      {{ t('dashboard.unpaidOrders', { count: unpaidOrders }) }}
+      {{ t('dashboard.unpaidOrders') }}
       <n-button text strong @click="router.push('/order')">{{ t('dashboard.payNow') }}</n-button>
     </n-alert>
     <n-alert

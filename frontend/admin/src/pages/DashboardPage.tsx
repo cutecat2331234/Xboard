@@ -24,14 +24,6 @@ import {
 
   Users,
 
-  Wallet,
-
-  Wifi,
-
-  MonitorSmartphone,
-
-  ServerCog,
-
 } from 'lucide-react'
 
 import { useNavigate } from 'react-router-dom'
@@ -472,64 +464,6 @@ export default function DashboardPage() {
 
         />
 
-        <StatCard
-
-          title={t('dashboard.stats.monthlyCommissionPayout')}
-
-          value={formatMoney(stats.currentMonthCommissionPayout)}
-
-          growth={stats.commissionGrowth}
-
-          growthLabel={t('dashboard.stats.vsLastMonth')}
-
-          icon={Wallet}
-
-          iconClassName="text-violet-500"
-
-        />
-
-        <StatCard
-
-          title={t('dashboard.stats.totalTraffic')}
-
-          value={formatBytes(stats.totalTraffic?.total)}
-
-          subtitle={t('dashboard.stats.todayTraffic', {
-
-            value: formatBytes(stats.todayTraffic?.total),
-
-          })}
-
-          icon={BarChart3}
-
-          iconClassName="text-orange-500"
-
-        />
-
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard
-          title={t('dashboard.stats.onlineUsers')}
-          value={String(stats.onlineUsers ?? 0)}
-          subtitle={t('dashboard.stats.onlineSnapshot')}
-          icon={Wifi}
-          iconClassName="text-emerald-500"
-        />
-        <StatCard
-          title={t('dashboard.stats.onlineDevices')}
-          value={String(stats.onlineDevices ?? 0)}
-          subtitle={t('dashboard.stats.onlineSnapshot')}
-          icon={MonitorSmartphone}
-          iconClassName="text-blue-500"
-        />
-        <StatCard
-          title={t('dashboard.stats.onlineNodes')}
-          value={String(stats.onlineNodes ?? 0)}
-          subtitle={t('dashboard.stats.onlineSnapshot')}
-          icon={ServerCog}
-          iconClassName="text-amber-500"
-        />
       </div>
 
       <Card className="rounded-xl border bg-card text-card-foreground shadow">

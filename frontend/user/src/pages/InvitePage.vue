@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NDataTable, NIcon, NModal, NInput, NNumberAnimation, NPagination, NSelect, NSpace, NSpin, NTag, useMessage,
+import { NButton, NCard, NDataTable, NIcon, NModal, NInput, NNumberAnimation, NPagination, NSelect, NSpace, NSpin, useMessage,
   type DataTableColumns,
   type PaginationInfo,
 } from 'naive-ui'
@@ -16,7 +16,7 @@ import {
 import { useUserCommConfig } from '@/composables/useUserCommConfig'
 import { useGuestConfig } from '@/composables/useGuestConfig'
 import { useCurrency } from '@/composables/useCurrency'
-import { formatLocaleDateTime } from '@/lib/format-date'
+import { formatPanelDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { featureEnabled } from '@/lib/feature-flags'
@@ -54,7 +54,7 @@ const detailsPage = ref(1)
 const detailsPageSize = ref(INVITE_PAGE_SIZE)
 const msg = useMessage()
 const router = useRouter()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { formatAmount, formatPriceSpaced, load: loadCurrency, code: currencyCode } = useCurrency()
 const transferOpen = ref(false)
 const withdrawOpen = ref(false)
@@ -304,6 +304,7 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
           {
             size: 'small',
             type: 'info',
+            class: 'invite-copy-link-btn',
             onClick: (e: MouseEvent) => {
               e.stopPropagation()
               copyLink(r.code)
@@ -314,28 +315,11 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
       ]),
   },
   {
-    title: t('invite.pv'),
-    key: 'pv',
-    width: 80,
-    render: (r) => String(r.pv ?? 0),
-  },
-  {
-    title: t('invite.status'),
-    key: 'status',
-    width: 100,
-    render: (r) =>
-      h(
-        NTag,
-        { size: 'small', type: r.status ? 'default' : 'success', round: true },
-        { default: () => (r.status ? t('invite.statusUsed') : t('invite.statusUnused')) },
-      ),
-  },
-  {
     title: t('invite.createdAt'),
     key: 'created_at',
     fixed: 'right',
     align: 'right',
-    render: (r) => formatLocaleDateTime(r.created_at, locale.value),
+    render: (r) => formatPanelDateTime(r.created_at),
   },
 ])
 
@@ -343,7 +327,7 @@ const detailColumns = computed(() => [
   {
     title: t('invite.incomeTime'),
     key: 'created_at',
-    render: (r: { created_at?: number }) => formatLocaleDateTime(r.created_at, locale.value),
+    render: (r: { created_at?: number }) => formatPanelDateTime(r.created_at),
   },
   {
     title: t('invite.incomeAmount'),
@@ -371,7 +355,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <n-spin :show="pageLoading">
   <n-card v-if="showCommissionFinance" :title="t('invite.title')" class="invite-balance-card rounded-md">
     <template #header-extra>
       <svg class="inline-block text-4xl text-gray-500" viewBox="0 0 24 24" width="1em" height="1em">
@@ -389,13 +372,13 @@ onMounted(async () => {
     </div>
     <div class="text-gray-500">{{ t('invite.available') }}</div>
     <n-space class="invite-balance-actions mt-2.5" :size="[12, 8]">
-      <n-button v-if="showCommissionFinance" size="small" type="primary" @click="transferOpen = true">
+      <n-button v-if="showCommissionFinance" size="small" type="primary" class="invite-primary-btn" @click="transferOpen = true">
         <template #icon>
           <n-icon><TransferIcon /></n-icon>
         </template>
         {{ t('invite.transfer') }}
       </n-button>
-      <n-button v-if="showCommissionFinance" size="small" type="primary" @click="withdrawOpen = true">
+      <n-button v-if="showCommissionFinance" size="small" type="primary" class="invite-primary-btn" @click="withdrawOpen = true">
         <template #icon>
           <n-icon><WithdrawIcon /></n-icon>
         </template>
@@ -425,7 +408,7 @@ onMounted(async () => {
 
   <n-card :title="t('invite.codeMgmt')" class="invite-code-card mt-4 rounded-md">
     <template #header-extra>
-      <n-button size="small" type="primary" round @click="generate">
+      <n-button size="small" type="primary" class="invite-primary-btn" @click="generate">
         {{ t('invite.generate') }}
       </n-button>
     </template>
@@ -479,7 +462,6 @@ onMounted(async () => {
       <n-button type="primary" @click="doWithdraw">{{ t('common.confirm') }}</n-button>
     </div>
   </n-modal>
-  </n-spin>
 </template>
 
 <style scoped>
