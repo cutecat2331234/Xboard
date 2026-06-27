@@ -646,7 +646,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     },
     "commission": {
       "PENDING": "Pending",
-      "VALID": "Validated",
+      "VALID": "Valid",
       "SETTLED": "Settled",
       "INVALID": "Invalid",
       "alreadyPaid": "This order already has commission records and cannot be marked pending again."
@@ -1867,7 +1867,10 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "three_yearly": "Three Yearly",
       "onetime": "One Time",
       "reset_traffic": "Reset Traffic"
-    }
+    },
+    "notFound": "Coupon not found.",
+    "idRequired": "Coupon ID is required.",
+    "idNumeric": "Coupon ID must be numeric."
   },
   "traffic": {
     "trafficRecord": {
@@ -3147,11 +3150,6 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
         "description": "Here you can configure subscription plans, including adding, deleting, and editing operations."
       }
     }
-  },
-  "coupon": {
-    "notFound": "Coupon not found.",
-    "idRequired": "Coupon ID is required.",
-    "idNumeric": "Coupon ID must be numeric."
   },
   "user": {
     "manage": {

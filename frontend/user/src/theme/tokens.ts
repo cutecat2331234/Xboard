@@ -7,10 +7,8 @@ export const tokens = {
     pageBg: '#f2f2f2',
     shellBg: '#ffffff',
     mainBg: '#f2f2f2',
-    text: '#333333',
     textMuted: '#666666',
     border: '#e5e7eb',
-    link: '#2080f0',
     danger: '#d03050',
   },
   radius: {

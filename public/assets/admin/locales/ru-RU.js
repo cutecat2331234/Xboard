@@ -635,7 +635,7 @@ window.XBOARD_TRANSLATIONS['ru-RU'] = {
     },
     "commission": {
       "PENDING": "Ожидание",
-      "VALID": "Проверена",
+      "VALID": "Действительна",
       "SETTLED": "Выплачена",
       "INVALID": "Недействительна",
       "alreadyPaid": "У заказа уже есть записи комиссии, нельзя снова отметить как ожидающую"

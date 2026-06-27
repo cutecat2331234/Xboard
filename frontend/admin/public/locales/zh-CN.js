@@ -645,7 +645,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     },
     "commission": {
       "PENDING": "待确认",
-      "VALID": "已校验",
+      "VALID": "有效",
       "SETTLED": "已结算",
       "INVALID": "无效",
       "alreadyPaid": "该订单已有佣金记录，不可重新标记为待确认"
@@ -1888,7 +1888,10 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "three_yearly": "三年",
       "onetime": "一次性",
       "reset_traffic": "重置流量"
-    }
+    },
+    "notFound": "优惠券不存在",
+    "idRequired": "优惠券ID不能为空",
+    "idNumeric": "优惠券ID必须为数字"
   },
   "traffic": {
     "trafficRecord": {
@@ -3173,11 +3176,6 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
         "description": "在这里可以配置订阅计划，包括添加、删除、编辑等操作。"
       }
     }
-  },
-  "coupon": {
-    "notFound": "优惠券不存在",
-    "idRequired": "优惠券ID不能为空",
-    "idNumeric": "优惠券ID必须为数字"
   },
   "user": {
     "manage": {
