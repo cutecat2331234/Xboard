@@ -131,7 +131,7 @@ export function buildPluginCrudColumns(
   },
 ): ColumnDef<Record<string, unknown>, unknown>[] {
   const formFields = normalizePluginCrudFormFields(schema.form)
-  const columns = schema.columns?.length
+  const columns: PluginAdminCrudColumn[] = schema.columns?.length
     ? schema.columns
     : formFields.map(({ key, field }) => ({
         key,

@@ -17,7 +17,6 @@ import {
 import { formatAdminBytes } from '@/lib/format-bytes'
 import {
   dialogCompactInputCls,
-  dialogFieldInputCls,
   dialogFieldLabelCls,
   dialogMailInputCls,
   dialogMailTextareaCls,
@@ -29,7 +28,6 @@ import {
   editSheetSwitchFieldCls,
   editSheetSwitchWrapCls,
   sheetFieldLabelCls,
-  dialogInputCls,
   dialogSelectCls,
   inputCls,
   textareaCls,
@@ -1510,7 +1508,7 @@ export default function UserPage() {
                     suffix="GB"
                     type="number"
                     step="any"
-                    value={form.u ?? ''}
+                    value={String(form.u ?? '')}
                     onChange={(e) => setForm((f) => ({ ...f, u: e.target.value }))}
                     placeholder={t('user.edit.form.upload_placeholder')}
                   />
@@ -1523,7 +1521,7 @@ export default function UserPage() {
                     suffix="GB"
                     type="number"
                     step="any"
-                    value={form.d ?? ''}
+                    value={String(form.d ?? '')}
                     onChange={(e) => setForm((f) => ({ ...f, d: e.target.value }))}
                     placeholder={t('user.edit.form.download_placeholder')}
                   />

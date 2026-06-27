@@ -1,6 +1,8 @@
 /** Generate X25519 key pair for Reality (base64url, Web Crypto). */
 export async function generateRealityKeyPair(): Promise<{ privateKey: string; publicKey: string }> {
-  const keyPair = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits'])
+  const keyPair = (await crypto.subtle.generateKey({ name: 'X25519' }, true, [
+    'deriveBits',
+  ])) as CryptoKeyPair
   const privateJwk = await crypto.subtle.exportKey('jwk', keyPair.privateKey)
   const publicJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey)
   if (!privateJwk.d || !publicJwk.x) {

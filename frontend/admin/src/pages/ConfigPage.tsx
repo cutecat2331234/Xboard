@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { IconBuilding, IconRefresh } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { resolveApiError, toastApiError } from '@/lib/api-errors'
+import { toastApiError } from '@/lib/api-errors'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
 import { resetAdminCurrency } from '@/lib/currency'
 import { configFieldLabelCls, configSubFieldLabelCls, inputCls } from '@/lib/form-styles'
@@ -159,26 +159,6 @@ function pathToSection(pathname: string): SectionId {
   return PATH_TO_SECTION[sub] ?? 'site'
 }
 
-function RadixChevron() {
-  return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 15 15"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4 opacity-50"
-      aria-hidden="true"
-    >
-      <path
-        d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-        fill="currentColor"
-        fillRule="evenodd"
-        clipRule="evenodd"
-      />
-    </svg>
-  )
-}
 
 export default function ConfigPage() {
   const { t } = useTranslation()
@@ -270,7 +250,6 @@ export default function ConfigPage() {
 
   const active = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0]
   const site = config.site ?? {}
-  const safe = config.safe ?? {}
   const invite = config.invite ?? {}
   const subscribe = config.subscribe ?? {}
   const server = config.server ?? {}

@@ -412,7 +412,6 @@ export default {
     closedHint: "Phiếu này đã đóng. Bạn không thể gửi thêm phản hồi.",
     closeSuccess: "Đã đóng phiếu",
     closeConfirm: "Đóng phiếu này? Bạn sẽ không thể trả lời sau khi đóng.",
-    fillRequired: "Vui lòng điền tiêu đề và nội dung",
     fillRequired: "Vui lòng nhập chủ đề và nội dung",
     empty: "Chưa có phiếu hỗ trợ"
   },

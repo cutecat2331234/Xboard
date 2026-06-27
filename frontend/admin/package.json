@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "prebuild": "node ../../scripts/sync-admin-locales.mjs",
     "build": "vite build",
     "postbuild": "node -e \"const fs=require('fs');const s='../../public/assets/admin/.vite/manifest.json';const d='../../public/assets/admin/manifest.json';if(fs.existsSync(s))fs.copyFileSync(s,d)\"",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
+    "@types/markdown-it": "^14.1.2",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^6.0.2",

@@ -667,7 +667,7 @@ export default function GiftCardPage() {
 
     if (form.type === 3) {
       const pool = (form.rewards.random_rewards ?? []).map((item) => {
-        const entry: Record<string, number> = { weight: Number(item.weight) || 1 }
+        const entry: RandomRewardItem = { weight: Number(item.weight) || 1 }
         if (item.balance != null && item.balance > 0) {
           entry.balance = Math.round(Number(item.balance) * BALANCE_CENTS_PER_UNIT)
         }
@@ -759,8 +759,6 @@ export default function GiftCardPage() {
     if (form.limits.invite_reward_rate != null) {
 
       limits.invite_reward_rate = form.limits.invite_reward_rate
-
-      rewards.invite_reward_rate = form.limits.invite_reward_rate
 
     }
 
@@ -1123,23 +1121,6 @@ export default function GiftCardPage() {
 
 
 
-  function togglePlanInCondition(field: 'allowed_plans' | 'disallowed_plans', planId: number) {
-
-    setForm((f) => {
-
-      const current = f.conditions[field] ?? []
-
-      const next = current.includes(planId)
-
-        ? current.filter((id) => id !== planId)
-
-        : [...current, planId]
-
-      return { ...f, conditions: { ...f.conditions, [field]: next } }
-
-    })
-
-  }
 
 
 

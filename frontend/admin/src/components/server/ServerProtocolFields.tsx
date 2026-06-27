@@ -936,19 +936,19 @@ function VmessFields({
   )
 }
 
-function RealityFields({
+function RealityFields<T extends TrojanProtocolSettings | VlessProtocolSettings>({
   settings,
   onChange,
 }: {
-  settings: TrojanProtocolSettings | VlessProtocolSettings
-  onChange: (next: TrojanProtocolSettings | VlessProtocolSettings) => void
+  settings: T
+  onChange: (next: T) => void
 }) {
   const { t } = useTranslation()
   const locale = 'server.dynamic_form.vless.reality_settings'
   const reality = settings.reality_settings
 
   function patchReality(patch: Partial<RealitySettingsFields>) {
-    onChange({ ...settings, reality_settings: { ...reality, ...patch } })
+    onChange({ ...settings, reality_settings: { ...reality, ...patch } } as T)
   }
 
   async function generateKeyPair() {

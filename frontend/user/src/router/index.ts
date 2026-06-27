@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 
 import AuthPage from '../pages/AuthPage.vue'
 
@@ -29,7 +29,7 @@ async function ensureValidSession(): Promise<boolean> {
   return valid
 }
 
-const routes = [
+const routes: RouteRecordRaw[] = [
 
   { path: '/login', component: AuthPage },
 

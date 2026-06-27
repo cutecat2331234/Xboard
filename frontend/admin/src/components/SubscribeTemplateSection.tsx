@@ -27,14 +27,14 @@ type Props = {
   update: (sec: string, key: string, value: unknown) => void
 }
 
+type TemplateKey = (typeof TEMPLATE_KEYS)[number]['key']
+
 export function SubscribeTemplateSection({ t, tpl, update }: Props) {
-  const [active, setActive] = useState(TEMPLATE_KEYS[0].key)
-  const current = TEMPLATE_KEYS.find((x) => x.key === active) ?? TEMPLATE_KEYS[0]
-  const labelKey = LABEL_KEYS[current.key]
+  const [active, setActive] = useState<TemplateKey>(TEMPLATE_KEYS[0].key)
 
   return (
     <div className="flex flex-col gap-4">
-      <Tabs value={active} onValueChange={setActive}>
+      <Tabs value={active} onValueChange={(v) => setActive(v as TemplateKey)}>
         <TabsList className="h-auto flex-wrap">
           {TEMPLATE_KEYS.map((item) => (
             <TabsTrigger key={item.key} value={item.key}>

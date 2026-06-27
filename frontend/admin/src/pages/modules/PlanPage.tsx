@@ -16,7 +16,6 @@ import {
   dialogSubFieldLabelCls,
   formSubLabelCls,
   inputCls,
-  textareaCls,
 } from '@/lib/form-styles'
 import { DialogFormFooter } from '@/components/shared/DialogFormFooter'
 import { useIdListSort } from '@/lib/use-id-list-sort'

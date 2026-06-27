@@ -388,7 +388,6 @@ export default {
     tryOutHint: "此訂單包含註冊試用套餐，支付完成後將開通對應試用權益。"
   },
   ticket: {
-    fillRequired: "請填寫必填欄位",
     title: "工單歷史",
     new: "新的工單",
     subject: "主題",

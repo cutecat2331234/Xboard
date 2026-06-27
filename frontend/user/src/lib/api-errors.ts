@@ -109,7 +109,6 @@ const MESSAGE_MAP: Record<string, string> = {
   '货币转换超时，请稍后再试': 'errors.currencyConversionTimeout',
   'Please wait for the technical engineer to reply': 'errors.ticketWaitForReply',
   'Please wait for the technical enginneer to reply': 'errors.ticketWaitForReply',
-  'Please wait for the technical engineer to reply': 'errors.ticketWaitForReply',
   'Unsupported withdraw': 'errors.withdrawUnsupported',
   'Insufficient commission balance': 'errors.insufficientCommission',
   '佣金余额不足': 'errors.insufficientCommission',
@@ -171,7 +170,6 @@ const MESSAGE_MAP: Record<string, string> = {
 
   '存在未关闭的工单': 'errors.openTicketExists',
   'Open ticket already exists': 'errors.openTicketExists',
-  '工单不存在': 'errors.ticketNotFound',
   'Message cannot be empty': 'errors.ticketMessageEmpty',
   '消息不能为空': 'errors.ticketMessageEmpty',
   'The ticket is closed': 'errors.ticketClosed',
@@ -185,7 +183,6 @@ const MESSAGE_MAP: Record<string, string> = {
   'Withdraw tickets cannot be closed by user': 'errors.withdrawTicketCloseForbidden',
   'Withdraw tickets cannot be closed by user. Please contact support.': 'errors.withdrawTicketCloseForbidden',
   '提现工单不能自行关闭，请联系客服处理': 'errors.withdrawTicketCloseForbidden',
-  'Close failed': 'errors.ticketCloseFailed',
   '关闭失败': 'errors.ticketCloseFailed',
   'Ticket subject cannot be empty': 'errors.ticketSubjectEmpty',
   '工单主题不能为空': 'errors.ticketSubjectEmpty',
@@ -227,7 +224,6 @@ const MESSAGE_MAP: Record<string, string> = {
   '您不满足此礼品卡的使用条件': 'errors.giftCardIneligible',
   '您已达到此礼品卡的使用限制': 'errors.giftCardLimitReached',
   '查询失败，请稍后重试': 'errors.giftCardQueryFailed',
-  'Gift card is not available': 'errors.giftCardUnavailable',
   '礼品卡功能未开启': 'errors.giftCardUnavailable',
 
   // Validation (R91–R94 backend messages)
@@ -256,13 +252,9 @@ const MESSAGE_MAP: Record<string, string> = {
   'Failed to update commission balance': 'errors.commissionUpdateFailed',
   '更新佣金余额失败': 'errors.commissionUpdateFailed',
   'Redemption code does not exist': 'errors.giftCardNotFound',
-  '兑换码不存在': 'errors.giftCardNotFound',
   'You do not meet the requirements for this gift card': 'errors.giftCardIneligible',
-  '您不满足此礼品卡的使用条件': 'errors.giftCardIneligible',
   'You have reached the usage limit for this gift card': 'errors.giftCardLimitReached',
-  '您已达到此礼品卡的使用限制': 'errors.giftCardLimitReached',
   'Redemption code status update failed': 'errors.giftCardRedeemFailed',
-  '兑换码状态更新失败': 'errors.giftCardRedeemFailed',
   'Failed to credit balance': 'errors.requestFailed',
   '余额发放失败': 'errors.requestFailed',
   'There are other unresolved tickets': 'errors.openTicketExists',
@@ -367,9 +359,7 @@ function extractMessage(error: unknown): string {
     if (payload) {
       const resolved = resolveApiFailureMessage(
         {
-          status: (payload.status as 'success' | 'fail') ?? 'fail',
           message: Array.isArray(payload.message) ? payload.message[0] ?? '' : (payload.message ?? ''),
-          data: null,
           error: payload.error ?? null,
         },
         '',

@@ -53,7 +53,7 @@ const detail = ref<GiftCardDetail | null>(null)
 
 function formatPreview(rewards?: GiftCardRewards | { type?: string; pool_size?: number } | null) {
   if (rewards && typeof rewards === 'object' && 'type' in rewards && rewards.type === 'mystery') {
-    return t('giftCard.mysteryPreview', { count: rewards.pool_size ?? 0 })
+    return t('giftCard.mysteryPreview', { count: Number(rewards.pool_size ?? 0) })
   }
   return formatRewards(rewards as GiftCardRewards | null | undefined)
 }
@@ -340,7 +340,7 @@ onMounted(async () => {
           ×{{ detail.multiplier_applied }}
         </n-descriptions-item>
         <n-descriptions-item :label="t('giftCard.redeemedAt')">
-          {{ formatLocaleDateTime(detail.created_at, locale.value) }}
+          {{ formatLocaleDateTime(detail.created_at, locale) }}
         </n-descriptions-item>
       </n-descriptions>
     </template>

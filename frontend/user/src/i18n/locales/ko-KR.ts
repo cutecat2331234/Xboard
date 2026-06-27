@@ -411,7 +411,6 @@ export default {
     closedHint: "이 티켓은 닫혔습니다. 더 이상 답장할 수 없습니다.",
     closeSuccess: "티켓이 닫혔습니다",
     closeConfirm: "이 티켓을 닫으시겠습니까? 닫은 후에는 답변할 수 없습니다.",
-    fillRequired: "제목과 메시지를 입력해 주세요",
     fillRequired: "제목과 메시지를 입력하세요",
     empty: "티켓이 없습니다"
   },

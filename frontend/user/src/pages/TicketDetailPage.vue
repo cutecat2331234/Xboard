@@ -144,7 +144,7 @@ watch(
     replyText.value = ''
     ticket.value = null
     await load()
-    if (ticket.value?.status === 0) startPoll()
+    startPoll()
   },
 )
 

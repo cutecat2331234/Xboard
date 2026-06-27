@@ -93,7 +93,7 @@ const hasActiveSubscription = computed(() => {
   if (!sub?.plan) return false
   const expiredAt = sub.expired_at
   if (expiredAt === null) return true
-  return expiredAt > Date.now() / 1000
+  return (expiredAt ?? 0) > Date.now() / 1000
 })
 
 const trafficWarnThreshold = computed(() => resolveTrafficWarnRate(commConfig.value))

@@ -10,16 +10,8 @@ function isDialogStyle(className?: string) {
   return Boolean(className?.includes('font-mono') || className?.includes('text-xs'))
 }
 
-function addonHeight(className?: string) {
-  if (className?.includes('h-8')) return 'h-8'
-  if (className?.includes('h-[36px]')) return 'h-[36px]'
-  if (isDialogStyle(className)) return 'h-[34px]'
-  return 'h-9'
-}
-
 function addonCls(className: string | undefined, rounded: 'left' | 'right') {
   const dialog = isDialogStyle(className)
-  const h = addonHeight(className)
   return cn(
     'inline-flex shrink-0 items-center border border-input bg-transparent px-3 text-muted-foreground',
     dialog ? 'shadow-none font-mono text-xs' : 'text-sm shadow-sm',

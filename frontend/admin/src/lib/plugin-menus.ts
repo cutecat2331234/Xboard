@@ -34,7 +34,7 @@ export function findAdminCrud(
 
 function buildPluginMenuItems(plugin: PluginRow): PluginNavItem[] {
   return (plugin.admin_menus ?? [])
-    .map((menu) => {
+    .map((menu): PluginNavItem | null => {
       const path = normalizePluginPath(menu.path)
       if (!path || !plugin.code) return null
       return {
@@ -44,7 +44,7 @@ function buildPluginMenuItems(plugin: PluginRow): PluginNavItem[] {
         label: menu.label,
         icon: menu.icon,
         pluginCode: plugin.code,
-      } satisfies PluginNavItem
+      }
     })
     .filter((item): item is PluginNavItem => item !== null)
 }
@@ -53,7 +53,7 @@ function buildPluginMenuItems(plugin: PluginRow): PluginNavItem[] {
 export function buildPluginNavGroups(plugins: PluginRow[]): PluginNavGroup[] {
   return plugins
     .filter((plugin) => plugin.is_installed && plugin.is_enabled)
-    .map((plugin) => {
+    .map((plugin): PluginNavGroup | null => {
       const items = buildPluginMenuItems(plugin)
       if (!items.length || !plugin.code) return null
       return {
@@ -63,7 +63,7 @@ export function buildPluginNavGroups(plugins: PluginRow[]): PluginNavGroup[] {
         pluginCode: plugin.code,
         pluginType: plugin.type,
         items,
-      } satisfies PluginNavGroup
+      }
     })
     .filter((group): group is PluginNavGroup => group !== null)
     .sort((a, b) => a.title.localeCompare(b.title))

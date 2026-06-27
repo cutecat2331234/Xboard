@@ -98,11 +98,12 @@ const detailTablePagination = computed(() => ({
 }))
 
 function paginationPrefix(info: PaginationInfo) {
-  const pageCount = Math.max(1, Math.ceil(info.itemCount / info.pageSize))
+  const count = info.itemCount ?? 0
+  const pageCount = Math.max(1, Math.ceil(count / info.pageSize))
   return t('common.pagination.summary', {
     current: info.page,
     total: pageCount,
-    count: info.itemCount,
+    count,
   })
 }
 
@@ -339,18 +340,18 @@ const codeColumns = computed<DataTableColumns<InviteCode>>(() => [
   },
 ])
 
-const detailColumns = computed(() => [
+const detailColumns = computed<DataTableColumns<{ created_at?: number; get_amount?: number }>>(() => [
   {
     title: t('invite.incomeTime'),
     key: 'created_at',
-    render: (r: { created_at?: number }) => formatLocaleDateTime(r.created_at, locale.value),
+    render: (r) => formatLocaleDateTime(r.created_at, locale.value),
   },
   {
     title: t('invite.incomeAmount'),
     key: 'get_amount',
     fixed: 'right',
     align: 'right',
-    render: (r: { get_amount?: number }) => formatPriceSpaced(r.get_amount ?? 0),
+    render: (r) => formatPriceSpaced(r.get_amount ?? 0),
   },
 ])
 

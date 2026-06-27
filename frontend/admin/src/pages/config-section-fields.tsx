@@ -4,7 +4,6 @@ import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
 import { postJson } from '@/lib/api'
 import { ConfigFormSelect } from '@/components/shared/ConfigFormSelect'
-import { inputCls } from '@/lib/form-styles'
 import { SubscribeTemplateSection } from '@/components/SubscribeTemplateSection'
 import { MailTemplatePanel } from '@/pages/MailTemplatePanel'
 import { TelegramConfigFields } from '@/pages/TelegramConfigFields'
@@ -56,7 +55,6 @@ export function ConfigSectionFields({
   const safe = config.safe ?? {}
   const email = config.email ?? {}
   const telegram = config.telegram ?? {}
-  const site = config.site ?? {}
   const app = config.app ?? {}
   const tpl = config.subscribe_template ?? {}
 

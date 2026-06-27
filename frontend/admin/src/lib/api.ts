@@ -144,27 +144,6 @@ export function buildQuery(
   return qs ? `?${qs}` : ''
 }
 
-function parseListPayload(result: unknown): unknown[] {
-  if (Array.isArray(result)) return result
-  if (!result || typeof result !== 'object') return []
-
-  const payload = result as ApiResponse<unknown> & PaginatedResult<unknown>
-  if (payload.status === 'fail') {
-    parseApiError(payload)
-  }
-
-  if (Array.isArray(payload.data)) {
-    return payload.data
-  }
-
-  if (payload.data && typeof payload.data === 'object' && !Array.isArray(payload.data)) {
-    const nested = payload.data as Record<string, unknown>
-    if (Array.isArray(nested.themes)) return nested.themes
-    if (Array.isArray(nested.list)) return nested.list
-  }
-
-  return []
-}
 
 export async function fetchPaginatedList<T = unknown>(
   path: string,

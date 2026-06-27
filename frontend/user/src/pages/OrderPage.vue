@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDialog, type DataTableColumns } from 'naive-ui'
+import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDialog, type DataTableColumns, type SelectOption } from 'naive-ui'
 import { fetchOrders, cancelOrder, fetchFirstBlockingOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { ORDER_STATUS_KEYS, orderStatusLabel } from '@/lib/order-status'
@@ -40,8 +40,8 @@ function periodLabel(period?: string) {
   return hit ? t(hit.labelKey) : period
 }
 
-const statusOptions = computed(() => [
-  { label: t('order.filterAll'), value: null as number | null },
+const statusOptions = computed<SelectOption[]>(() => [
+  { label: t('order.filterAll'), value: null as unknown as number },
   ...Object.entries(ORDER_STATUS_KEYS).map(([value, key]) => ({
     label: t(key),
     value: Number(value),

@@ -39,7 +39,7 @@ function typeLabel(type: string, t: (key: string) => string) {
 
 function orderedTypes(plugins: PluginRow[]) {
   const found = [...new Set(plugins.map((p) => p.type).filter(Boolean))] as string[]
-  const ordered = TYPE_ORDER.filter((t) => found.includes(t))
+  const ordered = TYPE_ORDER.filter((t) => found.includes(t)) as string[]
   for (const t of found) {
     if (!ordered.includes(t)) ordered.push(t)
   }

@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserInfo | null>(null)
   const loading = ref(false)
 
-  async function login(form: LoginForm) {
+  async function login(form: LoginForm & AuthFormPayload) {
     loading.value = true
     try {
       await apiLogin(form)

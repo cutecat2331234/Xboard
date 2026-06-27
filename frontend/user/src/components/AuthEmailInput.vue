@@ -64,7 +64,7 @@ defineExpose({
   <n-input
     v-else
     :value="emailFull"
-    type="email"
+    type="text"
     :placeholder="t('email')"
     :autofocus="autofocus"
     @update:value="onFullUpdate"
