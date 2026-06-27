@@ -147,6 +147,20 @@ class Plugin extends AbstractPlugin implements PaymentInterface
                     }
                 }
 
+                // Defense-in-depth: the credited amount is the order's expected CNY cents (what the
+                // order layer reconciles against). Cross-check it against the amount Stripe actually
+                // charged ($object->amount, in settlement-currency minor units) by reconstructing the
+                // expected settlement amount via the live exchange rate. Divergence is logged only —
+                // accounting is intentionally left unchanged to avoid breaking valid webhooks.
+                if (isset($metaData->expected_cny_cents)) {
+                    $this->verifyChargedAmount(
+                        (int) $metaData->expected_cny_cents,
+                        isset($object->amount) ? (int) $object->amount : null,
+                        isset($object->currency) ? (string) $object->currency : null,
+                        (string) $metaData->out_trade_no
+                    );
+                }
+
                 return array_filter([
                     'trade_no' => $metaData->out_trade_no,
                     'callback_no' => $object->id,
@@ -157,6 +171,50 @@ class Plugin extends AbstractPlugin implements PaymentInterface
 
             default:
                 return 'success';
+        }
+    }
+
+    /**
+     * Cross-check the amount Stripe actually charged against the order's expected amount.
+     * Logs a warning on divergence; never throws, so a flaky exchange API cannot drop webhooks.
+     */
+    private function verifyChargedAmount(int $expectedCnyCents, ?int $chargedAmount, ?string $chargedCurrency, string $tradeNo): void
+    {
+        if ($chargedAmount === null || $chargedCurrency === null) {
+            return;
+        }
+
+        $configuredCurrency = strtolower((string) $this->getConfig('currency', 'usd'));
+        if (strtolower($chargedCurrency) !== $configuredCurrency) {
+            Log::warning('StripeCredit webhook currency mismatch', [
+                'trade_no' => $tradeNo,
+                'charged_currency' => $chargedCurrency,
+                'configured_currency' => $configuredCurrency,
+            ]);
+            return;
+        }
+
+        $exchange = $this->exchange('CNY', strtoupper($configuredCurrency));
+        if (!$exchange) {
+            // Exchange lookup unavailable; skip the cross-check rather than risk dropping the webhook.
+            Log::debug('StripeCredit webhook amount cross-check skipped (no exchange rate)', [
+                'trade_no' => $tradeNo,
+            ]);
+            return;
+        }
+
+        $expectedChargedAmount = (int) floor($expectedCnyCents * $exchange);
+        // Allow a small tolerance for rounding / rate drift between charge time and webhook time.
+        $tolerance = (int) max(2, ceil($expectedChargedAmount * 0.02));
+        if (abs($chargedAmount - $expectedChargedAmount) > $tolerance) {
+            Log::warning('StripeCredit webhook charged amount differs from expected', [
+                'trade_no' => $tradeNo,
+                'charged_amount' => $chargedAmount,
+                'expected_charged_amount' => $expectedChargedAmount,
+                'expected_cny_cents' => $expectedCnyCents,
+                'currency' => $configuredCurrency,
+                'tolerance' => $tolerance,
+            ]);
         }
     }
 

@@ -25,21 +25,31 @@ class TrafficResetService
       return false;
     }
 
-    return $this->performReset($user, $triggerSource);
+    return $this->performReset($user, $triggerSource, true);
   }
 
   /**
    * Perform the traffic reset for a user.
+   *
+   * @param bool $verifyEligibility When true, re-check shouldResetTraffic() inside the
+   *                                row lock to prevent concurrent double resets (TOCTOU).
+   *                                Manual/order-driven resets pass false (intentional, unconditional).
    */
-  public function performReset(User $user, string $triggerSource = TrafficResetLog::SOURCE_MANUAL): bool
+  public function performReset(User $user, string $triggerSource = TrafficResetLog::SOURCE_MANUAL, bool $verifyEligibility = false): bool
   {
     try {
-      return DB::transaction(function () use ($user, $triggerSource) {
+      return DB::transaction(function () use ($user, $triggerSource, $verifyEligibility) {
         $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
         if (!$lockedUser) {
           return false;
         }
         $user = $lockedUser;
+
+        // Re-check eligibility under the lock for condition-driven (auto/cron) resets so two
+        // concurrent workers that both passed the pre-lock check cannot reset twice.
+        if ($verifyEligibility && !$user->shouldResetTraffic()) {
+          return false;
+        }
 
         $oldUpload = $user->u ?? 0;
         $oldDownload = $user->d ?? 0;

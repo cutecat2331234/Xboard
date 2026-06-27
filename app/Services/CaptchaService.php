@@ -50,7 +50,7 @@ class CaptchaService
         ]);
 
         $result = $response->json();
-        if (!$result['success']) {
+        if (!is_array($result) || empty($result['success'])) {
             return [false, [400, __('Invalid code is incorrect')]];
         }
 

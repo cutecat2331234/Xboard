@@ -116,8 +116,8 @@ class Shadowrocket extends AbstractProtocol
             case 'tcp':
                 if (data_get($protocol_settings, 'network_settings.header.type', 'none') !== 'none') {
                     $config['obfs'] = data_get($protocol_settings, 'network_settings.header.type');
-                    $config['path'] = \Illuminate\Support\Arr::random(data_get($protocol_settings, 'network_settings.header.request.path', ['/']));
-                    $config['obfsParam'] = \Illuminate\Support\Arr::random(data_get($protocol_settings, 'network_settings.header.request.headers.Host', ['www.example.com']));
+                    $config['path'] = \Illuminate\Support\Arr::random(\Illuminate\Support\Arr::wrap(data_get($protocol_settings, 'network_settings.header.request.path') ?? ['/']));
+                    $config['obfsParam'] = \Illuminate\Support\Arr::random(\Illuminate\Support\Arr::wrap(data_get($protocol_settings, 'network_settings.header.request.headers.Host') ?? ['www.example.com']));
                 }
                 break;
             case 'ws':
@@ -218,8 +218,8 @@ class Shadowrocket extends AbstractProtocol
             case 'tcp':
                 if (data_get($protocol_settings, 'network_settings.header.type', 'none') !== 'none') {
                     $config['obfs'] = data_get($protocol_settings, 'network_settings.header.type');
-                    $config['path'] = \Illuminate\Support\Arr::random(data_get($protocol_settings, 'network_settings.header.request.path', ['/']));
-                    $config['obfsParam'] = \Illuminate\Support\Arr::random(data_get($protocol_settings, 'network_settings.header.request.headers.Host', ['www.example.com']));
+                    $config['path'] = \Illuminate\Support\Arr::random(\Illuminate\Support\Arr::wrap(data_get($protocol_settings, 'network_settings.header.request.path') ?? ['/']));
+                    $config['obfsParam'] = \Illuminate\Support\Arr::random(\Illuminate\Support\Arr::wrap(data_get($protocol_settings, 'network_settings.header.request.headers.Host') ?? ['www.example.com']));
                 }
                 break;
             case 'ws':

@@ -129,12 +129,14 @@ class SingBox extends AbstractProtocol
     {
         $jsonData = subscribe_template('singbox');
 
-        return is_array($jsonData) ? $jsonData : json_decode($jsonData, true);
+        $config = is_array($jsonData) ? $jsonData : json_decode($jsonData, true);
+
+        return is_array($config) ? $config : [];
     }
 
     protected function buildOutbounds()
     {
-        $outbounds = $this->config['outbounds'];
+        $outbounds = is_array($this->config['outbounds'] ?? null) ? $this->config['outbounds'] : [];
         $proxies = [];
         foreach ($this->servers as $item) {
             $protocol_settings = $item['protocol_settings'];
@@ -849,7 +851,7 @@ class SingBox extends AbstractProtocol
         $transport = match (data_get($protocol_settings, 'network')) {
             'tcp' => data_get($protocol_settings, 'network_settings.header.type') === 'http' ? [
                 'type' => 'http',
-                'path' => Arr::random(data_get($protocol_settings, 'network_settings.header.request.path', ['/'])),
+                'path' => Arr::random(Arr::wrap(data_get($protocol_settings, 'network_settings.header.request.path') ?? ['/'])),
                 'host' => data_get($protocol_settings, 'network_settings.header.request.headers.Host', [])
             ] : null,
             'ws' => [

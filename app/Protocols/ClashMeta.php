@@ -150,6 +150,9 @@ class ClashMeta extends AbstractProtocol
         $template = subscribe_template('clashmeta');
 
         $config = Yaml::parse($template);
+        if (!is_array($config)) {
+            $config = [];
+        }
         $proxy = [];
         $proxies = [];
 
@@ -196,7 +199,13 @@ class ClashMeta extends AbstractProtocol
             }
         }
 
-        $config['proxies'] = array_merge($config['proxies'] ? $config['proxies'] : [], $proxy);
+        $config['proxies'] = array_merge(
+            is_array($config['proxies'] ?? null) ? $config['proxies'] : [],
+            $proxy
+        );
+        if (!is_array($config['proxy-groups'] ?? null)) {
+            $config['proxy-groups'] = [];
+        }
         foreach ($config['proxy-groups'] as $k => $v) {
             if (!is_array($config['proxy-groups'][$k]['proxies']))
                 $config['proxy-groups'][$k]['proxies'] = [];
@@ -241,6 +250,9 @@ class ClashMeta extends AbstractProtocol
         // Force the current subscription domain to be a direct rule
         $subsDomain = request()->header('Host');
         if ($subsDomain) {
+            if (!is_array($config['rules'] ?? null)) {
+                $config['rules'] = [];
+            }
             array_unshift($config['rules'], "DOMAIN,{$subsDomain},DIRECT");
         }
         // // Force the nodes ip to be a direct rule

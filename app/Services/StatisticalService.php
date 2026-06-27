@@ -115,7 +115,11 @@ class StatisticalService
         $stats = [];
         $statsUser = $this->redis->zrange($this->statUserKey, 0, -1, true);
         foreach ($statsUser as $member => $value) {
-            list($rate, $uid, $type) = explode('_', $member);
+            $parts = explode('_', $member);
+            if (count($parts) !== 3) {
+                continue; // Skip malformed members
+            }
+            [$rate, $uid, $type] = $parts;
             if (intval($uid) !== intval($userId))
                 continue;
             $key = "{$rate}_{$uid}";
@@ -139,7 +143,11 @@ class StatisticalService
         $stats = [];
         $statsUser = $this->redis->zrange($this->statUserKey, 0, -1, true);
         foreach ($statsUser as $member => $value) {
-            list($rate, $uid, $type) = explode('_', $member);
+            $parts = explode('_', $member);
+            if (count($parts) !== 3) {
+                continue; // Skip malformed members
+            }
+            [$rate, $uid, $type] = $parts;
             $key = "{$rate}_{$uid}";
             $stats[$key] = $stats[$key] ?? [
                 'record_at' => $this->startAt,

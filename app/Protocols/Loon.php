@@ -136,12 +136,12 @@ class Loon extends AbstractProtocol
                 if (data_get($tcpSettings, 'header.type'))
                     $config = str_replace('transport=tcp', "transport={$tcpSettings['header']['type']}", $config);
                 if (data_get($tcpSettings, key: 'header.request.path')) {
-                    $paths = data_get($tcpSettings, key: 'header.request.path');
+                    $paths = \Illuminate\Support\Arr::wrap(data_get($tcpSettings, key: 'header.request.path'));
                     $path = $paths[array_rand($paths)];
                     $config[] = "path={$path}";
                 }
                 if (data_get($tcpSettings, key: 'header.request.headers.Host')) {
-                    $hosts = data_get($tcpSettings, key: 'header.request.headers.Host');
+                    $hosts = \Illuminate\Support\Arr::wrap(data_get($tcpSettings, key: 'header.request.headers.Host'));
                     $host = $hosts[array_rand($hosts)];
                     $config[] = "host={$host}";
                 }

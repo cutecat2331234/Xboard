@@ -219,7 +219,10 @@ class UserService
      */
     private function setPlanForUser(User $user, int $planId, ?int $expiredAt = null): void
     {
-        $plan = Plan::find($planId);
+        // Lock the plan row so the capacity COUNT below is serialized against concurrent
+        // grants when this runs inside a transaction (e.g. admin batch import). Outside a
+        // transaction the lock is a harmless no-op.
+        $plan = Plan::where('id', $planId)->lockForUpdate()->first();
         if (!$plan) {
             return;
         }

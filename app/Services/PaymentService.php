@@ -88,7 +88,7 @@ class PaymentService
         $notifyUrl = url("/api/v1/guest/payment/notify/{$this->method}/{$this->config['uuid']}");
         if ($this->config['notify_domain']) {
             $parseUrl = parse_url($notifyUrl);
-            $notifyUrl = $this->config['notify_domain'] . $parseUrl['path'];
+            $notifyUrl = $this->config['notify_domain'] . ($parseUrl['path'] ?? '');
         }
 
         return $this->payment->pay([

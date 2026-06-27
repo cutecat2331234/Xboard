@@ -85,7 +85,7 @@ class OrderService
                 'plan_id' => $plan->id,
                 'period' => $newPeriod,
                 'trade_no' => Helper::generateOrderNo(),
-                'total_amount' => (int) (optional($plan->prices)[$newPeriod] * 100),
+                'total_amount' => (int) round(optional($plan->prices)[$newPeriod] * 100),
             ]);
 
             $orderService = new self($order);
