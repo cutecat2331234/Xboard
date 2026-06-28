@@ -85,7 +85,7 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         ];
     }
 
-    public function notify($params): array
+    public function notify($params): array|string
     {
         $payload = trim(request()->getContent());
         $json_param = json_decode($payload, true);

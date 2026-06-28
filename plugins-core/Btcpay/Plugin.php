@@ -78,7 +78,7 @@ class Plugin extends AbstractPlugin implements PaymentInterface
         ];
     }
 
-    public function notify($params): array|bool
+    public function notify($params): array|bool|string
     {
         $payload = trim(request()->getContent());
         $signHeader = request()->header('Btcpay-Sig', '');

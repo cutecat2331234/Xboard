@@ -37,7 +37,7 @@ class PaymentController extends Controller
                 return $this->fail([400, __('Payment notify handling failed')]);
             }
             return (isset($verify['custom_result']) ? $verify['custom_result'] : 'success');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error($e);
             return $this->fail([500, __('Payment notify failed')]);
         }
