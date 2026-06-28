@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
 
-import { NCard, NButton, NModal, NIcon, NAlert, NTag, NSpin, useMessage, useDialog } from 'naive-ui'
+import { NCard, NButton, NModal, NIcon, NAlert, NTag, NSpin, NConfigProvider, type GlobalThemeOverrides, useMessage, useDialog } from 'naive-ui'
 
 import { CheckmarkCircleOutline } from '@vicons/ionicons5'
 
@@ -278,6 +278,20 @@ const isTryOutPlan = computed(() => {
   return o.plan_id === o.try_out_plan_id
 
 })
+
+/**
+ * Dark-grey naive-ui theme for the order summary panel, matching the original
+ * (umi.js naiveThemeOverrides: primaryColor #343a40 / pressed #1d2124 / suppl #23272b).
+ * Scoped to the panel so the Checkout button renders dark grey, not the global teal primary.
+ */
+const summaryThemeOverrides: GlobalThemeOverrides = {
+  common: {
+    primaryColor: '#343a40',
+    primaryColorHover: '#41464c',
+    primaryColorPressed: '#1d2124',
+    primaryColorSuppl: '#23272b',
+  },
+}
 
 
 
@@ -836,6 +850,7 @@ onUnmounted(stopPoll)
 
     <div v-if="isPending" class="order-detail-aside">
 
+      <n-config-provider :theme-overrides="summaryThemeOverrides">
       <div class="summary-panel mt-5 rounded-md">
 
         <div class="summary-panel__title">{{ t('order.totalTitle') }}</div>
@@ -928,6 +943,7 @@ onUnmounted(stopPoll)
         </n-button>
 
       </div>
+      </n-config-provider>
 
     </div>
 
