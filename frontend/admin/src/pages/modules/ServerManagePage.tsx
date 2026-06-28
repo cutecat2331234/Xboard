@@ -89,6 +89,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 
 
 
@@ -295,6 +296,8 @@ export default function ServerManagePage() {
   const { t } = useTranslation()
 
   const { confirm, ConfirmDialog } = useConfirmDialog()
+
+  const runGuarded = useInFlightGuard()
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -563,6 +566,8 @@ export default function ServerManagePage() {
 
   async function toggleShow(row: NodeRow) {
 
+    await runGuarded(`toggle:${row.id}`, async () => {
+
     try {
 
       await postJson('/server/manage/update', { id: row.id, show: row.show ? 0 : 1 })
@@ -574,6 +579,8 @@ export default function ServerManagePage() {
       toastApiError(e, toast, t, t('common.error'))
 
     }
+
+    })
 
   }
 
@@ -601,6 +608,8 @@ export default function ServerManagePage() {
 
   async function deleteNode(row: NodeRow) {
 
+    await runGuarded(`delete:${row.id}`, async () => {
+
     if (
       !(await confirm(
         t('server.columns.actions_dropdown.delete.title'),
@@ -625,6 +634,8 @@ export default function ServerManagePage() {
       toastApiError(e, toast, t, t('common.error'))
 
     }
+
+    })
 
   }
 

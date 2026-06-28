@@ -63,6 +63,7 @@ import { Switch } from '@/components/ui/switch'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 
 
 
@@ -358,6 +359,8 @@ export default function GiftCardPage() {
   const { t } = useTranslation()
 
   const { confirm, ConfirmDialog } = useConfirmDialog()
+
+  const runGuarded = useInFlightGuard()
 
   const [tab, setTab] = useState('templates')
 
@@ -967,6 +970,8 @@ export default function GiftCardPage() {
 
   async function deleteTemplate(row: TemplateRow) {
 
+    await runGuarded(`delete-template:${row.id}`, async () => {
+
     if (
       !(await confirm(
         t('giftCard.template.actions.deleteConfirm.title'),
@@ -992,11 +997,15 @@ export default function GiftCardPage() {
 
     }
 
+    })
+
   }
 
 
 
   async function toggleCode(row: CodeRow) {
+
+    await runGuarded(`toggle-code:${row.id}`, async () => {
 
     const disabled = Number(row.status) === 3
 
@@ -1020,11 +1029,15 @@ export default function GiftCardPage() {
 
     }
 
+    })
+
   }
 
 
 
   async function deleteCode(row: CodeRow) {
+
+    await runGuarded(`delete-code:${row.id}`, async () => {
 
     if (
       !(await confirm(
@@ -1050,6 +1063,8 @@ export default function GiftCardPage() {
       toastApiError(e, toast, t, t('common.error'))
 
     }
+
+    })
 
   }
 
@@ -1141,7 +1156,7 @@ export default function GiftCardPage() {
       } },
 
       { accessorKey: 'status', header: () => t('giftCard.template.table.columns.status'), cell: ({ row }) => (
-        row.original.status ? t('giftCard.common.enabled') : t('giftCard.common.disabled')
+        Number(row.original.status) === 1 ? t('giftCard.common.enabled') : t('giftCard.common.disabled')
       ) },
 
       {

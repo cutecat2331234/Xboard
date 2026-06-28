@@ -446,7 +446,7 @@ export default function ConfigPage() {
                         description={t('settings.site.form.trafficWarnRate.description')}
                         value={String(site.traffic_warn_rate ?? 70)}
                         placeholder={t('settings.site.form.trafficWarnRate.placeholder')}
-                        onChange={(v) => update('site', 'traffic_warn_rate', Number(v))}
+                        onChange={(v) => update('site', 'traffic_warn_rate', Number(v) || 70)}
                       />
                       <SwitchField
                         label={t('settings.site.form.loginWithMailLink.label')}

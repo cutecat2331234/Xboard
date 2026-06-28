@@ -88,6 +88,9 @@ const tokenLoading = ref(false)
 const mailLinkMode = ref(false)
 const mailLinkLoading = ref(false)
 const forgetLoading = ref(false)
+// Synchronous in-flight guard: prevents two very fast Enter presses from
+// dispatching duplicate submit requests before async loading flags flip.
+const submitting = ref(false)
 
 const showMailLink = computed(() => Boolean(config.value?.login_with_mail_link_enable))
 const registerClosed = computed(
@@ -197,9 +200,11 @@ async function sendCode() {
 }
 
 async function submitMailLink() {
+  if (submitting.value) return
   errorText.value = ''
   const addr = resolvedEmail()
   if (!addr) return
+  submitting.value = true
   mailLinkLoading.value = true
   try {
     const captcha = await captchaRef.value?.getPayload()
@@ -212,12 +217,15 @@ async function submitMailLink() {
     msg.error(message)
     captchaRef.value?.reset()
   } finally {
+    submitting.value = false
     mailLinkLoading.value = false
   }
 }
 
 async function submitLogin() {
+  if (submitting.value) return
   errorText.value = ''
+  submitting.value = true
   try {
     const captcha = await captchaRef.value?.getPayload()
     await auth.login({ email: resolvedEmail(), password: password.value, ...captcha })
@@ -228,6 +236,8 @@ async function submitLogin() {
     errorText.value = message
     msg.error(message)
     captchaRef.value?.reset()
+  } finally {
+    submitting.value = false
   }
 }
 
@@ -253,6 +263,8 @@ async function submitRegister() {
     errorText.value = t('inviteCodeRequired')
     return
   }
+  if (submitting.value) return
+  submitting.value = true
   try {
     const captcha = await captchaRef.value?.getPayload()
     await auth.register({
@@ -269,6 +281,8 @@ async function submitRegister() {
     errorText.value = message
     msg.error(message)
     captchaRef.value?.reset()
+  } finally {
+    submitting.value = false
   }
 }
 
@@ -282,6 +296,8 @@ async function submitForget() {
     errorText.value = t('errors.passwordTooShort')
     return
   }
+  if (submitting.value) return
+  submitting.value = true
   forgetLoading.value = true
   try {
     const captcha = await captchaRef.value?.getPayload()
@@ -302,6 +318,7 @@ async function submitForget() {
     msg.error(message)
     captchaRef.value?.reset()
   } finally {
+    submitting.value = false
     forgetLoading.value = false
   }
 }

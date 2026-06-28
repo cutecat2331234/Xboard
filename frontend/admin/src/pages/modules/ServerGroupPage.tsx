@@ -25,12 +25,14 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 
 type GroupRow = { id?: number; name?: string; users_count?: number; server_count?: number }
 
 export default function ServerGroupPage() {
   const { t } = useTranslation()
   const { confirm, ConfirmDialog } = useConfirmDialog()
+  const runGuarded = useInFlightGuard()
   const [data, setData] = useState<GroupRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -78,21 +80,23 @@ export default function ServerGroupPage() {
   }
 
   async function deleteRow(row: GroupRow) {
-    if (
-      !(await confirm(
-        t('group.messages.deleteConfirm'),
-        t('group.messages.deleteDescription'),
-        { confirmLabel: t('group.messages.deleteButton') },
-      ))
-    )
-      return
-    try {
-      await postJson('/server/group/drop', { id: row.id })
-      toast.success(t('common.success'))
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`delete:${row.id}`, async () => {
+      if (
+        !(await confirm(
+          t('group.messages.deleteConfirm'),
+          t('group.messages.deleteDescription'),
+          { confirmLabel: t('group.messages.deleteButton') },
+        ))
+      )
+        return
+      try {
+        await postJson('/server/group/drop', { id: row.id })
+        toast.success(t('common.success'))
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   const columns = useMemo<ColumnDef<GroupRow, unknown>[]>(

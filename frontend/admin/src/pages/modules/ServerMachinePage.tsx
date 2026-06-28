@@ -8,6 +8,7 @@ import { toastApiError } from '@/lib/api-errors'
 import { formatAdminDateTime } from '@/lib/format-datetime'
 import { useNavigate } from 'react-router-dom'
 import { buildQuery, fetchJsonList, fetchJsonObject, postJson } from '@/lib/api'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 import { inputCls } from '@/lib/form-styles'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
@@ -80,6 +81,7 @@ function formatHistoryLine(item: HistoryItem, t: (key: string) => string) {
 
 export default function ServerMachinePage() {
   const { t } = useTranslation()
+  const runGuarded = useInFlightGuard()
   const navigate = useNavigate()
   const [data, setData] = useState<MachineRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -198,14 +200,16 @@ export default function ServerMachinePage() {
   }
 
   async function deleteRow(row: MachineRow) {
-    if (!window.confirm(t('machine.messages.deleteConfirm'))) return
-    try {
-      await postJson('/server/machine/drop', { id: row.id })
-      toast.success(t('common.success'))
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`delete:${row.id}`, async () => {
+      if (!window.confirm(t('machine.messages.deleteConfirm'))) return
+      try {
+        await postJson('/server/machine/drop', { id: row.id })
+        toast.success(t('common.success'))
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   const infoCopyText = useMemo(() => {

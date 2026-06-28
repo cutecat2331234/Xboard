@@ -70,6 +70,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 import { UserInvitesSheet } from '@/pages/modules/UserInvitesSheet'
 import { UserTrafficRecordsDialog } from '@/pages/modules/UserTrafficRecordsDialog'
 
@@ -261,6 +262,7 @@ function buildFilterArray(
 export default function UserPage() {
   const { t } = useTranslation()
   const { confirm, ConfirmDialog } = useConfirmDialog()
+  const runGuarded = useInFlightGuard()
   const navigate = useNavigate()
   const [data, setData] = useState<UserRow[]>([])
   const [plans, setPlans] = useState<PlanRow[]>([])
@@ -693,20 +695,22 @@ export default function UserPage() {
   }
 
   async function deleteUser(row: UserRow) {
-    if (
-      !(await confirm(
-        t('user.columns.actions_menu.delete_confirm_title'),
-        t('user.columns.actions_menu.delete_confirm_description', { email: row.email }),
-      ))
-    )
-      return
-    try {
-      await postJson('/user/destroy', { id: row.id })
-      toast.success(t('common.success'))
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`delete:${row.id}`, async () => {
+      if (
+        !(await confirm(
+          t('user.columns.actions_menu.delete_confirm_title'),
+          t('user.columns.actions_menu.delete_confirm_description', { email: row.email }),
+        ))
+      )
+        return
+      try {
+        await postJson('/user/destroy', { id: row.id })
+        toast.success(t('common.success'))
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   async function resetSecret(row: UserRow) {

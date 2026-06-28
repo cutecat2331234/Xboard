@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 
 type RouteRow = {
   id?: number
@@ -39,6 +40,7 @@ const ACTIONS = ['block', 'direct', 'dns', 'proxy'] as const
 export default function ServerRoutePage() {
   const { t } = useTranslation()
   const { confirm, ConfirmDialog } = useConfirmDialog()
+  const runGuarded = useInFlightGuard()
   const [data, setData] = useState<RouteRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -101,21 +103,23 @@ export default function ServerRoutePage() {
   }
 
   async function deleteRow(row: RouteRow) {
-    if (
-      !(await confirm(
-        t('route.messages.deleteConfirm'),
-        t('route.messages.deleteDescription'),
-        { confirmLabel: t('route.messages.deleteButton') },
-      ))
-    )
-      return
-    try {
-      await postJson('/server/route/drop', { id: row.id })
-      toast.success(t('common.success'))
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`delete:${row.id}`, async () => {
+      if (
+        !(await confirm(
+          t('route.messages.deleteConfirm'),
+          t('route.messages.deleteDescription'),
+          { confirmLabel: t('route.messages.deleteButton') },
+        ))
+      )
+        return
+      try {
+        await postJson('/server/route/drop', { id: row.id })
+        toast.success(t('common.success'))
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   const columns = useMemo<ColumnDef<RouteRow, unknown>[]>(

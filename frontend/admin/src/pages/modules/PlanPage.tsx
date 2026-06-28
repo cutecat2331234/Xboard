@@ -32,6 +32,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 
 type PlanRow = {
   id?: number
@@ -167,6 +168,7 @@ const emptyPlan = (): PlanRow => ({
 export default function PlanPage() {
   const { t } = useTranslation()
   const { confirm, ConfirmDialog } = useConfirmDialog()
+  const runGuarded = useInFlightGuard()
   const [data, setData] = useState<PlanRow[]>([])
   const [groups, setGroups] = useState<GroupRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -268,32 +270,36 @@ export default function PlanPage() {
 
   async function toggleField(row: PlanRow, field: 'show' | 'sell' | 'renew') {
     if (sort.sortMode) return
-    try {
-      await postJson('/plan/update', { id: row.id, [field]: !row[field] })
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`toggle:${field}:${row.id}`, async () => {
+      try {
+        await postJson('/plan/update', { id: row.id, [field]: !row[field] })
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   async function deletePlan(row: PlanRow) {
-    if (
-      !(await confirm(
-        t('subscribe.plan.columns.delete_confirm.title'),
-        t('subscribe.plan.columns.delete_confirm.description'),
-      ))
-    )
-      return
-    try {
-      await postJson('/plan/drop', { id: row.id })
-      toast.success(t('common.success'))
-      const nextTotal = Math.max(0, total - 1)
-      const maxPage = Math.max(1, Math.ceil(nextTotal / pageSize))
-      if (page > maxPage) setPage(maxPage)
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`delete:${row.id}`, async () => {
+      if (
+        !(await confirm(
+          t('subscribe.plan.columns.delete_confirm.title'),
+          t('subscribe.plan.columns.delete_confirm.description'),
+        ))
+      )
+        return
+      try {
+        await postJson('/plan/drop', { id: row.id })
+        toast.success(t('common.success'))
+        const nextTotal = Math.max(0, total - 1)
+        const maxPage = Math.max(1, Math.ceil(nextTotal / pageSize))
+        if (page > maxPage) setPage(maxPage)
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   function setPrice(period: string, value: string) {
@@ -312,7 +318,8 @@ export default function PlanPage() {
   function setBasePrice(value: string) {
     const base = parseFloat(value)
     if (Number.isNaN(base)) {
-      setForm((f) => ({ ...f, prices: {} }))
+      // Empty/invalid base price: keep the existing price table intact
+      // instead of wiping it, to avoid data loss while the field is cleared.
       return
     }
     const prices = Object.fromEntries(

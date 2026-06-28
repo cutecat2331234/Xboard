@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 
 type CouponRow = {
   id?: number
@@ -117,6 +118,7 @@ function defaultForm() {
 export default function CouponPage() {
   const { t } = useTranslation()
   const { confirm, ConfirmDialog } = useConfirmDialog()
+  const runGuarded = useInFlightGuard()
   const [data, setData] = useState<CouponRow[]>([])
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -227,32 +229,36 @@ export default function CouponPage() {
   }
 
   async function toggleShow(row: CouponRow) {
-    try {
-      await postJson('/coupon/show', { id: row.id })
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`toggle:${row.id}`, async () => {
+      try {
+        await postJson('/coupon/show', { id: row.id })
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   async function deleteRow(row: CouponRow) {
-    if (
-      !(await confirm(
-        t('coupon.table.actions.deleteConfirm.title'),
-        t('coupon.table.actions.deleteConfirm.description'),
-        {
-          confirmLabel: t('coupon.table.actions.deleteConfirm.confirmText'),
-        },
-      ))
-    )
-      return
-    try {
-      await postJson('/coupon/drop', { id: row.id })
-      toast.success(t('common.success'))
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    await runGuarded(`delete:${row.id}`, async () => {
+      if (
+        !(await confirm(
+          t('coupon.table.actions.deleteConfirm.title'),
+          t('coupon.table.actions.deleteConfirm.description'),
+          {
+            confirmLabel: t('coupon.table.actions.deleteConfirm.confirmText'),
+          },
+        ))
+      )
+        return
+      try {
+        await postJson('/coupon/drop', { id: row.id })
+        toast.success(t('common.success'))
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
+      }
+    })
   }
 
   function togglePlanId(planId: number) {

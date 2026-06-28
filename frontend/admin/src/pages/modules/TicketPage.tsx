@@ -26,6 +26,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 type TicketRow = {
@@ -111,6 +112,7 @@ function levelLabel(t: (key: string) => string, level?: number, subject?: string
 export default function TicketPage() {
   const { t } = useTranslation()
   const { confirm, ConfirmDialog } = useConfirmDialog()
+  const runGuarded = useInFlightGuard()
   const [data, setData] = useState<TicketRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -202,37 +204,41 @@ export default function TicketPage() {
     row: TicketRow,
     options?: { withdrawPaid?: boolean; withdrawRejected?: boolean },
   ) {
-    const needsConfirm = isOfficialWithdrawTicket(row) || isLegacyWithdrawTicket(row)
-    if (needsConfirm) {
-      const title = options?.withdrawPaid
-        ? t('ticket.actions.approve_withdraw_confirm_title')
-        : t('ticket.actions.reject_withdraw_confirm_title')
-      const description = options?.withdrawPaid
-        ? t('ticket.actions.approve_withdraw_confirm_description')
-        : t('ticket.actions.reject_withdraw_confirm_description')
-      if (!(await confirm(title, description, { destructive: !options?.withdrawPaid }))) {
+    // Guard the whole flow (confirm + request) so a rapid second click on
+    // approve/reject withdrawal cannot dispatch a duplicate money-changing call.
+    await runGuarded(`close:${row.id}`, async () => {
+      const needsConfirm = isOfficialWithdrawTicket(row) || isLegacyWithdrawTicket(row)
+      if (needsConfirm) {
+        const title = options?.withdrawPaid
+          ? t('ticket.actions.approve_withdraw_confirm_title')
+          : t('ticket.actions.reject_withdraw_confirm_title')
+        const description = options?.withdrawPaid
+          ? t('ticket.actions.approve_withdraw_confirm_description')
+          : t('ticket.actions.reject_withdraw_confirm_description')
+        if (!(await confirm(title, description, { destructive: !options?.withdrawPaid }))) {
+          return
+        }
+      } else if (!(await confirm(
+        t('ticket.actions.close_confirm_title'),
+        t('ticket.actions.close_confirm_description'),
+      ))) {
         return
       }
-    } else if (!(await confirm(
-      t('ticket.actions.close_confirm_title'),
-      t('ticket.actions.close_confirm_description'),
-    ))) {
-      return
-    }
-    try {
-      const payload: Record<string, unknown> = { id: row.id }
-      if (options?.withdrawPaid) {
-        payload.withdraw_paid = true
+      try {
+        const payload: Record<string, unknown> = { id: row.id }
+        if (options?.withdrawPaid) {
+          payload.withdraw_paid = true
+        }
+        if (options?.withdrawRejected) {
+          payload.withdraw_rejected = true
+        }
+        await postJson('/ticket/close', payload)
+        toast.success(t('common.success'))
+        load()
+      } catch (e) {
+        toastApiError(e, toast, t, t('common.error'))
       }
-      if (options?.withdrawRejected) {
-        payload.withdraw_rejected = true
-      }
-      await postJson('/ticket/close', payload)
-      toast.success(t('common.success'))
-      load()
-    } catch (e) {
-      toastApiError(e, toast, t, t('common.error'))
-    }
+    })
   }
 
   const columns = useMemo<ColumnDef<TicketRow, unknown>[]>(
