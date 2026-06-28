@@ -2810,6 +2810,7 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
     "columns": {
       "id": "工单号",
       "subject": "主题",
+      "type": "类型",
       "level": "优先级",
       "status": "状态",
       "updated_at": "最后更新",
@@ -2834,7 +2835,8 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "no_results": "未找到结果",
       "selected": "已选择 {count} 项",
       "clear": "清除筛选",
-      "reply_status_all": "全部回复状态"
+      "reply_status_all": "全部回复状态",
+      "type_all": "全部类型"
     },
     "actions": {
       "view_details": "查看详情",
@@ -2888,6 +2890,33 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "no_search_results": "未找到匹配的工单",
       "collapse": "收起列表",
       "expand": "展开列表"
+    },
+    "types": {
+      "manage": "管理工单类型",
+      "dialog_title": "工单类型",
+      "dialog_description": "在这里新增、编辑、删除工单类型。删除某类型后，使用该类型的工单将解除关联。",
+      "add": "新增类型",
+      "edit": "编辑类型",
+      "empty": "暂无工单类型",
+      "columns": {
+        "id": "ID",
+        "name": "名称",
+        "sort": "排序",
+        "show": "启用",
+        "actions": "操作"
+      },
+      "form": {
+        "name": "名称",
+        "name_placeholder": "类型名称",
+        "sort": "排序",
+        "sort_placeholder": "0",
+        "show": "启用",
+        "name_required": "名称不能为空"
+      },
+      "delete": {
+        "title": "删除工单类型",
+        "description": "确定要删除该工单类型吗？使用该类型的工单数据会保留，但会失去类型标记。"
+      }
     }
   },
   "payment": {

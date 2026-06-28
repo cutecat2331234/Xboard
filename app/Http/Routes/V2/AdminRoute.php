@@ -13,6 +13,7 @@ use App\Http\Controllers\V2\Admin\UserController;
 use App\Http\Controllers\V2\Admin\StatController;
 use App\Http\Controllers\V2\Admin\NoticeController;
 use App\Http\Controllers\V2\Admin\TicketController;
+use App\Http\Controllers\V2\Admin\TicketTypeController;
 use App\Http\Controllers\V2\Admin\CouponController;
 use App\Http\Controllers\V2\Admin\GiftCardController;
 use App\Http\Controllers\V2\Admin\KnowledgeController;
@@ -173,6 +174,15 @@ class AdminRoute
                 $router->any('/fetch', [TicketController::class, 'fetch']);
                 $router->post('/reply', [TicketController::class, 'reply']);
                 $router->post('/close', [TicketController::class, 'close']);
+            });
+
+            // Ticket Type
+            $router->group([
+                'prefix' => 'ticket-type'
+            ], function ($router) {
+                $router->get('/fetch', [TicketTypeController::class, 'fetch']);
+                $router->post('/save', [TicketTypeController::class, 'save']);
+                $router->post('/drop', [TicketTypeController::class, 'drop']);
             });
 
             // Coupon

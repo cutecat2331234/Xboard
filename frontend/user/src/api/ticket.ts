@@ -6,9 +6,19 @@ export interface TicketItem {
   level: number
   status: number
   reply_status?: number
+  ticket_type_id?: number | null
   created_at?: number
   updated_at: number
   message?: { id: number; message: string; created_at: number; is_me: boolean }[]
+}
+
+export interface TicketTypeItem {
+  id: number
+  name: string
+}
+
+export async function fetchTicketTypes() {
+  return request<TicketTypeItem[]>(api.get('/user/ticket/types'))
 }
 
 export async function fetchTickets(page = 1, pageSize = 20) {
@@ -24,7 +34,12 @@ export async function fetchTicketById(id: number) {
   return request<TicketItem>(api.get('/user/ticket/fetch', { params: { id } }))
 }
 
-export async function saveTicket(payload: { subject: string; level: number; message: string }) {
+export async function saveTicket(payload: {
+  subject: string
+  level: number
+  message: string
+  ticket_type_id?: number | null
+}) {
   return request<{ id: number }>(api.post('/user/ticket/save', payload))
 }
 

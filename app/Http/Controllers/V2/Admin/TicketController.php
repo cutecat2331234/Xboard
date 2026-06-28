@@ -16,7 +16,7 @@ class TicketController extends Controller
     use SafeQueryColumns;
 
     private const QUERY_COLUMNS = [
-        'id', 'user_id', 'subject', 'level', 'status', 'reply_status',
+        'id', 'user_id', 'subject', 'level', 'ticket_type_id', 'status', 'reply_status',
         'created_at', 'updated_at',
     ];
 
@@ -66,7 +66,7 @@ class TicketController extends Controller
      */
     private function fetchTicketById(Request $request)
     {
-        $ticket = Ticket::with('messages', 'user')->find($request->input('id'));
+        $ticket = Ticket::with('messages', 'user', 'ticketType')->find($request->input('id'));
 
         if (!$ticket) {
             return $this->fail([400202, __('Ticket does not exist')]);
@@ -85,12 +85,15 @@ class TicketController extends Controller
      */
     private function fetchTickets(Request $request)
     {
-        $ticketModel = Ticket::with('user')
+        $ticketModel = Ticket::with('user', 'ticketType')
             ->when($request->has('status'), function ($query) use ($request) {
                 $query->where('status', $request->input('status'));
             })
             ->when($request->has('reply_status'), function ($query) use ($request) {
                 $query->whereIn('reply_status', $request->input('reply_status'));
+            })
+            ->when($request->filled('ticket_type_id'), function ($query) use ($request) {
+                $query->where('ticket_type_id', (int) $request->input('ticket_type_id'));
             })
             ->when($request->has('email'), function ($query) use ($request) {
                 $query->whereHas('user', function ($q) use ($request) {

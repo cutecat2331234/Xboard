@@ -407,6 +407,8 @@ export default {
     new: 'New ticket',
     subject: 'Subject',
     subjectPh: 'Enter ticket subject',
+    type: 'Ticket type',
+    typePh: 'Select a ticket type (optional)',
     level: 'Level',
     levelPh: 'Select ticket level',
     status: 'Status',

@@ -406,6 +406,8 @@ export default {
     new: '新的工单',
     subject: '主题',
     subjectPh: '请输入工单主题',
+    type: '工单类型',
+    typePh: '请选择工单类型（选填）',
     level: '工单级别',
     levelPh: '请选项工单等级',
     status: '工单状态',

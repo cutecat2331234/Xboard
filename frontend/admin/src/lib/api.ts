@@ -343,6 +343,37 @@ export interface DashboardStats {
   totalTraffic?: { upload?: number; download?: number; total?: number }
 }
 
+export interface TicketType {
+  id?: number
+  name?: string
+  sort?: number
+  show?: boolean
+  created_at?: number
+  updated_at?: number
+}
+
+/** GET /ticket-type/fetch — list ticket types. */
+export async function fetchTicketTypes(): Promise<TicketType[]> {
+  const result = await adminApi<ApiResponse<TicketType[]>>('/ticket-type/fetch')
+  parseApiError(result)
+  return Array.isArray(result.data) ? result.data : []
+}
+
+/** POST /ticket-type/save — create (no id) or update (with id) a ticket type. */
+export async function saveTicketType(payload: {
+  id?: number
+  name: string
+  sort?: number
+  show?: boolean
+}): Promise<boolean> {
+  return postJson<boolean>('/ticket-type/save', payload)
+}
+
+/** POST /ticket-type/drop — delete a ticket type (backend nulls referencing tickets). */
+export async function dropTicketType(id: number): Promise<boolean> {
+  return postJson<boolean>('/ticket-type/drop', { id })
+}
+
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   const result = await adminApi<ApiResponse<DashboardStats>>('/stat/getStats')
   parseApiError(result)

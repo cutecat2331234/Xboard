@@ -17,6 +17,8 @@ class TicketResource extends JsonResource
         $data = [
             "id" => $this['id'],
             "level" => $this['level'],
+            "ticket_type_id" => $this['ticket_type_id'] ?? null,
+            "ticket_type" => $this->whenLoaded('ticketType', fn() => $this->ticketType?->name),
             "reply_status" => $this['reply_status'],
             "status" => $this['status'],
             "subject" => $this['subject'],

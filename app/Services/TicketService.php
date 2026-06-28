@@ -283,7 +283,7 @@ class TicketService
         $this->sendEmailNotify($ticket, $ticketMessage);
     }
 
-    public function createTicket($userId, $subject, $level, $message)
+    public function createTicket($userId, $subject, $level, $message, $ticketTypeId = null)
     {
         if ((int) $level === 2) {
             throw new ApiException(__('Please use the withdrawal API to open a withdrawal ticket'));
@@ -303,6 +303,7 @@ class TicketService
                 'user_id' => $userId,
                 'subject' => $subject,
                 'level' => $level,
+                'ticket_type_id' => $ticketTypeId,
                 'reply_status' => Ticket::REPLY_STATUS_WAITING,
                 'last_reply_user_id' => $userId,
             ]);

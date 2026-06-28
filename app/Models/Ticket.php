@@ -13,13 +13,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $user_id 用户ID
  * @property string $subject 工单主题
  * @property string|null $level 工单等级
+ * @property int|null $ticket_type_id 工单类型ID
  * @property int $status 工单状态
  * @property int|null $reply_status 回复状态
  * @property int|null $last_reply_user_id 最后回复人
  * @property int $created_at
  * @property int $updated_at
- * 
+ *
  * @property-read User $user 关联的用户
+ * @property-read TicketType|null $ticketType 关联的工单类型
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TicketMessage> $messages 关联的工单消息
  */
 class Ticket extends Model
@@ -46,7 +48,15 @@ class Ticket extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
-    
+
+    /**
+     * 关联的工单类型
+     */
+    public function ticketType(): BelongsTo
+    {
+        return $this->belongsTo(TicketType::class, 'ticket_type_id', 'id');
+    }
+
     /**
      * 关联的工单消息
      */

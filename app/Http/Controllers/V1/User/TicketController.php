@@ -10,6 +10,7 @@ use App\Http\Resources\TicketResource;
 use App\Models\CommissionLog;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Models\TicketType;
 use App\Models\User;
 use App\Services\TicketService;
 use App\Support\AppFeature;
@@ -79,11 +80,24 @@ class TicketController extends Controller
             $request->user()->id,
             $request->input('subject'),
             $request->input('level'),
-            $request->input('message')
+            $request->input('message'),
+            $request->input('ticket_type_id')
         );
         HookManager::call('ticket.create.after', $ticket);
         return $this->success(['id' => $ticket->id]);
 
+    }
+
+    public function types(Request $request)
+    {
+        if (!AppFeature::ticketEnabled()) {
+            return $this->fail([403, __('The ticket system is disabled')]);
+        }
+        $types = TicketType::where('show', 1)
+            ->orderBy('sort', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get(['id', 'name']);
+        return $this->success($types);
     }
 
     public function reply(Request $request)

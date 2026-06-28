@@ -2784,6 +2784,7 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
     "columns": {
       "id": "Ticket ID",
       "subject": "Subject",
+      "type": "Type",
       "level": "Priority",
       "status": "Status",
       "updated_at": "Last Updated",
@@ -2808,7 +2809,8 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "no_results": "No results found",
       "selected": "{count} selected",
       "clear": "Clear filters",
-      "reply_status_all": "All reply statuses"
+      "reply_status_all": "All reply statuses",
+      "type_all": "All types"
     },
     "actions": {
       "view_details": "View Details",
@@ -2862,6 +2864,33 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "no_search_results": "No matching tickets found",
       "collapse": "Collapse list",
       "expand": "Expand list"
+    },
+    "types": {
+      "manage": "Manage Ticket Types",
+      "dialog_title": "Ticket Types",
+      "dialog_description": "Create, edit, and delete ticket types. Deleting a type unlinks it from any tickets using it.",
+      "add": "Add Type",
+      "edit": "Edit Type",
+      "empty": "No ticket types yet",
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "sort": "Sort",
+        "show": "Enabled",
+        "actions": "Actions"
+      },
+      "form": {
+        "name": "Name",
+        "name_placeholder": "Type name",
+        "sort": "Sort",
+        "sort_placeholder": "0",
+        "show": "Enabled",
+        "name_required": "Name is required"
+      },
+      "delete": {
+        "title": "Delete Ticket Type",
+        "description": "Are you sure you want to delete this ticket type? Tickets using it will keep their data but lose the type."
+      }
     }
   },
   "payment": {

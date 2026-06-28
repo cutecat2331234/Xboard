@@ -15,7 +15,7 @@ import {
   useMessage,
   type DataTableColumns,
 } from 'naive-ui'
-import { fetchTickets, saveTicket, closeTicket, type TicketItem } from '@/api/ticket'
+import { fetchTickets, saveTicket, closeTicket, fetchTicketTypes, type TicketItem, type TicketTypeItem } from '@/api/ticket'
 import { formatLocaleDateTime } from '@/lib/format-date'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
@@ -33,6 +33,8 @@ const showCreate = ref(false)
 const subject = ref('')
 const message = ref('')
 const level = ref(0)
+const ticketTypeId = ref<number | null>(null)
+const ticketTypes = ref<TicketTypeItem[]>([])
 const msg = useMessage()
 const { t, locale } = useI18n()
 
@@ -41,6 +43,23 @@ const levelOptions = computed(() => [
   { label: t('ticket.levelMedium'), value: 1 },
   { label: t('ticket.levelHigh'), value: 2 },
 ])
+
+const ticketTypeOptions = computed(() =>
+  ticketTypes.value.map((tt) => ({ label: tt.name, value: tt.id })),
+)
+
+function ticketTypeName(row: TicketItem) {
+  if (row.ticket_type_id == null) return '-'
+  return ticketTypes.value.find((tt) => tt.id === row.ticket_type_id)?.name ?? '-'
+}
+
+async function loadTicketTypes() {
+  try {
+    ticketTypes.value = (await fetchTicketTypes()) ?? []
+  } catch {
+    ticketTypes.value = []
+  }
+}
 
 function levelLabel(row: TicketItem) {
   if (isWithdrawTicket(row)) return t('ticket.levelWithdraw')
@@ -90,10 +109,16 @@ async function create() {
   }
   creating.value = true
   try {
-    const created = await saveTicket({ subject: subject.value.trim(), level: level.value, message: message.value.trim() })
+    const created = await saveTicket({
+      subject: subject.value.trim(),
+      level: level.value,
+      message: message.value.trim(),
+      ticket_type_id: ticketTypeId.value ?? null,
+    })
     showCreate.value = false
     subject.value = ''
     message.value = ''
+    ticketTypeId.value = null
     msg.success(t('common.success'))
     if (created?.id) {
       router.push(`/ticket/${created.id}`)
@@ -139,6 +164,11 @@ function renderTextAction(label: string, onClick: () => void, disabled = false) 
 const columns = computed<DataTableColumns<TicketItem>>(() => [
   { title: t('ticket.subject'), key: 'subject' },
   {
+    title: t('ticket.type'),
+    key: 'ticket_type_id',
+    render: (r) => ticketTypeName(r),
+  },
+  {
     title: t('ticket.level'),
     key: 'level',
     render: (r) => levelLabel(r),
@@ -175,7 +205,10 @@ const columns = computed<DataTableColumns<TicketItem>>(() => [
   },
 ])
 
-onMounted(load)
+onMounted(() => {
+  void load()
+  void loadTicketTypes()
+})
 </script>
 
 <template>
@@ -190,7 +223,7 @@ onMounted(load)
       :columns="columns"
       :data="rows"
       :loading="loading"
-      :scroll-x="800"
+      :scroll-x="900"
       :pagination="{
         page,
         pageSize,
@@ -207,6 +240,14 @@ onMounted(load)
     <n-form label-placement="top">
       <n-form-item :label="t('ticket.subject')">
         <n-input v-model:value="subject" :placeholder="t('ticket.subjectPh')" />
+      </n-form-item>
+      <n-form-item v-if="ticketTypeOptions.length" :label="t('ticket.type')">
+        <n-select
+          v-model:value="ticketTypeId"
+          :options="ticketTypeOptions"
+          :placeholder="t('ticket.typePh')"
+          clearable
+        />
       </n-form-item>
       <n-form-item :label="t('ticket.level')">
         <n-select v-model:value="level" :options="levelOptions" :placeholder="t('ticket.levelPh')" />
