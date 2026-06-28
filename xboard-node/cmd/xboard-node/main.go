@@ -162,7 +162,14 @@ func runWithReload(initialRoot *config.RootConfig, configPath string) {
 					orch := machine.New(instanceCfg)
 					if err := orch.Run(ctx); err != nil {
 						nlog.Core().Error("machine instance exited with error", "instance", instanceCfg.InstanceID, "error", err)
-						errCh <- err
+						// [H4] Non-blocking: many node/machine goroutines share
+						// errCh and can fail concurrently; the buffer only needs
+						// to record that *some* error occurred (for the exit
+						// code). The error itself is already logged above.
+						select {
+						case errCh <- err:
+						default:
+						}
 						cancel()
 					}
 					return
@@ -189,7 +196,11 @@ func runWithReload(initialRoot *config.RootConfig, configPath string) {
 						svc := service.New(nodeCfg)
 						if err := svc.Run(ctx); err != nil {
 							nlog.Core().Error("node service exited with error", "instance", nodeCfg.InstanceID, "node_id", nodeCfg.Panel.NodeID, "error", err)
-							errCh <- err
+							// [H4] Non-blocking send: see machine-mode note above.
+							select {
+							case errCh <- err:
+							default:
+							}
 							cancel()
 						}
 					}(idx)

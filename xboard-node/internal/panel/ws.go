@@ -109,8 +109,29 @@ type WSClient struct {
 	connected atomic.Bool
 
 	// writeCh allows sending messages from outside the connect loop.
-	// It is set in connect() and cleared on disconnect.
-	writeCh chan wsMessage
+	// It is set in connect() and cleared on disconnect. Held via an atomic
+	// pointer so cross-goroutine senders (SendRaw / SendNodeStatus /
+	// SendDeviceReport) observe a consistent channel without data races.
+	writeCh atomic.Pointer[chan wsMessage]
+}
+
+// readDeadline is how long we wait for any inbound frame (incl. server pings)
+// before treating the connection as dead and forcing a reconnect.
+const wsReadDeadline = 90 * time.Second
+
+// sendOnWriteCh atomically loads the current write channel and performs a
+// non-blocking send. It preserves the "drop on full / skip when absent"
+// semantics used throughout this client.
+func (w *WSClient) sendOnWriteCh(msg wsMessage, fullMsg string, fields ...any) {
+	chp := w.writeCh.Load()
+	if chp == nil {
+		return
+	}
+	select {
+	case *chp <- msg:
+	default:
+		nlog.Core().Warn(fullMsg, fields...)
+	}
 }
 
 // NewWSClient creates a new WebSocket client.
@@ -223,6 +244,12 @@ func (w *WSClient) connect(ctx context.Context) error {
 
 	conn.SetReadLimit(10 << 20) // 10MB max message size
 
+	// Liveness: any inbound frame must arrive within wsReadDeadline, otherwise
+	// the read fails and we reconnect. The deadline is refreshed on every
+	// successful read below (and the server's periodic ping keeps it alive even
+	// when there is no data traffic).
+	_ = conn.SetReadDeadline(time.Now().Add(wsReadDeadline))
+
 	// Read first message — expect auth.success or error
 	var firstMsg wsMessage
 	if err := conn.ReadJSON(&firstMsg); err != nil {
@@ -256,15 +283,39 @@ func (w *WSClient) connect(ctx context.Context) error {
 	reportTicker := time.NewTicker(w.cfg.StatusInterval)
 	defer reportTicker.Stop()
 
-	// writeCh decouples data collection from network I/O.
+	// writeCh decouples data collection from network I/O. It is published via
+	// an atomic pointer so cross-goroutine senders never touch a torn field,
+	// and cleared on disconnect so late sends are dropped rather than blocking.
 	writeCh := make(chan wsMessage, 16)
-	w.writeCh = writeCh
-	defer func() { w.writeCh = nil }()
+	w.writeCh.Store(&writeCh)
+	defer w.writeCh.Store(nil)
 
 	errCh := make(chan error, 1)
 	done := make(chan struct{})
+	// [H1] Ensure the reader goroutine is always joined before connect()
+	// returns, so a stale reader can never overlap with the next connection.
+	// We close the conn first to unblock the reader's ReadJSON; this defer is
+	// declared after `defer conn.Close()` so (LIFO) it runs before it, and the
+	// extra Close here is what actually releases the blocked reader. The outer
+	// Close then becomes a harmless idempotent call.
+	defer func() {
+		_ = conn.Close()
+		<-done
+	}()
 	go func() {
 		defer close(done)
+		// [H2] A single malformed frame must not panic the whole supervisor.
+		// Recover, log, and signal an error so Run() reconnects instead of the
+		// outer loop blocking forever on a closed reader.
+		defer func() {
+			if r := recover(); r != nil {
+				nlog.Core().Error("ws reader goroutine panic recovered", "panic", r)
+				select {
+				case errCh <- fmt.Errorf("reader panic: %v", r):
+				default:
+				}
+			}
+		}()
 		for {
 			var msg wsMessage
 			if err := conn.ReadJSON(&msg); err != nil {
@@ -274,6 +325,8 @@ func (w *WSClient) connect(ctx context.Context) error {
 				}
 				return
 			}
+			// [H3] A frame arrived — extend the liveness deadline.
+			_ = conn.SetReadDeadline(time.Now().Add(wsReadDeadline))
 			nlog.Core().Debug("ws recv", "event", msg.Event, "data", string(msg.Data))
 			w.handleMessage(msg)
 			if msg.Event == "ping" {
@@ -292,7 +345,7 @@ func (w *WSClient) connect(ctx context.Context) error {
 			conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
 			conn.WriteMessage(websocket.CloseMessage,
 				websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-			<-done
+			// done is awaited by the deferred join above.
 			return nil
 
 		case err := <-errCh:
@@ -319,6 +372,8 @@ func (w *WSClient) connect(ctx context.Context) error {
 			nlog.Core().Debug("ws send", "event", msg.Event, "data", string(msg.Data))
 			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := conn.WriteJSON(msg); err != nil {
+				// The reader goroutine is joined by the deferred <-done; closing
+				// conn (via the outer defer) unblocks its ReadJSON.
 				return fmt.Errorf("write: %w", err)
 			}
 		}
@@ -471,11 +526,7 @@ func (w *WSClient) SendDeviceReportForNode(nodeID int, devices map[int][]string)
 		Timestamp: time.Now().Unix(),
 	}
 
-	select {
-	case w.writeCh <- msg:
-	default:
-		nlog.Core().Warn("ws write channel full, skipping device report")
-	}
+	w.sendOnWriteCh(msg, "ws write channel full, skipping device report")
 }
 
 // SendNodeStatus sends a node.status event with the given node_id (machine mode).
@@ -492,11 +543,7 @@ func (w *WSClient) SendNodeStatus(nodeID int, stats map[string]interface{}) {
 		Data:      data,
 		Timestamp: time.Now().Unix(),
 	}
-	select {
-	case w.writeCh <- msg:
-	default:
-		nlog.Core().Warn("ws write channel full, skipping node status")
-	}
+	w.sendOnWriteCh(msg, "ws write channel full, skipping node status")
 }
 
 // SendRaw sends a raw message to the panel via WebSocket.
@@ -511,9 +558,5 @@ func (w *WSClient) SendRaw(event string, data json.RawMessage) {
 		Timestamp: time.Now().Unix(),
 	}
 
-	select {
-	case w.writeCh <- msg:
-	default:
-		nlog.Core().Warn("ws write channel full, skipping raw message", "event", event)
-	}
+	w.sendOnWriteCh(msg, "ws write channel full, skipping raw message", "event", event)
 }

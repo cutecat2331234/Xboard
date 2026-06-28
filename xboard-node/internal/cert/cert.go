@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -49,7 +50,11 @@ import (
 //  3. "file" (if both CertFile and KeyFile paths are provided)
 //  4. "none" (default)
 type Manager struct {
-	cfg config.CertConfig
+	// cfgMu guards cfg. [H8] cfg is written by Reconfigure (control goroutine)
+	// while the ACME OnEvent renewal callback runs on a certmagic background
+	// goroutine; without synchronisation that is a torn read of a struct.
+	cfgMu sync.RWMutex
+	cfg   config.CertConfig
 
 	// Atomic so the ACME renewal goroutine can swap without racing readers.
 	mat atomic.Pointer[certMaterial]
@@ -59,6 +64,20 @@ type Manager struct {
 	acmeStarted     bool
 	acmeFingerprint string
 	acmeCancel      context.CancelFunc
+}
+
+// cfgSnapshot returns a copy of the current cert config under the read lock.
+func (m *Manager) cfgSnapshot() config.CertConfig {
+	m.cfgMu.RLock()
+	defer m.cfgMu.RUnlock()
+	return m.cfg
+}
+
+// setCfg replaces the cert config under the write lock.
+func (m *Manager) setCfg(cfg config.CertConfig) {
+	m.cfgMu.Lock()
+	m.cfg = cfg
+	m.cfgMu.Unlock()
 }
 
 // certMaterial is an immutable snapshot of PEM-encoded cert + key.
@@ -152,7 +171,7 @@ func (m *Manager) Reconfigure(ctx context.Context, newCfg config.CertConfig) (bo
 	}
 
 	oldTLS := m.TLSCert()
-	m.cfg = newCfg
+	m.setCfg(newCfg) // [H8] guarded write
 
 	if err := m.Start(ctx); err != nil {
 		return false, fmt.Errorf("cert reconfigure: %w", err)
@@ -404,7 +423,22 @@ func (m *Manager) startACME(ctx context.Context, dnsSolver *certmagic.DNS01Solve
 		return fmt.Errorf("create cert dir: %w", err)
 	}
 
-	storage := &certmagic.FileStorage{Path: m.cfg.CertDir}
+	// Snapshot the config fields this ACME instance needs. [H8] The OnEvent
+	// callback below runs on a certmagic background goroutine, so it must not
+	// read m.cfg (which Reconfigure may rewrite concurrently). Capturing the
+	// fixed-for-this-instance values as locals removes that race entirely — any
+	// change to these values tears down ACME (tearDownACME) and re-runs startACME.
+	cfg := m.cfgSnapshot()
+	domain := cfg.Domain
+	email := cfg.Email
+	httpPort := cfg.HTTPPort
+
+	storage := &certmagic.FileStorage{Path: cfg.CertDir}
+
+	// Derived ctx so Reconfigure can cancel ACME background goroutines (incl.
+	// any in-flight renewal-reload retry). Created up front so the OnEvent
+	// callback can bind its retry goroutine to it.
+	acmeCtx, acmeCancel := context.WithCancel(ctx)
 
 	var magic *certmagic.Config
 	cache := certmagic.NewCache(certmagic.CacheOptions{
@@ -427,19 +461,25 @@ func (m *Manager) startACME(ctx context.Context, dnsSolver *certmagic.DNS01Solve
 			if issuerKey == "" {
 				return nil
 			}
-			if err := m.loadPEMFromStorage(evtCtx, storage, issuerKey, m.cfg.Domain); err != nil {
-				nlog.Core().Error("failed to reload cert after renewal", "error", err)
+			if err := m.loadPEMFromStorage(evtCtx, storage, issuerKey, domain); err != nil {
+				// [H7] Do NOT silently give up — that would leave the node
+				// serving the old certificate until it expires. Schedule a
+				// bounded retry with backoff; only mark renewed on success so
+				// the upstream (CertRenewed) reacts to a real refresh.
+				nlog.Core().Error("failed to reload cert after renewal, scheduling retry",
+					"domain", domain, "error", err)
+				go m.retryReloadAfterRenewal(acmeCtx, storage, issuerKey, domain)
 				return nil
 			}
 			m.renewed.Store(true)
-			nlog.Core().Info("TLS certificate reloaded after renewal", "domain", m.cfg.Domain)
+			nlog.Core().Info("TLS certificate reloaded after renewal", "domain", domain)
 			return nil
 		},
 	})
 
 	issuer := certmagic.ACMEIssuer{
 		CA:    certmagic.LetsEncryptProductionCA,
-		Email: m.cfg.Email,
+		Email: email,
 	}
 
 	if dnsSolver != nil {
@@ -449,7 +489,6 @@ func (m *Manager) startACME(ctx context.Context, dnsSolver *certmagic.DNS01Solve
 		issuer.DisableTLSALPNChallenge = true
 	} else {
 		// HTTP-01 mode.
-		httpPort := m.cfg.HTTPPort
 		if httpPort == 0 {
 			httpPort = 80
 		}
@@ -462,29 +501,60 @@ func (m *Manager) startACME(ctx context.Context, dnsSolver *certmagic.DNS01Solve
 	}
 	m.magic = magic
 
-	// Derived ctx so Reconfigure can cancel ACME background goroutines.
-	acmeCtx, acmeCancel := context.WithCancel(ctx)
-
-	if err := magic.ObtainCertSync(acmeCtx, m.cfg.Domain); err != nil {
+	if err := magic.ObtainCertSync(acmeCtx, domain); err != nil {
 		acmeCancel()
 		return fmt.Errorf("obtain certificate: %w", err)
 	}
 
 	issuerKey := magic.Issuers[0].IssuerKey()
-	if err := m.loadPEMFromStorage(acmeCtx, storage, issuerKey, m.cfg.Domain); err != nil {
+	if err := m.loadPEMFromStorage(acmeCtx, storage, issuerKey, domain); err != nil {
 		acmeCancel()
 		return fmt.Errorf("load cert from storage: %w", err)
 	}
 
-	if err := magic.ManageAsync(acmeCtx, []string{m.cfg.Domain}); err != nil {
+	if err := magic.ManageAsync(acmeCtx, []string{domain}); err != nil {
 		acmeCancel()
 		return fmt.Errorf("start cert manager: %w", err)
 	}
 
 	m.acmeCancel = acmeCancel
-	m.acmeFingerprint = acmeFingerprint(m.cfg)
+	m.acmeFingerprint = acmeFingerprint(cfg)
 	m.acmeStarted = true
 	return nil
+}
+
+// retryReloadAfterRenewal repeatedly attempts to load freshly-renewed cert
+// material from storage with exponential backoff, until it succeeds or acmeCtx
+// is cancelled (e.g. Reconfigure tore down this ACME instance). [H7] This is the
+// recovery path that prevents a transient storage/read failure right after a
+// renewal from silently pinning the node to the soon-to-expire certificate.
+func (m *Manager) retryReloadAfterRenewal(ctx context.Context, storage certmagic.Storage, issuerKey, domain string) {
+	backoff := 5 * time.Second
+	const maxBackoff = 10 * time.Minute
+	for attempt := 1; ; attempt++ {
+		timer := time.NewTimer(backoff)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			nlog.Core().Warn("cert: renewal reload retry cancelled", "domain", domain)
+			return
+		case <-timer.C:
+		}
+
+		if err := m.loadPEMFromStorage(ctx, storage, issuerKey, domain); err != nil {
+			nlog.Core().Error("cert: renewal reload retry failed",
+				"domain", domain, "attempt", attempt, "error", err)
+			if backoff < maxBackoff {
+				backoff = min(backoff*2, maxBackoff)
+			}
+			continue
+		}
+
+		m.renewed.Store(true)
+		nlog.Core().Info("cert: renewal reload succeeded on retry",
+			"domain", domain, "attempt", attempt)
+		return
+	}
 }
 
 func validateKeyPair(certPEM, keyPEM []byte) error {

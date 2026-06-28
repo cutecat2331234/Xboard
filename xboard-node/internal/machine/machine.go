@@ -36,6 +36,9 @@ type Orchestrator struct {
 
 	mu    sync.Mutex
 	nodes map[int]*nodeHandle // node_id → handle
+	// closed is set by stopAll so that late callbacks (e.g. a sync.nodes event
+	// arriving during shutdown) cannot resurrect nodes after teardown. [M2]
+	closed bool
 
 	// Per-node mailbox keyed by node_id. Shared WS events are aggregated here
 	// and each node service drains the latest state when ready.
@@ -43,6 +46,10 @@ type Orchestrator struct {
 	mailboxes map[int]*controlplane.NodeMailbox
 	statuses  map[int]chan<- controlplane.StatusChange
 
+	// wsMu guards ws + wsCancel. [H10] ws is published by tryStartWS (Run
+	// goroutine) and read by startNode, which can be invoked from a WS-callback
+	// goroutine via rediscover — so the field needs synchronised publication.
+	wsMu sync.Mutex
 	// Shared WS client (nil when WS is disabled).
 	ws       *panel.WSClient
 	wsCancel context.CancelFunc
@@ -107,7 +114,7 @@ func (o *Orchestrator) Run(ctx context.Context) error {
 			o.rediscover(ctx)
 
 		case <-statusTicker.C:
-			o.reportMachineStatus()
+			o.reportMachineStatus(ctx)
 		}
 	}
 }
@@ -116,6 +123,13 @@ func (o *Orchestrator) Run(ctx context.Context) error {
 
 func (o *Orchestrator) startNode(ctx context.Context, mn panel.MachineNode) {
 	o.mu.Lock()
+	// [M2] Refuse to (re)start nodes once shutdown has begun, so a late
+	// rediscover (e.g. from a sync.nodes event racing stopAll) cannot resurrect
+	// the machine after teardown.
+	if o.closed {
+		o.mu.Unlock()
+		return
+	}
 	if _, exists := o.nodes[mn.ID]; exists {
 		o.mu.Unlock()
 		return
@@ -124,7 +138,8 @@ func (o *Orchestrator) startNode(ctx context.Context, mn panel.MachineNode) {
 	nodeCtx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
 	mb := controlplane.NewNodeMailbox()
-	o.nodes[mn.ID] = &nodeHandle{cancel: cancel, done: done, mailbox: mb}
+	handle := &nodeHandle{cancel: cancel, done: done, mailbox: mb}
+	o.nodes[mn.ID] = handle
 	o.mu.Unlock()
 
 	o.eventsMu.Lock()
@@ -149,10 +164,10 @@ func (o *Orchestrator) startNode(ctx context.Context, mn panel.MachineNode) {
 	perNodeClient.ResetConfigETag()
 
 	var push controlplane.PushClient
-	if o.ws != nil {
+	if ws := o.wsClient(); ws != nil { // [H10] synchronised read
 		push = &machineNodePush{
 			nodeID: mn.ID,
-			ws:     o.ws,
+			ws:     ws,
 		}
 	}
 
@@ -172,7 +187,11 @@ func (o *Orchestrator) startNode(ctx context.Context, mn panel.MachineNode) {
 
 	go func() {
 		defer close(done)
-		defer o.unregisterNode(mn.ID)
+		// [M1] On exit (incl. crash), remove this node from o.nodes as well as
+		// the events maps, so a subsequent rediscover can restart it. We only
+		// delete if o.nodes[id] is still THIS handle, to avoid clobbering a
+		// newer handle if the node was already restarted.
+		defer o.unregisterNode(mn.ID, handle)
 		if err := svc.Run(nodeCtx); err != nil {
 			nlog.Core().Error("machine node exited with error",
 				"node_id", mn.ID, "error", err)
@@ -201,6 +220,9 @@ func (o *Orchestrator) stopNode(nodeID int) {
 
 func (o *Orchestrator) stopAll() {
 	o.mu.Lock()
+	// [M2] Mark closed first so any concurrent startNode (e.g. from a late
+	// rediscover) bails out instead of racing teardown.
+	o.closed = true
 	handles := make(map[int]*nodeHandle, len(o.nodes))
 	for id, h := range o.nodes {
 		handles[id] = h
@@ -215,14 +237,23 @@ func (o *Orchestrator) stopAll() {
 		<-h.done
 	}
 
-	if o.wsCancel != nil {
-		o.wsCancel()
+	o.wsMu.Lock()
+	wsCancel := o.wsCancel
+	o.wsMu.Unlock()
+	if wsCancel != nil {
+		wsCancel()
 	}
 }
 
 // ─── Node discovery ──────────────────────────────────────────────────────
 
 func (o *Orchestrator) rediscover(ctx context.Context) {
+	// [M2] Bail out if shutting down — a sync.nodes event can spawn rediscover
+	// on a WS goroutine that may run after stopAll has begun.
+	if ctx.Err() != nil || o.isClosed() {
+		return
+	}
+
 	nodesResp, err := o.client.GetMachineNodes()
 	if err != nil {
 		nlog.Core().Warn("machine node discovery failed", "error", err)
@@ -254,7 +285,18 @@ func (o *Orchestrator) rediscover(ctx context.Context) {
 
 // ─── Machine status reporting ────────────────────────────────────────────
 
-func (o *Orchestrator) reportMachineStatus() {
+// isClosed reports whether stopAll has run.
+func (o *Orchestrator) isClosed() bool {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return o.closed
+}
+
+func (o *Orchestrator) reportMachineStatus(ctx context.Context) {
+	// [M2] Skip late reports once shutdown has begun.
+	if ctx.Err() != nil || o.isClosed() {
+		return
+	}
 	s := monitor.Collect()
 	if err := o.client.ReportMachineStatus(
 		s.CPU,
@@ -288,7 +330,9 @@ func (o *Orchestrator) tryStartWS(ctx context.Context) {
 		MachineID:        o.cfg.Machine.MachineID,
 	}
 
-	o.ws = panel.NewWSClient(
+	wsCtx, wsCancel := context.WithCancel(ctx)
+
+	ws := panel.NewWSClient(
 		hs.WebSocket.WSURL,
 		o.cfg.Machine.Token,
 		0, // no single node_id
@@ -298,11 +342,21 @@ func (o *Orchestrator) tryStartWS(ctx context.Context) {
 		nil, // per-node status is sent via machineNodePush
 	)
 
-	wsCtx, wsCancel := context.WithCancel(ctx)
+	o.wsMu.Lock()
+	o.ws = ws
 	o.wsCancel = wsCancel
-	go o.ws.Run(wsCtx)
+	o.wsMu.Unlock()
+
+	go ws.Run(wsCtx)
 
 	nlog.Core().Info("machine: ws mux started")
+}
+
+// wsClient returns the shared WS client under the lock ([H10]).
+func (o *Orchestrator) wsClient() *panel.WSClient {
+	o.wsMu.Lock()
+	defer o.wsMu.Unlock()
+	return o.ws
 }
 
 // onWSEvent routes a WS event to the correct node's channel.
@@ -357,7 +411,20 @@ func (o *Orchestrator) registerNode(nodeID int, st chan<- controlplane.StatusCha
 	o.eventsMu.Unlock()
 }
 
-func (o *Orchestrator) unregisterNode(nodeID int) {
+// unregisterNode cleans up all per-node state when a node goroutine exits.
+// [M1] It also removes the node from o.nodes (only when the stored handle is
+// still want — i.e. this exact goroutine's handle) so a crashed node can be
+// restarted by a later rediscover. A nil want skips the o.nodes removal (used
+// where the caller manages o.nodes itself, e.g. stopNode).
+func (o *Orchestrator) unregisterNode(nodeID int, want *nodeHandle) {
+	if want != nil {
+		o.mu.Lock()
+		if cur, ok := o.nodes[nodeID]; ok && cur == want {
+			delete(o.nodes, nodeID)
+		}
+		o.mu.Unlock()
+	}
+
 	o.eventsMu.Lock()
 	delete(o.mailboxes, nodeID)
 	delete(o.statuses, nodeID)

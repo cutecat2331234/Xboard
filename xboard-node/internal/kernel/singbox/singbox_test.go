@@ -36,8 +36,6 @@ func TestSingBoxCapabilities(t *testing.T) {
 	}
 }
 
-
-
 type testConn struct {
 	closed bool
 	reads  [][]byte
@@ -60,11 +58,11 @@ func (c *testConn) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-func (c *testConn) Close() error { c.closed = true; return nil }
-func (c *testConn) LocalAddr() net.Addr { return &net.TCPAddr{} }
-func (c *testConn) RemoteAddr() net.Addr { return &net.TCPAddr{} }
-func (c *testConn) SetDeadline(time.Time) error { return nil }
-func (c *testConn) SetReadDeadline(time.Time) error { return nil }
+func (c *testConn) Close() error                     { c.closed = true; return nil }
+func (c *testConn) LocalAddr() net.Addr              { return &net.TCPAddr{} }
+func (c *testConn) RemoteAddr() net.Addr             { return &net.TCPAddr{} }
+func (c *testConn) SetDeadline(time.Time) error      { return nil }
+func (c *testConn) SetReadDeadline(time.Time) error  { return nil }
 func (c *testConn) SetWriteDeadline(time.Time) error { return nil }
 
 func testInboundContext(uuid, ip string) adapter.InboundContext {
@@ -143,22 +141,37 @@ func TestConnTrackerRoutedConnectionRejectsWhenDeviceLimitExceeded(t *testing.T)
 }
 
 func TestConnTrackerCheckDeviceGateMergesFreshGlobalDevices(t *testing.T) {
-	tracker := NewConnTracker(0)
-	tracker.SetUserMap(map[string]int{"uuid-1": 1})
-	us := tracker.users[1]
-	us.addConn("1.1.1.1")
-	tracker.UpdateGlobalDevices(map[int][]string{1: {"9.9.9.9"}})
+	// [H6] gateAndRegister now performs the limit decision and registration
+	// atomically, so each decision is verified against an independent userStats
+	// to keep the assertions order-independent (a fresh state per check, since
+	// an admitted connection registers and would otherwise mutate subsequent
+	// candidate sets).
+	newTracker := func() (*ConnTracker, *userStats) {
+		tr := NewConnTracker(0)
+		tr.SetUserMap(map[string]int{"uuid-1": 1})
+		us := tr.users[1]
+		us.addConn("1.1.1.1")
+		tr.UpdateGlobalDevices(map[int][]string{1: {"9.9.9.9"}})
+		return tr, us
+	}
 
-	if tracker.checkDeviceGate(us, 1, "2.2.2.2", 2) {
+	tr, us := newTracker()
+	if tr.gateAndRegister(us, 1, "2.2.2.2", 2) {
 		t.Fatal("expected lexicographically earlier candidate to remain allowed")
 	}
-	if !tracker.checkDeviceGate(us, 1, "99.99.99.99", 2) {
+
+	tr, us = newTracker()
+	if !tr.gateAndRegister(us, 1, "99.99.99.99", 2) {
 		t.Fatal("expected merged local+global device state to reject lexicographically later third device")
 	}
-	if tracker.checkDeviceGate(us, 1, "1.1.1.1", 2) {
+
+	tr, us = newTracker()
+	if tr.gateAndRegister(us, 1, "1.1.1.1", 2) {
 		t.Fatal("existing local IP should still be allowed")
 	}
-	if tracker.checkDeviceGate(us, 1, "9.9.9.9", 2) {
+
+	tr, us = newTracker()
+	if tr.gateAndRegister(us, 1, "9.9.9.9", 2) {
 		t.Fatal("existing global IP should still be allowed")
 	}
 }

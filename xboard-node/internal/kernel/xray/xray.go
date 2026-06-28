@@ -15,9 +15,9 @@ import (
 	"github.com/xtls/xray-core/common/protocol"
 	"github.com/xtls/xray-core/common/uuid"
 	xrayCore "github.com/xtls/xray-core/core"
+	featurebandwidth "github.com/xtls/xray-core/features/bandwidth"
 	"github.com/xtls/xray-core/features/inbound"
 	"github.com/xtls/xray-core/features/stats"
-	featurebandwidth "github.com/xtls/xray-core/features/bandwidth"
 	"github.com/xtls/xray-core/infra/conf/serial"
 	xrayProxy "github.com/xtls/xray-core/proxy"
 	"github.com/xtls/xray-core/proxy/shadowsocks"
@@ -32,8 +32,8 @@ import (
 	"github.com/cedar2025/xboard-node/internal/config"
 	"github.com/cedar2025/xboard-node/internal/kernel"
 	"github.com/cedar2025/xboard-node/internal/kernel/geodata"
-	"github.com/cedar2025/xboard-node/internal/nlog"
 	"github.com/cedar2025/xboard-node/internal/model"
+	"github.com/cedar2025/xboard-node/internal/nlog"
 )
 
 const (
@@ -56,7 +56,7 @@ type Xray struct {
 	cfg config.KernelConfig
 
 	// mu protects instance, limitDispatcher, users, protocol, inboundTag,
-	// lastKernelHash, and cumTraffic. Never held during slow I/O.
+	// lastKernelHash, cumTraffic, and lastCounterVal. Never held during slow I/O.
 	mu              sync.Mutex
 	instance        *xrayCore.Instance
 	limitDispatcher *LimitDispatcher
@@ -66,8 +66,17 @@ type Xray struct {
 	protocol        string
 	inboundTag      string
 	lastKernelHash  string
-	cumTraffic      map[int][2]int64
-	speedLimitFunc  func(string) *rate.Limiter
+	// cumTraffic is the per-user cumulative (monotonic) traffic total returned
+	// to the tracker. It is preserved across xray hot-reloads so the tracker's
+	// delta computation never sees a spurious counter reset and never loses the
+	// bytes accumulated before a reload.
+	cumTraffic map[int][2]int64
+	// lastCounterVal is the last non-destructively-read value of xray's built-in
+	// per-user counters within the *current* xray instance. We diff against it
+	// to advance cumTraffic. It is reset on reload (the new instance starts its
+	// counters at zero), while cumTraffic is intentionally kept.
+	lastCounterVal map[int][2]int64
+	speedLimitFunc func(string) *rate.Limiter
 
 	// running is set after a successful Start and cleared before shutdown.
 	// Atomic so IsRunning / GetConnections never block.
@@ -76,8 +85,9 @@ type Xray struct {
 
 func New(cfg config.KernelConfig) *Xray {
 	return &Xray{
-		cfg:        cfg,
-		cumTraffic: make(map[int][2]int64),
+		cfg:            cfg,
+		cumTraffic:     make(map[int][2]int64),
+		lastCounterVal: make(map[int][2]int64),
 	}
 }
 
@@ -154,7 +164,10 @@ func (x *Xray) Start(nodeConfig *model.NodeSpec, users []model.UserSpec, tls ker
 	x.tls = tls
 	x.protocol = nodeConfig.Protocol
 	x.inboundTag = nodeConfig.Protocol + "-in"
-	x.cumTraffic = make(map[int][2]int64)
+	// The new instance's stats counters start at zero, so discard the per-
+	// instance water mark — but keep cumTraffic so the cumulative total stays
+	// monotonic across the reload and no traffic is lost or double counted.
+	x.lastCounterVal = make(map[int][2]int64)
 	x.lastKernelHash = kernel.ComputeHash(nodeConfig, users)
 	x.running.Store(true)
 	x.mu.Unlock()
@@ -314,7 +327,7 @@ func (x *Xray) AddUsers(users []model.UserSpec) (int, error) {
 		x.users = merged
 		x.mu.Unlock()
 		x.updateDispatcherLimits(merged)
-	x.updateBandwidthLimits(merged)
+		x.updateBandwidthLimits(merged)
 		return 0, nil
 	}
 
@@ -703,9 +716,18 @@ func drainConns(ld *LimitDispatcher, timeout time.Duration) {
 	}
 }
 
-// aggregateStats is a fallback path that reads xray's built-in stats counters
-// when LimitDispatcher is not available. Returns per-user cumulative traffic.
-// Must be called with x.mu held.
+// aggregateStats reads xray's built-in per-user stats counters and returns the
+// per-user CUMULATIVE traffic total (the contract of GetUserTraffic — the
+// tracker computes deltas downstream). Must be called with x.mu held.
+//
+// [H9] We read counters NON-destructively with Value() instead of the previous
+// Set(0). The old destructive read meant any bytes read out of xray but not yet
+// committed to the tracker (e.g. a hot-reload landing between the read and
+// Tracker.Process) were silently lost, and on every reload the running total
+// was zeroed — both billing-affecting. By reading without resetting and diffing
+// against a per-instance water mark (lastCounterVal), the returned cumTraffic
+// stays monotonic across reloads: this mirrors the sing-box tracker, which also
+// exposes never-reset atomic counters and lets the tracker diff.
 func (x *Xray) aggregateStats() (map[int][2]int64, error) {
 	sm := x.instance.GetFeature(stats.ManagerType())
 	if sm == nil {
@@ -720,13 +742,27 @@ func (x *Xray) aggregateStats() (map[int][2]int64, error) {
 	for _, u := range x.users {
 		email := userEmail(u.ID)
 
-		var dUp, dDown int64
+		var vUp, vDown int64
 		if c := mgr.GetCounter(fmt.Sprintf("user>>>%s>>>traffic>>>uplink", email)); c != nil {
-			dUp = c.Set(0)
+			vUp = c.Value()
 		}
 		if c := mgr.GetCounter(fmt.Sprintf("user>>>%s>>>traffic>>>downlink", email)); c != nil {
-			dDown = c.Set(0)
+			vDown = c.Value()
 		}
+
+		// Delta since the last non-destructive read of THIS instance's counters.
+		prev := x.lastCounterVal[u.ID]
+		dUp := vUp - prev[0]
+		dDown := vDown - prev[1]
+		// Guard against an in-instance counter reset (shouldn't happen, but be
+		// safe): treat the current value as the delta rather than going negative.
+		if dUp < 0 {
+			dUp = vUp
+		}
+		if dDown < 0 {
+			dDown = vDown
+		}
+		x.lastCounterVal[u.ID] = [2]int64{vUp, vDown}
 
 		if dUp > 0 || dDown > 0 {
 			cum := x.cumTraffic[u.ID]

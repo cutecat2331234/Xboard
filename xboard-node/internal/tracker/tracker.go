@@ -159,8 +159,15 @@ func (t *Tracker) HasTraffic() bool {
 	return len(t.pendingTraffic) > 0
 }
 
-// FlushAliveIPs returns per-user alive IPs.
-// Reuses internal buffer. Returns nil if unchanged.
+// FlushAliveIPs returns per-user alive IPs as a fresh deep copy.
+// Returns nil if unchanged since the last flush.
+//
+// [H5] The returned map MUST NOT alias any internal buffer: callers hand it to
+// a background push goroutine (see service.pushReport) while the main loop may
+// call FlushAliveIPs again on the next tick, overwriting the buffer underneath
+// the in-flight reader. We therefore allocate a new map and copy every slice.
+// The internal aliveIPsBuf is still maintained so RestoreAliveIPs can re-arm a
+// failed payload for the next flush.
 func (t *Tracker) FlushAliveIPs() map[int][]string {
 	s := t.live.Load()
 
@@ -182,7 +189,10 @@ func (t *Tracker) FlushAliveIPs() map[int][]string {
 		delete(t.aliveIPsBuf, k)
 	}
 
-	// Fill buffer from snapshot.
+	// Fill the internal buffer from the snapshot AND build an independent deep
+	// copy to return. The copy owns its own slices so the caller is isolated
+	// from any subsequent mutation of aliveIPsBuf.
+	out := make(map[int][]string, len(s.aliveIPs))
 	for uid, ips := range s.aliveIPs {
 		buf := t.aliveIPsBuf[uid]
 		if buf == nil {
@@ -193,9 +203,11 @@ func (t *Tracker) FlushAliveIPs() map[int][]string {
 			buf = append(buf, ip)
 		}
 		t.aliveIPsBuf[uid] = buf
+		// Deep copy for the returned map (distinct backing array).
+		out[uid] = append([]string(nil), buf...)
 	}
 
-	return t.aliveIPsBuf
+	return out
 }
 
 // calcAliveIPsHash computes a deterministic hash for change detection.
