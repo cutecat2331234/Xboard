@@ -48,9 +48,16 @@ export default function LoginPage() {
     let active = true
     async function verifyExistingSession() {
       if (!getAuthData()) return
-      const valid = await ensureAdminSession()
-      if (active && valid) navigate('/', { replace: true })
-      if (active && !valid) clearAuthData()
+      const { valid, reason } = await ensureAdminSession()
+      if (!active) return
+      if (valid) {
+        navigate('/', { replace: true })
+        return
+      }
+      // Only drop the stored token on a genuine auth failure (401/403 Unauthorized).
+      // On transient/network errors keep it so a blip can't force a valid admin to
+      // re-login — a later real 401/403 still clears it via the normal request flow.
+      if (reason === 'unauthorized') clearAuthData()
     }
     void verifyExistingSession()
     return () => {

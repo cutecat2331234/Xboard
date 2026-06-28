@@ -37,7 +37,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
         return
       }
 
-      const valid = await ensureAdminSession()
+      const { valid } = await ensureAdminSession()
       if (active) setState(valid ? 'authed' : 'guest')
     }
 

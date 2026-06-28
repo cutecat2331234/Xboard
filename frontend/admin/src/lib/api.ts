@@ -83,6 +83,14 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     } catch {
       // ignore
     }
+    // Normalize a genuine 401 to a stable 'Unauthorized' marker so session checks
+    // (admin-session.ts isAuthSessionError) can tell a real auth failure apart from
+    // a transient/network error. Does not change 403 or any other status handling,
+    // and does not redirect/clear here — that stays with the 403 branch above and the
+    // normal request flow.
+    if (response.status === 401) {
+      message = 'Unauthorized'
+    }
     throw new Error(message || 'Request failed')
   }
   return response.json() as Promise<T>
