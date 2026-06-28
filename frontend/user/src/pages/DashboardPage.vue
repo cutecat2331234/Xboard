@@ -76,7 +76,16 @@ const knowledgeEnabled = computed(() => featureEnabled(commConfig.value?.knowled
 const announcementsEnabled = computed(() => featureEnabled(commConfig.value?.announcement_enable, commConfig.value != null))
 const inviteEnabled = computed(() => featureEnabled(commConfig.value?.invite_enable, commConfig.value != null))
 
-const promoNotices = computed(() => notices.value.filter((n) => n.img_url))
+const promoNotices = computed(() => notices.value)
+
+function formatNoticeDate(ts: number | null | undefined): string {
+  if (!ts) return ''
+  const ms = ts.toString().length === 10 ? ts * 1000 : ts
+  const d = new Date(ms)
+  if (Number.isNaN(d.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
 const popupNoticeTags = computed(() =>
   resolvePopupNoticeTags(
     t('dashboard.popupNoticeTags')
@@ -318,14 +327,39 @@ function onShortcut(item: { to?: string; action?: () => void }) {
     dot-placement="bottom"
     class="dash-promo-carousel"
   >
-    <img
+    <div
       v-for="n in promoNotices"
       :key="n.id"
-      class="dash-promo-img"
-      :src="n.img_url!"
-      :alt="n.title"
+      class="dash-banner"
+      :class="{ 'dash-banner--image': Boolean(n.img_url) }"
+      :style="n.img_url ? { backgroundImage: `url(${n.img_url})` } : undefined"
+      role="button"
+      tabindex="0"
+      :aria-label="n.title"
       @click="popupNotice = n"
-    />
+      @keydown.enter="popupNotice = n"
+    >
+      <svg
+        v-if="!n.img_url"
+        class="dash-banner__decor"
+        viewBox="0 0 1000 250"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+      >
+        <rect x="755" y="44" width="22" height="22" />
+        <circle cx="900" cy="125" r="6" />
+        <path d="M470 130 L610 200 L470 270 Z" fill="none" stroke-width="2" />
+        <path d="M820 150 A120 120 0 0 1 940 270" fill="none" stroke-width="2" />
+        <path d="M1000 230 A160 160 0 0 0 850 300" fill="none" stroke-width="2" />
+      </svg>
+      <div class="dash-banner__overlay">
+        <span class="dash-banner__pill">{{ t('dashboard.announcements') }}</span>
+        <div class="dash-banner__title">{{ n.title }}</div>
+        <div v-if="formatNoticeDate(n.created_at)" class="dash-banner__date">
+          {{ formatNoticeDate(n.created_at) }}
+        </div>
+      </div>
+    </div>
   </n-carousel>
 
   <n-card :title="t('dashboard.mySubscription')" class="mt-1 rounded-md md:mt-5">
@@ -416,7 +450,6 @@ function onShortcut(item: { to?: string; action?: () => void }) {
 .dash-promo-carousel {
   border-radius: 6px;
   overflow: hidden;
-  max-height: 180px;
 }
 .dash-promo-carousel :deep(.n-carousel__arrow-group) {
   opacity: 0;
@@ -436,11 +469,71 @@ function onShortcut(item: { to?: string; action?: () => void }) {
 .dash-traffic-link {
   color: inherit;
 }
-.dash-promo-img {
+.dash-banner {
+  position: relative;
   width: 100%;
-  height: 180px;
-  object-fit: cover;
+  height: 250px;
   cursor: pointer;
+  overflow: hidden;
+  background: linear-gradient(135deg, #8b8f96 0%, #6f747c 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.dash-banner--image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.1) 60%, rgba(0, 0, 0, 0) 100%);
+}
+.dash-banner__decor {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: rgba(255, 255, 255, 0.18);
+  stroke: rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+}
+.dash-banner__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 32px;
+}
+.dash-banner__pill {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  background: #ef6c1a;
+  color: #fff;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+.dash-banner__title {
+  color: #fff;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.dash-banner__date {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 16px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 .mt-5 { margin-top: 20px; }
 .dash-card--shortcuts :deep(.n-card-content),

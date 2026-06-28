@@ -45,7 +45,7 @@ const remindTraffic = ref(true)
 const msg = useMessage()
 const { t, locale } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
-const { code: currency, formatPrice, load: loadCurrency } = useCurrency()
+const { code: currency, formatAmount, load: loadCurrency } = useCurrency()
 const savingPassword = ref(false)
 const telegramBotError = ref(false)
 const botUsername = ref('')
@@ -268,7 +268,7 @@ onMounted(async () => {
       <WalletIcon class="text-4xl text-gray-500" />
     </template>
     <div>
-      <span class="text-5xl font-normal">{{ formatPrice(auth.user?.balance ?? 0) }}</span>
+      <span class="text-5xl font-normal">{{ formatAmount(auth.user?.balance ?? 0) }}</span>
       <span class="ml-2.5 text-xl text-gray-500 md:ml-5">{{ currency }}</span>
     </div>
     <div class="text-gray-500">{{ t('profile.balanceHint') }}</div>
