@@ -32,7 +32,7 @@ import {
   inputCls,
   textareaCls,
 } from '@/lib/form-styles'
-import { cn } from '@/lib/utils'
+import { cn, uuid } from '@/lib/utils'
 import { getAdminCurrencySymbol, formatAdminMoneyFromMajor, loadAdminCurrency } from '@/lib/currency'
 import { formatAdminDateTime, formatAdminDateTimeValue } from '@/lib/format-datetime'
 import { DataTable } from '@/components/shared/DataTable'
@@ -442,7 +442,7 @@ export default function UserPage() {
     setDraftConditions(
       advancedConditions.length
         ? advancedConditions.map((c) => ({ ...c }))
-        : [{ id: crypto.randomUUID(), field: 'email', operator: 'contains', value: '' }],
+        : [{ id: uuid(), field: 'email', operator: 'contains', value: '' }],
     )
     setAdvancedOpen(true)
   }
@@ -1131,7 +1131,7 @@ export default function UserPage() {
                 setDraftConditions((prev) => [
                   ...prev,
                   {
-                    id: crypto.randomUUID(),
+                    id: uuid(),
                     field: 'email',
                     operator: 'contains',
                     value: '',

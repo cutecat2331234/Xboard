@@ -1319,7 +1319,7 @@ export default function GiftCardPage() {
 
   const giftTypeOptions = useMemo(
 
-    () => giftTypeIds.map((id) => ({ id, label: t(`giftCard.types.${id}`) })),
+    () => giftTypeIds.map((id) => ({ id, label: t(`giftCard.types.${id}`, { defaultValue: String(id) }) })),
 
     [giftTypeIds, t],
 

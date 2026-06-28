@@ -278,6 +278,13 @@ export default {
       summary: "第 {current}/{total} 頁，共 {count} 條",
       previous: "上一頁",
       next: "下一頁"
+    },
+    units: {
+      b: "B",
+      kb: "KB",
+      mb: "MB",
+      gb: "GB",
+      tb: "TB"
     }
   },
   invite: {

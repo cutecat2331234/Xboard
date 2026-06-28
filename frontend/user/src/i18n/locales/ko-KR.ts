@@ -273,6 +273,13 @@ export default {
       summary: "총 {count}건 · {current}/{total} 페이지",
       previous: "이전 페이지",
       next: "다음 페이지"
+    },
+    units: {
+      b: "B",
+      kb: "KB",
+      mb: "MB",
+      gb: "GB",
+      tb: "TB"
     }
   },
   invite: {

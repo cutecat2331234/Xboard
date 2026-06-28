@@ -281,6 +281,13 @@ export default {
       previous: '上一页',
       next: '下一页',
     },
+    units: {
+      b: 'B',
+      kb: 'KB',
+      mb: 'MB',
+      gb: 'GB',
+      tb: 'TB',
+    },
   },
   invite: {
     title: '我的邀请',

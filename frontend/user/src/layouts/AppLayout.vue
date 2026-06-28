@@ -166,6 +166,7 @@ function updateMobile() {
 }
 
 let themeObserver: MutationObserver | undefined
+let commRetryTimer: ReturnType<typeof setTimeout> | null = null
 
 function redirectIfGatedRouteDisabled() {
   const comm = commConfig.value
@@ -204,7 +205,8 @@ onMounted(async () => {
     await loadCommConfig()
   } catch (e: unknown) {
     msg.warning(resolveApiError(e, t, t('errors.commConfigFailed')))
-    setTimeout(() => {
+    commRetryTimer = setTimeout(() => {
+      commRetryTimer = null
       void loadCommConfig().catch((retryErr: unknown) => {
         msg.warning(resolveApiError(retryErr, t, t('errors.commConfigFailed')))
       })
@@ -233,6 +235,10 @@ onUnmounted(() => {
   themeObserver?.disconnect()
   removeMenuRouterGuard?.()
   removeMenuRouterGuard = undefined
+  if (commRetryTimer) {
+    clearTimeout(commRetryTimer)
+    commRetryTimer = null
+  }
 })
 
 type BreadcrumbItem = { label: string; to?: string }

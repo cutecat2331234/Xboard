@@ -28,7 +28,7 @@ import { invalidateAppConfigCaches } from '@/lib/invalidate-app-config'
 import { useI18n } from '@/i18n'
 import { resolveApiError } from '@/lib/api-errors'
 import { featureEnabled } from '@/lib/feature-flags'
-import { resolveAssetUrl } from '@/lib/asset-url'
+import { resolveAssetUrl, safeExternalUrl } from '@/lib/asset-url'
 import { storeInviteCode, recordPageView } from '@/api/pv'
 
 const LoginIcon = {
@@ -106,7 +106,8 @@ const showTelegram = computed(
   () => Boolean(config.value?.telegram_login_enable && config.value?.telegram_bot_username),
 )
 const showCaptcha = computed(() => Boolean(config.value?.is_captcha) && !isRegister.value)
-const showTerms = computed(() => Boolean(config.value?.tos_url))
+const tosUrl = computed(() => safeExternalUrl(config.value?.tos_url))
+const showTerms = computed(() => Boolean(tosUrl.value))
 const showEmailVerify = computed(() => Boolean(config.value?.is_email_verify))
 const inviteRequired = computed(() => Boolean(config.value?.is_invite_force))
 const inviteVisible = computed(() => featureEnabled(config.value?.invite_enable, config.value != null))
@@ -390,7 +391,7 @@ function submit() {
             <div v-if="showTerms" class="auth-field auth-terms">
               <n-checkbox v-model:checked="agreed">
                 {{ t('termsPrefix') }}
-                <a :href="config?.tos_url" target="_blank" rel="noopener" class="auth-terms-link">
+                <a :href="tosUrl" target="_blank" rel="noopener" class="auth-terms-link">
                   {{ t('termsLink') }}
                 </a>
               </n-checkbox>

@@ -273,6 +273,13 @@ export default {
       summary: "{count} 件中 {current}/{total} ページ",
       previous: "前のページ",
       next: "次のページ"
+    },
+    units: {
+      b: "B",
+      kb: "KB",
+      mb: "MB",
+      gb: "GB",
+      tb: "TB"
     }
   },
   invite: {

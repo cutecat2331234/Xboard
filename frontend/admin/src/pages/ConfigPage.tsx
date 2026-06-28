@@ -7,7 +7,7 @@ import { toastApiError } from '@/lib/api-errors'
 import { fetchConfig, fetchJsonList, saveConfig } from '@/lib/api'
 import { resetAdminCurrency } from '@/lib/currency'
 import { configFieldLabelCls, configSubFieldLabelCls, inputCls } from '@/lib/form-styles'
-import { cn } from '@/lib/utils'
+import { cn, uuid } from '@/lib/utils'
 import { Switch } from '@/components/ui/switch'
 import { ConfigFormSelect } from '@/components/shared/ConfigFormSelect'
 import { ConfigSectionFields } from '@/pages/config-section-fields'
@@ -921,7 +921,7 @@ function ServerTokenField({
         <button
           type="button"
           className="absolute right-0 top-0 inline-flex h-full w-9 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-          onClick={() => onChange(crypto.randomUUID().replace(/-/g, ''))}
+          onClick={() => onChange(uuid().replace(/-/g, ''))}
         >
           <IconRefresh className="h-4 w-4 text-muted-foreground hover:text-foreground" stroke={2} />
         </button>

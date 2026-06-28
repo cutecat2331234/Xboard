@@ -64,6 +64,9 @@ const { config: guestConfig, load: loadGuest } = useGuestConfig()
 const withdrawMethod = ref('')
 const withdrawAccount = ref('')
 const pageLoading = ref(true)
+const transferring = ref(false)
+const withdrawing = ref(false)
+const generating = ref(false)
 
 const available = computed(() => (stat.value[4] ?? 0) / 100)
 const commReady = computed(() => commConfig.value != null)
@@ -216,6 +219,8 @@ async function load() {
 }
 
 async function generate() {
+  if (generating.value) return
+  generating.value = true
   try {
     await generateInviteCode()
     msg.success(t('common.success'))
@@ -223,6 +228,8 @@ async function generate() {
     await load()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
+  } finally {
+    generating.value = false
   }
 }
 
@@ -245,6 +252,8 @@ async function doTransfer() {
     msg.error(t('errors.withdrawMinimum', { limit: formatPriceSpaced(transferMinLimit.value * 100) }))
     return
   }
+  if (transferring.value) return
+  transferring.value = true
   try {
     await transferCommission(amount * 100)
     msg.success(t('common.success'))
@@ -253,6 +262,8 @@ async function doTransfer() {
     await load()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
+  } finally {
+    transferring.value = false
   }
 }
 
@@ -271,6 +282,8 @@ async function doWithdraw() {
     msg.error(t('errors.withdrawMinimum', { limit: formatPriceSpaced(minLimit * 100) }))
     return
   }
+  if (withdrawing.value) return
+  withdrawing.value = true
   try {
     await withdrawCommission({ withdraw_method: withdrawMethod.value.trim(), withdraw_account: account })
     msg.success(t('invite.withdrawSuccess'))
@@ -283,6 +296,8 @@ async function doWithdraw() {
     }
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
+  } finally {
+    withdrawing.value = false
   }
 }
 
@@ -426,7 +441,7 @@ onMounted(async () => {
 
   <n-card :title="t('invite.codeMgmt')" class="invite-code-card mt-4 rounded-md">
     <template #header-extra>
-      <n-button size="small" type="primary" round @click="generate">
+      <n-button size="small" type="primary" round :loading="generating" :disabled="generating" @click="generate">
         {{ t('invite.generate') }}
       </n-button>
     </template>
@@ -458,8 +473,8 @@ onMounted(async () => {
     <n-input v-model:value="transferAmount" :placeholder="t('invite.transferAmount')" />
     <p v-if="transferNetPreview" class="withdraw-hint">{{ transferNetPreview }}</p>
     <div class="modal-actions">
-      <n-button @click="transferOpen = false">{{ t('common.cancel') }}</n-button>
-      <n-button type="primary" @click="doTransfer">{{ t('common.confirm') }}</n-button>
+      <n-button :disabled="transferring" @click="transferOpen = false">{{ t('common.cancel') }}</n-button>
+      <n-button type="primary" :loading="transferring" :disabled="transferring" @click="doTransfer">{{ t('common.confirm') }}</n-button>
     </div>
   </n-modal>
 
@@ -476,8 +491,8 @@ onMounted(async () => {
     <n-input v-else v-model:value="withdrawMethod" :placeholder="t('ticket.withdrawMethod')" style="margin-bottom: 12px" />
     <n-input v-model:value="withdrawAccount" :placeholder="t('ticket.withdrawAccount')" />
     <div class="modal-actions">
-      <n-button @click="withdrawOpen = false">{{ t('common.cancel') }}</n-button>
-      <n-button type="primary" @click="doWithdraw">{{ t('common.confirm') }}</n-button>
+      <n-button :disabled="withdrawing" @click="withdrawOpen = false">{{ t('common.cancel') }}</n-button>
+      <n-button type="primary" :loading="withdrawing" :disabled="withdrawing" @click="doWithdraw">{{ t('common.confirm') }}</n-button>
     </div>
   </n-modal>
   </n-spin>

@@ -273,6 +273,13 @@ export default {
       summary: "صفحه {current}/{total}، مجموع {count} مورد",
       previous: "صفحه قبل",
       next: "صفحه بعد"
+    },
+    units: {
+      b: "B",
+      kb: "KB",
+      mb: "MB",
+      gb: "GB",
+      tb: "TB"
     }
   },
   invite: {

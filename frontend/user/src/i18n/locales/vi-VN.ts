@@ -274,6 +274,13 @@ export default {
       summary: "Trang {current}/{total}, tổng {count} mục",
       previous: "Trang trước",
       next: "Trang sau"
+    },
+    units: {
+      b: "B",
+      kb: "KB",
+      mb: "MB",
+      gb: "GB",
+      tb: "TB"
     }
   },
   invite: {

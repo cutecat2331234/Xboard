@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import {
   NAlert,
   NButton,
@@ -28,6 +28,7 @@ import { useCurrency } from '@/composables/useCurrency'
 import { useI18n } from '@/i18n'
 import { formatLocaleDateTimeFromIso } from '@/lib/format-date'
 import { resolveApiError } from '@/lib/api-errors'
+import { safeExternalUrl } from '@/lib/asset-url'
 
 const WalletIcon = renderCarbonIcon(
   'M216 64H56a8 8 0 0 1 0-16h136a8 8 0 0 0 0-16H56a24 24 0 0 0-24 24v128a24 24 0 0 0 24 24h160a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16m-36 80a12 12 0 1 1 12-12a12 12 0 0 1-12 12',
@@ -45,6 +46,7 @@ const msg = useMessage()
 const { t, locale } = useI18n()
 const { config: commConfig, load: loadComm } = useUserCommConfig()
 const { code: currency, formatPrice, load: loadCurrency } = useCurrency()
+const savingPassword = ref(false)
 const telegramBotError = ref(false)
 const botUsername = ref('')
 const sessions = ref<ActiveSession[]>([])
@@ -52,6 +54,10 @@ const sessionsLoading = ref(false)
 const quickLoginLoading = ref(false)
 const subscribeToken = ref('')
 const dialog = useDialog()
+const telegramDiscussLink = computed(() => safeExternalUrl(commConfig.value?.telegram_discuss_link))
+const telegramBotLink = computed(() =>
+  /^[A-Za-z0-9_]+$/.test(botUsername.value) ? `https://t.me/${botUsername.value}` : undefined,
+)
 
 async function copyText(value: string, successKey = 'profile.copied') {
   if (!value) return
@@ -78,6 +84,8 @@ async function submitPassword() {
     msg.error(t('passwordMismatch'))
     return
   }
+  if (savingPassword.value) return
+  savingPassword.value = true
   try {
     await changePassword({ old_password: oldPassword.value, new_password: newPassword.value })
     msg.success(t('common.success'))
@@ -86,6 +94,8 @@ async function submitPassword() {
     confirmPassword.value = ''
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
+  } finally {
+    savingPassword.value = false
   }
 }
 
@@ -316,7 +326,7 @@ onMounted(async () => {
       <label for="profile-confirm-password">{{ t('profile.confirmNewPassword') }}</label>
       <n-input id="profile-confirm-password" v-model:value="confirmPassword" type="password" :placeholder="t('profile.confirmPasswordPh')" show-password-on="click" />
     </div>
-    <n-button type="primary" class="mt-5" @click="submitPassword">{{ t('common.save') }}</n-button>
+    <n-button type="primary" class="mt-5" :loading="savingPassword" :disabled="savingPassword" @click="submitPassword">{{ t('common.save') }}</n-button>
   </n-card>
 
   <n-card :title="t('profile.notify')" class="mt-5 rounded-md">
@@ -345,13 +355,13 @@ onMounted(async () => {
     <template v-else-if="telegramBotError">
       <n-alert type="warning" :bordered="false">{{ t('profile.telegramBotUnavailable') }}</n-alert>
     </template>
-    <template v-else-if="botUsername">
+    <template v-else-if="botUsername && telegramBotLink">
       <p class="text-gray-500">{{ t('profile.telegramHint') }}</p>
-      <a :href="`https://t.me/${botUsername}`" target="_blank" rel="noopener" class="tg-link">@{{ botUsername }}</a>
+      <a :href="telegramBotLink" target="_blank" rel="noopener" class="tg-link">@{{ botUsername }}</a>
     </template>
     <a
-      v-if="commConfig?.telegram_discuss_link"
-      :href="commConfig.telegram_discuss_link"
+      v-if="telegramDiscussLink"
+      :href="telegramDiscussLink"
       target="_blank"
       rel="noopener"
       class="tg-link mt-2 block"

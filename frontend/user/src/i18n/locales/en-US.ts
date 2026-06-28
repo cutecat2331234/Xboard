@@ -205,6 +205,7 @@ export default {
     ticketWaitForReply: 'Please wait for staff to reply before sending another message.',
     featureDisabled: 'This feature is currently disabled.',
     withdrawUnsupported: 'Withdrawals are not supported',
+    withdrawMethodUnsupported: 'Unsupported withdrawal method',
     insufficientCommission: 'Insufficient commission balance',
     pendingWithdrawTicket: 'You already have a pending withdrawal request',
     withdrawMinimum: 'Minimum withdrawal amount is {limit}',

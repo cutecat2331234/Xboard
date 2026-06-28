@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { telegramLogin } from '@/api/auth'
@@ -69,6 +69,16 @@ onMounted(async () => {
   } catch {
     /* widget optional when plugin disabled or script blocked */
   }
+})
+
+onBeforeUnmount(() => {
+  const w = window as unknown as { handleTelegramAuth?: typeof handleAuth }
+  // Only clear if it still points at this instance's handler (avoid clobbering a remount).
+  if (w.handleTelegramAuth === handleAuth) {
+    delete w.handleTelegramAuth
+  }
+  const container = document.getElementById(CONTAINER_ID)
+  if (container) container.innerHTML = ''
 })
 </script>
 

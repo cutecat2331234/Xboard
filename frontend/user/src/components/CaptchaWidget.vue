@@ -9,6 +9,19 @@ const props = defineProps<{
 const containerId = `captcha-${Math.random().toString(36).slice(2)}`
 const ready = ref(false)
 let widgetId: number | string | null = null
+/** Identifies the widget instance already rendered, to avoid double-render
+ *  (re-rendering the same container throws for reCAPTCHA v2 / duplicates Turnstile). */
+let renderedKey: string | null = null
+
+function configKey(): string | null {
+  const c = props.config
+  if (!c?.is_captcha) return null
+  const type = c.captcha_type || 'recaptcha'
+  if (type === 'turnstile') return c.turnstile_site_key ? `turnstile:${c.turnstile_site_key}` : null
+  if (type === 'recaptcha') return c.recaptcha_site_key ? `recaptcha:${c.recaptcha_site_key}` : null
+  if (type === 'recaptcha-v3') return c.recaptcha_v3_site_key ? `recaptcha-v3:${c.recaptcha_v3_site_key}` : null
+  return null
+}
 
 function loadScript(src: string, id: string) {
   return new Promise<void>((resolve, reject) => {
@@ -28,8 +41,16 @@ function loadScript(src: string, id: string) {
 }
 
 async function mountWidget() {
+  const key = configKey()
+  // Already rendered (or rendering) for this exact captcha config — keep it.
+  if (key && key === renderedKey) return
   ready.value = false
-  if (!props.config?.is_captcha) return
+  if (!props.config?.is_captcha || !key) {
+    renderedKey = null
+    return
+  }
+  // Claim the key synchronously so a concurrent call can't render a second widget.
+  renderedKey = key
 
   const type = props.config.captcha_type || 'recaptcha'
 
@@ -42,6 +63,8 @@ async function mountWidget() {
         theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
       })
       ready.value = true
+    } else {
+      renderedKey = null
     }
     return
   }
@@ -54,6 +77,8 @@ async function mountWidget() {
         sitekey: props.config.recaptcha_site_key,
       })
       ready.value = true
+    } else {
+      renderedKey = null
     }
     return
   }
@@ -64,6 +89,8 @@ async function mountWidget() {
     if (grecaptcha) {
       await new Promise<void>((resolve) => grecaptcha.ready(() => resolve()))
       ready.value = true
+    } else {
+      renderedKey = null
     }
   }
 }
@@ -117,6 +144,7 @@ onMounted(mountWidget)
 watch(() => props.config, mountWidget)
 onBeforeUnmount(() => {
   widgetId = null
+  renderedKey = null
 })
 
 defineExpose({ getPayload, reset })

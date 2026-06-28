@@ -40,6 +40,7 @@ import { resolveApiError } from '@/lib/api-errors'
 
 import { useCurrency } from '@/composables/useCurrency'
 import { formatPlanTrafficGb } from '@/lib/format-traffic'
+import { safeExternalUrl } from '@/lib/asset-url'
 
 import QRCode from 'qrcode'
 
@@ -442,7 +443,13 @@ async function handleCheckoutResult(res: { type: number; data: string | boolean 
 
   if (res.type === 1 && typeof res.data === 'string') {
 
-    const opened = window.open(res.data, '_blank')
+    const redirectUrl = safeExternalUrl(res.data)
+    if (!redirectUrl) {
+      msg.error(t('errors.paymentGatewayFailed'))
+      return
+    }
+
+    const opened = window.open(redirectUrl, '_blank')
     if (!opened) {
       msg.warning(t('order.redirectPopupBlocked'))
     } else {
