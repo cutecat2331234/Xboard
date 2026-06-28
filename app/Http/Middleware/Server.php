@@ -52,6 +52,9 @@ class Server
         if (!$serverInfo) {
             throw new ApiException(__('Server does not exist'));
         }
+        if (!(int) $serverInfo->enabled) {
+            throw new ApiException(__('Server is disabled'), 403);
+        }
 
         $request->attributes->set('node_info', $serverInfo);
 
