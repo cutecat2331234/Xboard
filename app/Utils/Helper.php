@@ -358,4 +358,38 @@ class Helper
 
         return [$page, $size];
     }
+
+    /**
+     * 中和 CSV 公式注入（CSV injection / formula injection）。
+     *
+     * 当单元格内容以 = + - @ 或 制表符/回车/换行 开头时，Excel、LibreOffice
+     * 等会把它当作公式执行。此方法在这些危险前导字符前加一个单引号，使其被
+     * 当作纯文本展示；其余值（普通文本、纯数字等）保持原样，不影响正常消费。
+     *
+     * @param mixed $value
+     * @return string
+     */
+    public static function csvSafe($value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        $value = (string) $value;
+
+        if ($value === '') {
+            return $value;
+        }
+
+        // 危险前导字符：= + - @ 制表符(\t) 回车(\r) 换行(\n)
+        if (in_array($value[0], ['=', '+', '-', '@', "\t", "\r", "\n"], true)) {
+            return "'" . $value;
+        }
+
+        return $value;
+    }
 }

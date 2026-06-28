@@ -211,15 +211,15 @@ class CouponController extends Controller
                     ? implode('/', $coupon['limit_plan_ids'])
                     : __('Unlimited');
                 fputcsv($handle, [
-                    $coupon['name'],
-                    $type,
-                    $value,
-                    $startTime,
-                    $endTime,
-                    $limitUse,
-                    $limitPlanIds,
-                    $coupon['code'],
-                    $createTime,
+                    Helper::csvSafe($coupon['name']),
+                    Helper::csvSafe($type),
+                    Helper::csvSafe($value),
+                    Helper::csvSafe($startTime),
+                    Helper::csvSafe($endTime),
+                    Helper::csvSafe($limitUse),
+                    Helper::csvSafe($limitPlanIds),
+                    Helper::csvSafe($coupon['code']),
+                    Helper::csvSafe($createTime),
                 ]);
             }
             fclose($handle);

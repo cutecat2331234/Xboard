@@ -531,16 +531,16 @@ class UserController extends Controller
                 foreach ($users as $user) {
                     try {
                         $row = [
-                            $user->email,
-                            number_format($user->balance / 100, 2),
-                            number_format($user->commission_balance / 100, 2),
-                            Helper::trafficConvert($user->transfer_enable),
-                            Helper::trafficConvert($user->transfer_enable - ($user->u + $user->d)),
-                            $user->expired_at ? date('Y-m-d H:i:s', $user->expired_at) : __('Unlimited'),
-                            $user->plan ? $user->plan->name : __('No subscription'),
+                            Helper::csvSafe($user->email),
+                            Helper::csvSafe(number_format($user->balance / 100, 2)),
+                            Helper::csvSafe(number_format($user->commission_balance / 100, 2)),
+                            Helper::csvSafe(Helper::trafficConvert($user->transfer_enable)),
+                            Helper::csvSafe(Helper::trafficConvert($user->transfer_enable - ($user->u + $user->d))),
+                            Helper::csvSafe($user->expired_at ? date('Y-m-d H:i:s', $user->expired_at) : __('Unlimited')),
+                            Helper::csvSafe($user->plan ? $user->plan->name : __('No subscription')),
                         ];
                         if ($includeSubscribeUrl) {
-                            $row[] = Helper::getSubscribeUrl($user->token);
+                            $row[] = Helper::csvSafe(Helper::getSubscribeUrl($user->token));
                         }
                         fputcsv($output, $row);
                     } catch (\Exception $e) {
@@ -669,7 +669,7 @@ class UserController extends Controller
                     $createDate = date('Y-m-d H:i:s', $user['created_at']);
                     $password = $request->input('password') ?? $user['email'];
                     $subscribeUrl = Helper::getSubscribeUrl($user['token']);
-                    fputcsv($handle, [$user['email'], $password, $expireDate, $user['uuid'], $createDate, $subscribeUrl]);
+                    fputcsv($handle, [Helper::csvSafe($user['email']), Helper::csvSafe($password), Helper::csvSafe($expireDate), Helper::csvSafe($user['uuid']), Helper::csvSafe($createDate), Helper::csvSafe($subscribeUrl)]);
                 }
                 fclose($handle);
             };
@@ -742,7 +742,7 @@ class UserController extends Controller
                     $createDate = date('Y-m-d H:i:s', $user['created_at']);
                     $password = $request->input('password') ?? $user['email'];
                     $subscribeUrl = Helper::getSubscribeUrl($user['token']);
-                    fputcsv($handle, [$user['email'], $password, $expireDate, $user['uuid'], $createDate, $subscribeUrl]);
+                    fputcsv($handle, [Helper::csvSafe($user['email']), Helper::csvSafe($password), Helper::csvSafe($expireDate), Helper::csvSafe($user['uuid']), Helper::csvSafe($createDate), Helper::csvSafe($subscribeUrl)]);
                 }
                 fclose($handle);
             };

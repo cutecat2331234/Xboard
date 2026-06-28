@@ -330,19 +330,19 @@ class GiftCardController extends Controller
                         $usedAt = $code->used_at ? date('Y-m-d H:i:s', $code->used_at) : '';
                         $remark = $code->remark ?? '';
                         fputcsv($handle, [
-                            $code->code,
-                            $code->prefix ?? '',
-                            $expireDate,
-                            $code->max_usage,
-                            $code->batch_id,
-                            $createDate,
-                            $templateName,
-                            $templateType,
-                            $templateRewards,
-                            $status,
-                            $usedBy,
-                            $usedAt,
-                            $remark,
+                            \App\Utils\Helper::csvSafe($code->code),
+                            \App\Utils\Helper::csvSafe($code->prefix ?? ''),
+                            \App\Utils\Helper::csvSafe($expireDate),
+                            \App\Utils\Helper::csvSafe($code->max_usage),
+                            \App\Utils\Helper::csvSafe($code->batch_id),
+                            \App\Utils\Helper::csvSafe($createDate),
+                            \App\Utils\Helper::csvSafe($templateName),
+                            \App\Utils\Helper::csvSafe($templateType),
+                            \App\Utils\Helper::csvSafe($templateRewards),
+                            \App\Utils\Helper::csvSafe($status),
+                            \App\Utils\Helper::csvSafe($usedBy),
+                            \App\Utils\Helper::csvSafe($usedAt),
+                            \App\Utils\Helper::csvSafe($remark),
                         ]);
                     }
                     fclose($handle);
