@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use App\Services\Plugin\HookManager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class TicketController extends Controller
 {
@@ -90,6 +91,14 @@ class TicketController extends Controller
         if (!AppFeature::ticketEnabled()) {
             return $this->fail([403, __('The ticket system is disabled')]);
         }
+
+        // 防止刷工单回复(DB 写放大 + 通知队列压力)。镜像 invite/coupon 的限流写法。
+        $rateKey = 'ticket-reply:' . $request->user()->id;
+        if (RateLimiter::tooManyAttempts($rateKey, 30)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 60);
+
         if (empty($request->input('id'))) {
             return $this->fail([400, __('Invalid parameter')]);
         }

@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -51,6 +52,15 @@ class StatUserJob implements ShouldQueue
             ? strtotime(date('Y-m-01'))
             : strtotime(date('Y-m-d'));
 
+        // Batch idempotency: per-user writes are additive (upsert u+VALUES(u)). If the worker
+        // crashes mid-batch and the job is retried, already-applied rows would be double-counted.
+        // Skip byte-identical replays. Cache::add is atomic. Mirrors the round-1 TrafficFetchJob guard.
+        $idempotencyKey = $this->idempotencyKey($recordAt);
+        if (!Cache::add($idempotencyKey, 1, now()->addHours(24))) {
+            Log::info('StatUserJob skipped duplicate batch', ['key' => $idempotencyKey]);
+            return;
+        }
+
         foreach ($this->data as $uid => $v) {
             try {
                 $this->processUserStat($uid, $v, $recordAt);
@@ -59,6 +69,21 @@ class StatUserJob implements ShouldQueue
                 continue;
             }
         }
+    }
+
+    /**
+     * Build a stable idempotency key for this batch.
+     */
+    protected function idempotencyKey(int $recordAt): string
+    {
+        $nodeId = $this->server['id'] ?? 'unknown';
+        $payloadHash = md5(serialize([
+            'rate' => $this->server['rate'] ?? null,
+            'protocol' => $this->protocol,
+            'data' => $this->data,
+        ]));
+
+        return "stat_user:{$nodeId}:{$this->recordType}:{$recordAt}:{$payloadHash}";
     }
 
     protected function processUserStat(int $uid, array $v, int $recordAt): void

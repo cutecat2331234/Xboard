@@ -35,16 +35,30 @@ class PluginManager
     }
 
     /**
+     * 将插件 code 规范化为安全的目录/命名空间片段。
+     * Str::studly 不会移除 "." 或 "/",形如 "../../x" 的 code 会穿越到
+     * require_once / deleteDirectory 等文件系统操作之外,故在拼接前再剥离
+     * 所有非字母数字字符(防御性,纵深防护;安装时 validateConfig 已限制格式)。
+     */
+    protected function sanitizePluginDirName(string $pluginCode): string
+    {
+        return preg_replace('/[^A-Za-z0-9]/', '', Str::studly($pluginCode));
+    }
+
+    /**
      * 获取插件的命名空间
      */
     public function getPluginNamespace(string $pluginCode): string
     {
-        return 'Plugin\\' . Str::studly($pluginCode);
+        return 'Plugin\\' . $this->sanitizePluginDirName($pluginCode);
     }
 
     public function resolvePluginPath(string $pluginCode): ?string
     {
-        $dirName = Str::studly($pluginCode);
+        $dirName = $this->sanitizePluginDirName($pluginCode);
+        if ($dirName === '') {
+            return null;
+        }
         $corePath = $this->corePluginPath . '/' . $dirName;
         if (File::isDirectory($corePath)) {
             return $corePath;
@@ -59,18 +73,18 @@ class PluginManager
     public function getPluginPath(string $pluginCode): string
     {
         return $this->resolvePluginPath($pluginCode)
-            ?? $this->pluginPath . '/' . Str::studly($pluginCode);
+            ?? $this->pluginPath . '/' . $this->sanitizePluginDirName($pluginCode);
     }
 
     public function getUserPluginPath(string $pluginCode): string
     {
-        return $this->pluginPath . '/' . Str::studly($pluginCode);
+        return $this->pluginPath . '/' . $this->sanitizePluginDirName($pluginCode);
     }
 
     public function isCorePlugin(string $pluginCode): bool
     {
-        $dirName = Str::studly($pluginCode);
-        return File::isDirectory($this->corePluginPath . '/' . $dirName);
+        $dirName = $this->sanitizePluginDirName($pluginCode);
+        return $dirName !== '' && File::isDirectory($this->corePluginPath . '/' . $dirName);
     }
 
     public function getPluginPaths(): array

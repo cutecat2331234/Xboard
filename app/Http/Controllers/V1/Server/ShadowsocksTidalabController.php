@@ -47,15 +47,21 @@ class ShadowsocksTidalabController extends Controller
     {
         $server = $request->attributes->get('node_info');
         $data = json_decode(request()->getContent(), true);
-        Cache::put(CacheKey::get('SERVER_SHADOWSOCKS_ONLINE_USER', $server->id), count($data), 3600);
-        Cache::put(CacheKey::get('SERVER_SHADOWSOCKS_LAST_PUSH_AT', $server->id), time(), 3600);
-        $userService = new UserService();
-        $formatData = [];
+        if (!is_array($data)) {
+            return $this->fail([422, __('Invalid data format')]);
+        }
 
+        $formatData = [];
         foreach ($data as $item) {
+            if (!is_array($item) || !isset($item['user_id'], $item['u'], $item['d'])) {
+                continue;
+            }
             $formatData[$item['user_id']] = [$item['u'], $item['d']];
         }
-        $userService->trafficFetch($server, 'shadowsocks', $formatData);
+
+        // processTraffic validates numeric/non-negative values and filters by node groups,
+        // then sets the online-user count from the filtered data and dispatches the jobs.
+        ServerService::processTraffic($server, $formatData);
 
         return response([
             'ret' => 1,

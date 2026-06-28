@@ -404,6 +404,15 @@ class Plugin extends AbstractPlugin
       return;
     }
 
+    // 仅管理员/客服可通过 Telegram 以"客服身份"回复任意工单；
+    // 普通用户只能回复自己的工单，否则会被 TicketService::reply 当作客服回复
+    // 注入到他人工单(越权 + 工单篡改)。
+    $isStaff = (bool) ($user->is_admin || $user->is_staff);
+    if (!$isStaff && (int) $ticket->user_id !== (int) $user->id) {
+      $this->sendMessage($msg, '无权回复该工单');
+      return;
+    }
+
     $ticketService = new TicketService();
     $ticketService->replyByAdmin(
       $ticketId,

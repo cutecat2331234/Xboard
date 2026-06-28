@@ -42,8 +42,9 @@ class AuthService
 
     public function removeSession(string $sessionId): bool
     {
-        $this->user->tokens()->where('id', $sessionId)->delete();
-        return true;
+        // 返回实际删除行数,避免对不存在/非本人的 session_id 仍回报成功
+        // (查询已通过 $this->user->tokens() 限定归属,本身不存在越权删除)。
+        return $this->user->tokens()->where('id', $sessionId)->delete() > 0;
     }
 
     public function removeAllSessions(): bool

@@ -393,6 +393,9 @@ class TicketService
                         'subject' => $ticket->subject,
                         'reply' => $ticketMessage->message,
                     ]),
+                    // 主题/内容来自用户输入,标记 text 模式让 MailService 做 e() 转义,
+                    // 否则会被 notify 模板的 {!! nl2br($content) !!} 原样渲染(HTML 注入)。
+                    'content_mode' => 'text',
                 ]
             ]);
         }

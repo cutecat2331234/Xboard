@@ -39,6 +39,8 @@ class LoginService
         // 查找用户
         $user = User::byEmail($email)->first();
         if (!$user) {
+            // 统计失败尝试，避免非存在邮箱路径绕过限流/形成枚举侧信道
+            $this->recordFailedAttempt($email, $clientIp);
             return [false, [400, __('Incorrect email or password')]];
         }
 
@@ -52,18 +54,7 @@ class LoginService
             )
         ) {
             // 增加密码错误计数
-            if ((int) admin_setting('password_limit_enable', true)) {
-                $passwordErrorCount = (int) Cache::get(CacheKey::get('PASSWORD_ERROR_LIMIT', $email), 0);
-                Cache::put(
-                    CacheKey::get('PASSWORD_ERROR_LIMIT', $email),
-                    (int) $passwordErrorCount + 1,
-                    60 * (int) admin_setting('password_limit_expire', 60)
-                );
-            }
-            if ($clientIp) {
-                $loginIpKey = 'login-ip:' . $clientIp;
-                \Illuminate\Support\Facades\RateLimiter::hit($loginIpKey, 60);
-            }
+            $this->recordFailedAttempt($email, $clientIp);
             return [false, [400, __('Incorrect email or password')]];
         }
 
@@ -82,6 +73,26 @@ class LoginService
 
         HookManager::call('user.login.after', $user);
         return [true, $user];
+    }
+
+    /**
+     * 记录一次失败的登录尝试（按邮箱计数 + 按 IP 限流），
+     * 在"邮箱不存在"和"密码错误"两条路径上一致执行，
+     * 避免攻击者用不存在的邮箱无限重试绕过 IP 限流，并消除枚举侧信道。
+     */
+    private function recordFailedAttempt(string $email, ?string $clientIp): void
+    {
+        if ((int) admin_setting('password_limit_enable', true)) {
+            $passwordErrorCount = (int) Cache::get(CacheKey::get('PASSWORD_ERROR_LIMIT', $email), 0);
+            Cache::put(
+                CacheKey::get('PASSWORD_ERROR_LIMIT', $email),
+                $passwordErrorCount + 1,
+                60 * (int) admin_setting('password_limit_expire', 60)
+            );
+        }
+        if ($clientIp) {
+            \Illuminate\Support\Facades\RateLimiter::hit('login-ip:' . $clientIp, 60);
+        }
     }
 
     /**

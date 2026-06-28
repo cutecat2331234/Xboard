@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -53,6 +54,16 @@ class StatServerJob implements ShouldQueue
             ? strtotime(date('Y-m-01'))
             : strtotime(date('Y-m-d'));
 
+        // Batch idempotency: writes here are purely additive (upsert u+VALUES(u) and
+        // incrementEach on v2_server.u/d). A retry of the same payload would double-count
+        // both the daily stat and the lifetime node counter, so skip byte-identical replays.
+        // Cache::add is atomic (SETNX-style). Mirrors the round-1 TrafficFetchJob guard.
+        $idempotencyKey = $this->idempotencyKey($recordAt);
+        if (!Cache::add($idempotencyKey, 1, now()->addHours(24))) {
+            Log::info('StatServerJob skipped duplicate batch', ['key' => $idempotencyKey]);
+            return;
+        }
+
         $u = $d = 0;
         foreach ($this->data as $traffic) {
             $u += $traffic[0];
@@ -63,9 +74,26 @@ class StatServerJob implements ShouldQueue
             $this->processServerStat($u, $d, $recordAt);
             $this->updateServerTraffic($u, $d);
         } catch (\Exception $e) {
+            // The batch already applied (or partially applied); keep the idempotency key so a
+            // retry does not re-add. Favour no double-count over a rare under-count.
             Log::error('StatServerJob failed for server ' . $this->server['id'] . ': ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Build a stable idempotency key for this batch.
+     */
+    protected function idempotencyKey(int $recordAt): string
+    {
+        $nodeId = $this->server['id'] ?? 'unknown';
+        $payloadHash = md5(serialize([
+            'rate' => $this->server['rate'] ?? null,
+            'protocol' => $this->protocol,
+            'data' => $this->data,
+        ]));
+
+        return "stat_server:{$nodeId}:{$this->recordType}:{$recordAt}:{$payloadHash}";
     }
 
     protected function updateServerTraffic(int $u, int $d): void

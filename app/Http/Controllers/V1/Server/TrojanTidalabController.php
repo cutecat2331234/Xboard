@@ -53,14 +53,21 @@ class TrojanTidalabController extends Controller
             return $this->fail([400, __('Node does not exist')]);
         }
         $data = json_decode(request()->getContent(), true);
-        Cache::put(CacheKey::get('SERVER_TROJAN_ONLINE_USER', $server->id), count($data), 3600);
-        Cache::put(CacheKey::get('SERVER_TROJAN_LAST_PUSH_AT', $server->id), time(), 3600);
-        $userService = new UserService();
+        if (!is_array($data)) {
+            return $this->fail([422, __('Invalid data format')]);
+        }
+
         $formatData = [];
         foreach ($data as $item) {
+            if (!is_array($item) || !isset($item['user_id'], $item['u'], $item['d'])) {
+                continue;
+            }
             $formatData[$item['user_id']] = [$item['u'], $item['d']];
         }
-        $userService->trafficFetch($server, 'trojan', $formatData);
+
+        // processTraffic validates numeric/non-negative values and filters by node groups,
+        // then sets the online-user count from the filtered data and dispatches the jobs.
+        ServerService::processTraffic($server, $formatData);
 
         return response([
             'ret' => 1,

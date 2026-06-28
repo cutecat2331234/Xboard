@@ -67,6 +67,14 @@ class AuthController extends Controller
      */
     public function register(AuthRegister $request)
     {
+        // 基线 IP 限流(独立于可选的 register_limit_by_ip_enable 管理开关,默认关闭),
+        // 防止验证码关闭时被刷注册/批量薅试用套餐。镜像 loginWithMailLink 写法。
+        $rateKey = 'register-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 20)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 60);
+
         [$success, $result] = $this->registerService->register($request);
 
         if (!$success) {
@@ -120,7 +128,7 @@ class AuthController extends Controller
             RateLimiter::hit($rateKey, 60);
 
             $safeRedirect = rawurlencode(\App\Utils\Helper::sanitizeAppRedirect($request->input('redirect')));
-            $redirect = '/#/login?verify=' . $token . '&redirect=' . $safeRedirect;
+            $redirect = '/#/login?verify=' . rawurlencode($token) . '&redirect=' . $safeRedirect;
 
             return redirect()->to(
                 admin_setting('app_url')
@@ -201,6 +209,14 @@ class AuthController extends Controller
         if (!$captchaValid) {
             return $this->fail($captchaError);
         }
+
+        // 基线 IP 限流:resetPassword 内仅有按邮箱的错误码计数,无 IP 维度,
+        // 此处补一道按 IP 的限流以遏制对重置验证码的分布式爆破。
+        $rateKey = 'forget-ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateKey, 20)) {
+            return $this->fail([429, __('Too many attempts')]);
+        }
+        RateLimiter::hit($rateKey, 60);
 
         [$success, $result] = $this->loginService->resetPassword(
             $request->input('email'),

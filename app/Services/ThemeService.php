@@ -145,6 +145,12 @@ class ThemeService
                 throw new Exception('Theme name not configured');
             }
 
+            // 主题名将被拼接进文件系统路径(copyDirectory/deleteDirectory),
+            // 必须限制为安全字符,防止 ../ 等路径穿越写出 storage/theme 之外。
+            if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $config['name'])) {
+                throw new Exception('Invalid theme name');
+            }
+
             if (in_array($config['name'], self::SYSTEM_THEMES)) {
                 throw new Exception('Cannot upload theme with same name as system theme');
             }
