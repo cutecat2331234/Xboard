@@ -154,15 +154,17 @@ class PluginManager
         if (File::exists($routesPath)) {
             $webRouteFile = $routesPath . '/web.php';
             $apiRouteFile = $routesPath . '/api.php';
+            // 基线限流：插件路由组默认无 throttle，加一个宽松上限防滥用（120 次/分钟/IP），
+            // 不加 auth（部分插件路由本就公开）；插件可在自身路由内叠加更严格的中间件。
             if (File::exists($webRouteFile)) {
-                Route::middleware('web')
+                Route::middleware(['web', 'throttle:120,1'])
                     ->namespace($this->getPluginNamespace($pluginCode) . '\\Controllers')
                     ->group(function () use ($webRouteFile) {
                         require $webRouteFile;
                     });
             }
             if (File::exists($apiRouteFile)) {
-                Route::middleware('api')
+                Route::middleware(['api', 'throttle:120,1'])
                     ->namespace($this->getPluginNamespace($pluginCode) . '\\Controllers')
                     ->group(function () use ($apiRouteFile) {
                         require $apiRouteFile;

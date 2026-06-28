@@ -298,7 +298,11 @@ class Helper
     }
 
     /**
-     * 校验 Telegram Webhook access_token（兼容旧 MD5 链接）
+     * 校验 Telegram Webhook access_token（仅 HMAC）。
+     *
+     * 安全加固：已移除旧的 md5($botToken) 回退分支，仅保留 HMAC-SHA256 校验。
+     * 移除后，Telegram webhook 需用 HMAC secret（telegramWebhookAccessToken）重新 setWebhook，
+     * 旧的基于 md5(botToken) 的 webhook 链接将失效。
      */
     public static function verifyTelegramWebhookAccessToken(?string $provided, ?string $botToken = null): bool
     {
@@ -311,18 +315,7 @@ class Helper
             return false;
         }
 
-        $candidates = [
-            self::telegramWebhookAccessToken($token),
-            md5($token),
-        ];
-
-        foreach ($candidates as $expected) {
-            if (hash_equals($expected, $provided)) {
-                return true;
-            }
-        }
-
-        return false;
+        return hash_equals(self::telegramWebhookAccessToken($token), $provided);
     }
 
     /**
