@@ -385,14 +385,6 @@ class UserController extends Controller
             $params['balance'] = $params['balance'] * 100;
         }
         if (isset($params['commission_balance'])) {
-            if (
-                Ticket::where('user_id', $user->id)
-                    ->where('status', Ticket::STATUS_OPENING)
-                    ->where('level', 2)
-                    ->exists()
-            ) {
-                return $this->fail([422, __('Pending withdrawal ticket blocks commission balance edit')]);
-            }
             if ((float) $request->input('commission_balance') < 0) {
                 return $this->fail([422, __('Commission balance cannot be negative')]);
             }
@@ -413,6 +405,19 @@ class UserController extends Controller
                 if (!$user) {
                     throw new \RuntimeException('user_not_found');
                 }
+                // 资金字段(commission_balance/balance)写入绝对值,必须在持锁后重判
+                // "未结提现工单",否则与并发提现(扣减/退回 commission_balance)存在
+                // TOCTOU:提现侧已置零的余额会被这里的旧绝对值覆盖,导致佣金被凭空恢复。
+                if (array_key_exists('commission_balance', $params)) {
+                    $hasPendingWithdraw = Ticket::where('user_id', $user->id)
+                        ->where('status', Ticket::STATUS_OPENING)
+                        ->where('level', 2)
+                        ->lockForUpdate()
+                        ->exists();
+                    if ($hasPendingWithdraw) {
+                        throw new \RuntimeException('withdraw_pending');
+                    }
+                }
                 if (isset($params['email']) && $params['email'] !== $user->email) {
                     if (User::byEmail($params['email'])->where('id', '!=', $user->id)->exists()) {
                         throw new \RuntimeException('email_taken');
@@ -429,6 +434,9 @@ class UserController extends Controller
         } catch (\RuntimeException $e) {
             if ($e->getMessage() === 'user_not_found') {
                 return $this->fail([400202, __('The user does not exist')]);
+            }
+            if ($e->getMessage() === 'withdraw_pending') {
+                return $this->fail([422, __('Pending withdrawal ticket blocks commission balance edit')]);
             }
             if ($e->getMessage() === 'email_taken') {
                 return $this->fail([400201, __('Email already exists')]);
