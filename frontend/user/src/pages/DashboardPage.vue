@@ -73,7 +73,6 @@ const openTickets = ref(0)
 const inviteCount = ref(0)
 const ticketsEnabled = computed(() => featureEnabled(commConfig.value?.ticket_enable, commConfig.value != null))
 const knowledgeEnabled = computed(() => featureEnabled(commConfig.value?.knowledge_enable, commConfig.value != null))
-const announcementsEnabled = computed(() => featureEnabled(commConfig.value?.announcement_enable, commConfig.value != null))
 const inviteEnabled = computed(() => featureEnabled(commConfig.value?.invite_enable, commConfig.value != null))
 
 const promoNotices = computed(() => notices.value)
@@ -166,11 +165,6 @@ function openClientImport() {
 }
 
 async function loadNotices() {
-  if (!announcementsEnabled.value) {
-    notices.value = []
-    popupNotice.value = null
-    return
-  }
   try {
     notices.value = await fetchNotices()
     const needles = popupNoticeTags.value
