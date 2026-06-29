@@ -16,7 +16,8 @@ class TicketTypeSave extends FormRequest
         return [
             'id' => 'nullable|integer',
             'name' => 'required|string|max:128',
-            'sort' => 'nullable|integer',
+            // Bound sort to a non-negative signed-INT range to avoid DB overflow on the sort column.
+            'sort' => 'nullable|integer|min:0|max:2147483647',
             'show' => 'nullable|boolean',
         ];
     }
@@ -27,6 +28,8 @@ class TicketTypeSave extends FormRequest
             'name.required' => __('Ticket type name cannot be empty'),
             'name.max' => __('Ticket type name is too long'),
             'sort.integer' => __('Invalid parameters'),
+            'sort.min' => __('Invalid parameters'),
+            'sort.max' => __('Invalid parameters'),
             'show.boolean' => __('Invalid parameters'),
         ];
     }

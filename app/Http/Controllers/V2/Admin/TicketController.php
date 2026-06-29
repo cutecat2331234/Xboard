@@ -90,7 +90,19 @@ class TicketController extends Controller
                 $query->where('status', $request->input('status'));
             })
             ->when($request->has('reply_status'), function ($query) use ($request) {
-                $query->whereIn('reply_status', $request->input('reply_status'));
+                // Accept either an array or a scalar; coerce to a clean list of ints so a stray
+                // scalar can never blow up whereIn(). Empty/invalid input is ignored.
+                $replyStatus = $request->input('reply_status');
+                $replyStatus = array_values(array_filter(
+                    array_map(
+                        fn($v) => is_numeric($v) ? (int) $v : null,
+                        is_array($replyStatus) ? $replyStatus : [$replyStatus]
+                    ),
+                    fn($v) => $v !== null
+                ));
+                if (!empty($replyStatus)) {
+                    $query->whereIn('reply_status', $replyStatus);
+                }
             })
             ->when($request->filled('ticket_type_id'), function ($query) use ($request) {
                 $query->where('ticket_type_id', (int) $request->input('ticket_type_id'));

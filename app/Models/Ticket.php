@@ -28,7 +28,24 @@ class Ticket extends Model
 {
     protected $table = 'v2_ticket';
     protected $dateFormat = 'U';
-    protected $guarded = ['id'];
+    /**
+     * Explicit allow-list (replaces the previous over-broad $guarded = ['id']). Covers every field
+     * actually mass-assigned to Ticket today: TicketService::createTicket / createWithdrawTicket,
+     * and the visual-gate seed (which also sets status + timestamps). Property-style writes
+     * ($ticket->status = ...) and query-builder updates (Ticket::where()->update(...)) are not
+     * subject to this list, so existing flows like close() / reply() / drop() are unaffected.
+     */
+    protected $fillable = [
+        'user_id',
+        'subject',
+        'level',
+        'ticket_type_id',
+        'status',
+        'reply_status',
+        'last_reply_user_id',
+        'created_at',
+        'updated_at',
+    ];
     protected $casts = [
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp'
