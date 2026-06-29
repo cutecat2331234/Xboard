@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TicketSave extends FormRequest
 {
@@ -16,7 +17,11 @@ class TicketSave extends FormRequest
         return [
             'subject' => 'required|string|max:128',
             'level' => 'required|in:0,1',
-            'ticket_type_id' => 'nullable|integer|exists:v2_ticket_type,id',
+            'ticket_type_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('v2_ticket_type', 'id')->where('show', 1),
+            ],
             'message' => 'required|string|max:5000'
         ];
     }

@@ -555,14 +555,19 @@ type RateLimitedReadCloser struct {
 
 // Read implements io.Reader with rate limiting.
 func (r *RateLimitedReadCloser) Read(b []byte) (int, error) {
+	// No limiter configured: pass through without rate limiting.
+	if r.limiter == nil {
+		return r.reader.Read(b)
+	}
+
 	// Truncate to burst size
 	if burst := r.limiter.Burst(); len(b) > burst {
 		b = b[:burst]
 	}
 
 	n, err := r.reader.Read(b)
-	if n > 0 && r.limiter != nil {
-		// Fast path: check if tokens available
+	if n > 0 {
+		// Fast path: check if tokens available (limiter non-nil, guarded above)
 		if !r.limiter.AllowN(time.Now(), n) {
 			// Slow path: wait with context cancellation
 			resv := r.limiter.ReserveN(time.Now(), n)

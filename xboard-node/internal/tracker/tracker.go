@@ -55,6 +55,11 @@ type Tracker struct {
 
 	// lastAliveIPsHash detects changes to avoid duplicate reports.
 	lastAliveIPsHash string
+
+	// intervalSec is the Process tick interval in seconds, used to convert
+	// per-cycle accumulated bytes into a bytes/second rate. Defaults to 10
+	// and may be overridden via SetInterval once config is known.
+	intervalSec int64
 }
 
 func New() *Tracker {
@@ -62,6 +67,7 @@ func New() *Tracker {
 		lastSeen:       make(map[int][2]int64),
 		pendingTraffic: make(map[int][2]int64),
 		aliveIPsBuf:    make(map[int][]string),
+		intervalSec:    10,
 	}
 	// Publish initial empty snapshot.
 	t.live.Store(&snapshot{
@@ -299,16 +305,35 @@ func (t *Tracker) TotalConnections() int64 {
 	return 0
 }
 
+// SetInterval sets the Process tick interval (seconds) used to convert
+// per-cycle accumulated bytes into a bytes/second rate. Non-positive values
+// are ignored, leaving the existing (default 10s) divisor in place.
+func (t *Tracker) SetInterval(sec int) {
+	if sec > 0 {
+		atomic.StoreInt64(&t.intervalSec, int64(sec))
+	}
+}
+
+// speedDivisor returns the current interval in seconds, guarding against a
+// zero/negative divisor (which would panic or yield bogus rates).
+func (t *Tracker) speedDivisor() int64 {
+	d := atomic.LoadInt64(&t.intervalSec)
+	if d <= 0 {
+		return 10
+	}
+	return d
+}
+
 // InboundSpeed returns the last observed inbound (download) speed in bytes/second.
 // Lock-free: reads from live snapshot.
 func (t *Tracker) InboundSpeed() int64 {
-	return t.live.Load().inSpeed / 10
+	return t.live.Load().inSpeed / t.speedDivisor()
 }
 
 // OutboundSpeed returns the last observed outbound (upload) speed in bytes/second.
 // Lock-free: reads from live snapshot.
 func (t *Tracker) OutboundSpeed() int64 {
-	return t.live.Load().outSpeed / 10
+	return t.live.Load().outSpeed / t.speedDivisor()
 }
 
 // copyTrafficMap creates a shallow copy of the traffic map.
