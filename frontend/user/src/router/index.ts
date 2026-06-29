@@ -106,8 +106,9 @@ router.beforeEach(async (to) => {
       return { path: '/dashboard' }
     }
     if (valid && (to.path === '/gift-card' || to.path === '/invite' || to.path === '/ticket' || to.path.startsWith('/ticket/') || to.path === '/knowledge' || to.path === '/traffic')) {
-      try {
-        const comm = await useUserCommConfig().load()
+      // 用同步缓存值判断门控,绝不 await 网络,避免慢网下导航被阻塞/竞态。
+      const comm = useUserCommConfig().config.value
+      if (comm) {
         if (to.path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) {
           return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
@@ -123,9 +124,9 @@ router.beforeEach(async (to) => {
         if (to.path === '/traffic' && !featureEnabled(comm.traffic_log_enable, true)) {
           return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
-      } catch {
-        return { path: '/dashboard', query: { comm_error: '1' } }
       }
+      // comm 为 null(极少数首访无缓存)时跳过门控、放行;后台刷新缓存,不 await、不阻塞导航。
+      void useUserCommConfig().load()
     }
     return true
   }

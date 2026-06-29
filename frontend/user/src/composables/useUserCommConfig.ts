@@ -1,7 +1,26 @@
 import { ref } from 'vue'
 import { fetchUserCommConfig, type UserCommConfig } from '@/api/comm'
 
-const config = ref<UserCommConfig | null>(null)
+const CACHE_KEY = 'xboard_comm_config'
+
+function readCache(): UserCommConfig | null {
+  try {
+    const s = localStorage.getItem(CACHE_KEY)
+    return s ? (JSON.parse(s) as UserCommConfig) : null
+  } catch {
+    return null
+  }
+}
+
+function writeCache(d: UserCommConfig) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(d))
+  } catch {
+    /* ignore quota / serialization errors */
+  }
+}
+
+const config = ref<UserCommConfig | null>(readCache()) // 同步 hydrate,首屏即有
 let loading: Promise<UserCommConfig> | null = null
 
 export function useUserCommConfig() {
@@ -15,6 +34,7 @@ export function useUserCommConfig() {
       loading = fetchUserCommConfig()
         .then((data) => {
           config.value = data   // 仅在新数据到达时更新,过程中旧值一直可见
+          writeCache(data)      // 写入 localStorage 缓存,供下次首屏同步 hydrate
           return data
         })
         .catch((error) => {
@@ -28,6 +48,11 @@ export function useUserCommConfig() {
   function reset() {
     config.value = null
     loading = null
+    try {
+      localStorage.removeItem(CACHE_KEY)
+    } catch {
+      /* ignore */
+    }
   }
 
   return { config, load, reset }

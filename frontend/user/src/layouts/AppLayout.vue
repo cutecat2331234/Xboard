@@ -37,7 +37,9 @@ const dialog = useDialog()
 const msg = useMessage()
 const { t, locale, setLocale } = useI18n()
 const { config: commConfig, load: loadCommConfig } = useUserCommConfig()
-const commConfigLoaded = ref(false)
+// 只要 config 存在(含 localStorage 同步 hydrate 的缓存)就视为已加载,
+// 使首屏菜单立即按真实开关渲染,不再出现"延迟弹出"。
+const commConfigLoaded = computed(() => commConfig.value !== null)
 
 const isDark = ref(document.documentElement.classList.contains('dark'))
 
@@ -187,7 +189,6 @@ function refreshCommConfig() {
   const { load: loadCurrency } = useCurrency()
   loadCommConfig({ force: true })
     .then(async () => {
-      commConfigLoaded.value = true
       redirectIfGatedRouteDisabled()
       try {
         await loadCurrency({ force: true })
@@ -212,7 +213,6 @@ onMounted(async () => {
       })
     }, 3000)
   } finally {
-    commConfigLoaded.value = true
     redirectIfGatedRouteDisabled()
   }
   window.addEventListener('focus', refreshCommConfig)
