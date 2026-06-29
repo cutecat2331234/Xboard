@@ -7,14 +7,14 @@ let loading: Promise<UserCommConfig> | null = null
 export function useUserCommConfig() {
   async function load(options?: { force?: boolean }): Promise<UserCommConfig> {
     if (options?.force) {
-      config.value = null
-      loading = null
+      loading = null            // 强制重拉:丢弃在途 promise,但保留 config.value 不清空
+    } else if (config.value) {
+      return config.value       // 非强制:命中缓存
     }
-    if (config.value) return config.value
     if (!loading) {
       loading = fetchUserCommConfig()
         .then((data) => {
-          config.value = data
+          config.value = data   // 仅在新数据到达时更新,过程中旧值一直可见
           return data
         })
         .catch((error) => {

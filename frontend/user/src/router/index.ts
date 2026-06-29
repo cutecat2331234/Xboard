@@ -107,7 +107,7 @@ router.beforeEach(async (to) => {
     }
     if (valid && (to.path === '/gift-card' || to.path === '/invite' || to.path === '/ticket' || to.path.startsWith('/ticket/') || to.path === '/knowledge' || to.path === '/traffic')) {
       try {
-        const comm = await useUserCommConfig().load({ force: true })
+        const comm = await useUserCommConfig().load()
         if (to.path === '/gift-card' && !featureEnabled(comm.gift_card_enable, true)) {
           return { path: '/dashboard', query: { feature_disabled: '1' } }
         }
