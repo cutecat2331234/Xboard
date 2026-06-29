@@ -41,6 +41,24 @@ class ProvisionController extends Controller
         $validated = $request->validated();
         $nodeParams = $validated['node_params'] ?? [];
 
+        $host = $request->input('host');
+
+        // Idempotency: if a provisioning task for this host is already in flight (non-terminal),
+        // do not stack a second one — return the existing task so the UI can keep polling it. The
+        // job also holds a per-host cache lock, but de-duping here avoids piling up pending rows and
+        // redundant dispatches before the lock is ever contended.
+        $inFlight = ServerProvisioning::query()
+            ->where('host', $host)
+            ->whereNotIn('status', ServerProvisioning::TERMINAL_STATUSES)
+            ->orderByDesc('id')
+            ->first();
+        if ($inFlight) {
+            return $this->success([
+                'provision_id' => $inFlight->id,
+                'status' => $inFlight->status,
+            ]);
+        }
+
         // Stash credentials separately from the task record — encrypted + short TTL.
         $credentialKey = $this->stashCredentials([
             'auth_method' => $request->input('auth_method'),
@@ -52,7 +70,7 @@ class ProvisionController extends Controller
         try {
             $task = ServerProvisioning::create([
                 'status' => ServerProvisioning::STATUS_PENDING,
-                'host' => $request->input('host'),
+                'host' => $host,
                 'port' => (int) ($request->input('port') ?: 22),
                 'ssh_user' => (string) ($request->input('ssh_user') ?: 'root'),
                 'auth_method' => $request->input('auth_method'),
@@ -189,7 +207,9 @@ class ProvisionController extends Controller
         }
 
         $task->status = ServerProvisioning::STATUS_FAILED;
-        $task->error = __('Cancelled by administrator');
+        // A running task may have already completed some steps (e.g. installed the agent or created
+        // the node record) before it observes this cancel between steps; surface that to the operator.
+        $task->error = __('Cancelled by administrator. A running task may have already partially completed; review the node/machine list and clean up if needed.');
         $task->save();
 
         return $this->success(true);

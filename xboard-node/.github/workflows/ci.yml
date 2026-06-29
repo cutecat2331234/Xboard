@@ -116,6 +116,16 @@ jobs:
         with:
           merge-multiple: true
           path: dist
+      - name: Generate SHA-256 checksums
+        working-directory: dist
+        run: |
+          # Per-asset companion (consumed by install.sh as "<asset>.sha256") plus an aggregate
+          # checksums.txt for manual verification.
+          for f in xboard-node-linux-amd64 xboard-node-linux-arm64 xbctl-linux-amd64 xbctl-linux-arm64; do
+            sha256sum "$f" | awk '{print $1}' > "$f.sha256"
+          done
+          sha256sum xboard-node-linux-* xbctl-linux-* > checksums.txt
+          cat checksums.txt
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -123,6 +133,11 @@ jobs:
           make_latest: ${{ startsWith(github.ref, 'refs/tags/') }}
           files: |
             dist/xboard-node-linux-amd64
+            dist/xboard-node-linux-amd64.sha256
             dist/xboard-node-linux-arm64
+            dist/xboard-node-linux-arm64.sha256
             dist/xbctl-linux-amd64
+            dist/xbctl-linux-amd64.sha256
             dist/xbctl-linux-arm64
+            dist/xbctl-linux-arm64.sha256
+            dist/checksums.txt

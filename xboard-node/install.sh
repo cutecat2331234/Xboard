@@ -29,6 +29,11 @@ DEFAULT_LOG_LEVEL="info"
 DEFAULT_KERNEL_LOG_LEVEL="warn"
 DEFAULT_DOWNLOAD_BASE="https://github.com/cedar2025/xboard-node/releases"
 
+# Supply-chain integrity: when a downloaded artifact has a published "<asset>.sha256" companion we
+# verify it before installing. If the companion is missing we only WARN by default; set
+# XBOARD_NODE_REQUIRE_CHECKSUM=1 to make a verifiable checksum mandatory (missing => abort).
+REQUIRE_CHECKSUM="${XBOARD_NODE_REQUIRE_CHECKSUM:-0}"
+
 ACTION="${DEFAULT_ACTION}"
 MODE=""
 PANEL_URL=""
@@ -489,6 +494,52 @@ resolve_download_url() {
     fi
 }
 
+# Verify a downloaded artifact against its published "<url>.sha256" companion.
+#   $1 staged file path, $2 artifact download URL, $3 human label
+# Behaviour:
+#   - companion present + matches  -> OK
+#   - companion present + mismatch -> abort (tampered / corrupted download)
+#   - companion absent             -> WARN, or abort if REQUIRE_CHECKSUM=1
+verify_checksum() {
+    local staged="$1"
+    local artifact_url="$2"
+    local label="$3"
+    local sums_url="${artifact_url}.sha256"
+    local sums_file="${staged}.sha256"
+
+    if ! command -v sha256sum >/dev/null 2>&1; then
+        if [ "$REQUIRE_CHECKSUM" -eq 1 ]; then
+            log_error "${label}: sha256sum not available but XBOARD_NODE_REQUIRE_CHECKSUM=1 is set"
+            exit 1
+        fi
+        log_warn "${label}: sha256sum not available; skipping integrity verification"
+        return 0
+    fi
+
+    if ! curl -fsSL "$sums_url" -o "$sums_file" 2>/dev/null; then
+        if [ "$REQUIRE_CHECKSUM" -eq 1 ]; then
+            log_error "${label}: checksum file not found at ${sums_url} and XBOARD_NODE_REQUIRE_CHECKSUM=1 is set"
+            exit 1
+        fi
+        log_warn "${label}: no published checksum (${sums_url}); proceeding WITHOUT integrity verification (set XBOARD_NODE_REQUIRE_CHECKSUM=1 to require it)"
+        return 0
+    fi
+
+    # Published .sha256 may be "<hash>" or "<hash>  <filename>". Normalise to "<hash>  <staged>"
+    # so sha256sum -c checks the bytes we actually downloaded regardless of the recorded filename.
+    local expected
+    expected=$(awk '{print $1; exit}' "$sums_file")
+    if [ -z "$expected" ]; then
+        log_error "${label}: checksum file ${sums_url} is empty or malformed"
+        exit 1
+    fi
+    if ! echo "${expected}  ${staged}" | sha256sum -c - >/dev/null 2>&1; then
+        log_error "${label}: checksum verification FAILED (expected ${expected}); aborting install"
+        exit 1
+    fi
+    log_step "${label}: checksum verified"
+}
+
 stage_binary() {
     local staged="$TMP_DIR/xboard-node"
     local local_src
@@ -503,6 +554,7 @@ stage_binary() {
             log_error "Failed to download binary from ${DOWNLOAD_URL}"
             exit 1
         fi
+        verify_checksum "$staged" "$DOWNLOAD_URL" "xboard-node binary"
     fi
     chmod +x "$staged"
     if ! "$staged" -v >/dev/null 2>&1; then
@@ -535,6 +587,7 @@ stage_xbctl() {
             log_error "Failed to download xbctl from ${DOWNLOAD_URL}"
             exit 1
         fi
+        verify_checksum "$staged" "$DOWNLOAD_URL" "xbctl binary"
     fi
     chmod +x "$staged"
     if ! "$staged" version > /dev/null 2>&1; then

@@ -93,12 +93,17 @@ class ProvisionNodeJob implements ShouldQueue
 
             $probe = $this->stepProbe($task, $svc);
             $machine = $this->stepPreparePanel($task);
+
+            // Honour an out-of-band cancel before we mutate the remote box (install agent).
+            $this->checkCancelled($task);
             $this->stepInstallAgent($task, $svc, $machine, $probe);
 
             // SSH no longer required after install; close the session before waiting on health.
             $svc->disconnect();
             $svc = null;
 
+            // Honour an out-of-band cancel before we create the panel-side node record.
+            $this->checkCancelled($task);
             $server = $this->stepCreateServer($task, $machine);
             $this->stepWaitOnline($task, $machine, $server);
         } catch (ProvisioningHaltException $e) {
@@ -272,6 +277,16 @@ class ProvisionNodeJob implements ShouldQueue
     {
         $this->beginStep($task, ServerProvisioning::STEP_INSTALL_AGENT, ServerProvisioning::STATUS_INSTALLING, 'Installing node agent…');
 
+        // The target already carries an xboard-node binary (possibly someone else's node). We keep
+        // the existing re-provision semantics (the installer reconfigures in place) but make the
+        // takeover loud and auditable instead of silent.
+        if (!empty($probe['already_installed'])) {
+            $warning = 'Target host already has xboard-node installed at /usr/local/bin/xboard-node; '
+                . 're-provisioning will reconfigure it (possible takeover of an existing node). host=' . $task->host;
+            Log::warning('[ProvisionNodeJob] ' . $warning, ['provisioning_id' => $task->id, 'host' => $task->host]);
+            $this->appendLog($task, 'WARNING: ' . $warning);
+        }
+
         $kernel = (string) (data_get($task->node_params, 'kernel') ?: 'singbox');
         // Elevate the installer (and only the installer) when the SSH user is a NOPASSWD sudoer.
         $useSudo = (bool) ($probe['use_sudo'] ?? false);
@@ -430,6 +445,28 @@ class ProvisionNodeJob implements ShouldQueue
     // ---------------------------------------------------------------------
     // State-machine bookkeeping helpers
     // ---------------------------------------------------------------------
+
+    /**
+     * Honour an out-of-band cancellation between steps.
+     *
+     * The cancel endpoint writes STATUS_FAILED straight to the DB row. Our long-lived in-memory
+     * $task instance does not see that until we re-read it, and worse, the next step's save() would
+     * clobber the cancel back to a running status. We therefore refresh() from the DB (reloading the
+     * cancelled status/error into this instance so no later save() can resurrect the run) and, if it
+     * is now terminal, throw the halt signal to stop cleanly. The job's finally{} block still wipes
+     * credentials and releases the host lock.
+     */
+    private function checkCancelled(ServerProvisioning $task): void
+    {
+        $task->refresh();
+        if ($task->isTerminal()) {
+            Log::info('[ProvisionNodeJob] task is terminal mid-run (likely cancelled); halting.', [
+                'provisioning_id' => $task->id,
+                'status' => $task->status,
+            ]);
+            throw new ProvisioningHaltException();
+        }
+    }
 
     private function beginStep(ServerProvisioning $task, string $step, string $status, string $message): void
     {

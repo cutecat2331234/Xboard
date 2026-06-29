@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Server;
 use App\Models\ServerMachine;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -141,6 +142,37 @@ class ServerProvisionService
     }
 
     /**
+     * Columns the provisioner is allowed to set on a new v2_server, mirroring the node_params.*
+     * rules in ProvisionStart (which reuse ServerSave::getBaseRules() + protocol_settings) intersected
+     * with actual v2_server columns. Server uses $guarded = ['id'], so we MUST whitelist explicitly
+     * rather than blacklist — otherwise any extra validated key would be written as a real column.
+     *
+     * Excluded on purpose: id (auto), kernel (installer-only, not a column), spectific_key (not a
+     * column; the column is `code`), and the server-forced machine_id/enabled/show (set below).
+     */
+    private const ALLOWED_SERVER_COLUMNS = [
+        'type',
+        'code',
+        'name',
+        'group_ids',
+        'route_ids',
+        'parent_id',
+        'host',
+        'port',
+        'server_port',
+        'tags',
+        'rate',
+        'rate_time_enable',
+        'rate_time_ranges',
+        'custom_outbounds',
+        'custom_routes',
+        'cert_config',
+        'protocol_settings',
+        'transfer_enable',
+        'sort',
+    ];
+
+    /**
      * Create a v2_server bound to a machine, from a validated node_params payload.
      *
      * $nodeParams must already be validated (same shape as ServerSave validated output).
@@ -149,7 +181,12 @@ class ServerProvisionService
      */
     public static function createServerForMachine(int $machineId, array $nodeParams): Server
     {
-        $params = $nodeParams;
+        // Explicit allow-list: only known, validated Server columns survive. This prevents any
+        // attacker-influenced extra key in node_params from being passed through to Server::create()
+        // (which is $guarded = ['id'] and would otherwise treat stray keys as real columns).
+        $params = Arr::only($nodeParams, self::ALLOWED_SERVER_COLUMNS);
+
+        // Server-owned fields are forced here and can never be supplied by the caller.
         $params['machine_id'] = $machineId;
         // Default to enabled + hidden until the operator confirms it; mirrors "show" default false.
         if (!array_key_exists('enabled', $params)) {
@@ -158,9 +195,6 @@ class ServerProvisionService
         if (!array_key_exists('show', $params)) {
             $params['show'] = false;
         }
-        // Strip provisioning-only / non-column keys so Server::create() never hits a missing column.
-        // Server uses $guarded = ['id'], so any stray key would be treated as a real column.
-        unset($params['id'], $params['kernel']);
 
         return DB::transaction(function () use ($params) {
             return Server::create($params);
