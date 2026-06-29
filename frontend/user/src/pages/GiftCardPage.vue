@@ -6,7 +6,6 @@ import {
   NDataTable,
   NDescriptions,
   NDescriptionsItem,
-  NEmpty,
   NInput,
   NModal,
   NSpace,
@@ -247,9 +246,7 @@ onMounted(async () => {
   </n-card>
 
   <n-card :title="t('giftCard.historyTitle')" class="mt-4 rounded-md">
-    <n-empty v-if="!loadingHistory && history.length === 0" :description="t('giftCard.historyEmpty')" />
     <n-data-table
-      v-else
       remote
       :columns="columns"
       :data="history"
@@ -265,7 +262,9 @@ onMounted(async () => {
         onUpdatePage: onPageChange,
         onUpdatePageSize: onPageSizeChange,
       }"
-    />
+    >
+      <template #empty>{{ t('giftCard.historyEmpty') }}</template>
+    </n-data-table>
   </n-card>
 
   <n-modal

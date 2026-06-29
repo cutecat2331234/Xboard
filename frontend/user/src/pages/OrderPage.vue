@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NDataTable, NDivider, NEmpty, NSelect, NTag, useMessage, useDialog, type DataTableColumns, type SelectOption } from 'naive-ui'
+import { NButton, NDataTable, NDivider, NSelect, NTag, useMessage, useDialog, type DataTableColumns, type SelectOption } from 'naive-ui'
 import { fetchOrders, cancelOrder, fetchFirstBlockingOrder, type OrderItem, canCancelOrder } from '@/api/order'
 import { PERIOD_OPTIONS } from '@/api/plan'
 import { ORDER_STATUS_KEYS, orderStatusLabel } from '@/lib/order-status'
@@ -212,9 +212,7 @@ onMounted(async () => {
         clearable
       />
     </div>
-    <n-empty v-if="!loading && rows.length === 0" :description="t('order.empty')" />
     <n-data-table
-      v-else
       remote
       class="order-list-table"
       :columns="columns"
@@ -231,7 +229,9 @@ onMounted(async () => {
         onUpdatePage: onPageChange,
         onUpdatePageSize: onPageSizeChange,
       }"
-    />
+    >
+      <template #empty>{{ t('order.empty') }}</template>
+    </n-data-table>
   </div>
 </template>
 

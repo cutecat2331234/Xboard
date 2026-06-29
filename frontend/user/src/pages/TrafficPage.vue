@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from 'vue'
-import { NAlert, NCard, NDataTable, NEmpty, NIcon, NPopover, NTag, useMessage } from 'naive-ui'
+import { NAlert, NCard, NDataTable, NIcon, NPopover, NTag, useMessage } from 'naive-ui'
 import { HelpCircleOutline } from '@vicons/ionicons5'
 import { fetchTrafficLog } from '@/api/traffic'
 import { formatBytes } from '@/lib/format-traffic'
@@ -101,8 +101,9 @@ onMounted(async () => {
     <n-alert v-if="loadError" type="error" :bordered="false" class="traffic-alert">
       {{ t('errors.requestFailed') }}
     </n-alert>
-    <n-empty v-else-if="!loading && rows.length === 0" :description="t('traffic.empty')" />
-    <n-data-table v-else :loading="loading" :columns="columns" :data="rows" :scroll-x="600" />
+    <n-data-table :loading="loading" :columns="columns" :data="rows" :scroll-x="600">
+      <template #empty>{{ t('traffic.empty') }}</template>
+    </n-data-table>
   </n-card>
 </template>
 

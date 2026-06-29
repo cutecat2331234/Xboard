@@ -5,7 +5,6 @@ import {
   NButton,
   NCard,
   NDataTable,
-  NEmpty,
   NForm,
   NFormItem,
   NInput,
@@ -216,9 +215,7 @@ onMounted(() => {
     <template #header-extra>
       <n-button type="primary" round size="small" @click="showCreate = true">{{ t('ticket.new') }}</n-button>
     </template>
-    <n-empty v-if="!loading && rows.length === 0" :description="t('ticket.empty')" />
     <n-data-table
-      v-else
       remote
       :columns="columns"
       :data="rows"
@@ -233,7 +230,9 @@ onMounted(() => {
         onUpdatePage: onPageChange,
         onUpdatePageSize: onPageSizeChange,
       }"
-    />
+    >
+      <template #empty>{{ t('ticket.empty') }}</template>
+    </n-data-table>
   </n-card>
 
   <n-modal v-model:show="showCreate" preset="card" :title="t('ticket.new')" style="width: 600px">
@@ -241,7 +240,7 @@ onMounted(() => {
       <n-form-item :label="t('ticket.subject')">
         <n-input v-model:value="subject" :placeholder="t('ticket.subjectPh')" />
       </n-form-item>
-      <n-form-item v-if="ticketTypeOptions.length" :label="t('ticket.type')">
+      <n-form-item :label="t('ticket.type')">
         <n-select
           v-model:value="ticketTypeId"
           :options="ticketTypeOptions"
