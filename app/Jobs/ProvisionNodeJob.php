@@ -162,7 +162,12 @@ class ProvisionNodeJob implements ShouldQueue
     /**
      * Step 2 — probe OS / arch / systemd / privileges / whether already installed.
      *
-     * @return array{arch:string,os:string,has_systemd:bool,is_root:bool,already_installed:bool}
+     * Privilege model: the installer needs root. We accept either a root SSH user (uid 0) or a
+     * non-root user with PASSWORDLESS sudo. When sudo is required, `use_sudo` is set so the
+     * install step prefixes its (and only its) commands with `sudo -n`. Read-only probe commands
+     * never use sudo.
+     *
+     * @return array{arch:string,os:string,has_systemd:bool,is_root:bool,use_sudo:bool,already_installed:bool}
      */
     private function stepProbe(ServerProvisioning $task, ProvisioningService $svc): array
     {
@@ -199,10 +204,19 @@ class ProvisionNodeJob implements ShouldQueue
             $this->failTask($task, ServerProvisioning::STEP_PROBE, 'Target host is not running systemd (required by the installer).');
             throw new ProvisioningHaltException();
         }
+        // Privilege: accept root directly, or a non-root user with passwordless sudo. Cloud images
+        // (OCI/AWS/GCP) commonly disable root SSH and ship a NOPASSWD sudo user (opc/ubuntu/ec2-user).
+        $useSudo = false;
         if (!$isRoot) {
-            // Phase 1 requires root/sudo-without-password; the installer needs systemd-level privilege.
-            $this->failTask($task, ServerProvisioning::STEP_PROBE, 'SSH user is not root. Phase 1 requires a root account.');
-            throw new ProvisioningHaltException();
+            // `sudo -n true` is non-interactive: exit 0 iff sudo is available without a password.
+            [, $sudoExit] = $svc->runCommand('sudo -n true 2>/dev/null', 30);
+            if ($sudoExit === 0) {
+                $useSudo = true;
+                $this->appendLog($task, 'SSH user is not root; passwordless sudo detected — installer will run via sudo.');
+            } else {
+                $this->failTask($task, ServerProvisioning::STEP_PROBE, 'SSH user is not root and passwordless sudo is unavailable; provide a root user or a sudo-capable user with NOPASSWD.');
+                throw new ProvisioningHaltException();
+            }
         }
         if (!$supportedOs) {
             // Non-fatal: installer continues best-effort, but record a warning.
@@ -214,6 +228,7 @@ class ProvisionNodeJob implements ShouldQueue
             'os' => $os,
             'has_systemd' => $hasSystemd,
             'is_root' => $isRoot,
+            'use_sudo' => $useSudo,
             'already_installed' => $alreadyInstalled,
         ];
 
@@ -251,21 +266,23 @@ class ProvisionNodeJob implements ShouldQueue
      * Step 4 — run install.sh over SSH (machine mode). Prefer streaming the bundled script via
      * stdin; fall back to curl|bash when the repo copy is unavailable.
      *
-     * @param array{arch:string,os:string,has_systemd:bool,is_root:bool,already_installed:bool} $probe
+     * @param array{arch:string,os:string,has_systemd:bool,is_root:bool,use_sudo:bool,already_installed:bool} $probe
      */
     private function stepInstallAgent(ServerProvisioning $task, ProvisioningService $svc, ServerMachine $machine, array $probe): void
     {
         $this->beginStep($task, ServerProvisioning::STEP_INSTALL_AGENT, ServerProvisioning::STATUS_INSTALLING, 'Installing node agent…');
 
         $kernel = (string) (data_get($task->node_params, 'kernel') ?: 'singbox');
+        // Elevate the installer (and only the installer) when the SSH user is a NOPASSWD sudoer.
+        $useSudo = (bool) ($probe['use_sudo'] ?? false);
         $scriptBody = ServerProvisionService::installerScriptBody();
 
         try {
             if ($scriptBody !== null) {
-                $invocation = ServerProvisionService::buildStdinInvocation($machine, $kernel);
+                $invocation = ServerProvisionService::buildStdinInvocation($machine, $kernel, $useSudo);
                 [$out, $exit] = $svc->runScript($scriptBody, $invocation, ProvisioningService::DEFAULT_COMMAND_TIMEOUT);
             } else {
-                $command = ServerProvisionService::buildCurlInstallCommand($machine, $kernel);
+                $command = ServerProvisionService::buildCurlInstallCommand($machine, $kernel, $useSudo);
                 [$out, $exit] = $svc->runCommand($command, ProvisioningService::DEFAULT_COMMAND_TIMEOUT);
             }
         } catch (\Throwable $e) {

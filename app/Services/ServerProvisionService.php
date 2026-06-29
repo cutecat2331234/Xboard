@@ -81,22 +81,38 @@ class ServerProvisionService
     }
 
     /**
+     * Privilege-elevation prefix for installer commands.
+     *
+     * - root (uid 0): empty string — run directly (a minimal image may not even ship `sudo`).
+     * - non-root with passwordless sudo: "sudo -n " — `-n` keeps it non-interactive so it can
+     *   never block on a password prompt over the TTY-less exec channel (the probe step already
+     *   verified `sudo -n true` succeeds before we get here).
+     */
+    private static function sudoPrefix(bool $useSudo): string
+    {
+        return $useSudo ? 'sudo -n ' : '';
+    }
+
+    /**
      * Full remote invocation when streaming the bundled script over stdin.
      * "__SCRIPT__" is a placeholder ProvisioningService::runScript() replaces with the temp path.
+     * Set $useSudo when the SSH user is not root but has passwordless sudo.
      */
-    public static function buildStdinInvocation(ServerMachine $machine, string $kernel = 'singbox'): string
+    public static function buildStdinInvocation(ServerMachine $machine, string $kernel = 'singbox', bool $useSudo = false): string
     {
-        return 'sudo bash __SCRIPT__ ' . self::buildMachineInstallArgs($machine, $kernel);
+        return self::sudoPrefix($useSudo) . 'bash __SCRIPT__ ' . self::buildMachineInstallArgs($machine, $kernel);
     }
 
     /**
      * Full remote command for the curl|bash fallback (machine can reach GitHub).
+     * Set $useSudo when the SSH user is not root but has passwordless sudo.
      */
-    public static function buildCurlInstallCommand(ServerMachine $machine, string $kernel = 'singbox'): string
+    public static function buildCurlInstallCommand(ServerMachine $machine, string $kernel = 'singbox', bool $useSudo = false): string
     {
         return sprintf(
-            'curl -fsSL %s | sudo bash -s -- %s',
+            'curl -fsSL %s | %sbash -s -- %s',
             escapeshellarg(self::installerUrl()),
+            self::sudoPrefix($useSudo),
             self::buildMachineInstallArgs($machine, $kernel)
         );
     }
