@@ -3,8 +3,8 @@
     "file": "assets/editor-mNYLG6FW.css",
     "src": "_editor-mNYLG6FW.css"
   },
-  "_editor.api2-BY9s5bAx.js": {
-    "file": "assets/editor.api2-BY9s5bAx.js",
+  "_editor.api2-CY5HXBu2.js": {
+    "file": "assets/editor.api2-CY5HXBu2.js",
     "name": "editor.api2",
     "imports": [
       "index.html"
@@ -16,33 +16,33 @@
       "assets/codicon-ngg6Pgfi.ttf"
     ]
   },
-  "_lspLanguageFeatures-BgLcX6Il.js": {
-    "file": "assets/lspLanguageFeatures-BgLcX6Il.js",
+  "_lspLanguageFeatures-OPbX3vYK.js": {
+    "file": "assets/lspLanguageFeatures-OPbX3vYK.js",
     "name": "lspLanguageFeatures",
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
-  "_monaco.contribution-Lmbw5LGP.js": {
-    "file": "assets/monaco.contribution-Lmbw5LGP.js",
+  "_monaco.contribution-B0T8m2wH.js": {
+    "file": "assets/monaco.contribution-B0T8m2wH.js",
     "name": "monaco.contribution",
     "imports": [
       "index.html",
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ],
     "dynamicImports": [
       "node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js"
     ]
   },
-  "_workers-_a9Pr97z.js": {
-    "file": "assets/workers-_a9Pr97z.js",
+  "_workers-DttrdaxP.js": {
+    "file": "assets/workers-DttrdaxP.js",
     "name": "workers",
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "index.html": {
-    "file": "assets/index-k1T5J_T2.js",
+    "file": "assets/index-CC0Z6dy3.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -50,7 +50,7 @@
       "node_modules/monaco-editor/esm/vs/editor/editor.main.js"
     ],
     "css": [
-      "assets/index-DDLQIjzq.css"
+      "assets/index-D0Nw3jcz.css"
     ]
   },
   "node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.ttf": {
@@ -166,12 +166,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/freemarker2/freemarker2.js": {
-    "file": "assets/freemarker2-Cgv4U9nL.js",
+    "file": "assets/freemarker2-YjHwhcZ_.js",
     "name": "freemarker2",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/freemarker2/freemarker2.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js": {
@@ -193,12 +193,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/handlebars/handlebars.js": {
-    "file": "assets/handlebars-t9eK0RHr.js",
+    "file": "assets/handlebars-D4Dzyr5b.js",
     "name": "handlebars",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/handlebars/handlebars.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/hcl/hcl.js": {
@@ -208,12 +208,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/html/html.js": {
-    "file": "assets/html-CqgZpBzb.js",
+    "file": "assets/html-Co900itP.js",
     "name": "html",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/html/html.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/ini/ini.js": {
@@ -229,7 +229,7 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/javascript/javascript.js": {
-    "file": "assets/javascript-DxGiA4UC.js",
+    "file": "assets/javascript-SCbbNjw-.js",
     "name": "javascript",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/javascript/javascript.js",
     "isDynamicEntry": true,
@@ -262,12 +262,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/liquid/liquid.js": {
-    "file": "assets/liquid-E7sMFNJp.js",
+    "file": "assets/liquid-DGvkLobV.js",
     "name": "liquid",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/liquid/liquid.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/lua/lua.js": {
@@ -289,12 +289,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/mdx/mdx.js": {
-    "file": "assets/mdx-BO7JrYF8.js",
+    "file": "assets/mdx-CprCHJXN.js",
     "name": "mdx",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/mdx/mdx.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/mips/mips.js": {
@@ -388,12 +388,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/python/python.js": {
-    "file": "assets/python-C9rWatQv.js",
+    "file": "assets/python-DZsTYnh3.js",
     "name": "python",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/python/python.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/qsharp/qsharp.js": {
@@ -409,12 +409,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/razor/razor.js": {
-    "file": "assets/razor-Cz_QRwzW.js",
+    "file": "assets/razor-DQoQqEwy.js",
     "name": "razor",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/razor/razor.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/redis/redis.js": {
@@ -532,12 +532,12 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/typescript/typescript.js": {
-    "file": "assets/typescript-Dc-YMlI4.js",
+    "file": "assets/typescript-CZcwfi_2.js",
     "name": "typescript",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/typescript/typescript.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/typespec/typespec.js": {
@@ -559,33 +559,33 @@
     "isDynamicEntry": true
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/xml/xml.js": {
-    "file": "assets/xml-BmoXV9Dw.js",
+    "file": "assets/xml-H-1cj6kB.js",
     "name": "xml",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/xml/xml.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/basic-languages/yaml/yaml.js": {
-    "file": "assets/yaml-C8saEX7D.js",
+    "file": "assets/yaml-D32eMQX2.js",
     "name": "yaml",
     "src": "node_modules/monaco-editor/esm/vs/basic-languages/yaml/yaml.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js"
+      "_editor.api2-CY5HXBu2.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/editor/editor.main.js": {
-    "file": "assets/editor.main-C8ZThK1A.js",
+    "file": "assets/editor.main-DOqUfWiQ.js",
     "name": "editor.main",
     "src": "node_modules/monaco-editor/esm/vs/editor/editor.main.js",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_editor.api2-BY9s5bAx.js",
-      "_workers-_a9Pr97z.js",
-      "_monaco.contribution-Lmbw5LGP.js"
+      "_editor.api2-CY5HXBu2.js",
+      "_workers-DttrdaxP.js",
+      "_monaco.contribution-B0T8m2wH.js"
     ],
     "dynamicImports": [
       "node_modules/monaco-editor/esm/vs/language/css/cssMode.js",
@@ -675,47 +675,47 @@
     ]
   },
   "node_modules/monaco-editor/esm/vs/language/css/cssMode.js": {
-    "file": "assets/cssMode-PyBpS7Xx.js",
+    "file": "assets/cssMode-I7hPD9WK.js",
     "name": "cssMode",
     "src": "node_modules/monaco-editor/esm/vs/language/css/cssMode.js",
     "isDynamicEntry": true,
     "imports": [
-      "_lspLanguageFeatures-BgLcX6Il.js",
-      "_editor.api2-BY9s5bAx.js",
-      "_workers-_a9Pr97z.js"
+      "_lspLanguageFeatures-OPbX3vYK.js",
+      "_editor.api2-CY5HXBu2.js",
+      "_workers-DttrdaxP.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/language/html/htmlMode.js": {
-    "file": "assets/htmlMode-BNAm0CiZ.js",
+    "file": "assets/htmlMode-Ek0HFBr2.js",
     "name": "htmlMode",
     "src": "node_modules/monaco-editor/esm/vs/language/html/htmlMode.js",
     "isDynamicEntry": true,
     "imports": [
-      "_lspLanguageFeatures-BgLcX6Il.js",
-      "_editor.api2-BY9s5bAx.js",
-      "_workers-_a9Pr97z.js"
+      "_lspLanguageFeatures-OPbX3vYK.js",
+      "_editor.api2-CY5HXBu2.js",
+      "_workers-DttrdaxP.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/language/json/jsonMode.js": {
-    "file": "assets/jsonMode-nqvOAZS9.js",
+    "file": "assets/jsonMode-26iD-Ntx.js",
     "name": "jsonMode",
     "src": "node_modules/monaco-editor/esm/vs/language/json/jsonMode.js",
     "isDynamicEntry": true,
     "imports": [
-      "_lspLanguageFeatures-BgLcX6Il.js",
-      "_editor.api2-BY9s5bAx.js",
-      "_workers-_a9Pr97z.js"
+      "_lspLanguageFeatures-OPbX3vYK.js",
+      "_editor.api2-CY5HXBu2.js",
+      "_workers-DttrdaxP.js"
     ]
   },
   "node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js": {
-    "file": "assets/tsMode-lP80wGK_.js",
+    "file": "assets/tsMode-BJlHw1Ul.js",
     "name": "tsMode",
     "src": "node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js",
     "isDynamicEntry": true,
     "imports": [
-      "_editor.api2-BY9s5bAx.js",
-      "_workers-_a9Pr97z.js",
-      "_monaco.contribution-Lmbw5LGP.js"
+      "_editor.api2-CY5HXBu2.js",
+      "_workers-DttrdaxP.js",
+      "_monaco.contribution-B0T8m2wH.js"
     ]
   }
 }

@@ -210,6 +210,68 @@ window.XBOARD_TRANSLATIONS['zh-CN'] = {
       "machineIdNone": "独立部署",
       "enabled": "在服务器上激活",
       "enabledDescription": "节点是否在所选服务器上启用运行"
+    },
+    "provision": {
+      "entry": "SSH 一键加节点",
+      "title": "SSH 一键自动加节点",
+      "description": "填写 SSH 连接信息与节点参数，面板将自动登录目标机、安装代理、创建节点并等待其上线。",
+      "steps": {
+        "ssh": "SSH 连接",
+        "node": "节点参数",
+        "progress": "执行进度"
+      },
+      "ssh": {
+        "host": "主机",
+        "hostPlaceholder": "目标服务器 IP 或域名",
+        "port": "SSH 端口",
+        "user": "SSH 用户",
+        "authMethod": "认证方式",
+        "authPassword": "密码",
+        "authKey": "私钥",
+        "password": "密码",
+        "passwordPlaceholder": "SSH 登录密码",
+        "privateKey": "私钥（PEM / OpenSSH）",
+        "passphrase": "私钥密码",
+        "securityHint": "凭据仅用于本次安装，绝不会保存在服务器上。"
+      },
+      "node": {
+        "kernel": "内核",
+        "machine": "服务器（机器）",
+        "machineNew": "自动新建服务器",
+        "machineHint": "选择一台已有服务器，或留空以自动创建。"
+      },
+      "progressSteps": {
+        "connect": "SSH 连接",
+        "probe": "探测目标服务器",
+        "prepare_panel": "准备面板记录",
+        "install_agent": "安装节点代理",
+        "create_server": "创建节点记录",
+        "wait_online": "等待节点上线"
+      },
+      "result": {
+        "done": "置备完成，节点已上线。",
+        "failed": "置备失败。",
+        "timeout": "置备超时，记录已保留，可稍后排查或重试。",
+        "hostKey": "主机密钥指纹",
+        "log": "日志",
+        "noLog": "暂无日志输出。"
+      },
+      "actions": {
+        "back": "上一步",
+        "next": "下一步",
+        "start": "开始置备",
+        "retry": "重试",
+        "cancel": "取消任务"
+      },
+      "errors": {
+        "hostRequired": "请填写 SSH 主机",
+        "userRequired": "请填写 SSH 用户",
+        "passwordRequired": "请填写 SSH 密码",
+        "keyRequired": "请填写私钥",
+        "nameRequired": "请填写节点名称",
+        "nodeHostRequired": "请填写节点主机",
+        "credentialsExpired": "凭据已不在内存中，请重新填写后再重试。"
+      }
     }
   },
   "common": {

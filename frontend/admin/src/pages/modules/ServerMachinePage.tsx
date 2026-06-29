@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { IconDots } from '@tabler/icons-react'
-import { Copy, Plus } from 'lucide-react'
+import { Copy, Plus, Terminal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { toastApiError } from '@/lib/api-errors'
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { buildQuery, fetchJsonList, fetchJsonObject, postJson } from '@/lib/api'
 import { useInFlightGuard } from '@/lib/use-in-flight-guard'
 import { inputCls } from '@/lib/form-styles'
+import { ProvisionWizardDialog } from '@/components/server/ProvisionWizardDialog'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,6 +40,8 @@ type MachineRow = {
   load_status?: string
   created_at?: number
 }
+
+type GroupRow = { id?: number; name?: string }
 
 type NodeItem = {
   id?: number
@@ -84,8 +87,10 @@ export default function ServerMachinePage() {
   const runGuarded = useInFlightGuard()
   const navigate = useNavigate()
   const [data, setData] = useState<MachineRow[]>([])
+  const [groups, setGroups] = useState<GroupRow[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [provisionOpen, setProvisionOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<MachineRow | null>(null)
   const [form, setForm] = useState({ name: '', notes: '', is_active: true })
@@ -100,8 +105,11 @@ export default function ServerMachinePage() {
 
   const load = useCallback(() => {
     setLoading(true)
-    fetchJsonList('/server/machine/fetch')
-      .then((rows) => setData(rows as MachineRow[]))
+    Promise.all([fetchJsonList('/server/machine/fetch'), fetchJsonList('/server/group/fetch')])
+      .then(([rows, grps]) => {
+        setData(rows as MachineRow[])
+        setGroups(grps as GroupRow[])
+      })
       .catch((e) => toastApiError(e, toast, t, t('common.error')))
       .finally(() => setLoading(false))
   }, [t])
@@ -316,6 +324,15 @@ export default function ServerMachinePage() {
               <Plus className="mr-2 h-4 w-4" />
               {t('machine.form.add')}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={() => setProvisionOpen(true)}
+            >
+              <Terminal className="mr-2 h-4 w-4" />
+              {t('machine.provision.entry')}
+            </Button>
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -326,6 +343,14 @@ export default function ServerMachinePage() {
           <DataTable columns={columns} data={filtered} loading={loading} />
         </div>
       </div>
+
+      <ProvisionWizardDialog
+        open={provisionOpen}
+        onOpenChange={setProvisionOpen}
+        groups={groups}
+        machines={data}
+        onDone={load}
+      />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

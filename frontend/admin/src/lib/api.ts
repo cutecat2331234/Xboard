@@ -506,6 +506,140 @@ export async function generateEchKey(publicName?: string): Promise<EchKeyPair> {
   })
 }
 
+// --- SSH auto node provisioning (Phase 1) ---------------------------------
+
+export type ProvisionAuthMethod = 'password' | 'key'
+
+export type ProvisionStatus =
+  | 'pending'
+  | 'connecting'
+  | 'probing'
+  | 'preparing'
+  | 'installing'
+  | 'creating'
+  | 'waiting'
+  | 'done'
+  | 'failed'
+  | 'timeout'
+
+export type ProvisionStepStatus = 'running' | 'done' | 'failed' | 'timeout'
+
+export type ProvisionStepName =
+  | 'connect'
+  | 'probe'
+  | 'prepare_panel'
+  | 'install_agent'
+  | 'create_server'
+  | 'wait_online'
+
+export interface ProvisionStep {
+  step: ProvisionStepName | string
+  status: ProvisionStepStatus | string
+  started_at?: number | null
+  finished_at?: number | null
+}
+
+/** Node parameters snapshot sent with a provision request (non-sensitive). */
+export interface ProvisionNodeParams {
+  type: string
+  name: string
+  host: string
+  port: string | number
+  server_port: number
+  rate: number
+  group_ids: number[]
+  protocol_settings: Record<string, unknown>
+  kernel?: 'singbox' | 'xray'
+  machine_id?: number | null
+  [key: string]: unknown
+}
+
+/** SSH credentials — only ever sent on start/retry, never persisted. */
+export interface ProvisionCredentials {
+  host: string
+  port?: number
+  ssh_user: string
+  auth_method: ProvisionAuthMethod
+  password?: string
+  private_key?: string
+  passphrase?: string
+}
+
+export interface ProvisionStartPayload extends ProvisionCredentials {
+  node_params: ProvisionNodeParams
+}
+
+export interface ProvisionStartResult {
+  provision_id: number
+  status: ProvisionStatus
+}
+
+export interface ProvisionStatusResult {
+  id: number
+  status: ProvisionStatus
+  current_step?: string | null
+  steps?: ProvisionStep[]
+  host?: string
+  port?: number
+  ssh_user?: string
+  auth_method?: ProvisionAuthMethod
+  host_key_fingerprint?: string | null
+  mode?: string
+  machine_id?: number | null
+  server_id?: number | null
+  log?: string
+  error?: string | null
+  created_at?: number
+  updated_at?: number
+}
+
+export interface ProvisionSummary {
+  id: number
+  status: ProvisionStatus
+  current_step?: string | null
+  host?: string
+  port?: number
+  ssh_user?: string
+  auth_method?: ProvisionAuthMethod
+  mode?: string
+  machine_id?: number | null
+  server_id?: number | null
+  error?: string | null
+  created_at?: number
+  updated_at?: number
+}
+
+/** POST /server/provision/start — kick off SSH provisioning, returns provision_id. */
+export async function startProvision(
+  payload: ProvisionStartPayload,
+): Promise<ProvisionStartResult> {
+  return postJson<ProvisionStartResult>('/server/provision/start', payload)
+}
+
+/** GET /server/provision/status?id= — poll provisioning progress (no credentials echoed). */
+export async function getProvisionStatus(id: number): Promise<ProvisionStatusResult> {
+  return fetchJsonObject<ProvisionStatusResult>(`/server/provision/status${buildQuery({ id })}`)
+}
+
+/** GET /server/provision/list?limit= — provisioning history (summaries, no log). */
+export async function listProvision(limit?: number): Promise<ProvisionSummary[]> {
+  const rows = await fetchJsonList('/server/provision/list', { limit })
+  return rows as ProvisionSummary[]
+}
+
+/** POST /server/provision/retry — retry from failed step; credentials must be resubmitted. */
+export async function retryProvision(
+  id: number,
+  creds: ProvisionCredentials,
+): Promise<ProvisionStartResult> {
+  return postJson<ProvisionStartResult>('/server/provision/retry', { id, ...creds })
+}
+
+/** POST /server/provision/cancel — cancel / clean up a provisioning task. */
+export async function cancelProvision(id: number): Promise<unknown> {
+  return postJson('/server/provision/cancel', { id })
+}
+
 export async function fetchConfig(): Promise<Record<string, unknown>> {
   return fetchJsonObject<Record<string, unknown>>('/config/fetch')
 }

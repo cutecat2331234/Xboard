@@ -212,6 +212,68 @@ window.XBOARD_TRANSLATIONS['en-US'] = {
       "machineIdNone": "Standalone deployment",
       "enabled": "Enabled on Server",
       "enabledDescription": "Whether the node is activated on the selected server"
+    },
+    "provision": {
+      "entry": "SSH Auto Provision",
+      "title": "SSH Auto Node Provisioning",
+      "description": "Provide SSH access and node parameters; the panel will connect, install the agent, create the node and wait for it to come online.",
+      "steps": {
+        "ssh": "SSH",
+        "node": "Node",
+        "progress": "Progress"
+      },
+      "ssh": {
+        "host": "Host",
+        "hostPlaceholder": "Target server IP or domain",
+        "port": "SSH Port",
+        "user": "SSH User",
+        "authMethod": "Authentication",
+        "authPassword": "Password",
+        "authKey": "Private Key",
+        "password": "Password",
+        "passwordPlaceholder": "SSH login password",
+        "privateKey": "Private Key (PEM / OpenSSH)",
+        "passphrase": "Key Passphrase",
+        "securityHint": "Credentials are used only for this installation and are never stored on the server."
+      },
+      "node": {
+        "kernel": "Kernel",
+        "machine": "Server (Machine)",
+        "machineNew": "Create a new server",
+        "machineHint": "Pick an existing server, or leave empty to create one automatically."
+      },
+      "progressSteps": {
+        "connect": "Connect via SSH",
+        "probe": "Probe target server",
+        "prepare_panel": "Prepare panel record",
+        "install_agent": "Install node agent",
+        "create_server": "Create node record",
+        "wait_online": "Wait for node online"
+      },
+      "result": {
+        "done": "Provisioning completed. The node is online.",
+        "failed": "Provisioning failed.",
+        "timeout": "Provisioning timed out. The record is kept for you to investigate or retry.",
+        "hostKey": "Host Key Fingerprint",
+        "log": "Log",
+        "noLog": "No log output yet."
+      },
+      "actions": {
+        "back": "Back",
+        "next": "Next",
+        "start": "Start Provisioning",
+        "retry": "Retry",
+        "cancel": "Cancel Task"
+      },
+      "errors": {
+        "hostRequired": "SSH host is required",
+        "userRequired": "SSH user is required",
+        "passwordRequired": "SSH password is required",
+        "keyRequired": "Private key is required",
+        "nameRequired": "Node name is required",
+        "nodeHostRequired": "Node host is required",
+        "credentialsExpired": "Credentials are no longer in memory, please re-enter them to retry."
+      }
     }
   },
   "common": {
