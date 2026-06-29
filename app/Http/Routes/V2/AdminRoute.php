@@ -8,6 +8,7 @@ use App\Http\Controllers\V2\Admin\Server\GroupController;
 use App\Http\Controllers\V2\Admin\Server\RouteController;
 use App\Http\Controllers\V2\Admin\Server\ManageController;
 use App\Http\Controllers\V2\Admin\Server\MachineController;
+use App\Http\Controllers\V2\Admin\Server\ProvisionController;
 use App\Http\Controllers\V2\Admin\OrderController;
 use App\Http\Controllers\V2\Admin\UserController;
 use App\Http\Controllers\V2\Admin\StatController;
@@ -110,6 +111,17 @@ class AdminRoute
                 $router->get('/installCommand', [MachineController::class, 'installCommand']);
                 $router->get('/nodes', [MachineController::class, 'nodes']);
                 $router->get('/history', [MachineController::class, 'history']);
+            });
+
+            // SSH 一键自动加节点（置备）接口
+            $router->group([
+                'prefix' => 'server/provision'
+            ], function ($router) {
+                $router->post('/start', [ProvisionController::class, 'start']);
+                $router->get('/status', [ProvisionController::class, 'status']);
+                $router->get('/list', [ProvisionController::class, 'list']);
+                $router->post('/retry', [ProvisionController::class, 'retry']);
+                $router->post('/cancel', [ProvisionController::class, 'cancel']);
             });
 
             // Order

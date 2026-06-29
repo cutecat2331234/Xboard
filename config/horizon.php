@@ -198,6 +198,21 @@ return [
                 'timeout' => 120,
                 'backoff' => [10, 30, 60],
             ],
+            // Dedicated supervisor for long-running SSH provisioning jobs. timeout must exceed
+            // ProvisionNodeJob::$timeout (600s); retry_after is implied larger so a slow run is
+            // not picked up twice.
+            'provision' => [
+                'connection' => 'redis-provision',
+                'queue' => ['provision'],
+                'balance' => 'simple',
+                'minProcesses' => 1,
+                'maxProcesses' => (int) env('HORIZON_PROVISION_MAX', 3),
+                'memory' => (int) env('HORIZON_PROVISION_MEMORY_MB', 256),
+                'maxTime' => (int) env('HORIZON_WORKER_MAX_TIME', 3600),
+                'maxJobs' => (int) env('HORIZON_WORKER_MAX_JOBS', 1000),
+                'tries' => 1,
+                'timeout' => 660,
+            ],
             'notification' => [
                 'connection' => 'redis',
                 'queue' => ['send_email', 'send_telegram', 'send_email_mass', 'node_sync'],
@@ -234,6 +249,15 @@ return [
                 'timeout' => 60,
                 'balanceCooldown' => 3,
             ],
+            'provision' => [
+                'connection' => 'redis-provision',
+                'queue' => ['provision'],
+                'balance' => 'simple',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'tries' => 1,
+                'timeout' => 660,
+            ],
         ],
         'staging' => [
             'Xboard' => [
@@ -245,6 +269,15 @@ return [
                 'tries' => 3,
                 'timeout' => 120,
                 'balanceCooldown' => 3,
+            ],
+            'provision' => [
+                'connection' => 'redis-provision',
+                'queue' => ['provision'],
+                'balance' => 'simple',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'tries' => 1,
+                'timeout' => 660,
             ],
         ],
         'testing' => [
@@ -258,6 +291,15 @@ return [
                 'timeout' => 60,
                 'balanceCooldown' => 3,
             ],
+            'provision' => [
+                'connection' => 'redis-provision',
+                'queue' => ['provision'],
+                'balance' => 'simple',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'tries' => 1,
+                'timeout' => 660,
+            ],
         ],
         'development' => [
             'Xboard' => [
@@ -269,6 +311,15 @@ return [
                 'tries' => 1,
                 'timeout' => 60,
                 'balanceCooldown' => 3,
+            ],
+            'provision' => [
+                'connection' => 'redis-provision',
+                'queue' => ['provision'],
+                'balance' => 'simple',
+                'minProcesses' => 1,
+                'maxProcesses' => 2,
+                'tries' => 1,
+                'timeout' => 660,
             ],
         ],
     ],

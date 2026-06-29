@@ -66,6 +66,17 @@ return [
             'block_for' => null,
         ],
 
+        // Dedicated connection for long-running SSH provisioning jobs. retry_after MUST exceed
+        // ProvisionNodeJob::$timeout (600s) + the supervisor timeout (660s) so a slow-but-alive
+        // job is never re-reserved and executed twice while it is still running.
+        'redis-provision' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+            'queue' => 'provision',
+            'retry_after' => 900,
+            'block_for' => null,
+        ],
+
     ],
 
     /*

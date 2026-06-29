@@ -109,7 +109,7 @@ class ServerSave extends FormRequest
         ],
     ];
 
-    private function getBaseRules(): array
+    protected function getBaseRules(): array
     {
         return [
             'type' => 'required|in:' . implode(',', Server::VALID_TYPES),
@@ -142,7 +142,7 @@ class ServerSave extends FormRequest
         ];
     }
 
-    private function getProtocolRules(string $type): array
+    protected function getProtocolRules(string $type): array
     {
         $rules = self::PROTOCOL_RULES[$type] ?? [];
 
