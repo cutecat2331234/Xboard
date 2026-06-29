@@ -421,8 +421,25 @@ const MenuToggleIcon = {
   min-height: 0;
   flex: 1;
 }
+/* Naive's n-layout wraps the header + content in its own
+   .n-layout-scroll-container. By default that container is display:block and
+   scrollable, so when content overflows the WHOLE column (header included)
+   scrolls. Make it a non-scrolling flex column instead so the header stays
+   fixed and .app-main-outer flexes to the remaining height; the single
+   scroller is then .app-scroll-main inside it. */
+.app-layout-inner > :deep(.n-layout-scroll-container) {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
 .app-sider { background: var(--xb-surface); }
-.app-sider :deep(.n-menu-item-content--selected::before) {
+/* Selected indicator: a 3px teal bar drawn on ::after so it is never
+   touched by Naive's :hover/active ::before background rules. This keeps
+   the bar visible in every state (default / hover / focus). Naive's own
+   ::before still provides the full-width highlight pill (gray on hover). */
+.app-sider :deep(.n-menu-item-content--selected::after) {
   content: '';
   position: absolute;
   left: 0;
@@ -430,10 +447,14 @@ const MenuToggleIcon = {
   bottom: 0;
   width: 3px;
   background: var(--xb-primary);
+  z-index: 1;
+  pointer-events: none;
 }
 .app-sider :deep(.n-menu-item-content) { position: relative; transition: none !important; }
 .app-sider :deep(.n-menu-item-content::before),
-.app-sider :deep(.n-menu-item-content--selected::before) {
+.app-sider :deep(.n-menu-item-content::after),
+.app-sider :deep(.n-menu-item-content--selected::before),
+.app-sider :deep(.n-menu-item-content--selected::after) {
   transition: none !important;
 }
 .app-sider :deep(.n-menu .n-menu-item-content-header),
@@ -446,7 +467,7 @@ const MenuToggleIcon = {
   color: var(--xb-text-muted);
   letter-spacing: normal;
 }
-.app-mobile-drawer :deep(.n-menu-item-content--selected::before) {
+.app-mobile-drawer :deep(.n-menu-item-content--selected::after) {
   content: '';
   position: absolute;
   left: 0;
@@ -454,6 +475,8 @@ const MenuToggleIcon = {
   bottom: 0;
   width: 3px;
   background: var(--xb-primary);
+  z-index: 1;
+  pointer-events: none;
 }
 .app-mobile-drawer :deep(.n-menu-item-content) { position: relative; transition: none !important; }
 .app-mobile-drawer :deep(.n-menu-item-group-title) {
@@ -551,6 +574,11 @@ const MenuToggleIcon = {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* This level must not scroll either; .app-scroll-main is the ONLY scroller.
+     Combined with the .app-layout-inner scroll-container rule above, this
+     keeps the height chain bounded so .app-scroll-main gets a fixed height
+     and its overflow scrolls under the wheel. */
+  overflow: hidden !important;
 }
 .app-scroll-main {
   flex: 1;

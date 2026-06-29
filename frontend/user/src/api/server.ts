@@ -1,4 +1,4 @@
-import { api, request } from './index'
+import { api } from './index'
 
 export type ServerNode = {
   id: number
@@ -13,5 +13,6 @@ export type ServerNode = {
 }
 
 export async function fetchServers(): Promise<ServerNode[]> {
-  return request<ServerNode[]>(api.get('/user/server/fetch'))
+  const { data } = await api.get<{ data: ServerNode[] }>('/user/server/fetch')
+  return Array.isArray(data?.data) ? data.data : []
 }
