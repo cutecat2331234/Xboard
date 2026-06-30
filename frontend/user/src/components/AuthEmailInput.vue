@@ -46,6 +46,7 @@ defineExpose({
     :value="emailLocal"
     :placeholder="t('email')"
     :autofocus="autofocus"
+    :input-props="{ id: 'auth-email', name: 'email', autocomplete: 'username' }"
     @update:value="onLocalUpdate"
   >
     <template #suffix>
@@ -67,6 +68,7 @@ defineExpose({
     type="text"
     :placeholder="t('email')"
     :autofocus="autofocus"
+    :input-props="{ id: 'auth-email', name: 'email', type: 'email', autocomplete: 'username' }"
     @update:value="onFullUpdate"
   />
 </template>

@@ -75,7 +75,12 @@ const langOptions = computed<DropdownOption[]>(() => {
   return langs.map((code) => ({ key: code, label: LANG_LABELS[code] ?? code }))
 })
 
-const captchaRef = ref<InstanceType<typeof CaptchaWidget> | null>(null)
+// Separate refs per render site: the login view and the register/forget view
+// each mount their own <CaptchaWidget>. Sharing one template ref let the
+// unmounting instance clobber it, so getPayload()/reset() could hit a stale
+// or null instance after a tab switch.
+const captchaRefLogin = ref<InstanceType<typeof CaptchaWidget> | null>(null)
+const captchaRefAuth = ref<InstanceType<typeof CaptchaWidget> | null>(null)
 const password = ref('')
 const confirmPassword = ref('')
 const inviteCode = ref('')
@@ -114,6 +119,10 @@ const showTerms = computed(() => Boolean(tosUrl.value))
 const showEmailVerify = computed(() => Boolean(config.value?.is_email_verify))
 const inviteRequired = computed(() => Boolean(config.value?.is_invite_force))
 const inviteVisible = computed(() => featureEnabled(config.value?.invite_enable, config.value != null))
+
+// Login reuses an existing credential; register/forget set a new one. Drives the
+// password field's autocomplete hint so browsers offer the right suggestion.
+const passwordAutocomplete = computed(() => (isLogin.value ? 'current-password' : 'new-password'))
 
 const pageTitle = computed(() => {
   if (isForget.value) return t('forgotPassword')
@@ -187,13 +196,13 @@ async function sendCode() {
   if (!addr) return
   sending.value = true
   try {
-    const captcha = await captchaRef.value?.getPayload()
+    const captcha = await captchaRefAuth.value?.getPayload()
     await sendEmailVerify(addr, captcha, isForget.value ? 'forget' : 'register')
     msg.success(t('common.success'))
-    captchaRef.value?.reset()
+    captchaRefAuth.value?.reset()
   } catch (e: unknown) {
     msg.error(resolveApiError(e, t))
-    captchaRef.value?.reset()
+    captchaRefAuth.value?.reset()
   } finally {
     sending.value = false
   }
@@ -207,15 +216,15 @@ async function submitMailLink() {
   submitting.value = true
   mailLinkLoading.value = true
   try {
-    const captcha = await captchaRef.value?.getPayload()
+    const captcha = await captchaRefLogin.value?.getPayload()
     await loginWithMailLink(addr, captcha)
     msg.success(t('mailLinkSent'))
-    captchaRef.value?.reset()
+    captchaRefLogin.value?.reset()
   } catch (e: unknown) {
     const message = resolveApiError(e, t)
     errorText.value = message
     msg.error(message)
-    captchaRef.value?.reset()
+    captchaRefLogin.value?.reset()
   } finally {
     submitting.value = false
     mailLinkLoading.value = false
@@ -227,7 +236,7 @@ async function submitLogin() {
   errorText.value = ''
   submitting.value = true
   try {
-    const captcha = await captchaRef.value?.getPayload()
+    const captcha = await captchaRefLogin.value?.getPayload()
     await auth.login({ email: resolvedEmail(), password: password.value, ...captcha })
     msg.success(t('common.success'))
     router.push(resolveLoginRedirect(route.query.redirect))
@@ -235,7 +244,7 @@ async function submitLogin() {
     const message = resolveApiError(e, t, t('auth.loginFailed'))
     errorText.value = message
     msg.error(message)
-    captchaRef.value?.reset()
+    captchaRefLogin.value?.reset()
   } finally {
     submitting.value = false
   }
@@ -266,7 +275,7 @@ async function submitRegister() {
   if (submitting.value) return
   submitting.value = true
   try {
-    const captcha = await captchaRef.value?.getPayload()
+    const captcha = await captchaRefAuth.value?.getPayload()
     await auth.register({
       email: resolvedEmail(),
       password: password.value,
@@ -280,7 +289,7 @@ async function submitRegister() {
     const message = resolveApiError(e, t, t('auth.registerFailed'))
     errorText.value = message
     msg.error(message)
-    captchaRef.value?.reset()
+    captchaRefAuth.value?.reset()
   } finally {
     submitting.value = false
   }
@@ -300,7 +309,7 @@ async function submitForget() {
   submitting.value = true
   forgetLoading.value = true
   try {
-    const captcha = await captchaRef.value?.getPayload()
+    const captcha = await captchaRefAuth.value?.getPayload()
     await forgetPassword({
       email: resolvedEmail(),
       password: password.value,
@@ -316,7 +325,7 @@ async function submitForget() {
     const message = resolveApiError(e, t)
     errorText.value = message
     msg.error(message)
-    captchaRef.value?.reset()
+    captchaRefAuth.value?.reset()
   } finally {
     submitting.value = false
     forgetLoading.value = false
@@ -356,14 +365,18 @@ function submit() {
             v-if="(isRegister && config?.is_captcha) || (isForget && showCaptcha)"
             class="auth-field"
           >
-            <CaptchaWidget ref="captchaRef" :config="config" />
+            <CaptchaWidget ref="captchaRefAuth" :config="config" />
           </div>
 
           <div
             v-if="(isRegister && showEmailVerify) || isForget"
             class="auth-field auth-field--row"
           >
-            <n-input v-model:value="emailCode" :placeholder="t('emailCode')" />
+            <n-input
+              v-model:value="emailCode"
+              :placeholder="t('emailCode')"
+              :input-props="{ id: 'auth-email-code', name: 'email_code', autocomplete: 'one-time-code' }"
+            />
             <n-button :loading="sending" @click.prevent="sendCode">{{ t('sendCode') }}</n-button>
           </div>
 
@@ -373,6 +386,7 @@ function submit() {
               type="password"
               :placeholder="t('password')"
               show-password-on="click"
+              :input-props="{ id: 'auth-password', name: 'password', autocomplete: passwordAutocomplete }"
             />
           </div>
 
@@ -383,6 +397,7 @@ function submit() {
                 type="password"
                 :placeholder="t('confirmPassword')"
                 show-password-on="click"
+                :input-props="{ id: 'auth-confirm-password', name: 'confirm_password', autocomplete: 'new-password' }"
               />
             </div>
           </template>
@@ -394,6 +409,7 @@ function submit() {
                 type="password"
                 :placeholder="t('confirmPassword')"
                 show-password-on="click"
+                :input-props="{ id: 'auth-confirm-password', name: 'confirm_password', autocomplete: 'new-password' }"
               />
             </div>
 
@@ -402,6 +418,7 @@ function submit() {
                 v-model:value="inviteCode"
                 :placeholder="inviteRequired ? t('inviteCodeRequiredPh') : t('inviteCode')"
                 :disabled="lockInvite"
+                :input-props="{ id: 'auth-invite-code', name: 'invite_code', autocomplete: 'off' }"
               />
             </div>
 
@@ -416,7 +433,7 @@ function submit() {
           </template>
 
           <div v-else-if="isLogin && showCaptcha" class="auth-field">
-            <CaptchaWidget ref="captchaRef" :config="config" />
+            <CaptchaWidget ref="captchaRefLogin" :config="config" />
           </div>
 
           <p v-if="errorText" class="auth-error">{{ errorText }}</p>

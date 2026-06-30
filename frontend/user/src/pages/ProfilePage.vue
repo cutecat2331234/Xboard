@@ -124,9 +124,10 @@ async function reset() {
   })
 }
 
-async function saveNotify() {
-  const prevExpire = remindExpire.value
-  const prevTraffic = remindTraffic.value
+// `field` identifies which switch toggled; `newVal` is its new state. v-model has
+// already applied newVal by the time @update:value fires, so the real previous
+// value is its negation — used to roll back accurately if the save fails.
+async function saveNotify(newVal: boolean, field: 'expire' | 'traffic') {
   try {
     await updateUser({
       remind_expire: remindExpire.value ? 1 : 0,
@@ -135,8 +136,8 @@ async function saveNotify() {
     msg.success(t('common.success'))
     await auth.loadUser()
   } catch (e: unknown) {
-    remindExpire.value = Boolean(auth.user?.remind_expire ?? prevExpire)
-    remindTraffic.value = Boolean(auth.user?.remind_traffic ?? prevTraffic)
+    if (field === 'expire') remindExpire.value = !newVal
+    else remindTraffic.value = !newVal
     msg.error(resolveApiError(e, t))
   }
 }
@@ -332,11 +333,11 @@ onMounted(async () => {
   <n-card :title="t('profile.notify')" class="mt-5 rounded-md">
     <div class="mt-2.5 max-w-125">
       <div class="mb-1">{{ t('profile.remindExpire') }}</div>
-      <n-switch v-model:value="remindExpire" :style="switchStyle" @update:value="saveNotify" />
+      <n-switch v-model:value="remindExpire" :style="switchStyle" @update:value="(v: boolean) => saveNotify(v, 'expire')" />
     </div>
     <div class="mt-2.5 max-w-125">
       <div class="mb-1">{{ t('profile.remindTraffic') }}</div>
-      <n-switch v-model:value="remindTraffic" :style="switchStyle" @update:value="saveNotify" />
+      <n-switch v-model:value="remindTraffic" :style="switchStyle" @update:value="(v: boolean) => saveNotify(v, 'traffic')" />
     </div>
   </n-card>
 
