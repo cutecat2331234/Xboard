@@ -38,5 +38,5 @@ export function formatExpire(ts: number | null | undefined, locale: string): str
 export function formatTrafficGbFromBytes(bytes: number, gbUnit = 'GB'): string {
   if (!bytes || bytes <= 0) return `0 ${gbUnit}`
   const gb = bytes / 1073741824
-  return `${gb >= 1 ? Math.round(gb) : gb.toFixed(2)} ${gbUnit}`
+  return `${gb.toFixed(2)} ${gbUnit}`
 }

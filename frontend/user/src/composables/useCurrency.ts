@@ -7,19 +7,21 @@ let loading: Promise<void> | null = null
 
 export function useCurrency() {
   async function load(options?: { force?: boolean }) {
-    if (loading && !options?.force) return loading
-    if (options?.force) loading = null
+    if (options?.force) {
+      loading = null            // 强制重拉:丢弃在途/已完成 promise
+    } else if (loading) {
+      return loading            // 非强制:复用在途/已完成 promise,实现去重
+    }
     loading = fetchUserCommConfig()
       .then((cfg) => {
         symbol.value = cfg.currency_symbol ?? cfg.currency ?? '¥'
         code.value = cfg.currency ?? 'CNY'
       })
       .catch(() => {
+        // 失败时丢弃缓存的 promise,下次调用可重试;并回退默认值
+        loading = null
         symbol.value = '¥'
         code.value = 'CNY'
-      })
-      .finally(() => {
-        loading = null
       })
     return loading
   }

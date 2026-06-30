@@ -89,6 +89,7 @@ export default {
     noPeriod: "無可購買週期",
     pendingOrderTitle: "待支付訂單",
     pendingOrderDesc: "您有一筆待支付訂單，是否取消後繼續？",
+    processingOrderDesc: "您有訂單正在開通中，請稍候或前往訂單頁查看",
     cancelPending: "取消訂單",
     periodMonth: "月繳制",
     periodQuarter: "季繳",

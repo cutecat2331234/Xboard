@@ -62,7 +62,7 @@ async function loadTicketTypes() {
 
 function levelLabel(row: TicketItem) {
   if (isWithdrawTicket(row)) return t('ticket.levelWithdraw')
-  return levelOptions.value[row.level]?.label ?? String(row.level)
+  return levelOptions.value.find((o) => o.value === row.level)?.label ?? String(row.level)
 }
 
 function ticketStatusDotClass(row: TicketItem) {
