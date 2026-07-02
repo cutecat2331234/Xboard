@@ -183,6 +183,9 @@ export function ProvisionWizardDialog({ open, onOpenChange, groups, machines, on
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pollingRef = useRef(false)
+  // Bumped by clearTimer so an in-flight poll (awaiting the HTTP response when the dialog closed
+  // or a new run started) knows it is stale and must not setStatus or re-arm the timer.
+  const pollGenRef = useRef(0)
   const logBoxRef = useRef<HTMLPreElement | null>(null)
   const onDoneRef = useRef(onDone)
   onDoneRef.current = onDone
@@ -190,6 +193,7 @@ export function ProvisionWizardDialog({ open, onOpenChange, groups, machines, on
   const credsRef = useRef<ProvisionCredentials | null>(null)
 
   const clearTimer = useCallback(() => {
+    pollGenRef.current += 1
     if (timerRef.current) {
       clearTimeout(timerRef.current)
       timerRef.current = null
@@ -217,9 +221,11 @@ export function ProvisionWizardDialog({ open, onOpenChange, groups, machines, on
   const poll = useCallback(
     async (id: number) => {
       if (pollingRef.current) return
+      const gen = pollGenRef.current
       pollingRef.current = true
       try {
         const result = await getProvisionStatus(id)
+        if (gen !== pollGenRef.current) return // dialog closed / superseded while in flight
         setStatus(result)
         if (TERMINAL_STATUSES.has(result.status)) {
           clearTimer()
@@ -236,6 +242,7 @@ export function ProvisionWizardDialog({ open, onOpenChange, groups, machines, on
       } finally {
         pollingRef.current = false
       }
+      if (gen !== pollGenRef.current) return
       timerRef.current = setTimeout(() => void poll(id), POLL_INTERVAL_MS)
     },
     [clearTimer, t],

@@ -99,6 +99,9 @@ class OrderController extends Controller
             if (!$field) {
                 return;
             }
+            if (!array_key_exists('value', $filter)) {
+                return;
+            }
             $value = $filter['value'];
 
             $builder->where(function ($query) use ($field, $value) {
@@ -144,7 +147,7 @@ class OrderController extends Controller
             if (!$field) {
                 return;
             }
-            $direction = $sort['desc'] ? 'DESC' : 'ASC';
+            $direction = !empty($sort['desc']) ? 'DESC' : 'ASC';
             $builder->orderBy($field, $direction);
         });
     }

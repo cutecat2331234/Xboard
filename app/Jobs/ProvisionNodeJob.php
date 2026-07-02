@@ -373,6 +373,10 @@ class ProvisionNodeJob implements ShouldQueue
         $online = false;
 
         while (time() < $deadline) {
+            // Honour an out-of-band cancel during the (long) wait window; otherwise the final
+            // timeout/done save below would clobber the cancelled status written by the endpoint.
+            $this->checkCancelled($task);
+
             // Fresh reads each loop (avoid stale cached attributes / heartbeat).
             $node = Server::find($server->id);
             $mach = ServerMachine::find($machine->id);

@@ -118,7 +118,7 @@ class UserController extends Controller
                     self::FILTER_COLUMNS,
                     array_merge(self::SORT_ALIASES, self::FILTER_ALIASES)
                 );
-                $value = $filter['value'];
+                $value = $filter['value'] ?? null;
                 $logic = strtolower($filter['logic'] ?? 'and');
                 $apply = function ($q) use ($field, $value) {
                     $this->buildFilterQuery($q, $field, $value);
@@ -209,7 +209,7 @@ class UserController extends Controller
             if (!$field) {
                 return;
             }
-            $direction = $sort['desc'] ? 'DESC' : 'ASC';
+            $direction = !empty($sort['desc']) ? 'DESC' : 'ASC';
             $builder->orderBy($field, $direction);
         });
     }

@@ -329,15 +329,17 @@ class OrderService
             }
 
             $orderAmountSum = $orders->sum(fn($item) => $item->total_amount + $item->balance_amount + $item->surplus_amount - $item->surplus_credit);
-            $latestOrder = $orders->sortByDesc('created_at')->first();
-            $periodSeconds = $latestOrder
-                ? (self::STR_TO_TIME[PlanService::getPeriodKey($latestOrder->period)] ?? 0)
-                : 0;
+            // The time basis must match the amount basis above (ALL counted orders): the ratio then
+            // equals per-second-price x remaining-seconds. STR_TO_TIME values are MONTHS — convert
+            // to seconds via calendar months, mirroring how getTime() extends expiry.
+            $orderMonthsSum = (int) $orders->sum(fn($item) => self::STR_TO_TIME[PlanService::getPeriodKey($item->period)] ?? 0);
             $expiredAt = Carbon::createFromTimestamp((int) $user->expired_at);
             $now = now();
-            if ($periodSeconds <= 0) {
+            if ($orderMonthsSum > 0) {
+                $periodSeconds = $expiredAt->timestamp - $expiredAt->copy()->subMonths($orderMonthsSum)->timestamp;
+            } else {
                 $firstOrderAt = $orders->min('created_at');
-                $periodSeconds = max(1, $expiredAt->timestamp - (int) $firstOrderAt);
+                $periodSeconds = $expiredAt->timestamp - (int) $firstOrderAt;
             }
             $totalSeconds = max(1, $periodSeconds);
             $remainSeconds = max(0, $expiredAt->timestamp - $now->timestamp);

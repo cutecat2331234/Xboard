@@ -29,6 +29,9 @@ class CouponController extends Controller
                 if (!$key) {
                     return;
                 }
+                if (!array_key_exists('value', $filter)) {
+                    return;
+                }
                 $value = $filter['value'];
                 $builder->where(function ($query) use ($key, $value) {
                     if (is_array($value)) {
@@ -46,7 +49,7 @@ class CouponController extends Controller
                 if (!$key) {
                     return;
                 }
-                $value = $sort['desc'] ? 'DESC' : 'ASC';
+                $value = !empty($sort['desc']) ? 'DESC' : 'ASC';
                 $builder->orderBy($key, $value);
             });
         }

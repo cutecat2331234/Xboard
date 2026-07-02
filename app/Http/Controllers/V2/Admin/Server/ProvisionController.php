@@ -134,9 +134,11 @@ class ProvisionController extends Controller
     /**
      * POST /server/provision/retry
      * Re-run a failed/timeout task from the beginning of the state machine. Credentials are NOT
-     * stored, so the caller must resubmit them.
+     * stored, so the caller must resubmit them. Node parameters are NOT resubmitted — the task
+     * row keeps its original node_params snapshot, so this deliberately does not reuse the full
+     * ProvisionStart validation (which would reject the payload for lacking node_params).
      */
-    public function retry(ProvisionStart $request)
+    public function retry(Request $request)
     {
         if (!$this->allowAttempt($request, 'provision-retry')) {
             return $this->fail([429, __('Too many attempts')]);
@@ -144,6 +146,13 @@ class ProvisionController extends Controller
 
         $params = $request->validate([
             'id' => 'required|integer|exists:v2_server_provisioning,id',
+            'auth_method' => 'required|in:password,key',
+            'password' => 'required_if:auth_method,password|nullable|string',
+            'private_key' => 'required_if:auth_method,key|nullable|string',
+            'passphrase' => 'nullable|string',
+            'host' => 'nullable|string|max:255',
+            'port' => 'nullable|integer|min:1|max:65535',
+            'ssh_user' => 'nullable|string|max:255',
         ]);
 
         $task = ServerProvisioning::find($params['id']);
@@ -167,8 +176,10 @@ class ProvisionController extends Controller
         $task->error = null;
         // Refresh SSH connection facts in case the operator corrected them.
         $task->auth_method = $request->input('auth_method');
-        if ($request->filled('host')) {
+        if ($request->filled('host') && $request->input('host') !== $task->host) {
+            // Different machine — the stored TOFU pin belongs to the old host; re-pin on connect.
             $task->host = $request->input('host');
+            $task->host_key_fingerprint = null;
         }
         if ($request->filled('port')) {
             $task->port = (int) $request->input('port');
