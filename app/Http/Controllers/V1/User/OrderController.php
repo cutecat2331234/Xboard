@@ -123,6 +123,11 @@ class OrderController extends Controller
 
         $tradeNo = $request->input('trade_no');
         $method = $request->input('method');
+        // Form-encoded clients send "2" (string); normalize before the strict
+        // comparison against the order's stored payment_id below.
+        if ($method !== null && $method !== '') {
+            $method = (int) $method;
+        }
         $userId = $request->user()->id;
 
         $prepared = DB::transaction(function () use ($userId, $tradeNo, $method) {
@@ -219,8 +224,9 @@ class OrderController extends Controller
             ]);
 
             if (($result['type'] ?? null) === 2 && !empty($result['data']) && !empty($result['callback_no'])) {
+                $refundedAfterCharge = false;
                 try {
-                    DB::transaction(function () use ($userId, $tradeNo, $result) {
+                    DB::transaction(function () use ($userId, $tradeNo, $result, &$refundedAfterCharge) {
                         $order = Order::where('trade_no', $tradeNo)
                             ->where('user_id', $userId)
                             ->lockForUpdate()
@@ -236,6 +242,15 @@ class OrderController extends Controller
                             throw new ApiException(__('Payment failed. Please check your credit card information'));
                         }
                         $order->refresh();
+                        if ((int) $order->status === Order::STATUS_CANCELLED && $order->paid_at) {
+                            // The gateway charge succeeded but subscription open
+                            // failed; paid() already refunded the captured funds to
+                            // wallet balance and cancelled the order. Commit that
+                            // refund instead of rolling it back via an exception,
+                            // otherwise the charge would be left unrecorded.
+                            $refundedAfterCharge = true;
+                            return;
+                        }
                         if ((int) $order->status !== Order::STATUS_COMPLETED) {
                             throw new ApiException(__('Payment failed. Please check your credit card information'));
                         }
@@ -248,6 +263,12 @@ class OrderController extends Controller
                         (new OrderService($lockedOrder))->revertCheckoutReservation();
                     }
                     throw $e;
+                }
+
+                if ($refundedAfterCharge) {
+                    // Thrown after commit: the surrounding catch's
+                    // revertCheckoutReservation() is a no-op on cancelled orders.
+                    throw new ApiException(__('Payment received but the order could not be activated; the amount has been refunded to your balance'));
                 }
 
                 return response([

@@ -54,8 +54,12 @@ class TrafficFetchJob implements ShouldQueue
                 User::where('id', $uid)
                     ->incrementEach(
                         [
-                            'u' => $v[0] * $this->server['rate'],
-                            'd' => $v[1] * $this->server['rate'],
+                            // Cast to int: users.u/d are bigint and StatUserJob/StatServerJob
+                            // already truncate via intval() for the same rate multiplication.
+                            // Passing a raw float here would let the DB driver round instead of
+                            // truncate, silently diverging the billing counter from the stats.
+                            'u' => intval($v[0] * $this->server['rate']),
+                            'd' => intval($v[1] * $this->server['rate']),
                         ],
                         ['t' => time()]
                     );

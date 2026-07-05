@@ -128,6 +128,34 @@ class ProvisionNodeJob implements ShouldQueue
     }
 
     /**
+     * Framework failure hook — runs when the job dies OUTSIDE handle()'s own try/catch:
+     * hard $timeout (SIGALRM kill), a worker crash re-reserved past retry_after, etc.
+     * Without this the row would stay in a non-terminal status forever, which deadlocks the
+     * host: start() keeps returning the stuck task (in-flight dedupe) and retry() refuses
+     * non-terminal tasks. Also burn the credential cache entry — the run is over.
+     */
+    public function failed(?\Throwable $exception): void
+    {
+        Cache::forget($this->credentialCacheKey);
+
+        try {
+            $task = ServerProvisioning::find($this->provisioningId);
+            if ($task && !$task->isTerminal()) {
+                $this->failTask(
+                    $task,
+                    $task->current_step ?: ServerProvisioning::STEP_CONNECT,
+                    'Provisioning worker was interrupted (timeout or restart): '
+                        . ProvisioningService::redact($exception ? $exception->getMessage() : 'unknown cause')
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::error('[ProvisionNodeJob] failed() hook could not mark task: ' . $e->getMessage(), [
+                'provisioning_id' => $this->provisioningId,
+            ]);
+        }
+    }
+
+    /**
      * Step 1 — connect + host-key TOFU + authenticate.
      */
     private function stepConnect(ServerProvisioning $task, array $credentials): ProvisioningService
@@ -249,7 +277,12 @@ class ProvisionNodeJob implements ShouldQueue
     {
         $this->beginStep($task, ServerProvisioning::STEP_PREPARE_PANEL, ServerProvisioning::STATUS_PREPARING, 'Preparing panel machine record…');
 
-        $existingMachineId = data_get($task->node_params, 'machine_id');
+        // Idempotency on retry: prefer the machine this task already created/used (backfilled on
+        // the row below). Falling back to node_params.machine_id only covers the very first run's
+        // explicit "attach to existing machine" choice. Without this, every retry would mint a new
+        // machine (new token) while stepCreateServer reuses the server bound to the OLD machine —
+        // the reinstalled agent then authenticates as a machine that owns no nodes and never syncs.
+        $existingMachineId = $task->machine_id ?: data_get($task->node_params, 'machine_id');
 
         $machine = ServerProvisionService::resolveOrCreateMachine(
             $existingMachineId ? (int) $existingMachineId : null,
@@ -474,6 +507,11 @@ class ProvisionNodeJob implements ShouldQueue
 
     private function beginStep(ServerProvisioning $task, string $step, string $status, string $message): void
     {
+        // Every step transition re-checks for an out-of-band cancel BEFORE dirtying `status`.
+        // Otherwise a cancel written while the previous step ran (its saves don't touch a clean
+        // status attribute) would be silently overwritten here and the run would continue.
+        $this->checkCancelled($task);
+
         $task->current_step = $step;
         $task->status = $status;
         $this->markStep($task, $step, 'running');
@@ -521,8 +559,12 @@ class ProvisionNodeJob implements ShouldQueue
         foreach ($steps as &$entry) {
             if (($entry['step'] ?? null) === $step) {
                 $entry['status'] = $status;
-                if ($status === 'running' && empty($entry['started_at'])) {
+                if ($status === 'running') {
+                    // Re-entering a step (retry): restart its clock and clear the stale
+                    // finished_at from the previous run so the UI never shows a running
+                    // step as already finished.
                     $entry['started_at'] = $now;
+                    $entry['finished_at'] = null;
                 }
                 if (in_array($status, ['done', 'failed', 'timeout'], true)) {
                     $entry['finished_at'] = $now;

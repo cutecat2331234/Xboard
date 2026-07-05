@@ -102,10 +102,12 @@ class DeviceStateService
         $key = self::PREFIX . $userId;
         $prefix = "{$nodeId}:";
 
-        foreach (Redis::hkeys($key) as $field) {
-            if (str_starts_with($field, $prefix)) {
-                Redis::hdel($key, $field);
-            }
+        $fields = array_values(array_filter(
+            Redis::hkeys($key),
+            fn($field) => str_starts_with($field, $prefix)
+        ));
+        if ($fields !== []) {
+            Redis::hdel($key, ...$fields);
         }
     }
 
@@ -119,10 +121,13 @@ class DeviceStateService
 
         foreach ($oldDevices as $userId => $ips) {
             $key = self::PREFIX . $userId;
-            foreach (Redis::hkeys($key) as $field) {
-                if (str_starts_with($field, $prefix)) {
-                    Redis::hdel($key, $field);
-                }
+            // 批量 HDEL,与 removeNodeDevices 一致,避免逐字段一次 Redis 往返。
+            $fields = array_values(array_filter(
+                Redis::hkeys($key),
+                fn($field) => str_starts_with($field, $prefix)
+            ));
+            if ($fields !== []) {
+                Redis::hdel($key, ...$fields);
             }
             $this->notifyUpdate($userId);
         }
@@ -170,11 +175,19 @@ class DeviceStateService
             return [];
         }
 
+        $ids = $users->pluck('id')->all();
+        // 用 pipeline 一次取回所有用户的设备哈希,避免每用户一次 HGETALL 往返(N+1)。
+        $raw = Redis::pipeline(function ($pipe) use ($ids) {
+            foreach ($ids as $id) {
+                $pipe->hgetall(self::PREFIX . $id);
+            }
+        });
+
         $result = [];
-        foreach ($users as $user) {
-            $count = $this->getDeviceCount($user->id);
+        foreach ($ids as $i => $id) {
+            $count = $this->countActiveDevices($raw[$i] ?? []);
             if ($count > 0) {
-                $result[$user->id] = $count;
+                $result[$id] = $count;
             }
         }
 

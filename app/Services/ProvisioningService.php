@@ -153,13 +153,22 @@ class ProvisioningService
     public function runScript(string $scriptBody, string $invocation, int $timeout = self::DEFAULT_COMMAND_TIMEOUT): array
     {
         $encoded = base64_encode($scriptBody);
+
+        // Replace ONLY the first "__SCRIPT__" occurrence — that is the real placeholder (it
+        // precedes the argument list by construction). A blanket str_replace would also rewrite
+        // the literal inside already-escaped argument values (e.g. a panel URL containing it),
+        // silently corrupting them.
+        $pos = strpos($invocation, '__SCRIPT__');
+        if ($pos !== false) {
+            $invocation = substr_replace($invocation, '"$__XB_TMP"', $pos, strlen('__SCRIPT__'));
+        }
+
         // Decode the script to a temp file, execute with the requested invocation, then remove it.
         // The token (inside $invocation) is the only sensitive token on argv; the script body is not.
         $remote = sprintf(
             'set -e; __XB_TMP="$(mktemp)"; printf %%s %s | base64 -d > "$__XB_TMP"; trap "rm -f \"$__XB_TMP\"" EXIT; %s',
             escapeshellarg($encoded),
-            // Replace the literal "install.sh" placeholder token in the invocation with the temp path.
-            str_replace('__SCRIPT__', '"$__XB_TMP"', $invocation)
+            $invocation
         );
 
         return $this->runCommand($remote, $timeout);

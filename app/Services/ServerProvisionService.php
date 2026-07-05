@@ -101,7 +101,9 @@ class ServerProvisionService
      */
     public static function buildStdinInvocation(ServerMachine $machine, string $kernel = 'singbox', bool $useSudo = false): string
     {
-        return self::sudoPrefix($useSudo) . 'bash __SCRIPT__ ' . self::buildMachineInstallArgs($machine, $kernel);
+        // env XBOARD_NODE_REQUIRE_CHECKSUM=1: 强制 install.sh 校验下发二进制的 SHA256
+        // (脚本默认 REQUIRE_CHECKSUM=0 仅告警)。用 `env` 命令确保变量能穿透 sudo。
+        return self::sudoPrefix($useSudo) . 'env XBOARD_NODE_REQUIRE_CHECKSUM=1 bash __SCRIPT__ ' . self::buildMachineInstallArgs($machine, $kernel);
     }
 
     /**
@@ -110,8 +112,9 @@ class ServerProvisionService
      */
     public static function buildCurlInstallCommand(ServerMachine $machine, string $kernel = 'singbox', bool $useSudo = false): string
     {
+        // 见 buildStdinInvocation:同样强制 install.sh 做 SHA256 完整性校验。
         return sprintf(
-            'curl -fsSL %s | %sbash -s -- %s',
+            'curl -fsSL %s | %senv XBOARD_NODE_REQUIRE_CHECKSUM=1 bash -s -- %s',
             escapeshellarg(self::installerUrl()),
             self::sudoPrefix($useSudo),
             self::buildMachineInstallArgs($machine, $kernel)

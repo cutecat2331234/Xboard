@@ -245,7 +245,9 @@ class OrderService
         $afterCoupon = max(0, (int) $order->total_amount - $couponDiscount);
         $vipDiscount = 0;
         if ($user->discount) {
-            $vipDiscount = (int) ($afterCoupon * ($user->discount / 100));
+            // round() 而非直接 (int) 截断：0.29 这类比例的二进制浮点误差会把
+            // 100*29% 算成 28.999... 再被截成 28 分。
+            $vipDiscount = (int) round($afterCoupon * ($user->discount / 100));
         }
         $order->discount_amount = $couponDiscount + $vipDiscount;
         $order->total_amount = max(0, (int) $order->total_amount - $order->discount_amount);
@@ -462,6 +464,10 @@ class OrderService
                     Coupon::where('id', $order->coupon_id)
                         ->whereNotNull('limit_use')
                         ->increment('limit_use');
+                    $order->coupon_consumed = false;
+                }
+                if ($order->balance_deducted) {
+                    $order->balance_deducted = false;
                 }
 
                 $order->status = Order::STATUS_CANCELLED;

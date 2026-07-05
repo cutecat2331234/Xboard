@@ -71,11 +71,25 @@ class AuthService
     public static function findUserByBearerToken(string $bearerToken): ?User
     {
         $token = str_replace('Bearer ', '', $bearerToken);
-        
+
         $accessToken = PersonalAccessToken::findToken($token);
-        
-        $tokenable = $accessToken?->tokenable;
-        
+
+        if (!$accessToken) {
+            return null;
+        }
+
+        // PersonalAccessToken::findToken() 只按哈希查表,不校验过期。
+        // 这里补上与 Sanctum Guard 一致的过期口径:token 自身 expires_at + 全局 sanctum.expiration。
+        if ($accessToken->expires_at && $accessToken->expires_at->isPast()) {
+            return null;
+        }
+        $expiration = config('sanctum.expiration');
+        if ($expiration && $accessToken->created_at->addMinutes($expiration)->isPast()) {
+            return null;
+        }
+
+        $tokenable = $accessToken->tokenable;
+
         return $tokenable instanceof User ? $tokenable : null;
     }
 

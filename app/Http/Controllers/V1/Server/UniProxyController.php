@@ -84,7 +84,7 @@ class UniProxyController extends Controller
     {
         $node = $this->getNodeInfo($request);
         $data = json_decode(request()->getContent(), true);
-        if ($data === null) {
+        if (!is_array($data)) {
             return response()->json(['error' => __('Invalid online data')], 400);
         }
 

@@ -448,7 +448,7 @@ class Server extends Model
                 $serverId = $this->parent_id ?: $this->id;
                 return Cache::get(CacheKey::get("SERVER_{$type}_LAST_CHECK_AT", $serverId));
             }
-        );
+        )->shouldCache();
     }
 
     /**
@@ -462,7 +462,7 @@ class Server extends Model
                 $serverId = $this->parent_id ?: $this->id;
                 return Cache::get(CacheKey::get("SERVER_{$type}_LAST_PUSH_AT", $serverId));
             }
-        );
+        )->shouldCache();
     }
 
     /**
@@ -476,7 +476,7 @@ class Server extends Model
                 $serverId = $this->parent_id ?: $this->id;
                 return Cache::get(CacheKey::get("SERVER_{$type}_ONLINE_USER", $serverId)) ?? 0;
             }
-        );
+        )->shouldCache();
     }
 
     /**
@@ -529,7 +529,7 @@ class Server extends Model
                 $serverId = $this->parent_id ?: $this->id;
                 return Cache::get(CacheKey::get("SERVER_{$type}_METRICS", $serverId));
             }
-        );
+        )->shouldCache();
     }
 
     /**
@@ -555,7 +555,7 @@ class Server extends Model
                 $serverId = $this->parent_id ?: $this->id;
                 return Cache::get(CacheKey::get("SERVER_{$type}_LOAD_STATUS", $serverId));
             }
-        );
+        )->shouldCache();
     }
 
     public function getCurrentRate(): float

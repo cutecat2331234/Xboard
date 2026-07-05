@@ -33,7 +33,10 @@ class ProvisionStart extends ServerSave
         $rules['node_params.machine_id'] = 'nullable|integer|exists:v2_server_machine,id';
 
         // --- SSH connection (credentials validated, never persisted) ---
-        $rules['host'] = 'required|string|max:255';
+        // Hostname / IPv4 / bracketed-or-bare IPv6 only. Rejects whitespace and scheme prefixes
+        // ("ssl://", "unix://") that fsockopen would otherwise honour as transport switches, and
+        // keeps the host safe for cache-lock keys / log lines. Kept in sync with retry()'s rule.
+        $rules['host'] = ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9._\-:\[\]]+$/'];
         $rules['port'] = 'nullable|integer|min:1|max:65535';
         $rules['ssh_user'] = 'nullable|string|max:255';
         $rules['auth_method'] = 'required|in:password,key';

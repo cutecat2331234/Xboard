@@ -243,7 +243,7 @@ class MachineController extends Controller
 
         return sprintf(
             'curl -fsSL %s | sudo bash -s -- --mode machine --panel %s --token %s --machine-id %d',
-            $installerUrl,
+            escapeshellarg($installerUrl),
             escapeshellarg($panelUrl),
             escapeshellarg($machine->token),
             $machine->id

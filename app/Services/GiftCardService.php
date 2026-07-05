@@ -274,7 +274,7 @@ class GiftCardService
         $tradeNo = 'giftcard:' . $this->code->id . ':' . $this->user->id;
 
         if (isset($rewards['balance']) && $rewards['balance'] > 0) {
-            $totalPool = (int) ($rewards['balance'] * $rate);
+            $totalPool = (int) round($rewards['balance'] * $rate);
             if ($totalPool > 0) {
                 $paid = $this->distributeInviteRewardPool(
                     (int) $this->user->invite_user_id,
@@ -291,7 +291,7 @@ class GiftCardService
         $inviteUser = User::where('id', $this->user->invite_user_id)->lockForUpdate()->first();
         if ($inviteUser && !$inviteUser->banned
             && isset($rewards['transfer_enable']) && $rewards['transfer_enable'] > 0) {
-            $totalTrafficPool = (int) ($rewards['transfer_enable'] * $rate);
+            $totalTrafficPool = (int) round($rewards['transfer_enable'] * $rate);
             if ($totalTrafficPool > 0) {
                 $paidTraffic = $this->distributeInviteTrafficPool(
                     (int) $this->user->invite_user_id,

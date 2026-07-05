@@ -293,7 +293,8 @@ class StatisticalService
             $endAt = $times[1];
         }
 
-        $statistics = Server::whereHas(
+        $statistics = Server::with('parent:id,name')
+            ->whereHas(
             'stats',
             function ($query) use ($startAt, $endAt) {
                 $query->where('record_at', '>=', $startAt)

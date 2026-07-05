@@ -87,7 +87,9 @@ class ProvisionController extends Controller
             return $this->fail([500, __('Create failed')]);
         }
 
-        ProvisionNodeJob::dispatch($task->id, $credentialKey);
+        if (!$this->dispatchProvisionJob($task, $credentialKey)) {
+            return $this->fail([500, __('Create failed')]);
+        }
 
         return $this->success([
             'provision_id' => $task->id,
@@ -150,7 +152,9 @@ class ProvisionController extends Controller
             'password' => 'required_if:auth_method,password|nullable|string',
             'private_key' => 'required_if:auth_method,key|nullable|string',
             'passphrase' => 'nullable|string',
-            'host' => 'nullable|string|max:255',
+            // Hostname / IPv4 / bracketed-or-bare IPv6 only. Rejects whitespace and scheme
+            // prefixes ("ssl://", "unix://") that fsockopen would honour as transport switches.
+            'host' => ['nullable', 'string', 'max:255', 'regex:/^[A-Za-z0-9._\-:\[\]]+$/'],
             'port' => 'nullable|integer|min:1|max:65535',
             'ssh_user' => 'nullable|string|max:255',
         ]);
@@ -181,15 +185,21 @@ class ProvisionController extends Controller
             $task->host = $request->input('host');
             $task->host_key_fingerprint = null;
         }
-        if ($request->filled('port')) {
+        if ($request->filled('port') && (int) $request->input('port') !== (int) $task->port) {
+            // The pin's identity is host:port (à la known_hosts). Behind NAT the same public IP
+            // routinely port-forwards to DIFFERENT machines, so a corrected port must re-pin —
+            // otherwise the retry dead-ends on a false "MITM" mismatch with no way to clear it.
             $task->port = (int) $request->input('port');
+            $task->host_key_fingerprint = null;
         }
         if ($request->filled('ssh_user')) {
             $task->ssh_user = (string) $request->input('ssh_user');
         }
         $task->save();
 
-        ProvisionNodeJob::dispatch($task->id, $credentialKey);
+        if (!$this->dispatchProvisionJob($task, $credentialKey)) {
+            return $this->fail([500, __('Create failed')]);
+        }
 
         return $this->success([
             'provision_id' => $task->id,
@@ -229,6 +239,31 @@ class ProvisionController extends Controller
     // ---------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------
+
+    /**
+     * Queue the provisioning job; on queue-push failure burn the cached credentials and mark the
+     * task failed. Without this, a queue outage (while the cache store still works) would leave
+     * the encrypted secret alive until TTL and a forever-"pending" row that deadlocks the host:
+     * start() keeps returning it via the in-flight dedupe and retry() refuses non-terminal tasks.
+     */
+    private function dispatchProvisionJob(ServerProvisioning $task, string $credentialKey): bool
+    {
+        try {
+            ProvisionNodeJob::dispatch($task->id, $credentialKey);
+            return true;
+        } catch (\Throwable $e) {
+            Cache::forget($credentialKey);
+            Log::error('[Provision] failed to dispatch job: ' . $e->getMessage(), ['provisioning_id' => $task->id]);
+            try {
+                $task->status = ServerProvisioning::STATUS_FAILED;
+                $task->error = __('Failed to queue the provisioning job. Check the queue worker and retry.');
+                $task->save();
+            } catch (\Throwable $ignored) {
+                // Row left non-terminal only if even the DB write failed; nothing more we can do here.
+            }
+            return false;
+        }
+    }
 
     /**
      * Encrypt + cache credentials under a random key; return the key (safe to pass to the job).

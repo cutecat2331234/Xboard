@@ -168,7 +168,7 @@ class OrderController extends Controller
             if (!$order) {
                 return $this->fail([400202, __('Order does not exist')]);
             }
-            if ($order->status !== 0) {
+            if ((int) $order->status !== Order::STATUS_PENDING) {
                 return $this->fail([400, __('Only pending orders can be marked as paid')]);
             }
 

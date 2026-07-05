@@ -16,6 +16,7 @@ use App\Utils\Helper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
 
 class RegisterService
 {
@@ -112,8 +113,16 @@ class RegisterService
                 return [false, [422, __('Email verification code cannot be empty')]];
             }
 
+            // 按邮箱维度限制验证码错误尝试次数，防止在 5 分钟有效期内对 6 位数字码暴力枚举
+            // （此前仅有 register-ip 基线限流兜底，缺少针对验证码本身的失败计数，镜像 resetPassword 的做法）。
+            $emailCodeErrorKey = 'register-email-code-error:' . strtolower(trim((string) $request->input('email')));
+            if (RateLimiter::tooManyAttempts($emailCodeErrorKey, 5)) {
+                return [false, [429, __('Too many attempts')]];
+            }
+
             $cachedEmailCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE_REGISTER', $request->input('email')));
             if ($cachedEmailCode === null || !hash_equals((string) $cachedEmailCode, (string) $emailCode)) {
+                RateLimiter::hit($emailCodeErrorKey, 300);
                 return [false, [400, __('Incorrect email verification code')]];
             }
         }

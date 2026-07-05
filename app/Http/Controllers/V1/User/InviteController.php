@@ -131,13 +131,13 @@ class InviteController extends Controller
                 $l1 = (int) admin_setting('commission_distribution_l1', 100);
                 $uncheck_commission_balance = (int) round($uncheck_commission_balance * ($l1 / 100));
             }
+            // 仅统计金额类礼品卡佣金（get_amount，单位分）；流量类记录的
+            // order_amount 存的是字节数，混入会把待确认佣金金额撑到天文数字。
             $heldGiftCard = (int) CommissionLog::where('invite_user_id', $user->id)
                 ->where('trade_no', 'like', 'giftcard:%')
                 ->whereNull('credited_at')
-                ->get(['get_amount', 'order_amount'])
-                ->sum(fn ($log) => (int) $log->get_amount > 0
-                    ? (int) $log->get_amount
-                    : (int) $log->order_amount);
+                ->where('get_amount', '>', 0)
+                ->sum('get_amount');
             $uncheck_commission_balance += $heldGiftCard;
             $validCommission = (int) CommissionLog::where('invite_user_id', $user->id)
                 ->where('get_amount', '>', 0)

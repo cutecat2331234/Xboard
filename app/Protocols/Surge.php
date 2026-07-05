@@ -81,7 +81,12 @@ class Surge extends AbstractProtocol
         $config = subscribe_template('surge');
 
         // Subscription link
+        // Host 头由客户端可控,校验为合法域名/端口字符集后再拼进配置模板,
+        // 非法则回退到面板配置域名,避免把伪造 Host 注入 Surge 配置。
         $subsDomain = request()->header('Host');
+        if ($subsDomain === null || !preg_match('/^[a-zA-Z0-9.\-:]+$/', $subsDomain)) {
+            $subsDomain = (string) (parse_url((string) admin_setting('app_url', ''), PHP_URL_HOST) ?: '');
+        }
         $subsURL = Helper::getSubscribeUrl($user['token'], $subsDomain ? 'https://' . $subsDomain : null);
 
         $config = str_replace('$subs_link', $subsURL, $config);

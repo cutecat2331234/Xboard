@@ -7,7 +7,10 @@ use Closure;
 
 class RequestLog
 {
-    private const SENSITIVE_KEYS = ['password', 'token', 'secret', 'key', 'api_key'];
+    // 用子串正则匹配字段名,覆盖 email_password / server_token / recaptcha_key /
+    // recaptcha_v3_secret_key / turnstile_secret_key / telegram_bot_token 等
+    // 精确 key 匹配漏掉的真实凭据字段,避免明文写入审计日志。
+    private const SENSITIVE_PATTERN = '/pass|token|secret|key|salt|credential/i';
 
     public function handle($request, Closure $next)
     {
@@ -24,7 +27,7 @@ class RequestLog
             }
 
             $action = $this->resolveAction($request->path());
-            $data = collect($request->all())->except(self::SENSITIVE_KEYS)->toArray();
+            $data = $this->filterSensitive($request->all());
 
             AdminAuditLog::insert([
                 'admin_id' => $admin->id,
@@ -41,6 +44,22 @@ class RequestLog
         }
 
         return $response;
+    }
+
+    /**
+     * 递归脱敏:字段名匹配敏感模式的,整体替换为 [FILTERED]。
+     * 保留字段名(便于审计"改了哪项"),但不落明文值。
+     */
+    private function filterSensitive(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (is_string($key) && preg_match(self::SENSITIVE_PATTERN, $key)) {
+                $data[$key] = '[FILTERED]';
+            } elseif (is_array($value)) {
+                $data[$key] = $this->filterSensitive($value);
+            }
+        }
+        return $data;
     }
 
     private function resolveAction(string $path): string

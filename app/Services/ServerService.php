@@ -54,7 +54,8 @@ class ServerService
      */
     public static function getAvailableServers(User $user): array
     {
-        $servers = Server::whereJsonContains('group_ids', (string) $user->group_id)
+        $servers = Server::with('parent:id,created_at')
+            ->whereJsonContains('group_ids', (string) $user->group_id)
             ->where('show', true)
             ->where(function ($query) {
                 $query->whereNull('transfer_enable')
@@ -63,6 +64,8 @@ class ServerService
             })
             ->orderBy('sort', 'ASC')
             ->get()
+            // parent 仅供 generateServerPassword 使用，避免逐节点懒加载；隐藏以保持序列化结构不变
+            ->makeHidden('parent')
             ->append(['last_check_at', 'last_push_at', 'online', 'is_online', 'available_status', 'cache_key', 'server_key']);
 
         $servers = collect($servers)->map(function ($server) use ($user) {
@@ -134,6 +137,12 @@ class ServerService
             ->whereIn('id', $userIds)
             ->whereIn('group_id', $groupIds)
             ->where('banned', 0)
+            // 与 getAvailableUsers 口径一致:过期/超额用户的上报不再计入账单与统计。
+            ->where(function ($query) {
+                $query->where('expired_at', '>=', time())
+                    ->orWhereNull('expired_at');
+            })
+            ->whereRaw('u + d < transfer_enable')
             ->pluck('id')
             ->map(fn ($id) => (int) $id)
             ->all();
@@ -144,10 +153,14 @@ class ServerService
      */
     public static function processTraffic(Server $node, array $traffic): void
     {
+        // 单字段单次上报流量上限(100TB):防止被攻破/恶意节点上报天文数字,
+        // 使后续 intval(float * rate) 在超出 PHP_INT_MAX 时产生未定义结果、污染计费计数。
+        $maxPerReport = 1099511627776 * 100;
         $data = array_filter($traffic, fn($item) =>
             is_array($item) && count($item) === 2
             && is_numeric($item[0]) && is_numeric($item[1])
             && (float) $item[0] >= 0 && (float) $item[1] >= 0
+            && (float) $item[0] <= $maxPerReport && (float) $item[1] <= $maxPerReport
         );
 
         if (empty($data)) {
